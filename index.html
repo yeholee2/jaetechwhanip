@@ -4,8 +4,247 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>재테크한입 | 돈 고민, 여기서 해결</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;500;600;700&display=swap');
+  :root {
+    --green: #00C73C;
+    --green-bg: #F0FBF4;
+    --green-dark: #009E30;
+    --text1: #191F28;
+    --text2: #4E5968;
+    --text3: #8B95A1;
+    --border: #E5E8EB;
+    --bg: #F9FAFB;
+    --white: #FFFFFF;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Pretendard',-apple-system,sans-serif; background:var(--bg); color:var(--text1); font-size:15px; }
+  .nav { position:fixed; top:0; left:0; right:0; height:60px; background:var(--white); border-bottom:1px solid var(--border); display:flex; align-items:center; padding:0 24px; z-index:100; }
+  .nav-logo { font-size:22px; font-weight:800; color:var(--green); text-decoration:none; margin-right:32px; letter-spacing:-1px; }
+  .nav-logo span { color:var(--text1); }
+  .nav-menu { display:flex; gap:0; list-style:none; }
+  .nav-menu a { display:flex; align-items:center; height:60px; padding:0 14px; text-decoration:none; color:var(--text2); font-size:15px; font-weight:500; border-bottom:2px solid transparent; transition:all .15s; }
+  .nav-menu a:hover { color:var(--text1); }
+  .nav-menu a.active { color:var(--text1); font-weight:700; border-bottom-color:var(--text1); }
+  .nav-sep { width:1px; height:20px; background:var(--border); margin:0 6px; align-self:center; }
+  .nav-menu a.dim { color:var(--text3); font-size:14px; }
+  .nav-badge { background:#FF6B35; color:white; font-size:10px; font-weight:700; border-radius:10px; padding:1px 5px; }
+  .nav-right { margin-left:auto; display:flex; align-items:center; gap:10px; }
+  .nav-icon { width:36px; height:36px; border-radius:50%; border:none; background:transparent; cursor:pointer; display:flex; align-items:center; justify-content:center; color:var(--text2); transition:background .15s; }
+  .nav-icon:hover { background:var(--bg); }
+  .btn-q { height:38px; padding:0 18px; background:var(--green); border:none; border-radius:6px; color:white; font-size:14px; font-weight:700; cursor:pointer; white-space:nowrap; }
+  .btn-q:hover { background:var(--green-dark); }
+  .wrap { max-width:1060px; margin:60px auto 0; padding:0 24px; display:flex; gap:20px; }
+  .feed { flex:1; min-width:0; padding-top:28px; }
+  .feed-tabs { display:flex; gap:0; margin-bottom:20px; }
+  .ftab { font-size:22px; font-weight:700; color:var(--text3); cursor:pointer; margin-right:18px; padding-bottom:2px; border:none; border-bottom:2px solid transparent; background:none; transition:all .15s; }
+  .ftab.active { color:var(--text1); border-bottom-color:var(--text1); }
+  .qcard { background:var(--white); border-radius:12px; border:1px solid var(--border); padding:20px 22px; margin-bottom:10px; cursor:pointer; transition:box-shadow .15s; }
+  .qcard:hover { box-shadow:0 2px 14px rgba(0,0,0,0.07); }
+  .qcard-top { display:flex; gap:12px; align-items:flex-start; }
+  .qavatar { width:40px; height:40px; border-radius:50%; background:var(--bg); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; font-size:18px; flex-shrink:0; }
+  .qmeta { flex:1; min-width:0; }
+  .qmeta-row1 { display:flex; align-items:center; gap:5px; margin-bottom:8px; flex-wrap:wrap; }
+  .qcat { font-size:13px; font-weight:700; color:var(--text1); }
+  .qtopic { font-size:13px; color:var(--text3); }
+  .qdot { color:var(--text3); font-size:11px; }
+  .qauthor { font-size:13px; color:var(--green); font-weight:600; }
+  .qtime { font-size:13px; color:var(--text3); }
+  .qtitle { font-size:16px; font-weight:700; color:var(--text1); line-height:1.45; margin-bottom:8px; }
+  .qbody { font-size:14px; color:var(--text2); line-height:1.65; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; margin-bottom:14px; }
+  .qfoot { display:flex; align-items:center; justify-content:space-between; }
+  .qans { display:flex; align-items:center; gap:8px; font-size:13px; color:var(--text2); }
+  .ans-avatars { display:flex; }
+  .ans-av { width:22px; height:22px; border-radius:50%; border:2px solid white; margin-left:-6px; background:linear-gradient(135deg,var(--green-bg),var(--green)); display:flex; align-items:center; justify-content:center; font-size:10px; }
+  .ans-av:first-child { margin-left:0; }
+  .qbtns { display:flex; gap:2px; }
+  .qbtn { width:32px; height:32px; border:none; background:none; border-radius:6px; cursor:pointer; display:flex; align-items:center; justify-content:center; color:var(--text3); transition:all .15s; }
+  .right { width:290px; flex-shrink:0; padding-top:28px; }
+  .widget { background:var(--white); border-radius:12px; border:1px solid var(--border); overflow:hidden; margin-bottom:14px; }
+  .w-banner { background:linear-gradient(135deg,#1a1a2e,#16213e); padding:18px; color:white; }
+  .w-banner-tag { font-size:11px; color:rgba(255,255,255,.55); margin-bottom:5px; }
+  .w-banner-title { font-size:17px; font-weight:800; line-height:1.3; margin-bottom:12px; }
+  .w-banner-btm { display:flex; align-items:center; justify-content:space-between; }
+  .w-banner-time { font-size:11px; color:rgba(255,255,255,.55); }
+  .w-banner-btn { height:26px; padding:0 12px; background:white; border:none; border-radius:5px; font-size:12px; font-weight:700; color:var(--text1); cursor:pointer; }
+  .wlink { display:flex; align-items:center; gap:10px; padding:12px 16px; border-bottom:1px solid var(--border); text-decoration:none; color:var(--text1); font-size:14px; font-weight:500; }
+  .wlink:last-child { border-bottom:none; }
+  .wlink:hover { background:var(--bg); }
+  .wlink-arrow { margin-left:auto; color:var(--text3); }
+  .wfoot { padding:12px 16px; border-top:1px solid var(--border); display:flex; flex-wrap:wrap; gap:8px; }
+  .wflink { font-size:11px; color:var(--text3); text-decoration:none; }
+  .overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:200; align-items:center; justify-content:center; padding:20px; }
+  .overlay.open { display:flex; }
+  .modal { background:var(--white); border-radius:16px; width:100%; max-width:560px; box-shadow:0 24px 60px rgba(0,0,0,.18); animation:mup .2s ease; }
+  @keyframes mup { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+  .mhead { padding:18px 22px 14px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; }
+  .mhead h2 { font-size:16px; font-weight:700; }
+  .mx { width:30px; height:30px; border:none; background:var(--bg); border-radius:7px; cursor:pointer; font-size:20px; color:var(--text2); display:flex; align-items:center; justify-content:center; }
+  .mbody { padding:18px 22px; }
+  .mlabel { font-size:12px; font-weight:600; color:var(--text2); margin-bottom:7px; }
+  .cats { display:flex; gap:5px; flex-wrap:wrap; margin-bottom:14px; }
+  .cat { height:29px; padding:0 13px; border-radius:20px; border:1.5px solid var(--border); background:none; font-size:13px; color:var(--text2); cursor:pointer; transition:all .15s; }
+  .cat:hover { border-color:var(--green); color:var(--green); }
+  .cat.on { border-color:var(--green); background:var(--green-bg); color:var(--green-dark); font-weight:600; }
+  .inp { width:100%; padding:11px 13px; border:1.5px solid var(--border); border-radius:9px; font-size:14px; font-family:inherit; color:var(--text1); outline:none; transition:border .15s; resize:none; background:var(--white); }
+  .inp:focus { border-color:var(--green); }
+  .inp::placeholder { color:var(--text3); }
+  .rrow { display:flex; align-items:center; gap:7px; margin-top:7px; }
+  .btn-rf { display:flex; align-items:center; gap:4px; height:28px; padding:0 11px; border:none; border-radius:6px; background:linear-gradient(135deg,#6366f1,#8b5cf6); color:white; font-size:12px; font-weight:600; cursor:pointer; }
+  .rhint { font-size:11px; color:var(--text3); }
+  .rbox { display:none; margin-top:9px; padding:11px; background:#faf8ff; border-radius:9px; border:1px solid #ddd5ff; }
+  .rbox.show { display:block; }
+  .rlabel { font-size:11px; font-weight:700; color:#7c5cbf; margin-bottom:7px; }
+  .ropts { display:flex; flex-direction:column; gap:5px; }
+  .ropt { padding:9px 11px; background:white; border-radius:7px; border:1.5px solid transparent; font-size:13px; cursor:pointer; transition:all .15s; line-height:1.4; text-align:left; }
+  .ropt:hover { border-color:#7c5cbf; }
+  .ropt.on { border-color:var(--green); background:var(--green-bg); }
+  .mfoot { padding:12px 22px 18px; border-top:1px solid var(--border); display:flex; justify-content:flex-end; gap:7px; }
+  .btn-cancel { height:38px; padding:0 18px; background:var(--bg); border:1px solid var(--border); border-radius:8px; font-size:14px; color:var(--text2); cursor:pointer; }
+  .btn-submit { height:38px; padding:0 22px; background:var(--green); border:none; border-radius:8px; color:white; font-size:14px; font-weight:700; cursor:pointer; }
+  .btn-submit:disabled { background:var(--text3); cursor:not-allowed; }
+  .spin { display:inline-block; width:12px; height:12px; border:2px solid rgba(255,255,255,.4); border-top-color:white; border-radius:50%; animation:spin .7s linear infinite; }
+  @keyframes spin { to{transform:rotate(360deg)} }
+  .toast { position:fixed; bottom:26px; left:50%; transform:translateX(-50%) translateY(50px); background:var(--text1); color:white; padding:11px 18px; border-radius:8px; font-size:13px; z-index:300; transition:transform .25s; white-space:nowrap; }
+  .toast.show { transform:translateX(-50%) translateY(0); }
+</style>
 </head>
 <body>
-<p>재테크한입 - 주요 코드가 공간 제한으로 잘립되었습니다. GitHub에서 직접 파일을 업로드하세요.</p>
+<nav class="nav">
+  <a href="#" class="nav-logo">재테크<span>한입</span></a>
+  <ul class="nav-menu">
+    <li><a href="#" class="active">홈</a></li>
+    <li><a href="#">토픽</a></li>
+    <li><a href="#">스파링</a></li>
+    <li><a href="#">칼럼</a></li>
+    <li><a href="#">미션</a></li>
+    <li><div class="nav-sep"></div></li>
+    <li><a href="#" class="dim">전문가 신청</a></li>
+    <li><a href="#" class="dim">🫐 베리몰 <span class="nav-badge">N</span></a></li>
+  </ul>
+  <div class="nav-right">
+    <button class="nav-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></button>
+    <button class="nav-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></button>
+    <button class="nav-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></button>
+    <button class="btn-q" onclick="openModal()">나도 질문하기</button>
+  </div>
+</nav>
+<div class="wrap">
+  <div class="feed">
+    <div class="feed-tabs">
+      <button class="ftab active" onclick="setTab(this)">인기</button>
+      <button class="ftab" onclick="setTab(this)">관심</button>
+      <button class="ftab" onclick="setTab(this)">답변</button>
+    </div>
+    <div id="feed"></div>
+  </div>
+  <aside class="right">
+    <div class="widget">
+      <div class="w-banner">
+        <div class="w-banner-tag">🔥 지금 투표 중</div>
+        <div class="w-banner-title">지금 S&P500<br>들어가도 될까요?</div>
+        <div class="w-banner-btm">
+          <div class="w-banner-time">⏱ 3일 남았어요</div>
+          <button class="w-banner-btn">참여하기</button>
+        </div>
+      </div>
+      <a href="#" class="wlink">💼 <span>전문가 신청하기</span><span class="wlink-arrow">›</span></a>
+      <a href="#" class="wlink">🛍️ <span>베리몰 구경하기</span><span class="wlink-arrow">›</span></a>
+      <a href="#" class="wlink">📈 <span>ETF 시세 보기</span><span class="wlink-arrow">›</span></a>
+      <div class="wfoot">
+        <a href="#" class="wflink">서비스 소개</a>
+        <a href="#" class="wflink">이용약관</a>
+        <a href="#" class="wflink">커뮤니티 보상 소개</a>
+        <a href="#" class="wflink">광고 문의</a>
+        <a href="#" class="wflink">무단 크롤링 금지</a>
+      </div>
+    </div>
+  </aside>
+</div>
+<div class="overlay" id="overlay" onclick="outsideClose(event)">
+  <div class="modal">
+    <div class="mhead"><h2>질문하기</h2><button class="mx" onclick="closeModal()">×</button></div>
+    <div class="mbody">
+      <div class="mlabel">카테고리</div>
+      <div class="cats">
+        <button class="cat on" onclick="pickCat(this)">재테크 입문</button>
+        <button class="cat" onclick="pickCat(this)">주식·ETF</button>
+        <button class="cat" onclick="pickCat(this)">절세</button>
+        <button class="cat" onclick="pickCat(this)">보험</button>
+        <button class="cat" onclick="pickCat(this)">대출·부채</button>
+      </div>
+      <div class="mlabel">질문 제목</div>
+      <input class="inp" id="qtitle" type="text" placeholder="궁금한 점을 간단히 써주세요" maxlength="100" oninput="chkSubmit()"/>
+      <div class="rrow">
+        <button class="btn-rf" id="rfBtn" onclick="doRefine()">✨ AI로 질문 다듬기</button>
+        <span class="rhint">SEO에 맞게 자동으로 다듬어드려요</span>
+      </div>
+      <div class="rbox" id="rbox">
+        <div class="rlabel">✨ 다듬어진 질문을 선택해주세요</div>
+        <div class="ropts" id="ropts"></div>
+      </div>
+      <div style="margin-top:13px">
+        <div class="mlabel">상세 내용 <span style="font-weight:400;color:var(--text3)">(선택)</span></div>
+        <textarea class="inp" id="qbody" rows="4" placeholder="상황을 더 설명해주시면 더 좋은 답변을 받을 수 있어요"></textarea>
+      </div>
+    </div>
+    <div class="mfoot">
+      <button class="btn-cancel" onclick="closeModal()">취소</button>
+      <button class="btn-submit" id="subBtn" disabled onclick="submitQ()">질문 올리기</button>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+const EM=['🐰','🦊','🐻','🐼','🦁','🐯','🐸','🐧','🦋','🦔'];
+let qs=[
+  {id:1,cat:'재테크 입문',topic:'저축·목돈',author:'신중한토끼',time:'1일 전',em:'🐰',title:'월급 300만원인데 저축은 얼마나 해야 하나요?',body:'사회초년생인데 고정지출 빼고 나면 항상 150만원 정도 남는데, 이걸 어떻게 쪼개야 할지 모르겠어요.',ans:12},
+  {id:2,cat:'주식·ETF',topic:'ETF',author:'궁금한직장인',time:'15분 전',em:'🦊',title:'S&P500 ETF 지금 들어가도 늦지 않나요? 고점 아닌가요?',body:'주변에서 다들 S&P500 ETF 사라고 하는데 이미 많이 오른 것 같아서요.',ans:28},
+  {id:3,cat:'절세',topic:'ISA·연금저축',author:'절세고민중',time:'1시간 전',em:'🐻',title:'ISA 계좌랑 연금저축 중에 뭐 먼저 채워야 하나요?',body:'세금 아껴야 한다는 건 알겠는데 ISA랑 연금저축을 동시에 채우기엔 돈이 부족해요.',ans:7},
+  {id:4,cat:'보험',topic:'실손보험',author:'건강한이십대',time:'2시간 전',em:'🐼',title:'실손보험 꼭 있어야 하나요? 건강한 20대인데 없애도 될까요?',body:'20대 초반인데 병원을 거의 안 가서 실손보험 돈이 아깝게 느껴져요.',ans:19},
+  {id:5,cat:'대출·부채',topic:'학자금대출',author:'취준생고민',time:'3시간 전',em:'🦁',title:'학자금 대출 빨리 갚는 게 맞나요, 아니면 그 돈으로 투자하는 게 맞나요?',body:'취업하고 학자금 대출 1500만원이 남아있는데 금리가 1.7%예요.',ans:34},
+];
+function render(data){
+  document.getElementById('feed').innerHTML=data.map(q=>`
+    <div class="qcard"><div class="qcard-top"><div class="qavatar">${q.em}</div><div class="qmeta">
+    <div class="qmeta-row1"><span class="qcat">${q.cat}</span><span class="qdot">·</span><span class="qtopic">${q.topic}</span><span class="qdot">·</span><span class="qauthor">${q.author}</span><span class="qdot">·</span><span class="qtime">${q.time}</span></div>
+    <div class="qtitle">${q.title}</div><div class="qbody">${q.body}</div>
+    <div class="qfoot"><div class="qans"><div class="ans-avatars">${Array.from({length:Math.min(3,q.ans)},(_,i)=>`<div class="ans-av">${EM[i]}</div>`).join('')}</div><span><strong>${q.ans}명</strong>이 답변했어요</span></div>
+    <div class="qbtns"><button class="qbtn">👍</button><button class="qbtn">👎</button><button class="qbtn">💬</button></div></div></div></div></div>`).join('');
+}
+render(qs);
+function setTab(el){document.querySelectorAll('.ftab').forEach(t=>t.classList.remove('active'));el.classList.add('active');}
+function openModal(){document.getElementById('overlay').classList.add('open');document.getElementById('qtitle').focus();}
+function closeModal(){document.getElementById('overlay').classList.remove('open');document.getElementById('qtitle').value='';document.getElementById('qbody').value='';document.getElementById('rbox').classList.remove('show');document.getElementById('subBtn').disabled=true;}
+function outsideClose(e){if(e.target===document.getElementById('overlay'))closeModal();}
+function pickCat(el){document.querySelectorAll('.cat').forEach(c=>c.classList.remove('on'));el.classList.add('on');}
+function chkSubmit(){document.getElementById('subBtn').disabled=document.getElementById('qtitle').value.trim().length<5;}
+async function doRefine(){
+  const t=document.getElementById('qtitle').value.trim();
+  if(!t){showToast('질문을 먼저 입력해주세요');return;}
+  const btn=document.getElementById('rfBtn');
+  btn.innerHTML='<span class="spin"></span> 다듬는 중...';btn.disabled=true;
+  try{
+    const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:400,messages:[{role:'user',content:`재테크 Q&A 질문을 SEO 최적화 형태로 다듬어주세요. 원본: "${t}" 규칙: 실제 검색 키워드 포함, 구체적, 20~50자 3가지를 JSON 배열로만: ["버전1","버전2","버전3"]`}]})});
+    const d=await r.json();
+    const opts=JSON.parse(d.content[0].text.replace(/```json?|```/g,'').trim());
+    document.getElementById('ropts').innerHTML=opts.map(o=>`<button class="ropt" onclick="pickR(this,'${o.replace(/'/g,"\\'")}')">${o}</button>`).join('');
+  }catch{
+    const fb=[`${t} 어떻게 해야 하나요?`,`초보자도 이해하는 ${t}`,`${t} 실제 경험담 알려주세요`];
+    document.getElementById('ropts').innerHTML=fb.map(o=>`<button class="ropt" onclick="pickR(this,'${o.replace(/'/g,"\\'")}')">${o}</button>`).join('');
+  }
+  document.getElementById('rbox').classList.add('show');
+  btn.innerHTML='✨ AI로 질문 다듬기';btn.disabled=false;
+}
+function pickR(el,text){document.querySelectorAll('.ropt').forEach(o=>o.classList.remove('on'));el.classList.add('on');document.getElementById('qtitle').value=text;chkSubmit();}
+function submitQ(){
+  const title=document.getElementById('qtitle').value.trim();
+  const body=document.getElementById('qbody').value.trim();
+  const cat=document.querySelector('.cat.on')?.textContent||'재테크 입문';
+  qs.unshift({id:qs.length+1,cat,topic:'일반',author:'나',time:'방금 전',em:'🐯',title,body:body||'답변을 기다리고 있어요.',ans:0});
+  render(qs);closeModal();showToast('✅ 질문이 등록되었어요!');
+}
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}
+</script>
 </body>
 </html>
