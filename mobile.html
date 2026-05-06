@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+<title>재테크한입 | 돈 고민, 여기서 해결</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;500;600;700;800&display=swap');
+  :root {
+    --blue:#3182F6; --blue-bg:#EBF3FF; --blue-dark:#1A6DE0;
+    --text1:#191F28; --text2:#4E5968; --text3:#8B95A1;
+    --border:#E5E8EB; --bg:#F9FAFB; --white:#FFFFFF;
+    --orange:#FF6B35; --purple:#7C5CBF;
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html,body{height:100%;overflow-x:hidden;}
+  body{font-family:'Pretendard',-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg);color:var(--text1);font-size:15px;max-width:480px;margin:0 auto;position:relative;}
+
+  /* ── TOP NAV ── */
+  .topbar{position:fixed;top:0;left:0;right:0;max-width:480px;margin:0 auto;z-index:100;background:var(--white);border-bottom:1px solid var(--border);}
+  .topbar-inner{display:flex;align-items:center;padding:0 16px;height:52px;justify-content:space-between;}
+  .logo{font-size:22px;font-weight:800;color:var(--blue);letter-spacing:-1px;text-decoration:none;}
+  .logo span{color:var(--text1);}
+  .topbar-icons{display:flex;gap:2px;}
+  .icon-btn{width:40px;height:40px;border:none;background:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text2);border-radius:50%;}
+  .icon-btn:active{background:var(--bg);}
+
+  /* ── GNAV (토픽/스파링/잉크/미션) ── */
+  .gnav{display:flex;overflow-x:auto;scrollbar-width:none;border-bottom:1px solid var(--border);background:var(--white);}
+  .gnav::-webkit-scrollbar{display:none;}
+  .gnav a{display:flex;align-items:center;height:44px;padding:0 14px;font-size:14px;font-weight:500;color:var(--text3);text-decoration:none;white-space:nowrap;border-bottom:2px solid transparent;flex-shrink:0;}
+  .gnav a.active{color:var(--text1);font-weight:700;border-bottom-color:var(--text1);}
+  .gnav a:hover{color:var(--text2);}
+  .gnav-badge{background:var(--orange);color:white;font-size:9px;font-weight:700;border-radius:8px;padding:1px 4px;margin-left:2px;}
+
+  /* ── MAIN SCROLL ── */
+  .main{margin-top:96px;padding-bottom:calc(72px + var(--safe-bottom));}
+
+  /* ── 피드 탭 ── */
+  .feed-tabs{display:flex;gap:16px;padding:14px 16px 0;}
+  .ftab{font-size:20px;font-weight:700;color:var(--text3);border:none;background:none;cursor:pointer;padding-bottom:10px;border-bottom:2px solid transparent;}
+  .ftab.active{color:var(--text1);border-bottom-color:var(--text1);}
+
+  /* ── 카테고리 필터 ── */
+  .cat-wrap{display:flex;overflow-x:auto;scrollbar-width:none;padding:10px 16px 10px;gap:6px;}
+  .cat-wrap::-webkit-scrollbar{display:none;}
+  .ctag{height:32px;padding:0 14px;border-radius:20px;border:1.5px solid var(--border);background:var(--white);font-size:13px;font-weight:500;color:var(--text2);cursor:pointer;white-space:nowrap;flex-shrink:0;}
+  .ctag.active{border-color:var(--blue);background:var(--blue-bg);color:var(--blue-dark);font-weight:700;}
+
+  /* ── 레퍼럴 배너 ── */
+  .referral{margin:2px 16px 10px;background:linear-gradient(135deg,#667eea,#764ba2);border-radius:12px;padding:13px 16px;display:flex;align-items:center;justify-content:space-between;}
+  .referral-left{color:white;}
+  .referral-title{font-size:13px;font-weight:700;margin-bottom:2px;}
+  .referral-sub{font-size:11px;color:rgba(255,255,255,.7);}
+  .referral-btn{height:28px;padding:0 12px;background:white;border:none;border-radius:6px;font-size:12px;font-weight:700;color:#764ba2;cursor:pointer;white-space:nowrap;}
+
+  /* ── 스파링 배너 ── */
+  .spar-banner{margin:2px 16px 10px;background:var(--text1);border-radius:12px;padding:14px 16px;cursor:pointer;}
+  .spar-tag{font-size:11px;color:rgba(255,255,255,.5);margin-bottom:4px;}
+  .spar-title{font-size:15px;font-weight:700;color:white;line-height:1.4;margin-bottom:10px;}
+  .spar-foot{display:flex;align-items:center;justify-content:space-between;}
+  .spar-time{font-size:11px;color:rgba(255,255,255,.5);}
+  .spar-btn{height:26px;padding:0 12px;background:white;border:none;border-radius:5px;font-size:12px;font-weight:700;color:var(--text1);cursor:pointer;}
+
+  /* ── 질문 카드 ── */
+  .qcard{background:var(--white);border-top:1px solid var(--border);padding:16px;cursor:pointer;transition:background .1s;}
+  .qcard:active{background:var(--bg);}
+  .qmeta{display:flex;align-items:center;gap:5px;margin-bottom:8px;flex-wrap:wrap;}
+  .qcat-badge{font-size:11px;font-weight:700;color:var(--blue);background:var(--blue-bg);padding:2px 7px;border-radius:4px;}
+  .qdot{color:var(--text3);font-size:10px;}
+  .qtopic{font-size:12px;color:var(--text3);}
+  .qauthor{font-size:12px;color:var(--text2);font-weight:500;}
+  .qtime{font-size:12px;color:var(--text3);}
+  .adopted-tag{font-size:11px;font-weight:700;color:#E65100;background:#FFF3E0;padding:2px 6px;border-radius:4px;}
+  .qtitle{font-size:15px;font-weight:700;color:var(--text1);line-height:1.45;margin-bottom:6px;}
+  .qbody{font-size:13px;color:var(--text2);line-height:1.6;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-bottom:12px;}
+  .qfoot{display:flex;align-items:center;justify-content:space-between;}
+  .ans-row{display:flex;align-items:center;gap:6px;}
+  .ans-avs{display:flex;}
+  .ans-av{width:20px;height:20px;border-radius:50%;border:1.5px solid white;margin-left:-5px;background:var(--blue-bg);display:flex;align-items:center;justify-content:center;font-size:9px;color:var(--blue);flex-shrink:0;}
+  .ans-av:first-child{margin-left:0;}
+  .ans-text{font-size:12px;color:var(--text2);}
+  .ans-text b{color:var(--text1);}
+  .qbtns{display:flex;gap:2px;}
+  .qbtn{width:32px;height:32px;border:none;background:none;border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text3);}
+  .qbtn:active{background:var(--bg);}
+
+  /* ── 바텀 내비 ── */
+  .bottom-nav{position:fixed;bottom:0;left:0;right:0;max-width:480px;margin:0 auto;background:var(--white);border-top:1px solid var(--border);display:flex;align-items:center;padding:8px 0 calc(8px + var(--safe-bottom));z-index:100;}
+  .bnav{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;border:none;background:none;cursor:pointer;padding:4px 0;}
+  .bnav svg{color:var(--text3);}
+  .bnav.active svg{color:var(--blue);}
+  .bnav-label{font-size:10px;color:var(--text3);font-weight:500;}
+  .bnav.active .bnav-label{color:var(--blue);font-weight:700;}
+
+  /* ── FAB ── */
+  .fab{position:fixed;bottom:calc(72px + var(--safe-bottom) + 12px);right:max(16px, calc(50% - 240px + 16px));width:52px;height:52px;border-radius:50%;background:var(--blue);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(49,130,246,.4);z-index:99;}
+  .fab:active{transform:scale(.95);}
+
+  /* ── 질문 모달 ── */
+  .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;align-items:flex-end;justify-content:center;}
+  .overlay.open{display:flex;}
+  .modal{background:var(--white);border-radius:20px 20px 0 0;width:100%;max-width:480px;padding-bottom:env(safe-area-inset-bottom,0);max-height:90vh;overflow-y:auto;animation:slideUp .25s ease;}
+  @keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+  .modal-handle{width:36px;height:4px;background:var(--border);border-radius:2px;margin:12px auto 0;}
+  .mhead{padding:16px 20px 12px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);}
+  .mhead h2{font-size:16px;font-weight:700;}
+  .mx{width:32px;height:32px;border:none;background:var(--bg);border-radius:8px;cursor:pointer;font-size:18px;color:var(--text2);display:flex;align-items:center;justify-content:center;}
+  .mbody{padding:16px 20px;}
+  .mlabel{font-size:12px;font-weight:600;color:var(--text2);margin-bottom:8px;}
+  .cats{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:14px;}
+  .cat{height:30px;padding:0 13px;border-radius:20px;border:1.5px solid var(--border);background:none;font-size:13px;color:var(--text2);cursor:pointer;}
+  .cat.on{border-color:var(--blue);background:var(--blue-bg);color:var(--blue-dark);font-weight:600;}
+  .inp{width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;font-family:inherit;color:var(--text1);outline:none;resize:none;background:var(--white);}
+  .inp:focus{border-color:var(--blue);}
+  .inp::placeholder{color:var(--text3);}
+  .btn-rf{display:flex;align-items:center;gap:5px;height:32px;padding:0 14px;border:none;border-radius:8px;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:white;font-size:13px;font-weight:600;cursor:pointer;margin-top:8px;}
+  .rbox{display:none;margin-top:10px;padding:12px;background:#faf8ff;border-radius:10px;border:1px solid #ddd5ff;}
+  .rbox.show{display:block;}
+  .rlabel{font-size:11px;font-weight:700;color:#7c5cbf;margin-bottom:8px;}
+  .ropt{width:100%;padding:10px 12px;background:white;border-radius:8px;border:1.5px solid transparent;font-size:13px;cursor:pointer;text-align:left;line-height:1.45;margin-bottom:5px;}
+  .ropt:last-child{margin-bottom:0;}
+  .ropt:hover{border-color:#7c5cbf;}
+  .ropt.on{border-color:var(--blue);background:var(--blue-bg);}
+  .mfoot{padding:12px 20px 16px;border-top:1px solid var(--border);display:flex;gap:8px;}
+  .btn-cancel{flex:1;height:44px;background:var(--bg);border:1px solid var(--border);border-radius:10px;font-size:14px;color:var(--text2);cursor:pointer;font-family:inherit;}
+  .btn-submit{flex:2;height:44px;background:var(--blue);border:none;border-radius:10px;color:white;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;}
+  .btn-submit:disabled{background:var(--text3);}
+  .spin{display:inline-block;width:12px;height:12px;border:2px solid rgba(255,255,255,.4);border-top-color:white;border-radius:50%;animation:spin .7s linear infinite;}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .toast{position:fixed;bottom:calc(80px + var(--safe-bottom));left:50%;transform:translateX(-50%) translateY(30px);background:var(--text1);color:white;padding:10px 18px;border-radius:8px;font-size:13px;z-index:300;transition:transform .25s,opacity .25s;opacity:0;white-space:nowrap;}
+  .toast.show{transform:translateX(-50%) translateY(0);opacity:1;}
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<header class="topbar">
+  <div class="topbar-inner">
+    <a href="#" class="logo">재테크<span>한입</span></a>
+    <div class="topbar-icons">
+      <button class="icon-btn" aria-label="검색">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      </button>
+      <button class="icon-btn" aria-label="알림">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+      </button>
+      <button class="icon-btn" aria-label="프로필">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      </button>
+    </div>
+  </div>
+  <nav class="gnav">
+    <a href="#" class="active">홈</a>
+    <a href="#">토픽</a>
+    <a href="#">스파링</a>
+    <a href="#">잉크</a>
+    <a href="#">미션</a>
+    <a href="#">전문가 신청</a>
+    <a href="#">🫐 베리몰 <span class="gnav-badge">N</span></a>
+  </nav>
+</header>
+
+<!-- MAIN -->
+<main class="main">
+  <!-- 피드 탭 -->
+  <div class="feed-tabs">
+    <button class="ftab active" onclick="setTab(this)">인기</button>
+    <button class="ftab" onclick="setTab(this)">관심</button>
+    <button class="ftab" onclick="setTab(this)">답변</button>
+  </div>
+
+  <!-- 카테고리 필터 -->
+  <div class="cat-wrap">
+    <button class="ctag active" onclick="filterCat(this,'전체')">전체</button>
+    <button class="ctag" onclick="filterCat(this,'재테크 입문')">💡 재테크 입문</button>
+    <button class="ctag" onclick="filterCat(this,'주식·ETF')">📈 주식·ETF</button>
+    <button class="ctag" onclick="filterCat(this,'절세')">🏦 절세</button>
+    <button class="ctag" onclick="filterCat(this,'보험')">🛡️ 보험</button>
+    <button class="ctag" onclick="filterCat(this,'대출·부채')">💳 대출·부채</button>
+  </div>
+
+  <!-- 레퍼럴 배너 -->
+  <div class="referral">
+    <div class="referral-left">
+      <div class="referral-title">🎁 친구 초대하고 베리 받기</div>
+      <div class="referral-sub">초대한 친구가 첫 질문 올리면 100 베리!</div>
+    </div>
+    <button class="referral-btn" id="refBtn">링크 복사</button>
+  </div>
+
+  <!-- 스파링 배너 -->
+  <div class="spar-banner">
+    <div class="spar-tag">🔥 지금 투표 중</div>
+    <div class="spar-title">지금 S&P500<br>들어가도 될까요?</div>
+    <div class="spar-foot">
+      <span class="spar-time">⏱ 3일 남았어요</span>
+      <button class="spar-btn">참여하기</button>
+    </div>
+  </div>
+
+  <!-- 질문 피드 -->
+  <div id="feed"></div>
+</main>
+
+<!-- FAB -->
+<button class="fab" onclick="openModal()" aria-label="질문하기">
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+</button>
+
+<!-- 바텀 내비 -->
+<nav class="bottom-nav">
+  <button class="bnav active">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    <span class="bnav-label">홈</span>
+  </button>
+  <button class="bnav">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
+    <span class="bnav-label">토픽</span>
+  </button>
+  <button class="bnav">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+    <span class="bnav-label">스파링</span>
+  </button>
+  <button class="bnav">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+    <span class="bnav-label">알림</span>
+  </button>
+  <button class="bnav">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    <span class="bnav-label">마이</span>
+  </button>
+</nav>
+
+<!-- 질문 모달 -->
+<div class="overlay" id="overlay" onclick="outsideClose(event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="mhead">
+      <h2>질문하기</h2>
+      <button class="mx" onclick="closeModal()">×</button>
+    </div>
+    <div class="mbody">
+      <div class="mlabel">카테고리</div>
+      <div class="cats">
+        <button class="cat on" onclick="pickCat(this)">💡 재테크 입문</button>
+        <button class="cat" onclick="pickCat(this)">📈 주식·ETF</button>
+        <button class="cat" onclick="pickCat(this)">🏦 절세</button>
+        <button class="cat" onclick="pickCat(this)">🛡️ 보험</button>
+        <button class="cat" onclick="pickCat(this)">💳 대출·부채</button>
+      </div>
+      <div class="mlabel">질문 제목</div>
+      <input class="inp" id="qtitle" type="text" placeholder="궁금한 점을 간단히 써주세요" maxlength="100" oninput="chkSubmit()"/>
+      <button class="btn-rf" id="rfBtn" onclick="doRefine()">✨ AI로 질문 다듬기</button>
+      <div class="rbox" id="rbox">
+        <div class="rlabel">✨ 다듬어진 질문을 선택해주세요</div>
+        <div id="ropts"></div>
+      </div>
+      <div style="margin-top:14px">
+        <div class="mlabel">상세 내용 <span style="font-weight:400;color:var(--text3)">(선택)</span></div>
+        <textarea class="inp" id="qbody" rows="4" placeholder="상황을 더 설명해주시면 더 좋은 답변을 받을 수 있어요"></textarea>
+      </div>
+    </div>
+    <div class="mfoot">
+      <button class="btn-cancel" onclick="closeModal()">취소</button>
+      <button class="btn-submit" id="subBtn" disabled onclick="submitQ()">질문 올리기</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const EM=['🐰','🦊','🐻','🐼','🦁','🐯','🐸','🐧','🦋','🦔'];
+const LEVELS=[
+  {label:'브론즈',style:'background:#CD7F32;color:white'},
+  {label:'실버',style:'background:#C0C0C0;color:white'},
+  {label:'골드',style:'background:#FFD700;color:#333'},
+  {label:'전문가',style:'background:linear-gradient(135deg,#667eea,#764ba2);color:white'},
+];
+
+let allQs=[
+  {id:1,cat:'재테크 입문',topic:'저축·목돈',author:'신중한토끼',time:'1일 전',em:'🐰',lv:1,
+   title:'월급 300만원인데 저축은 얼마나 해야 하나요?',
+   body:'사회초년생인데 고정지출 빼고 나면 항상 150만원 정도 남는데, 이걸 어떻게 쪼개야 할지 모르겠어요. 비상금이 먼저인지 투자가 먼저인지도 모르겠고요.',
+   ans:12,adopted:true},
+  {id:2,cat:'주식·ETF',topic:'ETF',author:'궁금한직장인',time:'15분 전',em:'🦊',lv:2,
+   title:'S&P500 ETF 지금 들어가도 늦지 않나요? 고점 아닌가요?',
+   body:'주변에서 다들 S&P500 ETF 사라고 하는데 이미 많이 오른 것 같아서 지금 들어가면 손해볼 것 같아요. 적립식으로 사는 게 맞는 건지도 궁금합니다.',
+   ans:28,adopted:false},
+  {id:3,cat:'절세',topic:'ISA·연금저축',author:'절세고민중',time:'1시간 전',em:'🐻',lv:0,
+   title:'ISA 계좌랑 연금저축 중에 뭐 먼저 채워야 하나요?',
+   body:'세금 아껴야 한다는 건 알겠는데 ISA랑 연금저축을 동시에 채우기엔 돈이 부족해요. 연봉 4천만원 기준으로 뭘 먼저 가져가는 게 맞나요?',
+   ans:7,adopted:false},
+  {id:4,cat:'보험',topic:'실손보험',author:'건강한이십대',time:'2시간 전',em:'🐼',lv:3,
+   title:'실손보험 꼭 있어야 하나요? 건강한 20대인데 없애도 될까요?',
+   body:'20대 초반인데 병원을 거의 안 가서 실손보험 돈이 아깝게 느껴져요. 해지해도 될지, 아니면 나중에 후회할지 모르겠어서요.',
+   ans:19,adopted:true},
+  {id:5,cat:'대출·부채',topic:'학자금대출',author:'취준생고민',time:'3시간 전',em:'🦁',lv:2,
+   title:'학자금 대출 빨리 갚는 게 맞나요, 투자하는 게 맞나요?',
+   body:'취업하고 학자금 대출 1500만원이 남아있는데 금리가 1.7%예요. 이거 빨리 갚는 게 맞는지, 아니면 S&P500 적립식으로 가는 게 맞는지 모르겠어요.',
+   ans:34,adopted:false},
+  {id:6,cat:'주식·ETF',topic:'미국주식',author:'ETF마스터',time:'4시간 전',em:'🦋',lv:3,
+   title:'TIGER S&P500 vs KODEX S&P500 뭐가 더 나은가요?',
+   body:'둘 다 S&P500 추종인데 운용보수도 비슷하고 뭐가 다른지 모르겠어요. 장기투자 관점에서 어떤 기준으로 고르면 될까요?',
+   ans:41,adopted:true},
+];
+
+let currentCat='전체';
+
+function getLevelBadge(lv){
+  if(lv<0||lv>=LEVELS.length)return'';
+  const l=LEVELS[lv];
+  return `<span style="font-size:9px;font-weight:700;padding:1px 5px;border-radius:4px;${l.style};white-space:nowrap;">${l.label}</span>`;
+}
+
+function render(data){
+  if(!data.length){
+    document.getElementById('feed').innerHTML=`<div style="text-align:center;padding:60px 20px;color:var(--text3)">아직 질문이 없어요. 첫 질문을 남겨보세요! 🌱</div>`;
+    return;
+  }
+  document.getElementById('feed').innerHTML=data.map(q=>`
+    <div class="qcard">
+      <div class="qmeta">
+        <span class="qcat-badge">${q.cat}</span>
+        <span class="qdot">·</span>
+        <span class="qtopic">${q.topic}</span>
+        <span class="qdot">·</span>
+        <span class="qauthor">${q.author}</span>
+        <span class="qdot">·</span>
+        <span class="qtime">${q.time}</span>
+        ${q.adopted?'<span class="adopted-tag">✅ 채택됨</span>':''}
+        ${getLevelBadge(q.lv)}
+      </div>
+      <div class="qtitle">${q.title}</div>
+      <div class="qbody">${q.body}</div>
+      <div class="qfoot">
+        <div class="ans-row">
+          <div class="ans-avs">${Array.from({length:Math.min(3,q.ans)},(_,i)=>`<div class="ans-av">${EM[i]}</div>`).join('')}</div>
+          <span class="ans-text"><b>${q.ans}명</b>이 답변했어요</span>
+        </div>
+        <div class="qbtns">
+          <button class="qbtn" onclick="event.stopPropagation()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z"/><path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg>
+          </button>
+          <button class="qbtn" onclick="event.stopPropagation()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+render(allQs);
+
+function setTab(el){document.querySelectorAll('.ftab').forEach(t=>t.classList.remove('active'));el.classList.add('active');}
+function filterCat(el,cat){
+  document.querySelectorAll('.ctag').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');currentCat=cat;
+  render(cat==='전체'?allQs:allQs.filter(q=>q.cat===cat));
+}
+
+function openModal(){document.getElementById('overlay').classList.add('open');}
+function closeModal(){
+  document.getElementById('overlay').classList.remove('open');
+  document.getElementById('qtitle').value='';
+  document.getElementById('qbody').value='';
+  document.getElementById('rbox').classList.remove('show');
+  document.getElementById('subBtn').disabled=true;
+}
+function outsideClose(e){if(e.target===document.getElementById('overlay'))closeModal();}
+function pickCat(el){document.querySelectorAll('.cat').forEach(c=>c.classList.remove('on'));el.classList.add('on');}
+function chkSubmit(){document.getElementById('subBtn').disabled=document.getElementById('qtitle').value.trim().length<5;}
+
+async function doRefine(){
+  const t=document.getElementById('qtitle').value.trim();
+  if(!t){showToast('질문을 먼저 입력해주세요');return;}
+  const btn=document.getElementById('rfBtn');
+  btn.innerHTML='<span class="spin"></span> 다듬는 중...';btn.disabled=true;
+  try{
+    const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:400,
+        messages:[{role:'user',content:`재테크 Q&A 질문을 SEO 최적화 형태로 다듬어주세요.\n원본: "${t}"\n규칙: 실제 검색 키워드 포함, 구체적, 20~50자\n3가지를 JSON 배열로만: ["버전1","버전2","버전3"]`}]})});
+    const d=await r.json();
+    const opts=JSON.parse(d.content[0].text.replace(/```json?|```/g,'').trim());
+    document.getElementById('ropts').innerHTML=opts.map(o=>`<button class="ropt" onclick="pickR(this,'${o.replace(/'/g,"\\'")}')"> ${o}</button>`).join('');
+  }catch{
+    const fb=[`${t} 어떻게 해야 하나요?`,`초보자도 이해하는 ${t}`,`${t} 실제 경험담 알려주세요`];
+    document.getElementById('ropts').innerHTML=fb.map(o=>`<button class="ropt" onclick="pickR(this,'${o.replace(/'/g,"\\'")}')"> ${o}</button>`).join('');
+  }
+  document.getElementById('rbox').classList.add('show');
+  btn.innerHTML='✨ AI로 질문 다듬기';btn.disabled=false;
+}
+
+function pickR(el,text){document.querySelectorAll('.ropt').forEach(o=>o.classList.remove('on'));el.classList.add('on');document.getElementById('qtitle').value=text;chkSubmit();}
+
+function submitQ(){
+  const title=document.getElementById('qtitle').value.trim();
+  const body=document.getElementById('qbody').value.trim();
+  const cat=document.querySelector('.cat.on')?.textContent.replace(/^[^\w가-힣]*/,'').trim()||'재테크 입문';
+  const newQ={id:allQs.length+1,cat,topic:'일반',author:'나',time:'방금 전',em:'🐯',lv:0,title,body:body||'답변을 기다리고 있어요.',ans:0,adopted:false};
+  allQs.unshift(newQ);
+  render(currentCat==='전체'?allQs:allQs.filter(q=>q.cat===currentCat));
+  closeModal();
+  showToast('✅ 질문이 등록되었어요!');
+}
+
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}
+
+document.getElementById('refBtn').addEventListener('click',()=>{
+  navigator.clipboard?.writeText('https://jaetechwhanip.com/invite/abc123').catch(()=>{});
+  showToast('🔗 초대 링크가 복사되었어요!');
+});
+</script>
+</body>
+</html>
