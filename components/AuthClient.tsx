@@ -11,38 +11,41 @@ export default function AuthClient() {
   const router = useRouter();
   const params = useSearchParams();
   const next = params.get('next') ?? '/';
+  const errorParam = params.get('error');
   const [loading, setLoading] = useState<Provider | null>(null);
-  const [err, setErr] = useState('');
+  const [err, setErr] = useState(errorParam ? '로그인에 실패했어요. 다시 시도해주세요.' : '');
 
   const handleLogin = async (provider: Provider) => {
     setLoading(provider);
     setErr('');
 
-    // Supabase env 미설정 시 안내
     if (!hasSupabase()) {
       setErr('서비스 설정 중입니다. 잠시 후 다시 시도해주세요.');
       setLoading(null);
       return;
     }
 
+    // 카카오는 비즈 인증 필요로 임시 비활성화
+    if (provider === 'kakao') {
+      setErr('카카오 로그인은 준비 중이에요. Google이나 네이버로 로그인해주세요.');
+      setLoading(null);
+      return;
+    }
+
+    // 네이버는 Custom OAuth 라우트로 이동
+    if (provider === 'naver') {
+      window.location.href = `/api/auth/naver?next=${encodeURIComponent(next)}`;
+      return;
+    }
+
+    // Google은 Supabase 기본 OAuth
     try {
       const supabase = createClient();
-      // 네이버는 Supabase 기본 미지원 → custom OAuth로 처리 (지금은 비활성)
-      if (provider === 'naver') {
-        setErr('네이버 로그인은 추후 지원 예정입니다.');
-        setLoading(null);
-        return;
-      }
-      // 카카오는 이메일 권한이 비즈 인증 필요해서 닉네임만 요청
-      const oauthOptions: any = {
-        redirectTo: `${window.location.origin}/api/auth/callback?next=${encodeURIComponent(next)}`,
-      };
-      if (provider === 'kakao') {
-        oauthOptions.scopes = 'profile_nickname';
-      }
       const { error } = await supabase.auth.signInWithOAuth({
-        provider: provider as 'kakao' | 'google',
-        options: oauthOptions,
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/api/auth/callback?next=${encodeURIComponent(next)}`,
+        },
       });
       if (error) throw error;
     } catch (e: any) {
@@ -57,13 +60,13 @@ export default function AuthClient() {
         <div className={`${styles.wordmark} logo-font`}>재테크<em>한입</em></div>
         <div className={styles.tagline}>궁금할 땐,<br/><em>재테크한입</em></div>
 
-        <button className={`${styles.sbtn} ${styles.kakao}`} onClick={() => handleLogin('kakao')} disabled={!!loading}>
+        <button className={`${styles.sbtn} ${styles.kakao}`} onClick={() => handleLogin('kakao')} disabled={!!loading} style={{opacity: 0.5}}>
           {loading === 'kakao' ? <span className={styles.spin}/> : (
             <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
               <path d="M10 2C5.582 2 2 4.805 2 8.25c0 2.21 1.46 4.153 3.666 5.272l-.933 3.477a.25.25 0 0 0 .374.273L9.32 14.8c.224.018.45.027.68.027 4.418 0 8-2.805 8-6.25C18 4.805 14.418 2 10 2Z" fill="#191919"/>
             </svg>
           )}
-          카카오로 시작하기
+          카카오 (준비 중)
         </button>
 
         <button className={`${styles.sbtn} ${styles.naver}`} onClick={() => handleLogin('naver')} disabled={!!loading}>
