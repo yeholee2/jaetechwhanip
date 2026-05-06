@@ -39,15 +39,34 @@ export default function HomeClient({ initialQuestions }: { initialQuestions: Que
     setShowModal(true);
   };
 
-  const submitQ = (title: string, body: string, cat: string) => {
+  const handleSignOut = async () => {
+    if (!hasSupabase()) return;
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    setUser(null);
+    showT('👋 로그아웃 되었어요');
+  };
+
+  const submitQ = async (title: string, body: string, cat: string) => {
+    const slug = title.toLowerCase().replace(/[^a-z0-9가-힣]/g, '-').slice(0, 60) + '-' + Date.now();
     const newQ = {
       id: allQs.length + 1, cat, topic: '일반',
       author: user?.user_metadata?.name || '나',
       time: '방금 전', em: '🐯', lv: 0,
       title, body: body || '답변을 기다리고 있어요.',
-      ans: 0, adopted: false,
-      slug: encodeURIComponent(title.slice(0, 50)),
+      ans: 0, adopted: false, slug,
     };
+    // Supabase DB 저장 시도
+    if (hasSupabase() && user) {
+      const supabase = createClient();
+      await supabase.from('questions').insert({
+        title, body: body || '',
+        category: cat,
+        slug,
+        author_id: user.id,
+        answer_count: 0,
+      });
+    }
     setAllQs([newQ, ...allQs]);
     setShowModal(false);
     showT('✅ 질문이 등록되었어요!');
@@ -77,8 +96,15 @@ export default function HomeClient({ initialQuestions }: { initialQuestions: Que
           <button className={styles.iconBtn}><Search size={18}/></button>
           <button className={styles.iconBtn}><Bell size={18}/></button>
           {user ? (
-            <div style={{width:32,height:32,borderRadius:'50%',background:'var(--green)',color:'white',display:'flex',alignItems:'center',justifyContent:'center',fontWeight:700,fontSize:13,cursor:'pointer'}} title={user.email}>
-              {(user.user_metadata?.name || user.email || 'U')[0]}
+            <div style={{position:'relative'}}>
+              <div style={{width:32,height:32,borderRadius:'50%',background:'var(--green)',color:'white',display:'flex',alignItems:'center',justifyContent:'center',fontWeight:700,fontSize:13,cursor:'pointer'}} title={user.email}
+                onClick={() => { const d = document.getElementById('user-dropdown'); if(d) d.style.display = d.style.display === 'none' ? 'block' : 'none'; }}>
+                {(user.user_metadata?.name || user.email || 'U')[0]}
+              </div>
+              <div id="user-dropdown" style={{display:'none',position:'absolute',right:0,top:40,background:'white',border:'1px solid #E5E8EB',borderRadius:10,boxShadow:'0 4px 16px rgba(0,0,0,.1)',minWidth:140,zIndex:100}}>
+                <div style={{padding:'10px 14px',fontSize:13,color:'#4E5968',borderBottom:'1px solid #F2F4F6'}}>{user.user_metadata?.name || user.email}</div>
+                <button onClick={handleSignOut} style={{width:'100%',padding:'10px 14px',border:'none',background:'none',textAlign:'left',fontSize:13,color:'#FF3B30',cursor:'pointer'}}>로그아웃</button>
+              </div>
             </div>
           ) : (
             <button className={styles.iconBtn} onClick={() => router.push('/auth')}><User size={18}/></button>
@@ -213,7 +239,7 @@ export default function HomeClient({ initialQuestions }: { initialQuestions: Que
                   const title = (document.getElementById('modal-title') as HTMLInputElement)?.value.trim();
                   const body = (document.getElementById('modal-body') as HTMLTextAreaElement)?.value.trim();
                   const cat = (document.getElementById('modal-cat') as HTMLSelectElement)?.value;
-                  if (title) submitQ(title, body || '', cat || '재테크 입문');
+                  if (title) { submitQ(title, body || '', cat || '재테크 입문'); }
                 }} style={{height:38,padding:'0 22px',background:'#00C73C',border:'none',borderRadius:8,color:'white',fontSize:14,fontWeight:700,cursor:'pointer'}}>질문 올리기</button>
               </div>
             </div>
