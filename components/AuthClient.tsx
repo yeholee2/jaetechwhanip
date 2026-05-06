@@ -33,11 +33,16 @@ export default function AuthClient() {
         setLoading(null);
         return;
       }
+      // 카카오는 이메일 권한이 비즈 인증 필요해서 닉네임만 요청
+      const oauthOptions: any = {
+        redirectTo: `${window.location.origin}/api/auth/callback?next=${encodeURIComponent(next)}`,
+      };
+      if (provider === 'kakao') {
+        oauthOptions.scopes = 'profile_nickname';
+      }
       const { error } = await supabase.auth.signInWithOAuth({
         provider: provider as 'kakao' | 'google',
-        options: {
-          redirectTo: `${window.location.origin}/api/auth/callback?next=${encodeURIComponent(next)}`,
-        },
+        options: oauthOptions,
       });
       if (error) throw error;
     } catch (e: any) {
