@@ -20,8 +20,16 @@ export default function HomeClient({ initialQuestions }: { initialQuestions: Que
   useEffect(() => {
     if (!hasSupabase()) { setAuthLoading(false); return; }
     const supabase = createClient();
-    supabase.auth.getUser().then(({ data }) => { setUser(data.user); setAuthLoading(false); });
-    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => { setUser(session?.user ?? null); setAuthLoading(false); });
+    // onAuthStateChange가 URL hash의 access_token을 자동 파싱해서 SIGNED_IN 이벤트 발생
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
+      setUser(session?.user ?? null);
+      setAuthLoading(false);
+    });
+    // 초기 세션도 확인 (이미 로그인된 경우)
+    supabase.auth.getSession().then(({ data }) => {
+      if (data.session) { setUser(data.session.user); }
+      setAuthLoading(false);
+    });
     return () => sub.subscription.unsubscribe();
   }, []);
 
