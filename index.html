@@ -4,555 +4,832 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
 <title>재테크한입 | 돈 고민, 여기서 해결</title>
+
+<!-- 토스페이스 (이모티콘) -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/toss/tossface/dist/tossface.css">
+<!-- Lucide Icons (UI 아이콘) -->
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<!-- Pretendard -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
+
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;500;600;700;800&display=swap');
+/* ══════════════════════════════════
+   디자인 토큰
+══════════════════════════════════ */
+:root {
+  --c-brand:    #3182F6;
+  --c-brand-bg: #EBF3FF;
+  --c-brand-dk: #1A6DE0;
 
-  /* ────────────────────────────────────────
-     공통 토큰 (PC·모바일 모두 사용)
-  ──────────────────────────────────────── */
-  :root {
-    --blue:#3182F6; --blue-bg:#EBF3FF; --blue-dark:#1A6DE0;
-    --green:#00C73C; --green-bg:#F0FBF4; --green-dark:#009E30;
-    --text1:#191F28; --text2:#4E5968; --text3:#8B95A1;
-    --border:#E5E8EB; --bg:#F9FAFB; --white:#FFFFFF;
-    --orange:#FF6B35; --purple:#7C5CBF;
+  --c-t1: #191F28;
+  --c-t2: #4E5968;
+  --c-t3: #8B95A1;
+
+  --c-line:  #E5E8EB;
+  --c-bg:    #F9FAFB;
+  --c-white: #FFFFFF;
+
+  --c-kakao:  #FEE500;
+  --c-naver:  #03C75A;
+  --c-google: #FFFFFF;
+
+  --r-sm: 6px;
+  --r-md: 10px;
+  --r-lg: 14px;
+  --r-xl: 20px;
+
+  --safe-b: env(safe-area-inset-bottom, 0px);
+}
+
+/* ══════════════════════════════════
+   리셋
+══════════════════════════════════ */
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+html, body { height:100%; }
+body {
+  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--c-bg);
+  color: var(--c-t1);
+  font-size: 15px;
+  line-height: 1.5;
+  overflow-x: hidden;
+}
+a { text-decoration:none; color:inherit; }
+button { font-family:inherit; cursor:pointer; border:none; background:none; }
+input, textarea { font-family:inherit; }
+
+/* 토스페이스 적용 */
+.tossface { font-family:'Tossface', sans-serif; font-style:normal; }
+
+/* ══════════════════════════════════
+   페이지 전환 라우터
+══════════════════════════════════ */
+.page { display:none; }
+.page.active { display:block; }
+
+/* ══════════════════════════════════
+   ━━━ PC 레이아웃 (> 768px) ━━━
+══════════════════════════════════ */
+
+/* PC 네비 */
+.pc-nav {
+  position:fixed; top:0; left:0; right:0; height:56px;
+  background:var(--c-white); border-bottom:1px solid var(--c-line);
+  display:flex; align-items:center; padding:0 28px; z-index:100; gap:0;
+}
+.pc-logo {
+  font-size:20px; font-weight:800; color:var(--c-brand);
+  letter-spacing:-0.5px; margin-right:28px;
+}
+.pc-logo em { color:var(--c-t1); font-style:normal; }
+.pc-menu { display:flex; list-style:none; height:56px; }
+.pc-menu li a {
+  display:flex; align-items:center; height:56px; padding:0 13px;
+  font-size:14px; font-weight:500; color:var(--c-t3);
+  border-bottom:2px solid transparent; transition:color .12s;
+}
+.pc-menu li a:hover { color:var(--c-t2); }
+.pc-menu li a.on { color:var(--c-t1); font-weight:700; border-bottom-color:var(--c-t1); }
+.pc-menu .sep { width:1px; height:20px; background:var(--c-line); margin:auto 6px; }
+.pc-right { margin-left:auto; display:flex; align-items:center; gap:6px; }
+.pc-icon-btn {
+  width:36px; height:36px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  color:var(--c-t2); transition:background .12s;
+}
+.pc-icon-btn:hover { background:var(--c-bg); }
+.btn-ask {
+  height:36px; padding:0 16px; background:var(--c-brand);
+  border-radius:var(--r-sm); color:#fff; font-size:14px; font-weight:700;
+  transition:background .12s;
+}
+.btn-ask:hover { background:var(--c-brand-dk); }
+
+/* PC 본문 */
+.pc-body {
+  max-width:1040px; margin:56px auto 0;
+  padding:24px 24px 0; display:flex; gap:20px;
+}
+.pc-feed { flex:1; min-width:0; }
+.pc-side { width:280px; flex-shrink:0; }
+
+/* 피드 탭 */
+.feed-tab-row { display:flex; gap:18px; margin-bottom:14px; }
+.f-tab {
+  font-size:20px; font-weight:700; color:var(--c-t3);
+  padding-bottom:4px; border-bottom:2.5px solid transparent;
+  transition:all .12s;
+}
+.f-tab.on { color:var(--c-t1); border-bottom-color:var(--c-t1); }
+
+/* 카테고리 필터 */
+.cat-row { display:flex; gap:5px; flex-wrap:wrap; margin-bottom:14px; }
+.c-tag {
+  height:30px; padding:0 13px; border-radius:20px;
+  border:1.5px solid var(--c-line); background:var(--c-white);
+  font-size:12px; font-weight:500; color:var(--c-t2);
+  white-space:nowrap; transition:all .12s;
+}
+.c-tag:hover { border-color:var(--c-brand); color:var(--c-brand); }
+.c-tag.on { border-color:var(--c-brand); background:var(--c-brand-bg); color:var(--c-brand-dk); font-weight:700; }
+
+/* 레퍼럴 배너 PC */
+.ref-banner {
+  background:linear-gradient(135deg,#5C6BC0,#7E57C2);
+  border-radius:var(--r-lg); padding:13px 16px; margin-bottom:12px;
+  display:flex; align-items:center; justify-content:space-between;
+}
+.ref-txt { color:#fff; }
+.ref-txt strong { font-size:13px; display:block; margin-bottom:2px; }
+.ref-txt span { font-size:11px; color:rgba(255,255,255,.7); }
+.ref-copy-btn {
+  height:28px; padding:0 12px; background:#fff; border-radius:var(--r-sm);
+  font-size:12px; font-weight:700; color:#5C6BC0; white-space:nowrap;
+}
+
+/* PC 질문 카드 */
+.q-card {
+  background:var(--c-white); border-radius:var(--r-lg);
+  border:1px solid var(--c-line); padding:18px 20px;
+  margin-bottom:8px; cursor:pointer; transition:box-shadow .12s;
+}
+.q-card:hover { box-shadow:0 2px 12px rgba(0,0,0,.06); }
+.q-card-inner { display:flex; gap:12px; }
+.q-avatar {
+  width:38px; height:38px; border-radius:50%;
+  background:var(--c-bg); border:1px solid var(--c-line);
+  display:flex; align-items:center; justify-content:center;
+  font-size:20px; flex-shrink:0; position:relative;
+  font-family:'Tossface', sans-serif;
+}
+.lv-badge {
+  position:absolute; bottom:-3px; right:-3px;
+  font-size:8px; font-weight:700; padding:1px 4px; border-radius:3px;
+  border:1.5px solid #fff; white-space:nowrap;
+}
+.lv0 { background:#CD7F32; color:#fff; }
+.lv1 { background:#B0B0B0; color:#fff; }
+.lv2 { background:#F4C430; color:#333; }
+.lv3 { background:linear-gradient(135deg,#667eea,#764ba2); color:#fff; }
+.q-meta-wrap { flex:1; min-width:0; }
+.q-meta {
+  display:flex; align-items:center; gap:4px; flex-wrap:wrap; margin-bottom:7px;
+}
+.q-cat { font-size:12px; font-weight:700; color:var(--c-t1); }
+.q-dot { font-size:10px; color:var(--c-t3); }
+.q-topic, .q-time { font-size:12px; color:var(--c-t3); }
+.q-author { font-size:12px; color:var(--c-brand); font-weight:600; }
+.adopted { font-size:10px; font-weight:700; color:#E65100; background:#FFF3E0; padding:1px 5px; border-radius:3px; }
+.q-title { font-size:15px; font-weight:700; line-height:1.45; margin-bottom:6px; color:var(--c-t1); }
+.q-body {
+  font-size:13px; color:var(--c-t2); line-height:1.6;
+  display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;
+  margin-bottom:12px;
+}
+.q-foot { display:flex; align-items:center; justify-content:space-between; }
+.ans-row { display:flex; align-items:center; gap:6px; }
+.ans-avs { display:flex; }
+.ans-av {
+  width:20px; height:20px; border-radius:50%; border:1.5px solid #fff;
+  margin-left:-5px; background:var(--c-brand-bg);
+  display:flex; align-items:center; justify-content:center;
+  font-size:10px; font-family:'Tossface',sans-serif;
+}
+.ans-av:first-child { margin-left:0; }
+.ans-text { font-size:12px; color:var(--c-t2); }
+.ans-text b { color:var(--c-t1); }
+.q-btns { display:flex; gap:2px; }
+.q-btn {
+  width:30px; height:30px; border-radius:var(--r-sm);
+  display:flex; align-items:center; justify-content:center;
+  color:var(--c-t3); transition:all .12s;
+}
+.q-btn:hover { background:var(--c-bg); color:var(--c-t2); }
+
+/* PC 사이드바 */
+.widget {
+  background:var(--c-white); border-radius:var(--r-lg);
+  border:1px solid var(--c-line); overflow:hidden; margin-bottom:10px;
+}
+.w-head {
+  padding:13px 15px 10px; font-size:13px; font-weight:700;
+  color:var(--c-t1); border-bottom:1px solid var(--c-line);
+}
+.spar-widget { background:var(--c-t1); padding:16px; }
+.spar-tag { font-size:11px; color:rgba(255,255,255,.5); margin-bottom:4px; }
+.spar-title { font-size:15px; font-weight:700; color:#fff; line-height:1.4; margin-bottom:10px; }
+.spar-foot { display:flex; align-items:center; justify-content:space-between; }
+.spar-time { font-size:11px; color:rgba(255,255,255,.5); }
+.spar-join {
+  height:26px; padding:0 12px; background:#fff; border-radius:5px;
+  font-size:12px; font-weight:700; color:var(--c-t1);
+}
+.wlink {
+  display:flex; align-items:center; gap:9px; padding:10px 15px;
+  border-bottom:1px solid var(--c-line); font-size:13px; font-weight:500;
+  color:var(--c-t1); transition:background .12s;
+}
+.wlink:last-child { border-bottom:none; }
+.wlink:hover { background:var(--c-bg); }
+.wlink-arr { margin-left:auto; color:var(--c-t3); }
+.kw-list { padding:11px 15px; display:flex; flex-wrap:wrap; gap:5px; }
+.kw {
+  height:27px; padding:0 11px; border-radius:20px;
+  background:var(--c-bg); border:1px solid var(--c-line);
+  font-size:12px; color:var(--c-t2); display:flex; align-items:center; gap:3px;
+  cursor:pointer; transition:all .12s;
+}
+.kw:hover { border-color:var(--c-brand); color:var(--c-brand); }
+.kw-n { font-size:10px; font-weight:700; color:var(--c-brand); }
+.ranker { display:flex; align-items:center; gap:9px; padding:9px 15px; border-bottom:1px solid var(--c-line); }
+.ranker:last-child { border-bottom:none; }
+.rk-n { font-size:13px; font-weight:800; color:var(--c-t3); min-width:16px; }
+.rk-n.top { color:var(--c-brand); }
+.rk-av { width:28px; height:28px; border-radius:50%; background:var(--c-bg); border:1px solid var(--c-line); display:flex; align-items:center; justify-content:center; font-size:14px; font-family:'Tossface',sans-serif; }
+.rk-info { flex:1; }
+.rk-name { font-size:12px; font-weight:600; }
+.rk-sub { font-size:11px; color:var(--c-t3); }
+.w-foot { padding:10px 15px; border-top:1px solid var(--c-line); display:flex; flex-wrap:wrap; gap:8px; }
+.w-flink { font-size:11px; color:var(--c-t3); }
+.w-flink:hover { color:var(--c-t2); }
+
+/* ══════════════════════════════════
+   ━━━ 모바일 전용 요소 (기본 숨김) ━━━
+══════════════════════════════════ */
+.mo-topbar, .mo-gnav, .mo-feed-section,
+.mo-ref, .mo-spar, .bottom-nav, .fab { display:none; }
+
+/* ══════════════════════════════════
+   ━━━ 미디어쿼리: 모바일 (≤ 768px) ━━━
+══════════════════════════════════ */
+@media (max-width: 768px) {
+  /* PC 요소 숨김 */
+  .pc-nav, .pc-body, .pc-side { display:none !important; }
+
+  /* 모바일 상단 */
+  .mo-topbar {
+    display:block; position:fixed; top:0; left:0; right:0;
+    background:var(--c-white); border-bottom:1px solid var(--c-line); z-index:100;
   }
-  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
-  html,body{height:100%;}
-  body{font-family:'Pretendard',-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg);color:var(--text1);font-size:15px;}
+  .mo-top-inner {
+    display:flex; align-items:center; height:50px;
+    padding:0 16px; justify-content:space-between;
+  }
+  .mo-logo { font-size:20px; font-weight:800; color:var(--c-brand); letter-spacing:-0.5px; }
+  .mo-logo em { color:var(--c-t1); font-style:normal; }
+  .mo-icons { display:flex; gap:2px; }
+  .mo-icon {
+    width:38px; height:38px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center; color:var(--c-t2);
+  }
+  .mo-icon:active { background:var(--c-bg); }
 
-  /* ────────────────────────────────────────
-     PC 레이아웃 (768px 초과)
-  ──────────────────────────────────────── */
+  /* 모바일 GNAV */
+  .mo-gnav {
+    display:flex; overflow-x:auto; scrollbar-width:none;
+    border-bottom:1px solid var(--c-line); background:var(--c-white);
+  }
+  .mo-gnav::-webkit-scrollbar { display:none; }
+  .mo-gnav a {
+    display:flex; align-items:center; height:42px; padding:0 13px;
+    font-size:13px; font-weight:500; color:var(--c-t3);
+    white-space:nowrap; border-bottom:2px solid transparent; flex-shrink:0;
+  }
+  .mo-gnav a.on { color:var(--c-t1); font-weight:700; border-bottom-color:var(--c-t1); }
 
-  /* PC NAV */
-  .pc-nav{position:fixed;top:0;left:0;right:0;height:60px;background:var(--white);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 24px;z-index:100;}
-  .nav-logo{font-size:22px;font-weight:800;color:var(--green);text-decoration:none;margin-right:32px;letter-spacing:-1px;}
-  .nav-logo span{color:var(--text1);}
-  .nav-menu{display:flex;gap:0;list-style:none;}
-  .nav-menu a{display:flex;align-items:center;height:60px;padding:0 14px;text-decoration:none;color:var(--text2);font-size:15px;font-weight:500;border-bottom:2px solid transparent;transition:all .15s;}
-  .nav-menu a:hover{color:var(--text1);}
-  .nav-menu a.active{color:var(--text1);font-weight:700;border-bottom-color:var(--text1);}
-  .nav-sep{width:1px;height:20px;background:var(--border);margin:0 6px;align-self:center;}
-  .nav-menu a.dim{color:var(--text3);font-size:14px;}
-  .nav-badge{background:var(--orange);color:white;font-size:10px;font-weight:700;border-radius:10px;padding:1px 5px;margin-left:2px;}
-  .nav-right{margin-left:auto;display:flex;align-items:center;gap:10px;}
-  .nav-icon{width:36px;height:36px;border-radius:50%;border:none;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text2);transition:background .15s;}
-  .nav-icon:hover{background:var(--bg);}
-  .btn-q{height:38px;padding:0 18px;background:var(--green);border:none;border-radius:6px;color:white;font-size:14px;font-weight:700;cursor:pointer;white-space:nowrap;}
-  .btn-q:hover{background:var(--green-dark);}
+  /* 모바일 메인 */
+  .mo-main { margin-top:92px; padding-bottom:calc(68px + var(--safe-b)); }
 
-  /* PC LAYOUT */
-  .pc-wrap{max-width:1060px;margin:60px auto 0;padding:0 24px;display:flex;gap:20px;}
-  .feed{flex:1;min-width:0;padding-top:24px;}
-  .right{width:290px;flex-shrink:0;padding-top:24px;}
+  /* 모바일 피드 탭 */
+  .mo-feed-section {
+    display:flex; gap:14px; padding:13px 16px 0;
+  }
+  .mo-feed-section .f-tab { font-size:18px; }
 
-  /* 피드 탭 */
-  .feed-tabs{display:flex;gap:0;margin-bottom:16px;}
-  .ftab{font-size:22px;font-weight:700;color:var(--text3);cursor:pointer;margin-right:18px;padding-bottom:2px;border:none;border-bottom:2px solid transparent;background:none;transition:all .15s;}
-  .ftab.active{color:var(--text1);border-bottom-color:var(--text1);}
+  /* 모바일 카테고리 */
+  .mo-cat-row {
+    display:flex; overflow-x:auto; scrollbar-width:none;
+    padding:8px 16px; gap:5px;
+  }
+  .mo-cat-row::-webkit-scrollbar { display:none; }
+  .mo-cat-row .c-tag { flex-shrink:0; }
 
-  /* 카테고리 탭 */
-  .cat-tabs{display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap;}
-  .ctab{height:32px;padding:0 14px;border-radius:20px;border:1.5px solid var(--border);background:var(--white);font-size:13px;font-weight:500;color:var(--text2);cursor:pointer;transition:all .15s;white-space:nowrap;}
-  .ctab:hover{border-color:var(--green);color:var(--green);}
-  .ctab.active{border-color:var(--green);background:var(--green-bg);color:var(--green-dark);font-weight:700;}
-
-  /* 레퍼럴 배너 (PC) */
-  .referral-banner{background:linear-gradient(135deg,#667eea,#764ba2);border-radius:12px;padding:14px 18px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;}
-  .referral-left{color:white;}
-  .referral-title{font-size:14px;font-weight:700;margin-bottom:2px;}
-  .referral-sub{font-size:12px;color:rgba(255,255,255,.75);}
-  .referral-btn{height:30px;padding:0 14px;background:white;border:none;border-radius:6px;font-size:12px;font-weight:700;color:#764ba2;cursor:pointer;white-space:nowrap;}
-
-  /* PC 질문 카드 */
-  .qcard{background:var(--white);border-radius:12px;border:1px solid var(--border);padding:20px 22px;margin-bottom:10px;cursor:pointer;transition:box-shadow .15s;}
-  .qcard:hover{box-shadow:0 2px 14px rgba(0,0,0,.07);}
-  .qcard-top{display:flex;gap:12px;align-items:flex-start;}
-  .qavatar{width:40px;height:40px;border-radius:50%;background:var(--bg);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;position:relative;}
-  .level-badge{position:absolute;bottom:-3px;right:-3px;font-size:9px;font-weight:700;padding:1px 4px;border-radius:4px;border:1.5px solid white;white-space:nowrap;}
-  .lv1{background:#CD7F32;color:white;}
-  .lv2{background:#C0C0C0;color:white;}
-  .lv3{background:#FFD700;color:#333;}
-  .lv4{background:linear-gradient(135deg,#667eea,#764ba2);color:white;}
-  .qmeta-pc{flex:1;min-width:0;}
-  .qmeta-row1{display:flex;align-items:center;gap:5px;margin-bottom:8px;flex-wrap:wrap;}
-  .qcat{font-size:13px;font-weight:700;color:var(--text1);}
-  .qtopic{font-size:13px;color:var(--text3);}
-  .qdot{color:var(--text3);font-size:11px;}
-  .qauthor{font-size:13px;color:var(--green);font-weight:600;}
-  .qtime{font-size:13px;color:var(--text3);}
-  .qtitle{font-size:16px;font-weight:700;color:var(--text1);line-height:1.45;margin-bottom:8px;}
-  .qbody{font-size:14px;color:var(--text2);line-height:1.65;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-bottom:14px;}
-  .qfoot{display:flex;align-items:center;justify-content:space-between;}
-  .qans{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text2);}
-  .ans-avatars{display:flex;}
-  .ans-av{width:22px;height:22px;border-radius:50%;border:2px solid white;margin-left:-6px;background:var(--green-bg);display:flex;align-items:center;justify-content:center;font-size:10px;}
-  .ans-av:first-child{margin-left:0;}
-  .qbtns{display:flex;gap:2px;}
-  .qbtn{width:32px;height:32px;border:none;background:none;border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text3);transition:all .15s;}
-  .qbtn:hover{background:var(--bg);color:var(--text2);}
-  .adopted-tag{display:inline-flex;align-items:center;gap:3px;height:20px;padding:0 7px;background:#FFF3E0;border-radius:4px;font-size:11px;font-weight:700;color:#E65100;margin-left:6px;}
-
-  /* 사이드바 위젯 */
-  .widget{background:var(--white);border-radius:12px;border:1px solid var(--border);overflow:hidden;margin-bottom:12px;}
-  .w-head{padding:14px 16px 10px;font-size:13px;font-weight:700;color:var(--text1);border-bottom:1px solid var(--border);}
-  .w-banner{background:linear-gradient(135deg,#1a1a2e,#16213e);padding:18px;color:white;}
-  .w-banner-tag{font-size:11px;color:rgba(255,255,255,.55);margin-bottom:5px;}
-  .w-banner-title{font-size:17px;font-weight:800;line-height:1.3;margin-bottom:12px;}
-  .w-banner-btm{display:flex;align-items:center;justify-content:space-between;}
-  .w-banner-time{font-size:11px;color:rgba(255,255,255,.55);}
-  .w-banner-btn{height:26px;padding:0 12px;background:white;border:none;border-radius:5px;font-size:12px;font-weight:700;color:var(--text1);cursor:pointer;}
-  .wlink{display:flex;align-items:center;gap:10px;padding:11px 16px;border-bottom:1px solid var(--border);text-decoration:none;color:var(--text1);transition:background .15s;font-size:14px;font-weight:500;}
-  .wlink:last-child{border-bottom:none;}
-  .wlink:hover{background:var(--bg);}
-  .wlink-arrow{margin-left:auto;color:var(--text3);}
-  .keyword-list{padding:12px 16px;display:flex;flex-wrap:wrap;gap:6px;}
-  .keyword{height:28px;padding:0 12px;border-radius:20px;background:var(--bg);border:1px solid var(--border);font-size:12px;color:var(--text2);cursor:pointer;display:flex;align-items:center;gap:4px;}
-  .keyword:hover{border-color:var(--green);color:var(--green);}
-  .keyword-rank{font-size:10px;font-weight:700;color:var(--green);}
-  .ranker-item{display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:1px solid var(--border);}
-  .ranker-item:last-child{border-bottom:none;}
-  .ranker-rank{font-size:13px;font-weight:800;color:var(--text3);min-width:18px;}
-  .ranker-rank.top{color:var(--green);}
-  .ranker-avatar{width:30px;height:30px;border-radius:50%;background:var(--bg);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:14px;}
-  .ranker-info{flex:1;}
-  .ranker-name{font-size:13px;font-weight:600;color:var(--text1);}
-  .ranker-sub{font-size:11px;color:var(--text3);}
-  .wfoot{padding:12px 16px;border-top:1px solid var(--border);display:flex;flex-wrap:wrap;gap:8px;}
-  .wflink{font-size:11px;color:var(--text3);text-decoration:none;}
-  .wflink:hover{color:var(--text2);}
-
-  /* ────────────────────────────────────────
-     모바일 전용 요소 (기본 숨김)
-  ──────────────────────────────────────── */
-  .mobile-topbar,
-  .mobile-gnav,
-  .mobile-feed-tabs,
-  .mobile-cat-wrap,
-  .mobile-referral,
-  .mobile-spar-banner,
-  .bottom-nav,
-  .fab { display: none; }
-
-  /* ────────────────────────────────────────
-     모바일 레이아웃 (768px 이하)
-  ──────────────────────────────────────── */
-  @media (max-width: 768px) {
-
-    /* PC 요소 숨김 */
-    .pc-nav, .pc-wrap, .right,
-    .referral-banner, .pc-only { display: none !important; }
-
-    body { overflow-x: hidden; }
-
-    /* 모바일 TOP BAR */
-    .mobile-topbar {
-      display: block;
-      position: fixed; top:0; left:0; right:0;
-      background: var(--white);
-      border-bottom: 1px solid var(--border);
-      z-index: 100;
-    }
-    .mobile-topbar-inner {
-      display: flex; align-items: center;
-      padding: 0 16px; height: 52px;
-      justify-content: space-between;
-    }
-    .m-logo { font-size:22px; font-weight:800; color:var(--blue); letter-spacing:-1px; text-decoration:none; }
-    .m-logo span { color: var(--text1); }
-    .m-icons { display:flex; gap:2px; }
-    .m-icon-btn { width:40px; height:40px; border:none; background:none; cursor:pointer; display:flex; align-items:center; justify-content:center; color:var(--text2); border-radius:50%; }
-    .m-icon-btn:active { background: var(--bg); }
-
-    /* 모바일 GNAV */
-    .mobile-gnav {
-      display: flex;
-      overflow-x: auto; scrollbar-width: none;
-      border-bottom: 1px solid var(--border);
-      background: var(--white);
-    }
-    .mobile-gnav::-webkit-scrollbar { display: none; }
-    .mobile-gnav a {
-      display: flex; align-items: center;
-      height: 44px; padding: 0 14px;
-      font-size: 14px; font-weight: 500;
-      color: var(--text3); text-decoration: none;
-      white-space: nowrap; border-bottom: 2px solid transparent;
-      flex-shrink: 0;
-    }
-    .mobile-gnav a.active { color:var(--text1); font-weight:700; border-bottom-color:var(--text1); }
-    .gnav-badge { background:var(--orange); color:white; font-size:9px; font-weight:700; border-radius:8px; padding:1px 4px; margin-left:2px; }
-
-    /* 모바일 메인 */
-    .mobile-main { margin-top: 96px; padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px)); }
-
-    /* 모바일 피드 탭 */
-    .mobile-feed-tabs { display:flex; gap:16px; padding:14px 16px 0; }
-    .mobile-feed-tabs .ftab { font-size:20px; }
-
-    /* 모바일 카테고리 */
-    .mobile-cat-wrap {
-      display: flex; overflow-x:auto; scrollbar-width:none;
-      padding: 10px 16px; gap:6px;
-    }
-    .mobile-cat-wrap::-webkit-scrollbar { display: none; }
-    .mobile-cat-wrap .ctag { flex-shrink:0; }
-
-    /* 모바일 레퍼럴 */
-    .mobile-referral {
-      display: flex;
-      margin: 2px 16px 10px;
-      background: linear-gradient(135deg,#667eea,#764ba2);
-      border-radius: 12px; padding:13px 16px;
-      align-items: center; justify-content: space-between;
-    }
-    .m-ref-left { color:white; }
-    .m-ref-title { font-size:13px; font-weight:700; margin-bottom:2px; }
-    .m-ref-sub { font-size:11px; color:rgba(255,255,255,.7); }
-    .m-ref-btn { height:28px; padding:0 12px; background:white; border:none; border-radius:6px; font-size:12px; font-weight:700; color:#764ba2; cursor:pointer; white-space:nowrap; }
-
-    /* 모바일 스파링 배너 */
-    .mobile-spar-banner {
-      display: block;
-      margin: 2px 16px 10px;
-      background: var(--text1); border-radius:12px; padding:14px 16px; cursor:pointer;
-    }
-    .spar-tag { font-size:11px; color:rgba(255,255,255,.5); margin-bottom:4px; }
-    .spar-title { font-size:15px; font-weight:700; color:white; line-height:1.4; margin-bottom:10px; }
-    .spar-foot { display:flex; align-items:center; justify-content:space-between; }
-    .spar-time { font-size:11px; color:rgba(255,255,255,.5); }
-    .spar-btn { height:26px; padding:0 12px; background:white; border:none; border-radius:5px; font-size:12px; font-weight:700; color:var(--text1); cursor:pointer; }
-
-    /* 모바일 카드 스타일 오버라이드 */
-    #feed .qcard {
-      border-radius: 0;
-      border: none;
-      border-top: 1px solid var(--border);
-      margin-bottom: 0;
-      box-shadow: none;
-    }
-    #feed .qcard:hover { box-shadow: none; background: var(--bg); }
-    #feed .qcard-top { display: block; }
-    #feed .qavatar { display: none; }
-    #feed .qmeta-pc { margin-left: 0; }
-    #feed .qcat { font-size:11px; }
-    #feed .qtitle { font-size:15px; }
-    #feed .qbody { font-size:13px; }
-    #feed .qauthor { color: var(--text2); }
-
-    /* 바텀 내비 */
-    .bottom-nav {
-      display: flex;
-      position: fixed; bottom:0; left:0; right:0;
-      background: var(--white);
-      border-top: 1px solid var(--border);
-      align-items: center;
-      padding: 8px 0 calc(8px + env(safe-area-inset-bottom, 0px));
-      z-index: 100;
-    }
-    .bnav { flex:1; display:flex; flex-direction:column; align-items:center; gap:3px; border:none; background:none; cursor:pointer; padding:4px 0; }
-    .bnav svg { color:var(--text3); }
-    .bnav.active svg { color:var(--blue); }
-    .bnav-label { font-size:10px; color:var(--text3); font-weight:500; }
-    .bnav.active .bnav-label { color:var(--blue); font-weight:700; }
-
-    /* FAB */
-    .fab {
-      display: flex;
-      position: fixed;
-      bottom: calc(72px + env(safe-area-inset-bottom, 0px) + 12px);
-      right: 16px;
-      width:52px; height:52px; border-radius:50%;
-      background: var(--blue); border:none; cursor:pointer;
-      align-items:center; justify-content:center;
-      box-shadow: 0 4px 16px rgba(49,130,246,.4);
-      z-index: 99;
-    }
-    .fab:active { transform: scale(.95); }
-
-    /* 모바일 모달 (bottom sheet) */
-    .modal {
-      border-radius: 20px 20px 0 0 !important;
-      max-height: 90vh;
-      overflow-y: auto;
-    }
-    .overlay { align-items: flex-end !important; }
-    @keyframes slideUp { from{transform:translateY(100%)} to{transform:translateY(0)} }
-    .modal { animation: slideUp .25s ease !important; }
-    .modal-handle { display: block !important; }
+  /* 모바일 레퍼럴 */
+  .mo-ref {
+    display:flex; margin:4px 16px 8px;
+    background:linear-gradient(135deg,#5C6BC0,#7E57C2);
+    border-radius:var(--r-lg); padding:12px 15px;
+    align-items:center; justify-content:space-between;
+  }
+  .mo-ref-txt { color:#fff; }
+  .mo-ref-txt strong { font-size:13px; display:block; margin-bottom:2px; }
+  .mo-ref-txt span { font-size:11px; color:rgba(255,255,255,.7); }
+  .mo-ref-btn {
+    height:27px; padding:0 11px; background:#fff; border-radius:var(--r-sm);
+    font-size:12px; font-weight:700; color:#5C6BC0; white-space:nowrap;
   }
 
-  /* ────────────────────────────────────────
-     공통 모달
-  ──────────────────────────────────────── */
-  .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;align-items:center;justify-content:center;padding:20px;}
-  .overlay.open{display:flex;}
-  .modal{background:var(--white);border-radius:16px;width:100%;max-width:560px;box-shadow:0 24px 60px rgba(0,0,0,.18);animation:mup .2s ease;}
-  @keyframes mup{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
-  .modal-handle{display:none;width:36px;height:4px;background:var(--border);border-radius:2px;margin:12px auto 0;}
-  .mhead{padding:18px 22px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
-  .mhead h2{font-size:16px;font-weight:700;}
-  .mx{width:30px;height:30px;border:none;background:var(--bg);border-radius:7px;cursor:pointer;font-size:20px;color:var(--text2);display:flex;align-items:center;justify-content:center;}
-  .mbody{padding:18px 22px;}
-  .mlabel{font-size:12px;font-weight:600;color:var(--text2);margin-bottom:7px;}
-  .cats{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:14px;}
-  .cat{height:29px;padding:0 13px;border-radius:20px;border:1.5px solid var(--border);background:none;font-size:13px;color:var(--text2);cursor:pointer;transition:all .15s;}
-  .cat:hover{border-color:var(--green);color:var(--green);}
-  .cat.on{border-color:var(--green);background:var(--green-bg);color:var(--green-dark);font-weight:600;}
-  .inp{width:100%;padding:11px 13px;border:1.5px solid var(--border);border-radius:9px;font-size:14px;font-family:inherit;color:var(--text1);outline:none;transition:border .15s;resize:none;background:var(--white);}
-  .inp:focus{border-color:var(--blue);}
-  .inp::placeholder{color:var(--text3);}
-  .rrow{display:flex;align-items:center;gap:7px;margin-top:7px;}
-  .btn-rf{display:flex;align-items:center;gap:4px;height:28px;padding:0 11px;border:none;border-radius:6px;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:white;font-size:12px;font-weight:600;cursor:pointer;}
-  .rhint{font-size:11px;color:var(--text3);}
-  .rbox{display:none;margin-top:9px;padding:11px;background:#faf8ff;border-radius:9px;border:1px solid #ddd5ff;}
-  .rbox.show{display:block;}
-  .rlabel{font-size:11px;font-weight:700;color:#7c5cbf;margin-bottom:7px;}
-  .ropts{display:flex;flex-direction:column;gap:5px;}
-  .ropt{padding:9px 11px;background:white;border-radius:7px;border:1.5px solid transparent;font-size:13px;cursor:pointer;text-align:left;line-height:1.4;}
-  .ropt:hover{border-color:#7c5cbf;}
-  .ropt.on{border-color:var(--blue);background:var(--blue-bg);}
-  .mfoot{padding:12px 22px 18px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:7px;}
-  .btn-cancel{height:38px;padding:0 18px;background:var(--bg);border:1px solid var(--border);border-radius:8px;font-size:14px;color:var(--text2);cursor:pointer;font-family:inherit;}
-  .btn-submit{height:38px;padding:0 22px;background:var(--green);border:none;border-radius:8px;color:white;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;}
-  .btn-submit:disabled{background:var(--text3);cursor:not-allowed;}
-  .spin{display:inline-block;width:12px;height:12px;border:2px solid rgba(255,255,255,.4);border-top-color:white;border-radius:50%;animation:spin .7s linear infinite;}
-  @keyframes spin{to{transform:rotate(360deg)}}
-  .toast{position:fixed;bottom:26px;left:50%;transform:translateX(-50%) translateY(50px);background:var(--text1);color:white;padding:11px 18px;border-radius:8px;font-size:13px;z-index:300;transition:transform .25s,opacity .25s;opacity:0;white-space:nowrap;}
-  .toast.show{transform:translateX(-50%) translateY(0);opacity:1;}
-  @media(max-width:768px){.toast{bottom:calc(80px + env(safe-area-inset-bottom,0px));}}
+  /* 모바일 스파링 */
+  .mo-spar {
+    display:block; margin:0 16px 8px; background:var(--c-t1);
+    border-radius:var(--r-lg); padding:14px 15px;
+  }
+
+  /* 모바일 카드 오버라이드 */
+  #feed .q-card {
+    border-radius:0; border:none; border-top:1px solid var(--c-line);
+    margin-bottom:0; box-shadow:none;
+  }
+  #feed .q-card:hover { box-shadow:none; }
+  #feed .q-card:active { background:var(--c-bg); }
+  #feed .q-avatar { display:none; }
+  #feed .q-card-inner { display:block; }
+  #feed .q-meta-wrap { margin:0; }
+  #feed .q-title { font-size:14px; }
+  #feed .q-author { color:var(--c-t2); }
+
+  /* 바텀 내비 */
+  .bottom-nav {
+    display:flex; position:fixed; bottom:0; left:0; right:0;
+    background:var(--c-white); border-top:1px solid var(--c-line);
+    padding:6px 0 calc(6px + var(--safe-b)); z-index:100;
+  }
+  .b-btn {
+    flex:1; display:flex; flex-direction:column; align-items:center; gap:3px;
+    padding:4px 0; color:var(--c-t3);
+  }
+  .b-btn.on { color:var(--c-brand); }
+  .b-btn span { font-size:10px; font-weight:500; }
+  .b-btn.on span { font-weight:700; }
+
+  /* FAB */
+  .fab {
+    display:flex; position:fixed;
+    bottom:calc(66px + var(--safe-b) + 10px); right:16px;
+    width:50px; height:50px; border-radius:50%;
+    background:var(--c-brand); box-shadow:0 4px 14px rgba(49,130,246,.38);
+    align-items:center; justify-content:center; z-index:99;
+    transition:transform .12s;
+  }
+  .fab:active { transform:scale(.94); }
+
+  /* 모달 → bottom sheet */
+  .overlay { align-items:flex-end !important; padding:0 !important; }
+  .modal {
+    border-radius:var(--r-xl) var(--r-xl) 0 0 !important;
+    max-height:90vh; overflow-y:auto;
+    animation:slideUp .22s ease !important;
+  }
+  @keyframes slideUp { from{transform:translateY(100%)} to{transform:translateY(0)} }
+  .m-handle { display:block !important; }
+
+  .toast { bottom:calc(74px + var(--safe-b)) !important; }
+}
+
+/* ══════════════════════════════════
+   공통 모달
+══════════════════════════════════ */
+.overlay {
+  display:none; position:fixed; inset:0;
+  background:rgba(0,0,0,.46); z-index:200;
+  align-items:center; justify-content:center; padding:20px;
+}
+.overlay.open { display:flex; }
+.modal {
+  background:var(--c-white); border-radius:var(--r-xl);
+  width:100%; max-width:540px;
+  box-shadow:0 20px 60px rgba(0,0,0,.15);
+  animation:mup .18s ease;
+}
+@keyframes mup { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+.m-handle { display:none; width:34px; height:4px; background:var(--c-line); border-radius:2px; margin:11px auto 0; }
+.m-head {
+  padding:16px 20px 13px; border-bottom:1px solid var(--c-line);
+  display:flex; align-items:center; justify-content:space-between;
+}
+.m-head h2 { font-size:16px; font-weight:700; }
+.m-close {
+  width:30px; height:30px; background:var(--c-bg); border-radius:var(--r-sm);
+  display:flex; align-items:center; justify-content:center; color:var(--c-t2);
+  font-size:18px;
+}
+.m-body { padding:16px 20px; }
+.m-label { font-size:12px; font-weight:600; color:var(--c-t2); margin-bottom:7px; }
+.m-cats { display:flex; gap:5px; flex-wrap:wrap; margin-bottom:13px; }
+.m-cat {
+  height:28px; padding:0 12px; border-radius:20px;
+  border:1.5px solid var(--c-line); font-size:12px; color:var(--c-t2);
+  transition:all .12s;
+}
+.m-cat:hover { border-color:var(--c-brand); color:var(--c-brand); }
+.m-cat.on { border-color:var(--c-brand); background:var(--c-brand-bg); color:var(--c-brand-dk); font-weight:700; }
+.m-inp {
+  width:100%; padding:10px 13px; border:1.5px solid var(--c-line);
+  border-radius:var(--r-md); font-size:14px; color:var(--c-t1);
+  outline:none; resize:none; background:var(--c-white); transition:border .12s;
+}
+.m-inp:focus { border-color:var(--c-brand); }
+.m-inp::placeholder { color:var(--c-t3); }
+.ai-btn {
+  display:inline-flex; align-items:center; gap:5px;
+  height:30px; padding:0 13px; margin-top:8px;
+  background:linear-gradient(135deg,#6366f1,#8b5cf6);
+  border-radius:var(--r-sm); color:#fff; font-size:12px; font-weight:600;
+}
+.r-box {
+  display:none; margin-top:8px; padding:11px;
+  background:#faf8ff; border-radius:var(--r-md); border:1px solid #ddd5ff;
+}
+.r-box.show { display:block; }
+.r-label { font-size:11px; font-weight:700; color:#7c5cbf; margin-bottom:7px; }
+.r-opt {
+  width:100%; padding:9px 11px; background:#fff; border-radius:var(--r-sm);
+  border:1.5px solid transparent; font-size:13px; text-align:left;
+  line-height:1.4; margin-bottom:5px; transition:border .1s;
+}
+.r-opt:last-child { margin-bottom:0; }
+.r-opt:hover { border-color:#7c5cbf; }
+.r-opt.on { border-color:var(--c-brand); background:var(--c-brand-bg); }
+.m-foot {
+  padding:12px 20px 16px; border-top:1px solid var(--c-line);
+  display:flex; justify-content:flex-end; gap:7px;
+}
+.btn-cancel {
+  height:38px; padding:0 16px; background:var(--c-bg);
+  border:1px solid var(--c-line); border-radius:var(--r-md);
+  font-size:14px; color:var(--c-t2);
+}
+.btn-submit {
+  height:38px; padding:0 20px; background:var(--c-brand);
+  border-radius:var(--r-md); color:#fff; font-size:14px; font-weight:700;
+}
+.btn-submit:disabled { background:var(--c-t3); cursor:not-allowed; }
+.spin {
+  display:inline-block; width:12px; height:12px;
+  border:2px solid rgba(255,255,255,.4); border-top-color:#fff;
+  border-radius:50%; animation:spin .7s linear infinite;
+}
+@keyframes spin { to{transform:rotate(360deg)} }
+
+/* ══════════════════════════════════
+   토스트
+══════════════════════════════════ */
+.toast {
+  position:fixed; bottom:26px; left:50%;
+  transform:translateX(-50%) translateY(30px);
+  background:var(--c-t1); color:#fff; padding:10px 17px;
+  border-radius:var(--r-md); font-size:13px; z-index:400;
+  transition:transform .22s, opacity .22s; opacity:0; white-space:nowrap;
+}
+.toast.show { transform:translateX(-50%) translateY(0); opacity:1; }
+
+/* ══════════════════════════════════
+   ━━━ 로그인 페이지 ━━━
+══════════════════════════════════ */
+#page-login {
+  min-height:100vh; display:flex; align-items:center; justify-content:center;
+  background:var(--c-bg); padding:20px;
+}
+.login-box {
+  background:var(--c-white); border-radius:var(--r-xl);
+  border:1px solid var(--c-line); padding:40px 36px 36px;
+  width:100%; max-width:400px;
+  box-shadow:0 4px 24px rgba(0,0,0,.06);
+}
+.login-logo {
+  text-align:center; margin-bottom:28px;
+}
+.login-logo .logo-mark {
+  font-size:28px; font-weight:800; color:var(--c-brand); letter-spacing:-0.5px;
+}
+.login-logo .logo-mark em { color:var(--c-t1); font-style:normal; }
+.login-logo p {
+  font-size:14px; color:var(--c-t3); margin-top:5px; line-height:1.55;
+}
+.login-divider {
+  display:flex; align-items:center; gap:12px; margin:24px 0;
+}
+.login-divider::before, .login-divider::after {
+  content:''; flex:1; height:1px; background:var(--c-line);
+}
+.login-divider span { font-size:12px; color:var(--c-t3); white-space:nowrap; }
+
+/* 소셜 로그인 버튼 */
+.social-btn {
+  width:100%; height:48px; border-radius:var(--r-md);
+  display:flex; align-items:center; justify-content:center; gap:10px;
+  font-size:15px; font-weight:600; margin-bottom:10px; border:none;
+  transition:opacity .12s; cursor:pointer;
+}
+.social-btn:last-child { margin-bottom:0; }
+.social-btn:hover { opacity:.88; }
+.social-btn:active { opacity:.76; }
+
+.btn-kakao {
+  background:var(--c-kakao); color:#191919;
+}
+.btn-naver {
+  background:var(--c-naver); color:#fff;
+}
+.btn-google {
+  background:var(--c-google); color:var(--c-t1);
+  border:1.5px solid var(--c-line) !important;
+}
+.social-icon {
+  width:22px; height:22px; border-radius:4px;
+  display:flex; align-items:center; justify-content:center; flex-shrink:0;
+}
+/* 카카오 아이콘 인라인 SVG */
+.kakao-icon { background:transparent; }
+.naver-icon { background:transparent; }
+.google-icon { background:transparent; }
+
+.login-footer {
+  margin-top:24px; text-align:center;
+  font-size:12px; color:var(--c-t3); line-height:1.8;
+}
+.login-footer a { color:var(--c-brand); font-weight:500; }
+
+/* 모바일 로그인 */
+@media (max-width: 768px) {
+  #page-login { align-items:flex-start; padding-top:48px; }
+  .login-box {
+    border:none; box-shadow:none; border-radius:0;
+    padding:32px 20px 28px; max-width:100%;
+  }
+}
 </style>
 </head>
 <body>
 
-<!-- ══════════════════════════════════════
-     PC 네비
-══════════════════════════════════════ -->
-<nav class="pc-nav">
-  <a href="#" class="nav-logo">재테크<span>한입</span></a>
-  <ul class="nav-menu">
-    <li><a href="#" class="active">홈</a></li>
-    <li><a href="#">토픽</a></li>
-    <li><a href="#">스파링</a></li>
-    <li><a href="#">잉크</a></li>
-    <li><a href="#">미션</a></li>
-    <li><div class="nav-sep"></div></li>
-    <li><a href="#" class="dim">전문가 신청</a></li>
-    <li><a href="#" class="dim">🫐 베리몰 <span class="nav-badge">N</span></a></li>
-  </ul>
-  <div class="nav-right">
-    <button class="nav-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></button>
-    <button class="nav-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></button>
-    <button class="nav-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></button>
-    <button class="btn-q" onclick="openModal()">나도 질문하기</button>
-  </div>
-</nav>
+<!-- ══════════════════════════════════
+     로그인 페이지
+══════════════════════════════════ -->
+<div id="page-login" class="page active">
+  <div class="login-box">
+    <div class="login-logo">
+      <div class="logo-mark">재테크<em>한입</em></div>
+      <p>돈 고민, 여기서 해결<br>질문하고 답변하면 베리가 쌓여요</p>
+    </div>
 
-<!-- ══════════════════════════════════════
-     모바일 상단 바
-══════════════════════════════════════ -->
-<header class="mobile-topbar">
-  <div class="mobile-topbar-inner">
-    <a href="#" class="m-logo">재테크<span>한입</span></a>
-    <div class="m-icons">
-      <button class="m-icon-btn"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></button>
-      <button class="m-icon-btn"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></button>
-      <button class="m-icon-btn"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></button>
+    <div class="login-divider"><span>소셜 계정으로 시작하기</span></div>
+
+    <!-- 카카오 -->
+    <button class="social-btn btn-kakao" onclick="handleLogin('kakao')">
+      <span class="social-icon kakao-icon">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+          <path d="M10 2C5.582 2 2 4.805 2 8.25c0 2.21 1.46 4.153 3.666 5.272l-.933 3.477a.25.25 0 0 0 .374.273L9.32 14.8c.224.018.45.027.68.027 4.418 0 8-2.805 8-6.25C18 4.805 14.418 2 10 2Z" fill="#191919"/>
+        </svg>
+      </span>
+      카카오로 시작하기
+    </button>
+
+    <!-- 네이버 -->
+    <button class="social-btn btn-naver" onclick="handleLogin('naver')">
+      <span class="social-icon naver-icon">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+          <path d="M10.23 9.18 7.5 5H5v8h2.77V9.82L10.5 13H13V5h-2.77v4.18Z" fill="white"/>
+        </svg>
+      </span>
+      네이버로 시작하기
+    </button>
+
+    <!-- 구글 -->
+    <button class="social-btn btn-google" onclick="handleLogin('google')">
+      <span class="social-icon google-icon">
+        <svg width="18" height="18" viewBox="0 0 18 18">
+          <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.875 2.684-6.615Z" fill="#4285F4"/>
+          <path d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.258c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332C2.438 15.983 5.482 18 9 18Z" fill="#34A853"/>
+          <path d="M3.964 10.707c-.18-.54-.282-1.117-.282-1.707 0-.59.102-1.167.282-1.707V4.961H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.039l3.007-2.332Z" fill="#FBBC05"/>
+          <path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0 5.482 0 2.438 2.017.957 4.961L3.964 7.293C4.672 5.166 6.656 3.58 9 3.58Z" fill="#EA4335"/>
+        </svg>
+      </span>
+      Google로 시작하기
+    </button>
+
+    <div class="login-footer">
+      로그인 시 <a href="#">이용약관</a> 및 <a href="#">개인정보처리방침</a>에 동의합니다.
     </div>
   </div>
-  <nav class="mobile-gnav">
-    <a href="#" class="active">홈</a>
-    <a href="#">토픽</a>
-    <a href="#">스파링</a>
-    <a href="#">잉크</a>
-    <a href="#">미션</a>
-    <a href="#">전문가 신청</a>
-    <a href="#">🫐 베리몰 <span class="gnav-badge">N</span></a>
+</div>
+
+<!-- ══════════════════════════════════
+     메인 페이지
+══════════════════════════════════ -->
+<div id="page-main" class="page">
+
+  <!-- PC 네비 -->
+  <nav class="pc-nav">
+    <div class="pc-logo">재테크<em>한입</em></div>
+    <ul class="pc-menu">
+      <li><a href="#" class="on">홈</a></li>
+      <li><a href="#">토픽</a></li>
+      <li><a href="#">스파링</a></li>
+      <li><a href="#">잉크</a></li>
+      <li><a href="#">미션</a></li>
+      <li><div class="sep"></div></li>
+      <li><a href="#" style="color:var(--c-t3);font-size:13px">전문가 신청</a></li>
+      <li><a href="#" style="color:var(--c-t3);font-size:13px">🫐 베리몰</a></li>
+    </ul>
+    <div class="pc-right">
+      <button class="pc-icon-btn" id="pc-search-btn"><i data-lucide="search" width="18" height="18"></i></button>
+      <button class="pc-icon-btn"><i data-lucide="bell" width="18" height="18"></i></button>
+      <button class="pc-icon-btn" onclick="goLogin()"><i data-lucide="user" width="18" height="18"></i></button>
+      <button class="btn-ask" onclick="openModal()">나도 질문하기</button>
+    </div>
   </nav>
-</header>
 
-<!-- ══════════════════════════════════════
-     PC 본문
-══════════════════════════════════════ -->
-<div class="pc-wrap">
-  <div class="feed">
-    <div class="feed-tabs">
-      <button class="ftab active" onclick="setTab(this)">인기</button>
-      <button class="ftab" onclick="setTab(this)">관심</button>
-      <button class="ftab" onclick="setTab(this)">답변</button>
-    </div>
-    <div class="cat-tabs">
-      <button class="ctab active" onclick="filterCat(this,'전체')">전체</button>
-      <button class="ctab" onclick="filterCat(this,'재테크 입문')">💡 재테크 입문</button>
-      <button class="ctab" onclick="filterCat(this,'주식·ETF')">📈 주식·ETF</button>
-      <button class="ctab" onclick="filterCat(this,'절세')">🏦 절세</button>
-      <button class="ctab" onclick="filterCat(this,'보험')">🛡️ 보험</button>
-      <button class="ctab" onclick="filterCat(this,'대출·부채')">💳 대출·부채</button>
-    </div>
-    <div class="referral-banner">
-      <div class="referral-left">
-        <div class="referral-title">🎁 친구 초대하고 베리 받기</div>
-        <div class="referral-sub">초대한 친구가 첫 질문 올리면 100 베리 지급!</div>
+  <!-- PC 본문 -->
+  <div class="pc-body">
+    <div class="pc-feed">
+      <!-- 피드 탭 -->
+      <div class="feed-tab-row" id="pc-tabs">
+        <button class="f-tab on" onclick="setTab(this)">인기</button>
+        <button class="f-tab" onclick="setTab(this)">관심</button>
+        <button class="f-tab" onclick="setTab(this)">답변</button>
       </div>
-      <button class="referral-btn" id="refBtnPc">초대 링크 복사</button>
+      <!-- 카테고리 -->
+      <div class="cat-row" id="pc-cats">
+        <button class="c-tag on" onclick="filterCat(this,'전체')">전체</button>
+        <button class="c-tag" onclick="filterCat(this,'재테크 입문')"><span class="tossface">💡</span> 재테크 입문</button>
+        <button class="c-tag" onclick="filterCat(this,'주식·ETF')"><span class="tossface">📈</span> 주식·ETF</button>
+        <button class="c-tag" onclick="filterCat(this,'절세')"><span class="tossface">🏦</span> 절세</button>
+        <button class="c-tag" onclick="filterCat(this,'보험')"><span class="tossface">🛡️</span> 보험</button>
+        <button class="c-tag" onclick="filterCat(this,'대출·부채')"><span class="tossface">💳</span> 대출·부채</button>
+      </div>
+      <!-- 레퍼럴 배너 -->
+      <div class="ref-banner">
+        <div class="ref-txt">
+          <strong><span class="tossface">🎁</span> 친구 초대하고 베리 받기</strong>
+          <span>초대한 친구가 첫 질문 올리면 100 베리!</span>
+        </div>
+        <button class="ref-copy-btn" id="pc-ref-btn">초대 링크 복사</button>
+      </div>
+      <!-- 피드 (PC·모바일 공유) -->
+      <div id="feed"></div>
     </div>
-    <div id="feed"></div>
-  </div>
 
-  <aside class="right">
-    <div class="widget">
-      <div class="w-banner">
-        <div class="w-banner-tag">🔥 지금 투표 중</div>
-        <div class="w-banner-title">지금 S&P500<br>들어가도 될까요?</div>
-        <div class="w-banner-btm">
-          <div class="w-banner-time">⏱ 3일 남았어요</div>
-          <button class="w-banner-btn">참여하기</button>
+    <!-- PC 사이드바 -->
+    <aside class="pc-side">
+      <div class="widget">
+        <div class="spar-widget">
+          <div class="spar-tag"><span class="tossface">🔥</span> 지금 투표 중</div>
+          <div class="spar-title">지금 S&P500<br>들어가도 될까요?</div>
+          <div class="spar-foot">
+            <span class="spar-time">⏱ 3일 남았어요</span>
+            <button class="spar-join">참여하기</button>
+          </div>
+        </div>
+        <a href="#" class="wlink"><i data-lucide="briefcase" width="15" height="15"></i> <span>전문가 신청하기</span><span class="wlink-arr">›</span></a>
+        <a href="#" class="wlink"><i data-lucide="shopping-bag" width="15" height="15"></i> <span>베리몰 구경하기</span><span class="wlink-arr">›</span></a>
+        <a href="#" class="wlink"><i data-lucide="trending-up" width="15" height="15"></i> <span>ETF 시세 보기</span><span class="wlink-arr">›</span></a>
+        <div class="w-foot">
+          <a href="#" class="w-flink">서비스 소개</a>
+          <a href="#" class="w-flink">이용약관</a>
+          <a href="#" class="w-flink">커뮤니티 보상</a>
+          <a href="#" class="w-flink">광고 문의</a>
         </div>
       </div>
-      <a href="#" class="wlink">💼 <span>전문가 신청하기</span><span class="wlink-arrow">›</span></a>
-      <a href="#" class="wlink">🛍️ <span>베리몰 구경하기</span><span class="wlink-arrow">›</span></a>
-      <a href="#" class="wlink">📈 <span>ETF 시세 보기</span><span class="wlink-arrow">›</span></a>
-      <div class="wfoot">
-        <a href="#" class="wflink">서비스 소개</a>
-        <a href="#" class="wflink">이용약관</a>
-        <a href="#" class="wflink">커뮤니티 보상 소개</a>
-        <a href="#" class="wflink">광고 문의</a>
+      <div class="widget">
+        <div class="w-head"><span class="tossface">🔍</span> 지금 많이 찾는 키워드</div>
+        <div class="kw-list">
+          <div class="kw"><span class="kw-n">1</span>S&P500</div>
+          <div class="kw"><span class="kw-n">2</span>ISA계좌</div>
+          <div class="kw"><span class="kw-n">3</span>연금저축</div>
+          <div class="kw"><span class="kw-n">4</span>실손보험</div>
+          <div class="kw"><span class="kw-n">5</span>학자금대출</div>
+          <div class="kw"><span class="kw-n">6</span>ETF추천</div>
+          <div class="kw"><span class="kw-n">7</span>청년적금</div>
+          <div class="kw"><span class="kw-n">8</span>절세계좌</div>
+        </div>
       </div>
-    </div>
-    <div class="widget">
-      <div class="w-head">🔍 지금 많이 찾는 키워드</div>
-      <div class="keyword-list">
-        <div class="keyword"><span class="keyword-rank">1</span> S&P500</div>
-        <div class="keyword"><span class="keyword-rank">2</span> ISA계좌</div>
-        <div class="keyword"><span class="keyword-rank">3</span> 연금저축</div>
-        <div class="keyword"><span class="keyword-rank">4</span> 실손보험</div>
-        <div class="keyword"><span class="keyword-rank">5</span> 학자금대출</div>
-        <div class="keyword"><span class="keyword-rank">6</span> ETF추천</div>
-        <div class="keyword"><span class="keyword-rank">7</span> 청년적금</div>
-        <div class="keyword"><span class="keyword-rank">8</span> 절세계좌</div>
+      <div class="widget">
+        <div class="w-head"><span class="tossface">🏆</span> 이번 주 답변왕</div>
+        <div class="ranker"><span class="rk-n top">1</span><div class="rk-av tossface">🦁</div><div class="rk-info"><div class="rk-name">ETF마스터</div><div class="rk-sub">채택 23회 · 베리 1,240</div></div><span class="lv-badge lv3" style="position:static;border:none">전문가</span></div>
+        <div class="ranker"><span class="rk-n top">2</span><div class="rk-av tossface">🐯</div><div class="rk-info"><div class="rk-name">절세고수김씨</div><div class="rk-sub">채택 18회 · 베리 890</div></div><span class="lv-badge lv2" style="position:static;border:none">골드</span></div>
+        <div class="ranker"><span class="rk-n">3</span><div class="rk-av tossface">🐻</div><div class="rk-info"><div class="rk-name">보험박사</div><div class="rk-sub">채택 14회 · 베리 650</div></div><span class="lv-badge lv1" style="position:static;border:none">실버</span></div>
       </div>
-    </div>
-    <div class="widget">
-      <div class="w-head">🏆 이번 주 답변왕</div>
-      <div class="ranker-item">
-        <div class="ranker-rank top">1</div>
-        <div class="ranker-avatar">🦁</div>
-        <div class="ranker-info"><div class="ranker-name">ETF마스터</div><div class="ranker-sub">채택 23회 · 베리 1,240</div></div>
-        <span class="level-badge lv4" style="position:static;border:none;">전문가</span>
-      </div>
-      <div class="ranker-item">
-        <div class="ranker-rank top">2</div>
-        <div class="ranker-avatar">🐯</div>
-        <div class="ranker-info"><div class="ranker-name">절세고수김씨</div><div class="ranker-sub">채택 18회 · 베리 890</div></div>
-        <span class="level-badge lv3" style="position:static;border:none;">골드</span>
-      </div>
-      <div class="ranker-item">
-        <div class="ranker-rank">3</div>
-        <div class="ranker-avatar">🐻</div>
-        <div class="ranker-info"><div class="ranker-name">보험박사</div><div class="ranker-sub">채택 14회 · 베리 650</div></div>
-        <span class="level-badge lv2" style="position:static;border:none;">실버</span>
-      </div>
-    </div>
-  </aside>
-</div>
-
-<!-- ══════════════════════════════════════
-     모바일 본문
-══════════════════════════════════════ -->
-<div class="mobile-main">
-  <div class="mobile-feed-tabs">
-    <button class="ftab active" onclick="setTab(this)">인기</button>
-    <button class="ftab" onclick="setTab(this)">관심</button>
-    <button class="ftab" onclick="setTab(this)">답변</button>
+    </aside>
   </div>
-  <div class="mobile-cat-wrap">
-    <button class="ctab active" onclick="filterCat(this,'전체')">전체</button>
-    <button class="ctab" onclick="filterCat(this,'재테크 입문')">💡 재테크 입문</button>
-    <button class="ctab" onclick="filterCat(this,'주식·ETF')">📈 주식·ETF</button>
-    <button class="ctab" onclick="filterCat(this,'절세')">🏦 절세</button>
-    <button class="ctab" onclick="filterCat(this,'보험')">🛡️ 보험</button>
-    <button class="ctab" onclick="filterCat(this,'대출·부채')">💳 대출·부채</button>
-  </div>
-  <div class="mobile-referral">
-    <div class="m-ref-left">
-      <div class="m-ref-title">🎁 친구 초대하고 베리 받기</div>
-      <div class="m-ref-sub">초대한 친구가 첫 질문 올리면 100 베리!</div>
+
+  <!-- ── 모바일 상단 ── -->
+  <header class="mo-topbar">
+    <div class="mo-top-inner">
+      <div class="mo-logo">재테크<em>한입</em></div>
+      <div class="mo-icons">
+        <button class="mo-icon"><i data-lucide="search" width="20" height="20"></i></button>
+        <button class="mo-icon"><i data-lucide="bell" width="20" height="20"></i></button>
+        <button class="mo-icon" onclick="goLogin()"><i data-lucide="user" width="20" height="20"></i></button>
+      </div>
     </div>
-    <button class="m-ref-btn" id="refBtnMo">링크 복사</button>
-  </div>
-  <div class="mobile-spar-banner">
-    <div class="spar-tag">🔥 지금 투표 중</div>
-    <div class="spar-title">지금 S&P500<br>들어가도 될까요?</div>
-    <div class="spar-foot">
-      <span class="spar-time">⏱ 3일 남았어요</span>
-      <button class="spar-btn">참여하기</button>
+    <nav class="mo-gnav">
+      <a href="#" class="on">홈</a>
+      <a href="#">토픽</a>
+      <a href="#">스파링</a>
+      <a href="#">잉크</a>
+      <a href="#">미션</a>
+      <a href="#" style="font-size:12px;color:var(--c-t3)">전문가 신청</a>
+      <a href="#" style="font-size:12px;color:var(--c-t3)"><span class="tossface">🫐</span> 베리몰</a>
+    </nav>
+  </header>
+
+  <!-- ── 모바일 본문 ── -->
+  <div class="mo-main">
+    <div class="mo-feed-section">
+      <button class="f-tab on" onclick="setTab(this)">인기</button>
+      <button class="f-tab" onclick="setTab(this)">관심</button>
+      <button class="f-tab" onclick="setTab(this)">답변</button>
     </div>
+    <div class="mo-cat-row">
+      <button class="c-tag on" onclick="filterCat(this,'전체')">전체</button>
+      <button class="c-tag" onclick="filterCat(this,'재테크 입문')"><span class="tossface">💡</span> 재테크 입문</button>
+      <button class="c-tag" onclick="filterCat(this,'주식·ETF')"><span class="tossface">📈</span> 주식·ETF</button>
+      <button class="c-tag" onclick="filterCat(this,'절세')"><span class="tossface">🏦</span> 절세</button>
+      <button class="c-tag" onclick="filterCat(this,'보험')"><span class="tossface">🛡️</span> 보험</button>
+      <button class="c-tag" onclick="filterCat(this,'대출·부채')"><span class="tossface">💳</span> 대출·부채</button>
+    </div>
+    <div class="mo-ref">
+      <div class="mo-ref-txt">
+        <strong><span class="tossface">🎁</span> 친구 초대하고 베리 받기</strong>
+        <span>초대한 친구가 첫 질문 올리면 100 베리!</span>
+      </div>
+      <button class="mo-ref-btn" id="mo-ref-btn">링크 복사</button>
+    </div>
+    <div class="mo-spar">
+      <div class="spar-tag"><span class="tossface">🔥</span> 지금 투표 중</div>
+      <div class="spar-title">지금 S&P500<br>들어가도 될까요?</div>
+      <div class="spar-foot">
+        <span class="spar-time">⏱ 3일 남았어요</span>
+        <button class="spar-join">참여하기</button>
+      </div>
+    </div>
+    <!-- 피드는 JS로 이동됨 -->
   </div>
-  <!-- 피드는 PC와 공유 (#feed) -->
-</div>
 
-<!-- FAB -->
-<button class="fab" onclick="openModal()">
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
-</button>
+  <!-- FAB -->
+  <button class="fab" onclick="openModal()">
+    <i data-lucide="plus" width="24" height="24" color="white"></i>
+  </button>
 
-<!-- 바텀 내비 -->
-<nav class="bottom-nav">
-  <button class="bnav active">
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-    <span class="bnav-label">홈</span>
-  </button>
-  <button class="bnav">
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
-    <span class="bnav-label">토픽</span>
-  </button>
-  <button class="bnav">
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-    <span class="bnav-label">스파링</span>
-  </button>
-  <button class="bnav">
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-    <span class="bnav-label">알림</span>
-  </button>
-  <button class="bnav">
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-    <span class="bnav-label">마이</span>
-  </button>
-</nav>
+  <!-- 바텀 내비 -->
+  <nav class="bottom-nav">
+    <button class="b-btn on">
+      <i data-lucide="home" width="22" height="22"></i>
+      <span>홈</span>
+    </button>
+    <button class="b-btn">
+      <i data-lucide="layout-list" width="22" height="22"></i>
+      <span>토픽</span>
+    </button>
+    <button class="b-btn">
+      <i data-lucide="swords" width="22" height="22"></i>
+      <span>스파링</span>
+    </button>
+    <button class="b-btn">
+      <i data-lucide="bell" width="22" height="22"></i>
+      <span>알림</span>
+    </button>
+    <button class="b-btn" onclick="goLogin()">
+      <i data-lucide="user" width="22" height="22"></i>
+      <span>마이</span>
+    </button>
+  </nav>
+</div><!-- /page-main -->
 
-<!-- ══════════════════════════════════════
-     공통 모달 (PC·모바일 함께 사용)
-══════════════════════════════════════ -->
+<!-- ══════════════════════════════════
+     공통 모달
+══════════════════════════════════ -->
 <div class="overlay" id="overlay" onclick="outsideClose(event)">
   <div class="modal">
-    <div class="modal-handle"></div>
-    <div class="mhead"><h2>질문하기</h2><button class="mx" onclick="closeModal()">×</button></div>
-    <div class="mbody">
-      <div class="mlabel">카테고리</div>
-      <div class="cats">
-        <button class="cat on" onclick="pickCat(this)">💡 재테크 입문</button>
-        <button class="cat" onclick="pickCat(this)">📈 주식·ETF</button>
-        <button class="cat" onclick="pickCat(this)">🏦 절세</button>
-        <button class="cat" onclick="pickCat(this)">🛡️ 보험</button>
-        <button class="cat" onclick="pickCat(this)">💳 대출·부채</button>
+    <div class="m-handle"></div>
+    <div class="m-head">
+      <h2>질문하기</h2>
+      <button class="m-close" onclick="closeModal()">×</button>
+    </div>
+    <div class="m-body">
+      <div class="m-label">카테고리</div>
+      <div class="m-cats">
+        <button class="m-cat on" onclick="pickCat(this)"><span class="tossface">💡</span> 재테크 입문</button>
+        <button class="m-cat" onclick="pickCat(this)"><span class="tossface">📈</span> 주식·ETF</button>
+        <button class="m-cat" onclick="pickCat(this)"><span class="tossface">🏦</span> 절세</button>
+        <button class="m-cat" onclick="pickCat(this)"><span class="tossface">🛡️</span> 보험</button>
+        <button class="m-cat" onclick="pickCat(this)"><span class="tossface">💳</span> 대출·부채</button>
       </div>
-      <div class="mlabel">질문 제목</div>
-      <input class="inp" id="qtitle" type="text" placeholder="궁금한 점을 간단히 써주세요" maxlength="100" oninput="chkSubmit()"/>
-      <div class="rrow">
-        <button class="btn-rf" id="rfBtn" onclick="doRefine()">✨ AI로 질문 다듬기</button>
-        <span class="rhint">SEO에 맞게 자동으로 다듬어드려요</span>
-      </div>
-      <div class="rbox" id="rbox">
-        <div class="rlabel">✨ 다듬어진 질문을 선택해주세요</div>
-        <div class="ropts" id="ropts"></div>
+      <div class="m-label">질문 제목</div>
+      <input class="m-inp" id="qtitle" type="text" placeholder="궁금한 점을 간단히 써주세요" maxlength="100" oninput="chkSubmit()">
+      <button class="ai-btn" id="rfBtn" onclick="doRefine()">
+        <span class="tossface">✨</span> AI로 질문 다듬기
+      </button>
+      <div class="r-box" id="rbox">
+        <div class="r-label">✨ 다듬어진 질문을 선택해주세요</div>
+        <div id="ropts"></div>
       </div>
       <div style="margin-top:13px">
-        <div class="mlabel">상세 내용 <span style="font-weight:400;color:var(--text3)">(선택)</span></div>
-        <textarea class="inp" id="qbody" rows="4" placeholder="상황을 더 설명해주시면 더 좋은 답변을 받을 수 있어요"></textarea>
+        <div class="m-label">상세 내용 <span style="font-weight:400;color:var(--c-t3)">(선택)</span></div>
+        <textarea class="m-inp" id="qbody" rows="4" placeholder="상황을 더 설명해주시면 더 좋은 답변을 받을 수 있어요"></textarea>
       </div>
     </div>
-    <div class="mfoot">
+    <div class="m-foot">
       <button class="btn-cancel" onclick="closeModal()">취소</button>
       <button class="btn-submit" id="subBtn" disabled onclick="submitQ()">질문 올리기</button>
     </div>
@@ -561,113 +838,133 @@
 
 <div class="toast" id="toast"></div>
 
-<!-- ══════════════════════════════════════
-     공통 JS 데이터 & 로직
-══════════════════════════════════════ -->
+<!-- ══════════════════════════════════
+     공통 JS
+══════════════════════════════════ -->
 <script>
-/* ── 공통 데이터 ── */
-const EM=['🐰','🦊','🐻','🐼','🦁','🐯','🐸','🐧','🦋','🦔'];
-const LEVELS=[
-  {label:'브론즈',cls:'lv1'},{label:'실버',cls:'lv2'},
-  {label:'골드',cls:'lv3'},{label:'전문가',cls:'lv4'},
+/* ── 이모티콘 배열 (토스페이스) ── */
+const EM = ['🐰','🦊','🐻','🐼','🦁','🐯','🐸','🐧','🦋','🦔'];
+const LVS = [
+  {label:'브론즈', cls:'lv0'},
+  {label:'실버',   cls:'lv1'},
+  {label:'골드',   cls:'lv2'},
+  {label:'전문가', cls:'lv3'},
 ];
 
-let allQs=[
-  {id:1,cat:'재테크 입문',topic:'저축·목돈',author:'신중한토끼',time:'1일 전',em:'🐰',lv:1,
+/* ── 공유 데이터 ── */
+let allQs = [
+  {id:1, cat:'재테크 입문', topic:'저축·목돈', author:'신중한토끼', time:'1일 전', em:'🐰', lv:1,
    title:'월급 300만원인데 저축은 얼마나 해야 하나요?',
    body:'사회초년생인데 고정지출 빼고 나면 항상 150만원 정도 남는데, 이걸 어떻게 쪼개야 할지 모르겠어요. 비상금이 먼저인지 투자가 먼저인지도 모르겠고요.',
-   ans:12,adopted:true},
-  {id:2,cat:'주식·ETF',topic:'ETF',author:'궁금한직장인',time:'15분 전',em:'🦊',lv:2,
+   ans:12, adopted:true},
+  {id:2, cat:'주식·ETF', topic:'ETF', author:'궁금한직장인', time:'15분 전', em:'🦊', lv:2,
    title:'S&P500 ETF 지금 들어가도 늦지 않나요? 고점 아닌가요?',
    body:'주변에서 다들 S&P500 ETF 사라고 하는데 이미 많이 오른 것 같아서 지금 들어가면 손해볼 것 같아요. 적립식으로 사는 게 맞는 건지도 궁금합니다.',
-   ans:28,adopted:false},
-  {id:3,cat:'절세',topic:'ISA·연금저축',author:'절세고민중',time:'1시간 전',em:'🐻',lv:0,
+   ans:28, adopted:false},
+  {id:3, cat:'절세', topic:'ISA·연금저축', author:'절세고민중', time:'1시간 전', em:'🐻', lv:0,
    title:'ISA 계좌랑 연금저축 중에 뭐 먼저 채워야 하나요?',
    body:'세금 아껴야 한다는 건 알겠는데 ISA랑 연금저축을 동시에 채우기엔 돈이 부족해요. 연봉 4천만원 기준으로 뭘 먼저 가져가는 게 맞나요?',
-   ans:7,adopted:false},
-  {id:4,cat:'보험',topic:'실손보험',author:'건강한이십대',time:'2시간 전',em:'🐼',lv:3,
+   ans:7, adopted:false},
+  {id:4, cat:'보험', topic:'실손보험', author:'건강한이십대', time:'2시간 전', em:'🐼', lv:3,
    title:'실손보험 꼭 있어야 하나요? 건강한 20대인데 없애도 될까요?',
    body:'20대 초반인데 병원을 거의 안 가서 실손보험 돈이 아깝게 느껴져요. 해지해도 될지, 아니면 나중에 후회할지 모르겠어서요.',
-   ans:19,adopted:true},
-  {id:5,cat:'대출·부채',topic:'학자금대출',author:'취준생고민',time:'3시간 전',em:'🦁',lv:2,
+   ans:19, adopted:true},
+  {id:5, cat:'대출·부채', topic:'학자금대출', author:'취준생고민', time:'3시간 전', em:'🦁', lv:2,
    title:'학자금 대출 빨리 갚는 게 맞나요, 투자하는 게 맞나요?',
    body:'취업하고 학자금 대출 1500만원이 남아있는데 금리가 1.7%예요. 이거 빨리 갚는 게 맞는지, 아니면 S&P500 적립식으로 가는 게 맞는지 모르겠어요.',
-   ans:34,adopted:false},
-  {id:6,cat:'주식·ETF',topic:'미국주식',author:'ETF마스터',time:'4시간 전',em:'🦋',lv:3,
+   ans:34, adopted:false},
+  {id:6, cat:'주식·ETF', topic:'미국주식', author:'ETF마스터', time:'4시간 전', em:'🦋', lv:3,
    title:'TIGER S&P500 vs KODEX S&P500 뭐가 더 나은가요?',
    body:'둘 다 S&P500 추종인데 운용보수도 비슷하고 뭐가 다른지 모르겠어요. 장기투자 관점에서 어떤 기준으로 고르면 될까요?',
-   ans:41,adopted:true},
+   ans:41, adopted:true},
 ];
 
 let currentCat = '전체';
 const isMobile = () => window.innerWidth <= 768;
 
-/* ── 카드 렌더링 (PC·모바일 공통) ── */
+/* ── 페이지 전환 ── */
+function goPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+function goLogin() { goPage('page-login'); }
+function goMain()  { goPage('page-main'); syncFeedPosition(); }
+
+/* ── 소셜 로그인 핸들러 ── */
+function handleLogin(provider) {
+  const labels = {kakao:'카카오', naver:'네이버', google:'구글'};
+  showToast(`${labels[provider]}로 로그인 중...`);
+  setTimeout(() => goMain(), 900);
+}
+
+/* ── 카드 렌더 ── */
 function render(data) {
-  const feedEl = document.getElementById('feed');
+  const el = document.getElementById('feed');
   if (!data.length) {
-    feedEl.innerHTML = `<div style="text-align:center;padding:60px 20px;color:var(--text3)">아직 질문이 없어요. 첫 질문을 남겨보세요! 🌱</div>`;
+    el.innerHTML = `<div style="text-align:center;padding:60px 20px;color:var(--c-t3)">아직 질문이 없어요. 첫 질문을 남겨보세요! <span class="tossface">🌱</span></div>`;
     return;
   }
-  feedEl.innerHTML = data.map(q => `
-    <div class="qcard">
-      <div class="qcard-top">
-        <div class="qavatar" style="position:relative">
+  el.innerHTML = data.map(q => `
+    <div class="q-card">
+      <div class="q-card-inner">
+        <div class="q-avatar tossface">
           ${q.em}
-          <span class="level-badge ${LEVELS[q.lv]?.cls||''}">${LEVELS[q.lv]?.label||''}</span>
+          <span class="lv-badge ${LVS[q.lv]?.cls||'lv0'}">${LVS[q.lv]?.label||''}</span>
         </div>
-        <div class="qmeta-pc">
-          <div class="qmeta-row1">
-            <span class="qcat">${q.cat}</span>
-            <span class="qdot">·</span>
-            <span class="qtopic">${q.topic}</span>
-            <span class="qdot">·</span>
-            <span class="qauthor">${q.author}</span>
-            <span class="qdot">·</span>
-            <span class="qtime">${q.time}</span>
-            ${q.adopted ? '<span class="adopted-tag">✅ 채택됨</span>' : ''}
+        <div class="q-meta-wrap">
+          <div class="q-meta">
+            <span class="q-cat">${q.cat}</span>
+            <span class="q-dot">·</span>
+            <span class="q-topic">${q.topic}</span>
+            <span class="q-dot">·</span>
+            <span class="q-author">${q.author}</span>
+            <span class="q-dot">·</span>
+            <span class="q-time">${q.time}</span>
+            ${q.adopted ? '<span class="adopted">✅ 채택됨</span>' : ''}
           </div>
-          <div class="qtitle">${q.title}</div>
-          <div class="qbody">${q.body}</div>
-          <div class="qfoot">
-            <div class="qans">
-              <div class="ans-avatars">${Array.from({length:Math.min(3,q.ans)},(_,i)=>`<div class="ans-av">${EM[i]}</div>`).join('')}</div>
-              <span><strong>${q.ans}명</strong>이 답변했어요</span>
+          <div class="q-title">${q.title}</div>
+          <div class="q-body">${q.body}</div>
+          <div class="q-foot">
+            <div class="ans-row">
+              <div class="ans-avs">${Array.from({length:Math.min(3,q.ans)},(_,i)=>`<div class="ans-av tossface">${EM[i]}</div>`).join('')}</div>
+              <span class="ans-text"><b>${q.ans}명</b>이 답변했어요</span>
             </div>
-            <div class="qbtns">
-              <button class="qbtn" onclick="event.stopPropagation()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z"/><path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg></button>
-              <button class="qbtn" onclick="event.stopPropagation()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></button>
+            <div class="q-btns">
+              <button class="q-btn" onclick="event.stopPropagation()"><i data-lucide="thumbs-up" width="14" height="14"></i></button>
+              <button class="q-btn" onclick="event.stopPropagation()"><i data-lucide="message-circle" width="14" height="14"></i></button>
+              <button class="q-btn" onclick="event.stopPropagation()"><i data-lucide="share-2" width="14" height="14"></i></button>
             </div>
           </div>
         </div>
       </div>
     </div>`).join('');
 
-  /* 모바일일 때 피드를 mobile-main 안으로 이동 */
+  lucide.createIcons();
   syncFeedPosition();
 }
 
+/* ── 피드 위치 동기화 ── */
 function syncFeedPosition() {
   const feed = document.getElementById('feed');
-  const mobileMain = document.querySelector('.mobile-main');
-  const pcFeedContainer = document.querySelector('.feed');
+  if (!feed) return;
   if (isMobile()) {
-    if (feed.parentNode !== mobileMain) mobileMain.appendChild(feed);
+    const mo = document.querySelector('.mo-main');
+    if (mo && feed.parentNode !== mo) mo.appendChild(feed);
   } else {
-    if (feed.parentNode !== pcFeedContainer) pcFeedContainer.appendChild(feed);
+    const pc = document.querySelector('.pc-feed');
+    if (pc && feed.parentNode !== pc) pc.appendChild(feed);
   }
 }
+window.addEventListener('resize', syncFeedPosition);
 
-window.addEventListener('resize', () => { syncFeedPosition(); });
-
-/* ── 탭·필터 ── */
+/* ── 탭 / 필터 ── */
 function setTab(el) {
-  document.querySelectorAll('.ftab').forEach(t => t.classList.remove('active'));
-  el.classList.add('active');
+  document.querySelectorAll('.f-tab').forEach(t => t.classList.remove('on'));
+  el.classList.add('on');
 }
 function filterCat(el, cat) {
-  document.querySelectorAll('.ctab').forEach(t => t.classList.remove('active'));
-  el.classList.add('active');
+  document.querySelectorAll('.c-tag').forEach(t => t.classList.remove('on'));
+  el.classList.add('on');
   currentCat = cat;
   render(cat === '전체' ? allQs : allQs.filter(q => q.cat === cat));
 }
@@ -682,10 +979,10 @@ function closeModal() {
   document.getElementById('subBtn').disabled = true;
 }
 function outsideClose(e) { if (e.target === document.getElementById('overlay')) closeModal(); }
-function pickCat(el) { document.querySelectorAll('.cat').forEach(c => c.classList.remove('on')); el.classList.add('on'); }
+function pickCat(el) { document.querySelectorAll('.m-cat').forEach(c => c.classList.remove('on')); el.classList.add('on'); }
 function chkSubmit() { document.getElementById('subBtn').disabled = document.getElementById('qtitle').value.trim().length < 5; }
 
-/* ── AI 질문 다듬기 ── */
+/* ── AI 다듬기 ── */
 async function doRefine() {
   const t = document.getElementById('qtitle').value.trim();
   if (!t) { showToast('질문을 먼저 입력해주세요'); return; }
@@ -693,32 +990,33 @@ async function doRefine() {
   btn.innerHTML = '<span class="spin"></span> 다듬는 중...'; btn.disabled = true;
   try {
     const r = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST', headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:400,
-        messages:[{role:'user',content:`재테크 Q&A 질문을 SEO 최적화 형태로 다듬어주세요.\n원본: "${t}"\n규칙: 실제 검색 키워드 포함, 구체적, 20~50자\n3가지를 JSON 배열로만: ["버전1","버전2","버전3"]`}]})
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({model:'claude-sonnet-4-20250514', max_tokens:400,
+        messages:[{role:'user', content:`재테크 Q&A 질문을 SEO 최적화 형태로 다듬어주세요.\n원본: "${t}"\n규칙: 실제 검색 키워드 포함, 구체적, 20~50자\n3가지를 JSON 배열로만: ["버전1","버전2","버전3"]`}]})
     });
     const d = await r.json();
     const opts = JSON.parse(d.content[0].text.replace(/```json?|```/g,'').trim());
-    document.getElementById('ropts').innerHTML = opts.map(o => `<button class="ropt" onclick="pickR(this,'${o.replace(/'/g,"\\'")}')"> ${o}</button>`).join('');
+    document.getElementById('ropts').innerHTML = opts.map(o => `<button class="r-opt" onclick="pickR(this,'${o.replace(/'/g,"\\'")}')"> ${o}</button>`).join('');
   } catch {
     const fb = [`${t} 어떻게 해야 하나요?`, `초보자도 이해하는 ${t}`, `${t} 실제 경험담 알려주세요`];
-    document.getElementById('ropts').innerHTML = fb.map(o => `<button class="ropt" onclick="pickR(this,'${o.replace(/'/g,"\\'")}')"> ${o}</button>`).join('');
+    document.getElementById('ropts').innerHTML = fb.map(o => `<button class="r-opt" onclick="pickR(this,'${o.replace(/'/g,"\\'")}')"> ${o}</button>`).join('');
   }
   document.getElementById('rbox').classList.add('show');
-  btn.innerHTML = '✨ AI로 질문 다듬기'; btn.disabled = false;
+  btn.innerHTML = '<span class="tossface">✨</span> AI로 질문 다듬기'; btn.disabled = false;
 }
-function pickR(el, text) { document.querySelectorAll('.ropt').forEach(o => o.classList.remove('on')); el.classList.add('on'); document.getElementById('qtitle').value = text; chkSubmit(); }
+function pickR(el, text) {
+  document.querySelectorAll('.r-opt').forEach(o => o.classList.remove('on'));
+  el.classList.add('on'); document.getElementById('qtitle').value = text; chkSubmit();
+}
 
 /* ── 질문 제출 ── */
 function submitQ() {
   const title = document.getElementById('qtitle').value.trim();
   const body = document.getElementById('qbody').value.trim();
-  const cat = document.querySelector('.cat.on')?.textContent.replace(/^[^\w가-힣]*/,'').trim() || '재테크 입문';
-  const newQ = {id:allQs.length+1,cat,topic:'일반',author:'나',time:'방금 전',em:'🐯',lv:0,title,body:body||'답변을 기다리고 있어요.',ans:0,adopted:false};
-  allQs.unshift(newQ);
+  const cat = document.querySelector('.m-cat.on')?.textContent.trim().replace(/^[^\w가-힣]*/, '') || '재테크 입문';
+  allQs.unshift({id:allQs.length+1, cat, topic:'일반', author:'나', time:'방금 전', em:'🐯', lv:0, title, body:body||'답변을 기다리고 있어요.', ans:0, adopted:false});
   render(currentCat === '전체' ? allQs : allQs.filter(q => q.cat === currentCat));
-  closeModal();
-  showToast('✅ 질문이 등록되었어요!');
+  closeModal(); showToast('✅ 질문이 등록되었어요!');
 }
 
 /* ── 토스트 ── */
@@ -729,7 +1027,7 @@ function showToast(msg) {
 }
 
 /* ── 레퍼럴 ── */
-['refBtnPc','refBtnMo'].forEach(id => {
+['pc-ref-btn','mo-ref-btn'].forEach(id => {
   const el = document.getElementById(id);
   if (el) el.addEventListener('click', e => {
     e.stopPropagation();
@@ -738,8 +1036,11 @@ function showToast(msg) {
   });
 });
 
-/* ── 초기 렌더 ── */
-render(allQs);
+/* ── 초기화 ── */
+window.addEventListener('DOMContentLoaded', () => {
+  lucide.createIcons();
+  render(allQs);
+});
 </script>
 </body>
 </html>
