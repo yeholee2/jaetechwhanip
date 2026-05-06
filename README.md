@@ -1,155 +1,139 @@
-# 재테크한입 🌱
-> 돈 고민, 여기서 해결 | 아하(a-ha.io) 스타일 금융 특화 Q&A 커뮤니티
+# 재테크한입
 
-**라이브 URL** → https://yeholee2.github.io/jaetechwhanip  
-**레포지토리** → https://github.com/yeholee2/jaetechwhanip
+> 돈 고민, 여기서 해결 — 금융 특화 Q&A 커뮤니티
 
----
-
-## 🧭 프로젝트 개요
-
-### 왜 만드는가
-- **토스 커뮤니티** — MAU는 있지만 투기성 콘텐츠 난무, SEO 없음, 깊이 없음
-- **아하(a-ha.io)** — SEO 강하지만 금융 버티컬 약함, AI 어뷰징으로 신뢰 무너지는 중
-- **재테크한입** — 금융 특화 + SEO 되는 + 사람이 실제로 답변하는 신뢰 구조
-
-### 타겟
-진지하게 재테크 공부하고 싶은 20-30대 직장인/사회초년생
+**라이브:** https://jaetechwhanip.vercel.app (Vercel 배포 후 업데이트)
+**레거시:** https://yeholee2.github.io/jaetechwhanip (GitHub Pages, 정적 버전)
 
 ---
 
-## 🗂️ 서비스 구조
+## 🛠️ 기술 스택
+
+| 항목 | 기술 |
+|---|---|
+| 프레임워크 | Next.js 14 (App Router) |
+| 호스팅 | Vercel (무료) |
+| DB + Auth | Supabase (무료) |
+| 스타일 | CSS Modules + 디자인 토큰 |
+| 아이콘 | Lucide React |
+| 이모티콘 | Tossface |
+| 로고 폰트 | Cafe24 Ssurround |
+
+---
+
+## 🚀 로컬 실행
+
+```bash
+git clone https://github.com/yeholee2/jaetechwhanip.git
+cd jaetechwhanip
+npm install
+cp .env.example .env.local
+# .env.local에 Supabase 키 입력
+npm run dev
+# http://localhost:3000
+```
+
+---
+
+## 🔑 환경변수 설정 (Supabase 연동 후)
+
+`.env.local` 파일 생성:
+```
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+NEXT_PUBLIC_SITE_URL=http://localhost:3000
+```
+
+Vercel 대시보드 → Settings → Environment Variables에도 동일하게 등록
+
+---
+
+## 🌿 브랜치 전략
 
 ```
-hannipmoney.com          → Ghost 블로그 (기존 콘텐츠/SEO 자산 유지)
-app.hannipmoney.com      → 재테크한입 앱 (자체 구축, 아하 스타일)
-staging.app.hannipmoney.com → 테스트 환경
+main   → Vercel 자동 배포 (실 서비스)
+dev    → 개발/테스트
+feature/xxx → 기능별 작업
 ```
 
----
-
-## 📂 카테고리 (확정)
-
-| 카테고리 | 예시 질문 |
-|---------|---------|
-| 💡 재테크 입문 | 월급 300만원 저축 얼마나 해야 하나요? |
-| 📈 주식·ETF | S&P500 지금 들어가도 늦지 않나요? |
-| 🏦 절세 | ISA vs 연금저축 뭐 먼저 채워야 하나요? |
-| 🛡️ 보험 | 실손보험 꼭 있어야 하나요? |
-| 💳 대출·부채 | 학자금 대출 빨리 갚는 게 맞나요? |
+**업데이트 흐름:**
+1. `dev` 브랜치에서 작업
+2. Vercel preview URL로 테스트
+3. `main`에 머지 → 자동 배포
 
 ---
 
-## ⚙️ 기술 스택 (목표)
+## 🔐 OAuth 설정 가이드
 
-| 영역 | 기술 |
-|-----|-----|
-| 프론트 | Next.js + Tailwind CSS |
-| 백엔드/DB/Auth | Supabase |
-| 배포 | Vercel + GitHub 브랜치 연동 |
-| 현재 프로토타입 | 순수 HTML/CSS/JS (index.html) |
+### 카카오
+1. https://developers.kakao.com → 앱 생성
+2. 카카오 로그인 활성화
+3. Redirect URI: `https://your-project.supabase.co/auth/v1/callback`
+4. Supabase → Auth → Providers → Kakao에 키 입력
 
-### 로그인 순서
-1. 구글 (Supabase 기본 지원)
-2. 카카오 (Supabase 기본 지원)
-3. 네이버 (커스텀 구현 필요)
+### 구글
+1. https://console.cloud.google.com → OAuth 2.0 클라이언트 생성
+2. Redirect URI: `https://your-project.supabase.co/auth/v1/callback`
+3. Supabase → Auth → Providers → Google에 키 입력
 
----
-
-## 💰 수익 구조 로드맵
-
-| 단계 | 조건 | 내용 |
-|-----|------|-----|
-| 1단계 | 지금 | MAU 확보, 금융 광고 |
-| 2단계 | MAU 확보 후 | 답변자 구독 채널 (팬딩처럼 무료/유료 콘텐츠) |
-| 3단계 | 수익 검증 후 | 베리 → ETF 연동, 레퍼럴 시스템, B2B 데이터 판매 |
+### 네이버 (추후)
+- Supabase 기본 미지원 → Custom OAuth 처리 예정
 
 ---
 
-## 🙋 답변자 레벨 시스템
+## 🗺️ 서브도메인 연결
 
-| 레벨 | 배지 | 조건 |
-|-----|-----|-----|
-| 브론즈 🥉 | 갈색 | 채택 1회 이상 |
-| 실버 🥈 | 은색 | 채택 10회 이상 |
-| 골드 🥇 | 금색 | 채택 30회 이상 |
-| 전문가 💜 | 퍼플 그라디언트 | 회사 인증 완료 |
-
----
-
-## 🖥️ 관리자 대시보드 (예정)
-
-- **유저 인사이트** — 카테고리별 질문 트렌드, 키워드, 이탈률
-- **서치콘솔 스타일** — 노출/클릭/CTR/평균순위, 날짜별 그래프
-- **콘텐츠 관리** — 어뷰징 신고, 미채택 질문 모니터링
-- **수익 현황** — 광고, 베리 포인트, 구독자
-- **B2B 리포트** — 운용사/증권사 판매용 인사이트
+도메인 DNS CNAME 추가:
+```
+CNAME  jaetechwhanip  →  cname.vercel-dns.com
+```
+Vercel → Settings → Domains → `jaetechwhanip.yeholee.com` 추가
 
 ---
 
-## 🔑 핵심 기능
+## 📋 패치노트
 
-### ✨ AI 질문 다듬기
-사용자가 "ETF 뭐사지?" 같은 질문 입력 → AI가 SEO 최적화된 3가지 버전 제안 → 유저가 선택
-→ 질문 제목 = URL 슬러그 = 구글 검색 노출
-
-### 🎁 레퍼럴 시스템
-초대한 친구가 첫 질문 올리면 100 베리 지급
+> **다음 작업자에게:** 아래 형식으로 이어서 작성해주세요 👇
 
 ---
 
-## 📋 PATCH NOTES (작업 히스토리)
+### [2026-05-06] 레거시 정적 사이트 (GitHub Pages)
 
-> 이 레포에 접근하는 모든 AI/작업자는 아래에 작업 내용을 날짜와 함께 기록해주세요.
-> 형식: `### [날짜] 작업자 — 작업 내용`
+- HTML/CSS/JS 단일 파일 구조
+- 아하 UI 클로닝 (모바일/PC 반응형)
+- Tossface 이모티콘, Lucide 아이콘
+- 로그인 뷰 (position:fixed 오버레이)
+- 카카오/네이버/Google 소셜 버튼 (더미)
+- AI 질문 다듬기 (Anthropic API 직접 호출)
+- 미디어쿼리 768px 기준 반응형
 
----
-
-### [2026-05-06] Claude (yeholee2와 대화) — 초기 프로토타입 구축
-
-**작업 내용**
-- 아하(a-ha.io) UI 구조 직접 분석 후 재테크한입 스타일로 재구현
-- 상단 네비 (홈/토픽/스파링/칼럼/미션/전문가신청/베리몰)
-- 피드 중앙형 레이아웃 (사이드바 없는 아하 스타일)
-- 질문 카드 (아바타 + 카테고리·토픽·닉네임·시간 + 제목 + 본문 미리보기 + 답변수)
-- 질문하기 모달 (카테고리 선택 + 제목 입력)
-- ✨ AI 질문 다듬기 버튼 (Claude API 연동, SEO 최적화 3가지 옵션 제공)
-- GitHub Pages 배포 완료
-
-**업그레이드 (같은 날)**
-- 카테고리 필터 탭 추가 (재테크입문/주식ETF/절세/보험/대출부채)
-- 레퍼럴 배너 추가 (초대 링크 복사)
-- 답변자 레벨 배지 (브론즈/실버/골드/전문가)
-- 채택됨 태그 표시
-- 인기 검색 키워드 위젯
-- 이번 주 답변왕 랭킹 위젯
-
-**파일**
-- `index.html` — 메인 프로토타입 (순수 HTML/CSS/JS)
+**파일:** `legacy/index.html`
 
 ---
 
+### [2026-05-06] Next.js + Vercel + Supabase 마이그레이션 시작
 
-### [2026-05-06] Claude (yeholee2와 대화) — 모바일 퍼스트 UI 전면 재구성
+**변경 이유:** SEO, 실제 로그인 연동, DB 연결, 서브도메인 지원
 
-**작업 내용**
-- 아하(a-ha.io) 모바일 UI 직접 분석 후 모바일 퍼스트로 전면 재구성
-- 기존 데스크톱 1060px 사이드바 레이아웃 → 모바일 max-width 480px 단일 컬럼
-- 상단 고정 헤더: 로고 + 검색·알림·프로필 아이콘
-- 가로 스크롤 GNAV: 홈/토픽/스파링/잉크/미션/전문가신청/베리몰
-- 피드 탭: 인기/관심/답변
-- 카테고리 가로 스크롤 태그 필터
-- 질문 카드: 터치 최적화 (active 상태, 아바타 제거 → 메타 인라인)
-- FAB(+) 버튼: 바텀 내비 위 우하단 고정
-- 바텀 내비: 홈/토픽/스파링/알림/마이 5탭
-- 질문 모달: bottom sheet 스타일 (위에서 슬라이드업)
-- safe-area-inset-bottom 대응 (노치폰/홈바 아이폰)
-- 기존 AI 질문 다듬기, 레퍼럴 배너, 스파링 배너 유지
+**추가된 파일:**
+- `app/layout.tsx` — SEO 메타데이터 (og, twitter, robots)
+- `app/page.tsx` — 홈 (SSG, 60초 revalidate)
+- `app/auth/page.tsx` — 로그인 페이지
+- `app/questions/[slug]/page.tsx` — 질문 상세 (SSG, SEO)
+- `app/api/auth/callback/route.ts` — OAuth 콜백
+- `components/HomeClient.tsx` — 홈 UI (React)
+- `components/AuthClient.tsx` — 로그인 UI (Supabase OAuth)
+- `lib/supabase/client.ts` — 브라우저 Supabase 클라이언트
+- `lib/supabase/server.ts` — 서버 Supabase 클라이언트
+- `middleware.ts` — 세션 갱신
+- `.env.example` — 환경변수 템플릿
 
-**파일**
-- `index.html` — 모바일 퍼스트 전면 재구성
+**남은 작업 (yeholee2 직접):**
+- [ ] Vercel 계정 생성 (imyeho@gmail.com)
+- [ ] GitHub repo 연결
+- [ ] Supabase 프로젝트 생성 + 키 발급
+- [ ] 카카오/구글 OAuth 키 발급
+- [ ] `.env.local` 및 Vercel env 등록
+- [ ] 서브도메인 DNS 설정
 
 ---
-
-> 다음 작업자에게: 위 형식으로 아래에 이어서 작성해주세요 👇
-
