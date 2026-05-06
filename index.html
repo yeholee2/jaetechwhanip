@@ -2,262 +2,315 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>재테크한입 | 돈 고민, 여기서 해결</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;500;600;700;800&display=swap');
   :root {
-    --blue:#3182F6; --blue-bg:#EBF3FF; --blue-dark:#1A6DE0;
+    --green:#00C73C; --green-bg:#F0FBF4; --green-dark:#009E30;
     --text1:#191F28; --text2:#4E5968; --text3:#8B95A1;
     --border:#E5E8EB; --bg:#F9FAFB; --white:#FFFFFF;
-    --orange:#FF6B35; --purple:#7C5CBF;
-    --safe-bottom: env(safe-area-inset-bottom, 0px);
+    --orange:#FF6B35; --purple:#7C5CBF; --blue:#1A73E8;
   }
-  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
-  html,body{height:100%;overflow-x:hidden;}
-  body{font-family:'Pretendard',-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg);color:var(--text1);font-size:15px;max-width:480px;margin:0 auto;position:relative;}
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:'Pretendard',-apple-system,sans-serif;background:var(--bg);color:var(--text1);font-size:15px;}
 
-  /* ── TOP NAV ── */
-  .topbar{position:fixed;top:0;left:0;right:0;max-width:480px;margin:0 auto;z-index:100;background:var(--white);border-bottom:1px solid var(--border);}
-  .topbar-inner{display:flex;align-items:center;padding:0 16px;height:52px;justify-content:space-between;}
-  .logo{font-size:22px;font-weight:800;color:var(--blue);letter-spacing:-1px;text-decoration:none;}
-  .logo span{color:var(--text1);}
-  .topbar-icons{display:flex;gap:2px;}
-  .icon-btn{width:40px;height:40px;border:none;background:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text2);border-radius:50%;}
-  .icon-btn:active{background:var(--bg);}
+  /* NAV */
+  .nav{position:fixed;top:0;left:0;right:0;height:60px;background:var(--white);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 24px;z-index:100;}
+  .nav-logo{font-size:22px;font-weight:800;color:var(--green);text-decoration:none;margin-right:32px;letter-spacing:-1px;}
+  .nav-logo span{color:var(--text1);}
+  .nav-menu{display:flex;gap:0;list-style:none;}
+  .nav-menu a{display:flex;align-items:center;height:60px;padding:0 14px;text-decoration:none;color:var(--text2);font-size:15px;font-weight:500;border-bottom:2px solid transparent;transition:all .15s;}
+  .nav-menu a:hover{color:var(--text1);}
+  .nav-menu a.active{color:var(--text1);font-weight:700;border-bottom-color:var(--text1);}
+  .nav-sep{width:1px;height:20px;background:var(--border);margin:0 6px;align-self:center;}
+  .nav-menu a.dim{color:var(--text3);font-size:14px;}
+  .nav-badge{background:var(--orange);color:white;font-size:10px;font-weight:700;border-radius:10px;padding:1px 5px;margin-left:2px;}
+  .nav-right{margin-left:auto;display:flex;align-items:center;gap:10px;}
+  .nav-icon{width:36px;height:36px;border-radius:50%;border:none;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text2);transition:background .15s;}
+  .nav-icon:hover{background:var(--bg);}
+  .btn-q{height:38px;padding:0 18px;background:var(--green);border:none;border-radius:6px;color:white;font-size:14px;font-weight:700;cursor:pointer;white-space:nowrap;}
+  .btn-q:hover{background:var(--green-dark);}
 
-  /* ── GNAV (토픽/스파링/잉크/미션) ── */
-  .gnav{display:flex;overflow-x:auto;scrollbar-width:none;border-bottom:1px solid var(--border);background:var(--white);}
-  .gnav::-webkit-scrollbar{display:none;}
-  .gnav a{display:flex;align-items:center;height:44px;padding:0 14px;font-size:14px;font-weight:500;color:var(--text3);text-decoration:none;white-space:nowrap;border-bottom:2px solid transparent;flex-shrink:0;}
-  .gnav a.active{color:var(--text1);font-weight:700;border-bottom-color:var(--text1);}
-  .gnav a:hover{color:var(--text2);}
-  .gnav-badge{background:var(--orange);color:white;font-size:9px;font-weight:700;border-radius:8px;padding:1px 4px;margin-left:2px;}
+  /* LAYOUT */
+  .wrap{max-width:1060px;margin:60px auto 0;padding:0 24px;display:flex;gap:20px;}
 
-  /* ── MAIN SCROLL ── */
-  .main{margin-top:96px;padding-bottom:calc(72px + var(--safe-bottom));}
+  /* FEED */
+  .feed{flex:1;min-width:0;padding-top:24px;}
 
-  /* ── 피드 탭 ── */
-  .feed-tabs{display:flex;gap:16px;padding:14px 16px 0;}
-  .ftab{font-size:20px;font-weight:700;color:var(--text3);border:none;background:none;cursor:pointer;padding-bottom:10px;border-bottom:2px solid transparent;}
+  /* 인기/관심/답변 탭 */
+  .feed-tabs{display:flex;gap:0;margin-bottom:16px;}
+  .ftab{font-size:22px;font-weight:700;color:var(--text3);cursor:pointer;margin-right:18px;padding-bottom:2px;border:none;border-bottom:2px solid transparent;background:none;transition:all .15s;}
   .ftab.active{color:var(--text1);border-bottom-color:var(--text1);}
+  .ftab:hover{color:var(--text2);}
 
-  /* ── 카테고리 필터 ── */
-  .cat-wrap{display:flex;overflow-x:auto;scrollbar-width:none;padding:10px 16px 10px;gap:6px;}
-  .cat-wrap::-webkit-scrollbar{display:none;}
-  .ctag{height:32px;padding:0 14px;border-radius:20px;border:1.5px solid var(--border);background:var(--white);font-size:13px;font-weight:500;color:var(--text2);cursor:pointer;white-space:nowrap;flex-shrink:0;}
-  .ctag.active{border-color:var(--blue);background:var(--blue-bg);color:var(--blue-dark);font-weight:700;}
+  /* 카테고리 필터 탭 */
+  .cat-tabs{display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap;}
+  .ctab{height:32px;padding:0 14px;border-radius:20px;border:1.5px solid var(--border);background:var(--white);font-size:13px;font-weight:500;color:var(--text2);cursor:pointer;transition:all .15s;white-space:nowrap;}
+  .ctab:hover{border-color:var(--green);color:var(--green);}
+  .ctab.active{border-color:var(--green);background:var(--green-bg);color:var(--green-dark);font-weight:700;}
 
-  /* ── 레퍼럴 배너 ── */
-  .referral{margin:2px 16px 10px;background:linear-gradient(135deg,#667eea,#764ba2);border-radius:12px;padding:13px 16px;display:flex;align-items:center;justify-content:space-between;}
+  /* 레퍼럴 배너 */
+  .referral-banner{background:linear-gradient(135deg,#667eea,#764ba2);border-radius:12px;padding:14px 18px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;transition:opacity .15s;}
+  .referral-banner:hover{opacity:.92;}
   .referral-left{color:white;}
-  .referral-title{font-size:13px;font-weight:700;margin-bottom:2px;}
-  .referral-sub{font-size:11px;color:rgba(255,255,255,.7);}
-  .referral-btn{height:28px;padding:0 12px;background:white;border:none;border-radius:6px;font-size:12px;font-weight:700;color:#764ba2;cursor:pointer;white-space:nowrap;}
+  .referral-title{font-size:14px;font-weight:700;margin-bottom:2px;}
+  .referral-sub{font-size:12px;color:rgba(255,255,255,.75);}
+  .referral-btn{height:30px;padding:0 14px;background:white;border:none;border-radius:6px;font-size:12px;font-weight:700;color:#764ba2;cursor:pointer;white-space:nowrap;}
 
-  /* ── 스파링 배너 ── */
-  .spar-banner{margin:2px 16px 10px;background:var(--text1);border-radius:12px;padding:14px 16px;cursor:pointer;}
-  .spar-tag{font-size:11px;color:rgba(255,255,255,.5);margin-bottom:4px;}
-  .spar-title{font-size:15px;font-weight:700;color:white;line-height:1.4;margin-bottom:10px;}
-  .spar-foot{display:flex;align-items:center;justify-content:space-between;}
-  .spar-time{font-size:11px;color:rgba(255,255,255,.5);}
-  .spar-btn{height:26px;padding:0 12px;background:white;border:none;border-radius:5px;font-size:12px;font-weight:700;color:var(--text1);cursor:pointer;}
-
-  /* ── 질문 카드 ── */
-  .qcard{background:var(--white);border-top:1px solid var(--border);padding:16px;cursor:pointer;transition:background .1s;}
-  .qcard:active{background:var(--bg);}
-  .qmeta{display:flex;align-items:center;gap:5px;margin-bottom:8px;flex-wrap:wrap;}
-  .qcat-badge{font-size:11px;font-weight:700;color:var(--blue);background:var(--blue-bg);padding:2px 7px;border-radius:4px;}
-  .qdot{color:var(--text3);font-size:10px;}
-  .qtopic{font-size:12px;color:var(--text3);}
-  .qauthor{font-size:12px;color:var(--text2);font-weight:500;}
-  .qtime{font-size:12px;color:var(--text3);}
-  .adopted-tag{font-size:11px;font-weight:700;color:#E65100;background:#FFF3E0;padding:2px 6px;border-radius:4px;}
-  .qtitle{font-size:15px;font-weight:700;color:var(--text1);line-height:1.45;margin-bottom:6px;}
-  .qbody{font-size:13px;color:var(--text2);line-height:1.6;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-bottom:12px;}
+  /* 카드 */
+  .qcard{background:var(--white);border-radius:12px;border:1px solid var(--border);padding:20px 22px;margin-bottom:10px;cursor:pointer;transition:box-shadow .15s;}
+  .qcard:hover{box-shadow:0 2px 14px rgba(0,0,0,.07);}
+  .qcard-top{display:flex;gap:12px;align-items:flex-start;}
+  .qavatar{width:40px;height:40px;border-radius:50%;background:var(--bg);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;position:relative;}
+  .level-badge{position:absolute;bottom:-3px;right:-3px;font-size:9px;font-weight:700;padding:1px 4px;border-radius:4px;border:1.5px solid white;white-space:nowrap;}
+  .lv1{background:#CD7F32;color:white;}
+  .lv2{background:#C0C0C0;color:white;}
+  .lv3{background:#FFD700;color:#333;}
+  .lv4{background:linear-gradient(135deg,#667eea,#764ba2);color:white;}
+  .qmeta{flex:1;min-width:0;}
+  .qmeta-row1{display:flex;align-items:center;gap:5px;margin-bottom:8px;flex-wrap:wrap;}
+  .qcat{font-size:13px;font-weight:700;color:var(--text1);}
+  .qtopic{font-size:13px;color:var(--text3);}
+  .qdot{color:var(--text3);font-size:11px;}
+  .qauthor{font-size:13px;color:var(--green);font-weight:600;}
+  .qtime{font-size:13px;color:var(--text3);}
+  .qtitle{font-size:16px;font-weight:700;color:var(--text1);line-height:1.45;margin-bottom:8px;}
+  .qbody{font-size:14px;color:var(--text2);line-height:1.65;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-bottom:14px;}
   .qfoot{display:flex;align-items:center;justify-content:space-between;}
-  .ans-row{display:flex;align-items:center;gap:6px;}
-  .ans-avs{display:flex;}
-  .ans-av{width:20px;height:20px;border-radius:50%;border:1.5px solid white;margin-left:-5px;background:var(--blue-bg);display:flex;align-items:center;justify-content:center;font-size:9px;color:var(--blue);flex-shrink:0;}
+  .qans{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text2);}
+  .ans-avatars{display:flex;}
+  .ans-av{width:22px;height:22px;border-radius:50%;border:2px solid white;margin-left:-6px;background:linear-gradient(135deg,var(--green-bg),var(--green));display:flex;align-items:center;justify-content:center;font-size:10px;}
   .ans-av:first-child{margin-left:0;}
-  .ans-text{font-size:12px;color:var(--text2);}
-  .ans-text b{color:var(--text1);}
   .qbtns{display:flex;gap:2px;}
-  .qbtn{width:32px;height:32px;border:none;background:none;border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text3);}
-  .qbtn:active{background:var(--bg);}
+  .qbtn{width:32px;height:32px;border:none;background:none;border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text3);transition:all .15s;}
+  .qbtn:hover{background:var(--bg);color:var(--text2);}
+  .adopted-tag{display:inline-flex;align-items:center;gap:3px;height:20px;padding:0 7px;background:#FFF3E0;border-radius:4px;font-size:11px;font-weight:700;color:#E65100;margin-left:6px;}
 
-  /* ── 바텀 내비 ── */
-  .bottom-nav{position:fixed;bottom:0;left:0;right:0;max-width:480px;margin:0 auto;background:var(--white);border-top:1px solid var(--border);display:flex;align-items:center;padding:8px 0 calc(8px + var(--safe-bottom));z-index:100;}
-  .bnav{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;border:none;background:none;cursor:pointer;padding:4px 0;}
-  .bnav svg{color:var(--text3);}
-  .bnav.active svg{color:var(--blue);}
-  .bnav-label{font-size:10px;color:var(--text3);font-weight:500;}
-  .bnav.active .bnav-label{color:var(--blue);font-weight:700;}
+  /* RIGHT */
+  .right{width:290px;flex-shrink:0;padding-top:24px;}
+  .widget{background:var(--white);border-radius:12px;border:1px solid var(--border);overflow:hidden;margin-bottom:12px;}
+  .w-head{padding:14px 16px 10px;font-size:13px;font-weight:700;color:var(--text1);border-bottom:1px solid var(--border);}
+  .w-banner{background:linear-gradient(135deg,#1a1a2e,#16213e);padding:18px;color:white;}
+  .w-banner-tag{font-size:11px;color:rgba(255,255,255,.55);margin-bottom:5px;}
+  .w-banner-title{font-size:17px;font-weight:800;line-height:1.3;margin-bottom:12px;}
+  .w-banner-btm{display:flex;align-items:center;justify-content:space-between;}
+  .w-banner-time{font-size:11px;color:rgba(255,255,255,.55);}
+  .w-banner-btn{height:26px;padding:0 12px;background:white;border:none;border-radius:5px;font-size:12px;font-weight:700;color:var(--text1);cursor:pointer;}
+  .wlink{display:flex;align-items:center;gap:10px;padding:11px 16px;border-bottom:1px solid var(--border);text-decoration:none;color:var(--text1);transition:background .15s;font-size:14px;font-weight:500;}
+  .wlink:last-child{border-bottom:none;}
+  .wlink:hover{background:var(--bg);}
+  .wlink-arrow{margin-left:auto;color:var(--text3);}
 
-  /* ── FAB ── */
-  .fab{position:fixed;bottom:calc(72px + var(--safe-bottom) + 12px);right:max(16px, calc(50% - 240px + 16px));width:52px;height:52px;border-radius:50%;background:var(--blue);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(49,130,246,.4);z-index:99;}
-  .fab:active{transform:scale(.95);}
+  /* 인기 키워드 */
+  .keyword-list{padding:12px 16px;display:flex;flex-wrap:wrap;gap:6px;}
+  .keyword{height:28px;padding:0 12px;border-radius:20px;background:var(--bg);border:1px solid var(--border);font-size:12px;color:var(--text2);cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:4px;}
+  .keyword:hover{border-color:var(--green);color:var(--green);}
+  .keyword-rank{font-size:10px;font-weight:700;color:var(--green);}
 
-  /* ── 질문 모달 ── */
-  .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;align-items:flex-end;justify-content:center;}
+  /* 상위 답변자 */
+  .ranker-item{display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:1px solid var(--border);}
+  .ranker-item:last-child{border-bottom:none;}
+  .ranker-rank{font-size:13px;font-weight:800;color:var(--text3);min-width:18px;}
+  .ranker-rank.top{color:var(--green);}
+  .ranker-avatar{width:30px;height:30px;border-radius:50%;background:var(--bg);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:14px;}
+  .ranker-info{flex:1;}
+  .ranker-name{font-size:13px;font-weight:600;color:var(--text1);}
+  .ranker-sub{font-size:11px;color:var(--text3);}
+  .ranker-badge{font-size:10px;font-weight:700;padding:2px 6px;border-radius:4px;}
+
+  .wfoot{padding:12px 16px;border-top:1px solid var(--border);display:flex;flex-wrap:wrap;gap:8px;}
+  .wflink{font-size:11px;color:var(--text3);text-decoration:none;}
+  .wflink:hover{color:var(--text2);}
+
+  /* 모달 */
+  .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;align-items:center;justify-content:center;padding:20px;}
   .overlay.open{display:flex;}
-  .modal{background:var(--white);border-radius:20px 20px 0 0;width:100%;max-width:480px;padding-bottom:env(safe-area-inset-bottom,0);max-height:90vh;overflow-y:auto;animation:slideUp .25s ease;}
-  @keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
-  .modal-handle{width:36px;height:4px;background:var(--border);border-radius:2px;margin:12px auto 0;}
-  .mhead{padding:16px 20px 12px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);}
+  .modal{background:var(--white);border-radius:16px;width:100%;max-width:560px;box-shadow:0 24px 60px rgba(0,0,0,.18);animation:mup .2s ease;}
+  @keyframes mup{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+  .mhead{padding:18px 22px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
   .mhead h2{font-size:16px;font-weight:700;}
-  .mx{width:32px;height:32px;border:none;background:var(--bg);border-radius:8px;cursor:pointer;font-size:18px;color:var(--text2);display:flex;align-items:center;justify-content:center;}
-  .mbody{padding:16px 20px;}
-  .mlabel{font-size:12px;font-weight:600;color:var(--text2);margin-bottom:8px;}
+  .mx{width:30px;height:30px;border:none;background:var(--bg);border-radius:7px;cursor:pointer;font-size:20px;color:var(--text2);display:flex;align-items:center;justify-content:center;}
+  .mbody{padding:18px 22px;}
+  .mlabel{font-size:12px;font-weight:600;color:var(--text2);margin-bottom:7px;}
   .cats{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:14px;}
-  .cat{height:30px;padding:0 13px;border-radius:20px;border:1.5px solid var(--border);background:none;font-size:13px;color:var(--text2);cursor:pointer;}
-  .cat.on{border-color:var(--blue);background:var(--blue-bg);color:var(--blue-dark);font-weight:600;}
-  .inp{width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;font-family:inherit;color:var(--text1);outline:none;resize:none;background:var(--white);}
-  .inp:focus{border-color:var(--blue);}
+  .cat{height:29px;padding:0 13px;border-radius:20px;border:1.5px solid var(--border);background:none;font-size:13px;color:var(--text2);cursor:pointer;transition:all .15s;}
+  .cat:hover{border-color:var(--green);color:var(--green);}
+  .cat.on{border-color:var(--green);background:var(--green-bg);color:var(--green-dark);font-weight:600;}
+  .inp{width:100%;padding:11px 13px;border:1.5px solid var(--border);border-radius:9px;font-size:14px;font-family:inherit;color:var(--text1);outline:none;transition:border .15s;resize:none;background:var(--white);}
+  .inp:focus{border-color:var(--green);}
   .inp::placeholder{color:var(--text3);}
-  .btn-rf{display:flex;align-items:center;gap:5px;height:32px;padding:0 14px;border:none;border-radius:8px;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:white;font-size:13px;font-weight:600;cursor:pointer;margin-top:8px;}
-  .rbox{display:none;margin-top:10px;padding:12px;background:#faf8ff;border-radius:10px;border:1px solid #ddd5ff;}
+  .rrow{display:flex;align-items:center;gap:7px;margin-top:7px;}
+  .btn-rf{display:flex;align-items:center;gap:4px;height:28px;padding:0 11px;border:none;border-radius:6px;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:white;font-size:12px;font-weight:600;cursor:pointer;}
+  .rhint{font-size:11px;color:var(--text3);}
+  .rbox{display:none;margin-top:9px;padding:11px;background:#faf8ff;border-radius:9px;border:1px solid #ddd5ff;}
   .rbox.show{display:block;}
-  .rlabel{font-size:11px;font-weight:700;color:#7c5cbf;margin-bottom:8px;}
-  .ropt{width:100%;padding:10px 12px;background:white;border-radius:8px;border:1.5px solid transparent;font-size:13px;cursor:pointer;text-align:left;line-height:1.45;margin-bottom:5px;}
-  .ropt:last-child{margin-bottom:0;}
+  .rlabel{font-size:11px;font-weight:700;color:#7c5cbf;margin-bottom:7px;}
+  .ropts{display:flex;flex-direction:column;gap:5px;}
+  .ropt{padding:9px 11px;background:white;border-radius:7px;border:1.5px solid transparent;font-size:13px;cursor:pointer;transition:all .15s;line-height:1.4;text-align:left;}
   .ropt:hover{border-color:#7c5cbf;}
-  .ropt.on{border-color:var(--blue);background:var(--blue-bg);}
-  .mfoot{padding:12px 20px 16px;border-top:1px solid var(--border);display:flex;gap:8px;}
-  .btn-cancel{flex:1;height:44px;background:var(--bg);border:1px solid var(--border);border-radius:10px;font-size:14px;color:var(--text2);cursor:pointer;font-family:inherit;}
-  .btn-submit{flex:2;height:44px;background:var(--blue);border:none;border-radius:10px;color:white;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;}
-  .btn-submit:disabled{background:var(--text3);}
+  .ropt.on{border-color:var(--green);background:var(--green-bg);}
+  .mfoot{padding:12px 22px 18px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:7px;}
+  .btn-cancel{height:38px;padding:0 18px;background:var(--bg);border:1px solid var(--border);border-radius:8px;font-size:14px;color:var(--text2);cursor:pointer;}
+  .btn-submit{height:38px;padding:0 22px;background:var(--green);border:none;border-radius:8px;color:white;font-size:14px;font-weight:700;cursor:pointer;}
+  .btn-submit:disabled{background:var(--text3);cursor:not-allowed;}
   .spin{display:inline-block;width:12px;height:12px;border:2px solid rgba(255,255,255,.4);border-top-color:white;border-radius:50%;animation:spin .7s linear infinite;}
   @keyframes spin{to{transform:rotate(360deg)}}
-  .toast{position:fixed;bottom:calc(80px + var(--safe-bottom));left:50%;transform:translateX(-50%) translateY(30px);background:var(--text1);color:white;padding:10px 18px;border-radius:8px;font-size:13px;z-index:300;transition:transform .25s,opacity .25s;opacity:0;white-space:nowrap;}
-  .toast.show{transform:translateX(-50%) translateY(0);opacity:1;}
+  .toast{position:fixed;bottom:26px;left:50%;transform:translateX(-50%) translateY(50px);background:var(--text1);color:white;padding:11px 18px;border-radius:8px;font-size:13px;z-index:300;transition:transform .25s;white-space:nowrap;}
+  .toast.show{transform:translateX(-50%) translateY(0);}
 </style>
 </head>
 <body>
 
-<!-- TOP BAR -->
-<header class="topbar">
-  <div class="topbar-inner">
-    <a href="#" class="logo">재테크<span>한입</span></a>
-    <div class="topbar-icons">
-      <button class="icon-btn" aria-label="검색">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-      </button>
-      <button class="icon-btn" aria-label="알림">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-      </button>
-      <button class="icon-btn" aria-label="프로필">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-      </button>
-    </div>
+<!-- NAV -->
+<nav class="nav">
+  <a href="#" class="nav-logo">재테크<span>한입</span></a>
+  <ul class="nav-menu">
+    <li><a href="#" class="active">홈</a></li>
+    <li><a href="#">토픽</a></li>
+    <li><a href="#">스파링</a></li>
+    <li><a href="#">칼럼</a></li>
+    <li><a href="#">미션</a></li>
+    <li><div class="nav-sep"></div></li>
+    <li><a href="#" class="dim">전문가 신청</a></li>
+    <li><a href="#" class="dim">🫐 베리몰 <span class="nav-badge">N</span></a></li>
+  </ul>
+  <div class="nav-right">
+    <button class="nav-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></button>
+    <button class="nav-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></button>
+    <button class="nav-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></button>
+    <button class="btn-q" onclick="openModal()">나도 질문하기</button>
   </div>
-  <nav class="gnav">
-    <a href="#" class="active">홈</a>
-    <a href="#">토픽</a>
-    <a href="#">스파링</a>
-    <a href="#">잉크</a>
-    <a href="#">미션</a>
-    <a href="#">전문가 신청</a>
-    <a href="#">🫐 베리몰 <span class="gnav-badge">N</span></a>
-  </nav>
-</header>
-
-<!-- MAIN -->
-<main class="main">
-  <!-- 피드 탭 -->
-  <div class="feed-tabs">
-    <button class="ftab active" onclick="setTab(this)">인기</button>
-    <button class="ftab" onclick="setTab(this)">관심</button>
-    <button class="ftab" onclick="setTab(this)">답변</button>
-  </div>
-
-  <!-- 카테고리 필터 -->
-  <div class="cat-wrap">
-    <button class="ctag active" onclick="filterCat(this,'전체')">전체</button>
-    <button class="ctag" onclick="filterCat(this,'재테크 입문')">💡 재테크 입문</button>
-    <button class="ctag" onclick="filterCat(this,'주식·ETF')">📈 주식·ETF</button>
-    <button class="ctag" onclick="filterCat(this,'절세')">🏦 절세</button>
-    <button class="ctag" onclick="filterCat(this,'보험')">🛡️ 보험</button>
-    <button class="ctag" onclick="filterCat(this,'대출·부채')">💳 대출·부채</button>
-  </div>
-
-  <!-- 레퍼럴 배너 -->
-  <div class="referral">
-    <div class="referral-left">
-      <div class="referral-title">🎁 친구 초대하고 베리 받기</div>
-      <div class="referral-sub">초대한 친구가 첫 질문 올리면 100 베리!</div>
-    </div>
-    <button class="referral-btn" id="refBtn">링크 복사</button>
-  </div>
-
-  <!-- 스파링 배너 -->
-  <div class="spar-banner">
-    <div class="spar-tag">🔥 지금 투표 중</div>
-    <div class="spar-title">지금 S&P500<br>들어가도 될까요?</div>
-    <div class="spar-foot">
-      <span class="spar-time">⏱ 3일 남았어요</span>
-      <button class="spar-btn">참여하기</button>
-    </div>
-  </div>
-
-  <!-- 질문 피드 -->
-  <div id="feed"></div>
-</main>
-
-<!-- FAB -->
-<button class="fab" onclick="openModal()" aria-label="질문하기">
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
-</button>
-
-<!-- 바텀 내비 -->
-<nav class="bottom-nav">
-  <button class="bnav active">
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-    <span class="bnav-label">홈</span>
-  </button>
-  <button class="bnav">
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
-    <span class="bnav-label">토픽</span>
-  </button>
-  <button class="bnav">
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-    <span class="bnav-label">스파링</span>
-  </button>
-  <button class="bnav">
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-    <span class="bnav-label">알림</span>
-  </button>
-  <button class="bnav">
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-    <span class="bnav-label">마이</span>
-  </button>
 </nav>
 
-<!-- 질문 모달 -->
+<div class="wrap">
+  <!-- FEED -->
+  <div class="feed">
+    <!-- 인기/관심/답변 탭 -->
+    <div class="feed-tabs">
+      <button class="ftab active" onclick="setTab(this)">인기</button>
+      <button class="ftab" onclick="setTab(this)">관심</button>
+      <button class="ftab" onclick="setTab(this)">답변</button>
+    </div>
+
+    <!-- 카테고리 필터 -->
+    <div class="cat-tabs">
+      <button class="ctab active" onclick="filterCat(this,'전체')">전체</button>
+      <button class="ctab" onclick="filterCat(this,'재테크 입문')">💡 재테크 입문</button>
+      <button class="ctab" onclick="filterCat(this,'주식·ETF')">📈 주식·ETF</button>
+      <button class="ctab" onclick="filterCat(this,'절세')">🏦 절세</button>
+      <button class="ctab" onclick="filterCat(this,'보험')">🛡️ 보험</button>
+      <button class="ctab" onclick="filterCat(this,'대출·부채')">💳 대출·부채</button>
+    </div>
+
+    <!-- 레퍼럴 배너 -->
+    <div class="referral-banner">
+      <div class="referral-left">
+        <div class="referral-title">🎁 친구 초대하고 베리 받기</div>
+        <div class="referral-sub">초대한 친구가 첫 질문 올리면 100 베리 지급!</div>
+      </div>
+      <button class="referral-btn">초대 링크 복사</button>
+    </div>
+
+    <div id="feed"></div>
+  </div>
+
+  <!-- RIGHT -->
+  <aside class="right">
+    <!-- 스파링 배너 -->
+    <div class="widget">
+      <div class="w-banner">
+        <div class="w-banner-tag">🔥 지금 투표 중</div>
+        <div class="w-banner-title">지금 S&P500<br>들어가도 될까요?</div>
+        <div class="w-banner-btm">
+          <div class="w-banner-time">⏱ 3일 남았어요</div>
+          <button class="w-banner-btn">참여하기</button>
+        </div>
+      </div>
+      <a href="#" class="wlink">💼 <span>전문가 신청하기</span><span class="wlink-arrow">›</span></a>
+      <a href="#" class="wlink">🛍️ <span>베리몰 구경하기</span><span class="wlink-arrow">›</span></a>
+      <a href="#" class="wlink">📈 <span>ETF 시세 보기</span><span class="wlink-arrow">›</span></a>
+      <div class="wfoot">
+        <a href="#" class="wflink">서비스 소개</a>
+        <a href="#" class="wflink">이용약관</a>
+        <a href="#" class="wflink">커뮤니티 보상 소개</a>
+        <a href="#" class="wflink">광고 문의</a>
+      </div>
+    </div>
+
+    <!-- 인기 검색 키워드 -->
+    <div class="widget">
+      <div class="w-head">🔍 지금 많이 찾는 키워드</div>
+      <div class="keyword-list">
+        <div class="keyword"><span class="keyword-rank">1</span> S&P500</div>
+        <div class="keyword"><span class="keyword-rank">2</span> ISA계좌</div>
+        <div class="keyword"><span class="keyword-rank">3</span> 연금저축</div>
+        <div class="keyword"><span class="keyword-rank">4</span> 실손보험</div>
+        <div class="keyword"><span class="keyword-rank">5</span> 학자금대출</div>
+        <div class="keyword"><span class="keyword-rank">6</span> ETF추천</div>
+        <div class="keyword"><span class="keyword-rank">7</span> 청년적금</div>
+        <div class="keyword"><span class="keyword-rank">8</span> 절세계좌</div>
+      </div>
+    </div>
+
+    <!-- 이번 주 답변왕 -->
+    <div class="widget">
+      <div class="w-head">🏆 이번 주 답변왕</div>
+      <div class="ranker-item">
+        <div class="ranker-rank top">1</div>
+        <div class="ranker-avatar">🦁</div>
+        <div class="ranker-info">
+          <div class="ranker-name">ETF마스터</div>
+          <div class="ranker-sub">채택 23회 · 베리 1,240</div>
+        </div>
+        <span class="ranker-badge lv4" style="background:linear-gradient(135deg,#667eea,#764ba2);color:white">전문가</span>
+      </div>
+      <div class="ranker-item">
+        <div class="ranker-rank top">2</div>
+        <div class="ranker-avatar">🐯</div>
+        <div class="ranker-info">
+          <div class="ranker-name">절세고수김씨</div>
+          <div class="ranker-sub">채택 18회 · 베리 890</div>
+        </div>
+        <span class="ranker-badge lv3" style="background:#FFD700;color:#333">골드</span>
+      </div>
+      <div class="ranker-item">
+        <div class="ranker-rank">3</div>
+        <div class="ranker-avatar">🐻</div>
+        <div class="ranker-info">
+          <div class="ranker-name">보험박사</div>
+          <div class="ranker-sub">채택 14회 · 베리 650</div>
+        </div>
+        <span class="ranker-badge lv2" style="background:#C0C0C0;color:white">실버</span>
+      </div>
+    </div>
+  </aside>
+</div>
+
+<!-- 모달 -->
 <div class="overlay" id="overlay" onclick="outsideClose(event)">
   <div class="modal">
-    <div class="modal-handle"></div>
-    <div class="mhead">
-      <h2>질문하기</h2>
-      <button class="mx" onclick="closeModal()">×</button>
-    </div>
+    <div class="mhead"><h2>질문하기</h2><button class="mx" onclick="closeModal()">×</button></div>
     <div class="mbody">
       <div class="mlabel">카테고리</div>
       <div class="cats">
-        <button class="cat on" onclick="pickCat(this)">💡 재테크 입문</button>
-        <button class="cat" onclick="pickCat(this)">📈 주식·ETF</button>
-        <button class="cat" onclick="pickCat(this)">🏦 절세</button>
-        <button class="cat" onclick="pickCat(this)">🛡️ 보험</button>
-        <button class="cat" onclick="pickCat(this)">💳 대출·부채</button>
+        <button class="cat on" onclick="pickCat(this)">재테크 입문</button>
+        <button class="cat" onclick="pickCat(this)">주식·ETF</button>
+        <button class="cat" onclick="pickCat(this)">절세</button>
+        <button class="cat" onclick="pickCat(this)">보험</button>
+        <button class="cat" onclick="pickCat(this)">대출·부채</button>
       </div>
       <div class="mlabel">질문 제목</div>
       <input class="inp" id="qtitle" type="text" placeholder="궁금한 점을 간단히 써주세요" maxlength="100" oninput="chkSubmit()"/>
-      <button class="btn-rf" id="rfBtn" onclick="doRefine()">✨ AI로 질문 다듬기</button>
+      <div class="rrow">
+        <button class="btn-rf" id="rfBtn" onclick="doRefine()">✨ AI로 질문 다듬기</button>
+        <span class="rhint">SEO에 맞게 자동으로 다듬어드려요</span>
+      </div>
       <div class="rbox" id="rbox">
         <div class="rlabel">✨ 다듬어진 질문을 선택해주세요</div>
-        <div id="ropts"></div>
+        <div class="ropts" id="ropts"></div>
       </div>
-      <div style="margin-top:14px">
+      <div style="margin-top:13px">
         <div class="mlabel">상세 내용 <span style="font-weight:400;color:var(--text3)">(선택)</span></div>
         <textarea class="inp" id="qbody" rows="4" placeholder="상황을 더 설명해주시면 더 좋은 답변을 받을 수 있어요"></textarea>
       </div>
@@ -274,10 +327,10 @@
 <script>
 const EM=['🐰','🦊','🐻','🐼','🦁','🐯','🐸','🐧','🦋','🦔'];
 const LEVELS=[
-  {label:'브론즈',style:'background:#CD7F32;color:white'},
-  {label:'실버',style:'background:#C0C0C0;color:white'},
-  {label:'골드',style:'background:#FFD700;color:#333'},
-  {label:'전문가',style:'background:linear-gradient(135deg,#667eea,#764ba2);color:white'},
+  {label:'브론즈',cls:'lv1',style:'background:#CD7F32;color:white'},
+  {label:'실버',cls:'lv2',style:'background:#C0C0C0;color:white'},
+  {label:'골드',cls:'lv3',style:'background:#FFD700;color:#333'},
+  {label:'전문가',cls:'lv4',style:'background:linear-gradient(135deg,#667eea,#764ba2);color:white'},
 ];
 
 let allQs=[
@@ -298,7 +351,7 @@ let allQs=[
    body:'20대 초반인데 병원을 거의 안 가서 실손보험 돈이 아깝게 느껴져요. 해지해도 될지, 아니면 나중에 후회할지 모르겠어서요.',
    ans:19,adopted:true},
   {id:5,cat:'대출·부채',topic:'학자금대출',author:'취준생고민',time:'3시간 전',em:'🦁',lv:2,
-   title:'학자금 대출 빨리 갚는 게 맞나요, 투자하는 게 맞나요?',
+   title:'학자금 대출 빨리 갚는 게 맞나요, 아니면 그 돈으로 투자하는 게 맞나요?',
    body:'취업하고 학자금 대출 1500만원이 남아있는데 금리가 1.7%예요. 이거 빨리 갚는 게 맞는지, 아니면 S&P500 적립식으로 가는 게 맞는지 모르겠어요.',
    ans:34,adopted:false},
   {id:6,cat:'주식·ETF',topic:'미국주식',author:'ETF마스터',time:'4시간 전',em:'🦋',lv:3,
@@ -312,41 +365,45 @@ let currentCat='전체';
 function getLevelBadge(lv){
   if(lv<0||lv>=LEVELS.length)return'';
   const l=LEVELS[lv];
-  return `<span style="font-size:9px;font-weight:700;padding:1px 5px;border-radius:4px;${l.style};white-space:nowrap;">${l.label}</span>`;
+  return `<span style="font-size:9px;font-weight:700;padding:2px 5px;border-radius:4px;border:1.5px solid white;${l.style};white-space:nowrap;position:absolute;bottom:-3px;right:-3px;">${l.label}</span>`;
 }
 
 function render(data){
-  if(!data.length){
+  if(data.length===0){
     document.getElementById('feed').innerHTML=`<div style="text-align:center;padding:60px 20px;color:var(--text3)">아직 질문이 없어요. 첫 질문을 남겨보세요! 🌱</div>`;
     return;
   }
   document.getElementById('feed').innerHTML=data.map(q=>`
     <div class="qcard">
-      <div class="qmeta">
-        <span class="qcat-badge">${q.cat}</span>
-        <span class="qdot">·</span>
-        <span class="qtopic">${q.topic}</span>
-        <span class="qdot">·</span>
-        <span class="qauthor">${q.author}</span>
-        <span class="qdot">·</span>
-        <span class="qtime">${q.time}</span>
-        ${q.adopted?'<span class="adopted-tag">✅ 채택됨</span>':''}
-        ${getLevelBadge(q.lv)}
-      </div>
-      <div class="qtitle">${q.title}</div>
-      <div class="qbody">${q.body}</div>
-      <div class="qfoot">
-        <div class="ans-row">
-          <div class="ans-avs">${Array.from({length:Math.min(3,q.ans)},(_,i)=>`<div class="ans-av">${EM[i]}</div>`).join('')}</div>
-          <span class="ans-text"><b>${q.ans}명</b>이 답변했어요</span>
+      <div class="qcard-top">
+        <div class="qavatar" style="position:relative">
+          ${q.em}
+          ${getLevelBadge(q.lv)}
         </div>
-        <div class="qbtns">
-          <button class="qbtn" onclick="event.stopPropagation()">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z"/><path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg>
-          </button>
-          <button class="qbtn" onclick="event.stopPropagation()">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-          </button>
+        <div class="qmeta">
+          <div class="qmeta-row1">
+            <span class="qcat">${q.cat}</span>
+            <span class="qdot">·</span>
+            <span class="qtopic">${q.topic}</span>
+            <span class="qdot">·</span>
+            <span class="qauthor">${q.author}</span>
+            <span class="qdot">·</span>
+            <span class="qtime">${q.time}</span>
+            ${q.adopted?'<span class="adopted-tag">✅ 채택됨</span>':''}
+          </div>
+          <div class="qtitle">${q.title}</div>
+          <div class="qbody">${q.body}</div>
+          <div class="qfoot">
+            <div class="qans">
+              <div class="ans-avatars">${Array.from({length:Math.min(3,q.ans)},(_,i)=>`<div class="ans-av">${EM[i]}</div>`).join('')}</div>
+              <span><strong>${q.ans}명</strong>이 답변했어요</span>
+            </div>
+            <div class="qbtns">
+              <button class="qbtn" onclick="event.stopPropagation()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z"/><path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg></button>
+              <button class="qbtn" onclick="event.stopPropagation()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3H10z"/><path d="M17 2h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"/></svg></button>
+              <button class="qbtn" onclick="event.stopPropagation()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></button>
+            </div>
+          </div>
         </div>
       </div>
     </div>`).join('');
@@ -355,13 +412,15 @@ function render(data){
 render(allQs);
 
 function setTab(el){document.querySelectorAll('.ftab').forEach(t=>t.classList.remove('active'));el.classList.add('active');}
+
 function filterCat(el,cat){
-  document.querySelectorAll('.ctag').forEach(t=>t.classList.remove('active'));
-  el.classList.add('active');currentCat=cat;
+  document.querySelectorAll('.ctab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  currentCat=cat;
   render(cat==='전체'?allQs:allQs.filter(q=>q.cat===cat));
 }
 
-function openModal(){document.getElementById('overlay').classList.add('open');}
+function openModal(){document.getElementById('overlay').classList.add('open');document.getElementById('qtitle').focus();}
 function closeModal(){
   document.getElementById('overlay').classList.remove('open');
   document.getElementById('qtitle').value='';
@@ -398,7 +457,7 @@ function pickR(el,text){document.querySelectorAll('.ropt').forEach(o=>o.classLis
 function submitQ(){
   const title=document.getElementById('qtitle').value.trim();
   const body=document.getElementById('qbody').value.trim();
-  const cat=document.querySelector('.cat.on')?.textContent.replace(/^[^\w가-힣]*/,'').trim()||'재테크 입문';
+  const cat=document.querySelector('.cat.on')?.textContent||'재테크 입문';
   const newQ={id:allQs.length+1,cat,topic:'일반',author:'나',time:'방금 전',em:'🐯',lv:0,title,body:body||'답변을 기다리고 있어요.',ans:0,adopted:false};
   allQs.unshift(newQ);
   render(currentCat==='전체'?allQs:allQs.filter(q=>q.cat===currentCat));
@@ -408,7 +467,9 @@ function submitQ(){
 
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}
 
-document.getElementById('refBtn').addEventListener('click',()=>{
+// 레퍼럴 버튼
+document.querySelector('.referral-btn').addEventListener('click',e=>{
+  e.stopPropagation();
   navigator.clipboard?.writeText('https://jaetechwhanip.com/invite/abc123').catch(()=>{});
   showToast('🔗 초대 링크가 복사되었어요!');
 });
