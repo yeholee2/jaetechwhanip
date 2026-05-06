@@ -18,12 +18,10 @@ export default function AuthClient() {
     setLoading(provider);
     setErr('');
 
-    // env가 없으면 데모 모드
+    // Supabase env 미설정 시 안내
     if (!hasSupabase()) {
-      setTimeout(() => {
-        alert(`데모 모드: ${provider} 로그인 성공!\n실제 연동은 Supabase env 설정 후 동작합니다.`);
-        router.push(next);
-      }, 800);
+      setErr('서비스 설정 중입니다. 잠시 후 다시 시도해주세요.');
+      setLoading(null);
       return;
     }
 
