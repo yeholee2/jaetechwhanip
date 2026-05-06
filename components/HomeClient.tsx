@@ -20,14 +20,29 @@ export default function HomeClient({ initialQuestions }: { initialQuestions: Que
   useEffect(() => {
     if (!hasSupabase()) { setAuthLoading(false); return; }
     const supabase = createClient();
-    // onAuthStateChange가 URL hash의 access_token을 자동 파싱해서 SIGNED_IN 이벤트 발생
-    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
-      setUser(session?.user ?? null);
+
+    const hash = typeof window !== 'undefined' ? window.location.hash : '';
+
+    // URL에 access_token이 있으면 (네이버/Google 매직링크 로그인 후)
+    // Supabase가 hash를 파싱해서 SIGNED_IN 이벤트를 발생시킴
+    if (hash.includes('access_token')) {
+      const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
+        if (session?.user) {
+          setUser(session.user);
+          setAuthLoading(false);
+          window.history.replaceState(null, '', window.location.pathname);
+        }
+      });
+      return () => sub.subscription.unsubscribe();
+    }
+
+    // 일반 세션 체크
+    supabase.auth.getSession().then(({ data }) => {
+      if (data.session) setUser(data.session.user);
       setAuthLoading(false);
     });
-    // 초기 세션도 확인 (이미 로그인된 경우)
-    supabase.auth.getSession().then(({ data }) => {
-      if (data.session) { setUser(data.session.user); }
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
+      setUser(session?.user ?? null);
       setAuthLoading(false);
     });
     return () => sub.subscription.unsubscribe();
