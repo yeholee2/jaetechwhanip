@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Search, Bell, User, Plus, Home as HomeIcon, LayoutList, Swords, ThumbsUp, MessageCircle, Share2, Briefcase, ShoppingBag, TrendingUp } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { createClient } from '@/lib/supabase/client';
+import { createClient, hasSupabase } from '@/lib/supabase/client';
 import type { Question } from '@/lib/sampleData';
 import { LEVELS, EMOJI } from '@/lib/sampleData';
 import styles from './HomeClient.module.css';
@@ -17,7 +17,7 @@ export default function HomeClient({ initialQuestions }: { initialQuestions: Que
   const [toast, setToast] = useState('');
 
   useEffect(() => {
-    if (!process.env.NEXT_PUBLIC_SUPABASE_URL) return;
+    if (!hasSupabase()) return;
     const supabase = createClient();
     supabase.auth.getUser().then(({ data }) => setUser(data.user));
     const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => setUser(session?.user ?? null));
