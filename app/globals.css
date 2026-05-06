@@ -1,0 +1,36 @@
+/* 토스페이스 */
+@import url('https://cdn.jsdelivr.net/gh/toss/tossface/dist/tossface.css');
+/* Pretendard */
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+/* Cafe24 Ssurround (로고용) */
+@import url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/Cafe24Ssurround.woff') format('woff');
+
+@font-face {
+  font-family: 'Cafe24Ssurround';
+  src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/Cafe24Ssurround.woff') format('woff');
+  font-weight: 700;
+  font-style: normal;
+}
+
+:root {
+  --blue:#3182F6; --blue-bg:#EBF3FF; --blue-dk:#1A6DE0;
+  --t1:#191F28; --t2:#4E5968; --t3:#8B95A1;
+  --line:#E5E8EB; --bg:#F9FAFB; --white:#fff;
+  --orange:#FF6B35;
+  --sb: env(safe-area-inset-bottom, 0px);
+}
+
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+html, body { height:100%; overflow-x:hidden; }
+body {
+  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg);
+  color: var(--t1);
+  font-size: 15px;
+}
+a { text-decoration:none; color:inherit; }
+button { font-family:inherit; cursor:pointer; border:none; background:none; }
+.tf { font-family: 'Tossface', sans-serif; }
+
+/* 로고 폰트 */
+.logo-font { font-family: 'Cafe24Ssurround', 'Pretendard', sans-serif; }
