@@ -484,78 +484,64 @@ input, textarea { font-family:inherit; }
 .toast.show { transform:translateX(-50%) translateY(0); opacity:1; }
 
 /* ══════════════════════════════════
-   ━━━ 로그인 페이지 ━━━
+   ━━━ 로그인 페이지 (아하 /auth 스타일) ━━━
 ══════════════════════════════════ */
 #page-login {
   min-height:100vh; display:flex; align-items:center; justify-content:center;
-  background:var(--c-bg); padding:20px;
+  position:relative; overflow:hidden;
+  background:#1a1a2e;
 }
-.login-box {
-  background:var(--c-white); border-radius:var(--r-xl);
-  border:1px solid var(--c-line); padding:40px 36px 36px;
-  width:100%; max-width:400px;
-  box-shadow:0 4px 24px rgba(0,0,0,.06);
+#page-login::before {
+  content:'';
+  position:absolute; inset:0;
+  background:
+    radial-gradient(circle at 15% 50%, rgba(99,102,241,.55) 0%, transparent 45%),
+    radial-gradient(circle at 85% 20%, rgba(168,85,247,.5) 0%, transparent 40%),
+    radial-gradient(circle at 70% 80%, rgba(59,130,246,.45) 0%, transparent 40%),
+    radial-gradient(circle at 30% 80%, rgba(236,72,153,.4) 0%, transparent 35%);
+  filter:blur(40px);
 }
-.login-logo {
-  text-align:center; margin-bottom:28px;
+.auth-card {
+  position:relative; z-index:1;
+  background:#fff; border-radius:20px;
+  width:100%; max-width:380px;
+  padding:44px 36px 36px;
+  box-shadow:0 24px 60px rgba(0,0,0,.3);
+  margin:20px;
 }
-.login-logo .logo-mark {
-  font-size:28px; font-weight:800; color:var(--c-brand); letter-spacing:-0.5px;
+.auth-logo { margin-bottom:4px; }
+.auth-tagline {
+  font-size:22px; font-weight:800; color:#191F28;
+  margin-bottom:32px; letter-spacing:-0.3px; line-height:1.35;
 }
-.login-logo .logo-mark em { color:var(--c-t1); font-style:normal; }
-.login-logo p {
-  font-size:14px; color:var(--c-t3); margin-top:5px; line-height:1.55;
-}
-.login-divider {
-  display:flex; align-items:center; gap:12px; margin:24px 0;
-}
-.login-divider::before, .login-divider::after {
-  content:''; flex:1; height:1px; background:var(--c-line);
-}
-.login-divider span { font-size:12px; color:var(--c-t3); white-space:nowrap; }
-
-/* 소셜 로그인 버튼 */
-.social-btn {
-  width:100%; height:48px; border-radius:var(--r-md);
+.auth-tagline em { font-style:normal; color:#3182F6; }
+.s-btn {
+  width:100%; height:52px; border-radius:12px;
   display:flex; align-items:center; justify-content:center; gap:10px;
-  font-size:15px; font-weight:600; margin-bottom:10px; border:none;
-  transition:opacity .12s; cursor:pointer;
+  font-size:15px; font-weight:700; margin-bottom:10px;
+  border:none; cursor:pointer; transition:filter .12s; letter-spacing:-0.2px;
 }
-.social-btn:last-child { margin-bottom:0; }
-.social-btn:hover { opacity:.88; }
-.social-btn:active { opacity:.76; }
-
-.btn-kakao {
-  background:var(--c-kakao); color:#191919;
+.s-btn:hover { filter:brightness(.93); }
+.s-btn:active { filter:brightness(.86); transform:scale(.99); }
+.s-btn-kakao  { background:#FEE500; color:#191919; }
+.s-btn-naver  { background:#03C75A; color:#fff; }
+.s-btn-google { background:#fff; color:#191919; border:1.5px solid #E5E8EB !important; }
+.s-icon { width:22px; height:22px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.auth-divider {
+  display:flex; align-items:center; gap:10px; margin:16px 0;
 }
-.btn-naver {
-  background:var(--c-naver); color:#fff;
+.auth-divider::before,.auth-divider::after { content:''; flex:1; height:1px; background:#E5E8EB; }
+.auth-divider span { font-size:12px; color:#8B95A1; white-space:nowrap; }
+.auth-footer {
+  margin-top:20px; text-align:center;
+  display:flex; justify-content:center; gap:16px; flex-wrap:wrap;
 }
-.btn-google {
-  background:var(--c-google); color:var(--c-t1);
-  border:1.5px solid var(--c-line) !important;
-}
-.social-icon {
-  width:22px; height:22px; border-radius:4px;
-  display:flex; align-items:center; justify-content:center; flex-shrink:0;
-}
-/* 카카오 아이콘 인라인 SVG */
-.kakao-icon { background:transparent; }
-.naver-icon { background:transparent; }
-.google-icon { background:transparent; }
-
-.login-footer {
-  margin-top:24px; text-align:center;
-  font-size:12px; color:var(--c-t3); line-height:1.8;
-}
-.login-footer a { color:var(--c-brand); font-weight:500; }
-
-/* 모바일 로그인 */
-@media (max-width: 768px) {
-  #page-login { align-items:flex-start; padding-top:48px; }
-  .login-box {
-    border:none; box-shadow:none; border-radius:0;
-    padding:32px 20px 28px; max-width:100%;
+.auth-footer a { font-size:12px; color:#8B95A1; }
+.auth-footer a:hover { color:#4E5968; }
+@media(max-width:480px) {
+  .auth-card {
+    border-radius:0; margin:0; min-height:100vh;
+    box-shadow:none; padding:60px 24px 32px;
   }
 }
 </style>
@@ -565,58 +551,60 @@ input, textarea { font-family:inherit; }
 <!-- ══════════════════════════════════
      로그인 페이지
 ══════════════════════════════════ -->
-<div id="page-login" class="page active">
-  <div class="login-box">
-    <div class="login-logo">
-      <div class="logo-mark">재테크<em>한입</em></div>
-      <p>돈 고민, 여기서 해결<br>질문하고 답변하면 베리가 쌓여요</p>
-    </div>
+<div id="page-login" class="page">
+<div class="auth-card">
+  <!-- 로고 -->
+  <div class="auth-logo">
+    <svg viewBox="0 0 80 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <text x="0" y="22" font-family="Pretendard,-apple-system,sans-serif" font-size="24" font-weight="800" fill="#3182F6">재테크</text>
+    </svg>
+  </div>
+  <div class="auth-tagline">궁금할 땐,<br><em>재테크한입</em></div>
 
-    <div class="login-divider"><span>소셜 계정으로 시작하기</span></div>
+  <!-- 카카오 -->
+  <button class="s-btn s-btn-kakao" onclick="handleLogin('kakao')">
+    <span class="s-icon">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+        <path d="M10 2C5.582 2 2 4.805 2 8.25c0 2.21 1.46 4.153 3.666 5.272l-.933 3.477a.25.25 0 0 0 .374.273L9.32 14.8c.224.018.45.027.68.027 4.418 0 8-2.805 8-6.25C18 4.805 14.418 2 10 2Z" fill="#191919"/>
+      </svg>
+    </span>
+    카카오로 시작하기
+  </button>
 
-    <!-- 카카오 -->
-    <button class="social-btn btn-kakao" onclick="handleLogin('kakao')">
-      <span class="social-icon kakao-icon">
-        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-          <path d="M10 2C5.582 2 2 4.805 2 8.25c0 2.21 1.46 4.153 3.666 5.272l-.933 3.477a.25.25 0 0 0 .374.273L9.32 14.8c.224.018.45.027.68.027 4.418 0 8-2.805 8-6.25C18 4.805 14.418 2 10 2Z" fill="#191919"/>
-        </svg>
-      </span>
-      카카오로 시작하기
-    </button>
+  <!-- 네이버 -->
+  <button class="s-btn s-btn-naver" onclick="handleLogin('naver')">
+    <span class="s-icon">
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+        <path d="M10.23 9.18 7.5 5H5v8h2.77V8.82L10.5 13H13V5h-2.77v4.18Z" fill="white"/>
+      </svg>
+    </span>
+    네이버로 시작하기
+  </button>
 
-    <!-- 네이버 -->
-    <button class="social-btn btn-naver" onclick="handleLogin('naver')">
-      <span class="social-icon naver-icon">
-        <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-          <path d="M10.23 9.18 7.5 5H5v8h2.77V9.82L10.5 13H13V5h-2.77v4.18Z" fill="white"/>
-        </svg>
-      </span>
-      네이버로 시작하기
-    </button>
+  <div class="auth-divider"><span>또는</span></div>
 
-    <!-- 구글 -->
-    <button class="social-btn btn-google" onclick="handleLogin('google')">
-      <span class="social-icon google-icon">
-        <svg width="18" height="18" viewBox="0 0 18 18">
-          <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.875 2.684-6.615Z" fill="#4285F4"/>
-          <path d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.258c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332C2.438 15.983 5.482 18 9 18Z" fill="#34A853"/>
-          <path d="M3.964 10.707c-.18-.54-.282-1.117-.282-1.707 0-.59.102-1.167.282-1.707V4.961H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.039l3.007-2.332Z" fill="#FBBC05"/>
-          <path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0 5.482 0 2.438 2.017.957 4.961L3.964 7.293C4.672 5.166 6.656 3.58 9 3.58Z" fill="#EA4335"/>
-        </svg>
-      </span>
-      Google로 시작하기
-    </button>
+  <!-- 구글 -->
+  <button class="s-btn s-btn-google" onclick="handleLogin('google')">
+    <span class="s-icon">
+      <svg width="18" height="18" viewBox="0 0 18 18">
+        <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.875 2.684-6.615Z" fill="#4285F4"/>
+        <path d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.258c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332C2.438 15.983 5.482 18 9 18Z" fill="#34A853"/>
+        <path d="M3.964 10.707c-.18-.54-.282-1.117-.282-1.707 0-.59.102-1.167.282-1.707V4.961H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.039l3.007-2.332Z" fill="#FBBC05"/>
+        <path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0 5.482 0 2.438 2.017.957 4.961L3.964 7.293C4.672 5.166 6.656 3.58 9 3.58Z" fill="#EA4335"/>
+      </svg>
+    </span>
+    Google로 시작하기
+  </button>
 
-    <div class="login-footer">
-      로그인 시 <a href="#">이용약관</a> 및 <a href="#">개인정보처리방침</a>에 동의합니다.
-    </div>
+  <div class="auth-footer">
+    <a href="#" onclick="goMain();return false;">← 둘러보기</a>
+    <a href="#">이용약관</a>
+    <a href="#">개인정보처리방침</a>
   </div>
 </div>
+</div>
 
-<!-- ══════════════════════════════════
-     메인 페이지
-══════════════════════════════════ -->
-<div id="page-main" class="page">
+<div id="page-main" class="page active">
 
   <!-- PC 네비 -->
   <nav class="pc-nav">
@@ -880,6 +868,7 @@ let allQs = [
 ];
 
 let currentCat = '전체';
+let isLoggedIn = false;  // 로그인 상태
 const isMobile = () => window.innerWidth <= 768;
 
 /* ── 페이지 전환 ── */
@@ -892,9 +881,12 @@ function goMain()  { goPage('page-main'); syncFeedPosition(); }
 
 /* ── 소셜 로그인 핸들러 ── */
 function handleLogin(provider) {
-  const labels = {kakao:'카카오', naver:'네이버', google:'구글'};
+  const labels = {kakao:'카카오', naver:'네이버', google:'Google'};
   showToast(`${labels[provider]}로 로그인 중...`);
-  setTimeout(() => goMain(), 900);
+  setTimeout(() => {
+    isLoggedIn = true;
+    goMain();
+  }, 900);
 }
 
 /* ── 카드 렌더 ── */
@@ -970,7 +962,14 @@ function filterCat(el, cat) {
 }
 
 /* ── 모달 ── */
-function openModal() { document.getElementById('overlay').classList.add('open'); document.getElementById('qtitle').focus(); }
+function openModal() {
+  if (!isLoggedIn) {
+    goPage('page-login');
+    return;
+  }
+  document.getElementById('overlay').classList.add('open');
+  document.getElementById('qtitle').focus();
+}
 function closeModal() {
   document.getElementById('overlay').classList.remove('open');
   document.getElementById('qtitle').value = '';
