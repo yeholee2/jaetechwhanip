@@ -61,6 +61,22 @@ export default function HomeClient({ initialQuestions }: { initialQuestions: Que
   const cats = ['전체','재테크 입문','주식·ETF','절세','보험','대출·부채'];
   const catEmoji: Record<string,string> = { '재테크 입문':'💡', '주식·ETF':'📈', '절세':'🏦', '보험':'🛡️', '대출·부채':'💳' };
 
+  const submitQ = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const form = e.currentTarget;
+    const title = (form.elements.namedItem('title') as HTMLInputElement).value.trim();
+    const body = (form.elements.namedItem('body') as HTMLTextAreaElement).value.trim();
+    const cat = (form.elements.namedItem('cat') as HTMLSelectElement).value;
+    if (!title) return;
+    const newQ = {
+      id: allQs.length + 1, cat, topic: '일반', author: user?.user_metadata?.name || '나',
+      time: '방금 전', em: '🐯', lv: 0, title, body: body || '답변을 기다리고 있어요.', ans: 0, adopted: false,
+      slug: title.toLowerCase().replace(/\s+/g, '-').slice(0, 50),
+    };
+    setAllQs([newQ, ...allQs]);
+    setShowModal(false);
+  };
+
   return (
     <div className={styles.app}>
       {/* PC 네비 */}
@@ -79,7 +95,13 @@ export default function HomeClient({ initialQuestions }: { initialQuestions: Que
         <div className={styles.pcRight}>
           <button className={styles.iconBtn}><Search size={18}/></button>
           <button className={styles.iconBtn}><Bell size={18}/></button>
-          <button className={styles.iconBtn} onClick={() => router.push('/auth')}><User size={18}/></button>
+          {user ? (
+            <div className={styles.userAvatar} onClick={() => {}} title={user.email}>
+              {user.user_metadata?.name?.[0] || user.email?.[0] || 'U'}
+            </div>
+          ) : (
+            <button className={styles.iconBtn} onClick={() => router.push('/auth')}><User size={18}/></button>
+          )}
           <button className={styles.btnAsk} onClick={tryAsk}>나도 질문하기</button>
         </div>
       </nav>
@@ -177,11 +199,46 @@ export default function HomeClient({ initialQuestions }: { initialQuestions: Que
         <button className={styles.bnav}><LayoutList size={22}/><span>토픽</span></button>
         <button className={styles.bnav}><Swords size={22}/><span>스파링</span></button>
         <button className={styles.bnav}><Bell size={22}/><span>알림</span></button>
-        <button className={styles.bnav} onClick={() => router.push('/auth')}><User size={22}/><span>마이</span></button>
+        <button className={styles.bnav} onClick={() => router.push(user ? '/mypage' : '/auth')} style={user ? {color:'var(--green)'} : {}}><User size={22}/><span>{user ? 'MY' : '로그인'}</span></button>
       </nav>
 
       {toast && <div className={`${styles.toast} ${styles.show}`}>{toast}</div>}
     </div>
+      {/* 질문하기 모달 */}
+      {showModal && (
+        <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,.45)',zIndex:200,display:'flex',alignItems:'center',justifyContent:'center',padding:20}} onClick={() => setShowModal(false)}>
+          <div style={{background:'white',borderRadius:16,width:'100%',maxWidth:560,boxShadow:'0 24px 60px rgba(0,0,0,.18)'}} onClick={e => e.stopPropagation()}>
+            <div style={{padding:'18px 22px 14px',borderBottom:'1px solid #E5E8EB',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+              <h2 style={{fontSize:16,fontWeight:700}}>질문하기</h2>
+              <button onClick={() => setShowModal(false)} style={{width:30,height:30,border:'none',background:'#F9FAFB',borderRadius:7,cursor:'pointer',fontSize:20,color:'#4E5968'}}>×</button>
+            </div>
+            <form onSubmit={submitQ} style={{padding:'18px 22px 20px'}}>
+              <div style={{marginBottom:12}}>
+                <label style={{fontSize:12,fontWeight:600,color:'#4E5968',display:'block',marginBottom:6}}>카테고리</label>
+                <select name="cat" style={{width:'100%',padding:'10px 12px',border:'1.5px solid #E5E8EB',borderRadius:9,fontSize:14,outline:'none'}}>
+                  <option>재테크 입문</option>
+                  <option>주식·ETF</option>
+                  <option>절세</option>
+                  <option>보험</option>
+                  <option>대출·부채</option>
+                </select>
+              </div>
+              <div style={{marginBottom:12}}>
+                <label style={{fontSize:12,fontWeight:600,color:'#4E5968',display:'block',marginBottom:6}}>질문 제목</label>
+                <input name="title" required placeholder="궁금한 점을 간단히 써주세요" style={{width:'100%',padding:'11px 13px',border:'1.5px solid #E5E8EB',borderRadius:9,fontSize:14,outline:'none',boxSizing:'border-box'}}/>
+              </div>
+              <div style={{marginBottom:16}}>
+                <label style={{fontSize:12,fontWeight:600,color:'#4E5968',display:'block',marginBottom:6}}>상세 내용 <span style={{fontWeight:400,color:'#8B95A1'}}>(선택)</span></label>
+                <textarea name="body" rows={4} placeholder="상황을 더 설명해주시면 더 좋은 답변을 받을 수 있어요" style={{width:'100%',padding:'11px 13px',border:'1.5px solid #E5E8EB',borderRadius:9,fontSize:14,outline:'none',resize:'none',boxSizing:'border-box'}}/>
+              </div>
+              <div style={{display:'flex',justifyContent:'flex-end',gap:8}}>
+                <button type="button" onClick={() => setShowModal(false)} style={{height:38,padding:'0 18px',background:'#F9FAFB',border:'1px solid #E5E8EB',borderRadius:8,fontSize:14,cursor:'pointer'}}>취소</button>
+                <button type="submit" style={{height:38,padding:'0 22px',background:'#00C73C',border:'none',borderRadius:8,color:'white',fontSize:14,fontWeight:700,cursor:'pointer'}}>질문 올리기</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
   );
 }
 
