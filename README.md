@@ -111,6 +111,31 @@ Vercel → Settings → Domains → `jaetechwhanip.yeholee.com` 추가
 
 ---
 
+### [2026-05-06] OAuth 연동 완료
+
+**카카오 OAuth ✅**
+- 앱 ID: 1449623
+- REST API 키 발급 및 Supabase 등록
+- Redirect URI: https://fqoeacfkzptlzohdzhgd.supabase.co/auth/v1/callback
+- Client Secret 등록 완료
+- 상태: 실제 로그인 동작 ✅
+
+**Google OAuth ✅**
+- 프로젝트: hannipmoney-indexing (imyeho@gmail.com)
+- 클라이언트: 재테크한입 (901777384682-ab607...)
+- Redirect URI 등록 완료
+- 상태: 동작하나 "확인되지 않은 앱" 경고 표시 중
+  → Google 앱 검증 신청 후 해결 예정 (실서비스 오픈 전)
+  → 지금은 "고급 > 계속" 으로 우회 가능
+
+**남은 작업:**
+- [ ] 네이버 로그인 (Custom OAuth, 추후)
+- [ ] Supabase DB 테이블 생성 (questions, answers, users)
+- [ ] 질문 실제 저장 연동
+- [ ] Google 앱 검증 신청 (실서비스 오픈 전)
+
+---
+
 ### [2026-05-06] Next.js + Vercel + Supabase 마이그레이션 시작
 
 **변경 이유:** SEO, 실제 로그인 연동, DB 연결, 서브도메인 지원
