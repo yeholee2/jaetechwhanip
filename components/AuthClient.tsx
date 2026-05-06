@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { createClient } from '@/lib/supabase/client';
+import { createClient, hasSupabase } from '@/lib/supabase/client';
 import styles from './AuthClient.module.css';
 
 type Provider = 'kakao' | 'naver' | 'google';
@@ -19,7 +19,7 @@ export default function AuthClient() {
     setErr('');
 
     // env가 없으면 데모 모드
-    if (!process.env.NEXT_PUBLIC_SUPABASE_URL) {
+    if (!hasSupabase()) {
       setTimeout(() => {
         alert(`데모 모드: ${provider} 로그인 성공!\n실제 연동은 Supabase env 설정 후 동작합니다.`);
         router.push(next);
