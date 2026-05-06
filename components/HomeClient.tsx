@@ -243,7 +243,6 @@ export default function HomeClient({ initialQuestions }: { initialQuestions: Que
 }
 
 function FeedList({ questions, mobile }: { questions: Question[], mobile: boolean }) {
-  return (
     <div className={mobile ? styles.moFeed : styles.pcFeedList}>
       {questions.map(q => (
         <article key={q.id} className={styles.qcard}>
