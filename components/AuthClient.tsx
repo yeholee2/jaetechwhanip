@@ -5,26 +5,28 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import { createClient, hasSupabase } from '@/lib/supabase/client';
 import styles from './AuthClient.module.css';
 
+type OAuthProvider = 'google' | 'kakao';
+
 export default function AuthClient() {
   const router = useRouter();
   const params = useSearchParams();
   const next = params.get('next') ?? '/';
   const errorParam = params.get('error');
-  const [loading, setLoading] = useState(false);
+  const [loadingProvider, setLoadingProvider] = useState<OAuthProvider | null>(null);
   const [err, setErr] = useState(errorParam ? '로그인에 실패했어요. 다시 시도해주세요.' : '');
 
-  const handleGoogleLogin = async () => {
-    setLoading(true);
+  const handleOAuthLogin = async (provider: OAuthProvider) => {
+    setLoadingProvider(provider);
     setErr('');
     if (!hasSupabase()) {
       setErr('서비스 설정 중입니다. 잠시 후 다시 시도해주세요.');
-      setLoading(false);
+      setLoadingProvider(null);
       return;
     }
     try {
       const supabase = createClient();
       const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
+        provider,
         options: {
           redirectTo: `${window.location.origin}/api/auth/callback?next=${encodeURIComponent(next)}`,
         },
@@ -32,7 +34,7 @@ export default function AuthClient() {
       if (error) throw error;
     } catch (e: any) {
       setErr(e.message || '로그인 실패');
-      setLoading(false);
+      setLoadingProvider(null);
     }
   };
 
@@ -44,10 +46,10 @@ export default function AuthClient() {
 
         <button
           className={`${styles.sbtn} ${styles.google}`}
-          onClick={handleGoogleLogin}
-          disabled={loading}
+          onClick={() => handleOAuthLogin('google')}
+          disabled={!!loadingProvider}
         >
-          {loading ? <span className={styles.spinDark}/> : (
+          {loadingProvider === 'google' ? <span className={styles.spinDark}/> : (
             <svg width="18" height="18" viewBox="0 0 18 18">
               <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.875 2.684-6.615Z" fill="#4285F4"/>
               <path d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.258c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332C2.438 15.983 5.482 18 9 18Z" fill="#34A853"/>
@@ -56,6 +58,17 @@ export default function AuthClient() {
             </svg>
           )}
           Google로 시작하기
+        </button>
+
+        <button
+          className={`${styles.sbtn} ${styles.kakao}`}
+          onClick={() => handleOAuthLogin('kakao')}
+          disabled={!!loadingProvider}
+        >
+          {loadingProvider === 'kakao' ? <span className={styles.spinDark}/> : (
+            <span className={styles.kakaoIcon} aria-hidden="true">톡</span>
+          )}
+          카카오로 시작하기
         </button>
 
         {err && <div className={styles.err}>{err}</div>}

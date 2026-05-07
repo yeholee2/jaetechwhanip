@@ -65,19 +65,25 @@ feature/xxx → 기능별 작업
 
 ## 🔐 OAuth 설정 가이드
 
-### 카카오
-1. https://developers.kakao.com → 앱 생성
-2. 카카오 로그인 활성화
-3. Redirect URI: `https://your-project.supabase.co/auth/v1/callback`
-4. Supabase → Auth → Providers → Kakao에 키 입력
-
 ### 구글
+현재 프로덕션 로그인은 Google만 유지합니다.
+
 1. https://console.cloud.google.com → OAuth 2.0 클라이언트 생성
 2. Redirect URI: `https://your-project.supabase.co/auth/v1/callback`
 3. Supabase → Auth → Providers → Google에 키 입력
+4. Google 앱 검증 전에는 "확인되지 않은 앱" 경고가 표시될 수 있음
 
-### 네이버 (추후)
-- Supabase 기본 미지원 → Custom OAuth 처리 예정
+### 카카오
+로그인 UI는 활성화되어 있습니다. 실제 동작하려면 Kakao Developers와 Supabase Provider 설정이 맞아야 합니다.
+
+1. https://developers.kakao.com → 앱 생성
+2. 카카오 로그인 활성화
+3. Redirect URI: `https://fqoeacfkzptlzohdzhgd.supabase.co/auth/v1/callback`
+4. Supabase → Auth → Providers → Kakao에 REST API 키와 Client Secret 입력
+5. 운영 사이트 콜백은 `/api/auth/callback`이 세션 교환 후 `NEXT_PUBLIC_SITE_URL`로 이동 처리
+
+### 네이버
+최신 코드에서는 네이버 Custom OAuth 라우트가 제거되어 있습니다. 다시 켤 경우 `/api/auth/naver`와 콜백 라우트를 새 결정에 맞춰 복구해야 합니다.
 
 ---
 
