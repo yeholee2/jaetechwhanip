@@ -1,34 +1,116 @@
 'use client';
+// OAuth: Google ✅ | Naver Custom ✅ | Kakao 준비중
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Search, Bell, User, Plus, Home as HomeIcon, LayoutList, Swords, ThumbsUp, MessageCircle, Share2, Briefcase, ShoppingBag, TrendingUp } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { createClient, hasSupabase } from '@/lib/supabase/client';
 import type { Question } from '@/lib/sampleData';
-import { LEVELS, EMOJI } from '@/lib/sampleData';
+import { LEVELS, EMOJI, sampleQuestions } from '@/lib/sampleData';
 import styles from './HomeClient.module.css';
 
 export default function HomeClient({ initialQuestions }: { initialQuestions: Question[] }) {
   const router = useRouter();
   const [user, setUser] = useState<any>(null);
-  const [allQs, setAllQs] = useState(initialQuestions);
+  const [allQs, setAllQs] = useState<Question[]>(initialQuestions);
   const [currentCat, setCurrentCat] = useState('전체');
   const [showModal, setShowModal] = useState(false);
   const [toast, setToast] = useState('');
   const [authLoading, setAuthLoading] = useState(true);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const dropRef = useRef<HTMLDivElement>(null);
 
+  // auth 상태 + hash token 처리
   useEffect(() => {
     if (!hasSupabase()) { setAuthLoading(false); return; }
     const supabase = createClient();
+
+    // 해시 토큰 처리 (네이버/구글 매직링크 콜백)
+    if (typeof window !== 'undefined' && window.location.hash.includes('access_token')) {
+      supabase.auth.getSession().then(({ data }) => {
+        setUser(data.session?.user ?? null);
+        setAuthLoading(false);
+        // 해시 제거
+        window.history.replaceState(null, '', window.location.pathname);
+      });
+    }
+
     const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
       setUser(session?.user ?? null);
       setAuthLoading(false);
     });
     supabase.auth.getSession().then(({ data }) => {
-      if (data.session) setUser(data.session.user);
+      setUser(data.session?.user ?? null);
       setAuthLoading(false);
     });
     return () => sub.subscription.unsubscribe();
+  }, []);
+
+  // Supabase에서 질문 로드
+  useEffect(() => {
+    if (!hasSupabase()) return;
+    const supabase = createClient();
+    supabase
+      .from('questions')
+      .select(`*, users:author_id(name, avatar_url)`)
+      .order('created_at', { ascending: false })
+      .limit(50)
+      .then(({ data, error }) => {
+        if (error || !data || data.length === 0) return; // DB 비어있으면 샘플 유지
+        // DB 데이터를 Question 타입으로 변환
+        const mapped: Question[] = data.map((q: any, i: number) => ({
+          id: i + 1,
+          cat: q.category || '재테크 입문',
+          topic: '일반',
+          author: q.users?.name || '익명',
+          time: formatTime(q.created_at),
+          em: EMOJI[i % EMOJI.length] || '🐯',
+          lv: 0,
+          title: q.title,
+          body: q.body || '',
+          ans: q.answer_count || 0,
+          adopted: q.is_answered || false,
+          slug: q.slug || q.id,
+          dbId: q.id,
+        }));
+        setAllQs(mapped);
+      });
+
+    // 실시간 구독
+    const channel = supabase
+      .channel('questions-realtime')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'questions' }, (payload) => {
+        const q = payload.new as any;
+        setAllQs(prev => [{
+          id: prev.length + 1,
+          cat: q.category || '재테크 입문',
+          topic: '일반',
+          author: '나',
+          time: '방금 전',
+          em: '🐯',
+          lv: 0,
+          title: q.title,
+          body: q.body || '',
+          ans: 0,
+          adopted: false,
+          slug: q.slug || q.id,
+          dbId: q.id,
+        }, ...prev]);
+      })
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel); };
+  }, []);
+
+  // 드롭다운 외부 클릭 닫기
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (dropRef.current && !dropRef.current.contains(e.target as Node)) {
+        setShowDropdown(false);
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
   }, []);
 
   const showT = (msg: string) => { setToast(msg); setTimeout(() => setToast(''), 2500); };
@@ -44,38 +126,44 @@ export default function HomeClient({ initialQuestions }: { initialQuestions: Que
     const supabase = createClient();
     await supabase.auth.signOut();
     setUser(null);
+    setShowDropdown(false);
     showT('👋 로그아웃 되었어요');
   };
 
   const submitQ = async (title: string, body: string, cat: string) => {
     const slug = title.toLowerCase().replace(/[^a-z0-9가-힣]/g, '-').slice(0, 60) + '-' + Date.now();
-    const newQ = {
-      id: allQs.length + 1, cat, topic: '일반',
-      author: user?.user_metadata?.name || '나',
-      time: '방금 전', em: '🐯', lv: 0,
-      title, body: body || '답변을 기다리고 있어요.',
-      ans: 0, adopted: false, slug,
-    };
-    // Supabase DB 저장 시도
     if (hasSupabase() && user) {
       const supabase = createClient();
-      await supabase.from('questions').insert({
+      const { error } = await supabase.from('questions').insert({
         title, body: body || '',
         category: cat,
         slug,
         author_id: user.id,
         answer_count: 0,
       });
+      if (error) {
+        showT('❌ 오류가 생겼어요. 다시 시도해주세요.');
+        return;
+      }
+    } else {
+      // 로컬 임시 추가
+      const newQ: Question = {
+        id: allQs.length + 1, cat, topic: '일반',
+        author: user?.user_metadata?.name || '나',
+        time: '방금 전', em: '🐯', lv: 0,
+        title, body: body || '답변을 기다리고 있어요.',
+        ans: 0, adopted: false, slug,
+      };
+      setAllQs([newQ, ...allQs]);
     }
-    setAllQs([newQ, ...allQs]);
     setShowModal(false);
     showT('✅ 질문이 등록되었어요!');
   };
 
   const filtered = currentCat === '전체' ? allQs : allQs.filter(q => q.cat === currentCat);
-
   const cats = ['전체','재테크 입문','주식·ETF','절세','보험','대출·부채'];
   const catEmoji: Record<string,string> = { '재테크 입문':'💡', '주식·ETF':'📈', '절세':'🏦', '보험':'🛡️', '대출·부채':'💳' };
+  const userName = user?.user_metadata?.name || user?.email?.split('@')[0] || '';
 
   return (
     <div className={styles.app}>
@@ -95,20 +183,25 @@ export default function HomeClient({ initialQuestions }: { initialQuestions: Que
         <div className={styles.pcRight}>
           <button className={styles.iconBtn}><Search size={18}/></button>
           <button className={styles.iconBtn}><Bell size={18}/></button>
-          {user ? (
-            <div style={{position:'relative'}}>
-              <div style={{width:32,height:32,borderRadius:'50%',background:'var(--green)',color:'white',display:'flex',alignItems:'center',justifyContent:'center',fontWeight:700,fontSize:13,cursor:'pointer'}} title={user.email}
-                onClick={() => { const d = document.getElementById('user-dropdown'); if(d) d.style.display = d.style.display === 'none' ? 'block' : 'none'; }}>
-                {(user.user_metadata?.name || user.email || 'U')[0]}
+          {!authLoading && (user ? (
+            <div style={{position:'relative'}} ref={dropRef}>
+              <div
+                style={{width:32,height:32,borderRadius:'50%',background:'var(--green)',color:'white',display:'flex',alignItems:'center',justifyContent:'center',fontWeight:700,fontSize:13,cursor:'pointer'}}
+                title={userName}
+                onClick={() => setShowDropdown(v => !v)}
+              >
+                {userName[0]?.toUpperCase() || 'U'}
               </div>
-              <div id="user-dropdown" style={{display:'none',position:'absolute',right:0,top:40,background:'white',border:'1px solid #E5E8EB',borderRadius:10,boxShadow:'0 4px 16px rgba(0,0,0,.1)',minWidth:140,zIndex:100}}>
-                <div style={{padding:'10px 14px',fontSize:13,color:'#4E5968',borderBottom:'1px solid #F2F4F6'}}>{user.user_metadata?.name || user.email}</div>
-                <button onClick={handleSignOut} style={{width:'100%',padding:'10px 14px',border:'none',background:'none',textAlign:'left',fontSize:13,color:'#FF3B30',cursor:'pointer'}}>로그아웃</button>
-              </div>
+              {showDropdown && (
+                <div style={{position:'absolute',right:0,top:40,background:'white',border:'1px solid #E5E8EB',borderRadius:10,boxShadow:'0 4px 16px rgba(0,0,0,.1)',minWidth:140,zIndex:100}}>
+                  <div style={{padding:'10px 14px',fontSize:13,color:'#4E5968',borderBottom:'1px solid #F2F4F6'}}>{userName}</div>
+                  <button onClick={handleSignOut} style={{width:'100%',padding:'10px 14px',border:'none',background:'none',textAlign:'left',fontSize:13,color:'#FF3B30',cursor:'pointer'}}>로그아웃</button>
+                </div>
+              )}
             </div>
           ) : (
             <button className={styles.iconBtn} onClick={() => router.push('/auth')}><User size={18}/></button>
-          )}
+          ))}
           <button className={styles.btnAsk} onClick={tryAsk}>나도 질문하기</button>
         </div>
       </nav>
@@ -133,15 +226,11 @@ export default function HomeClient({ initialQuestions }: { initialQuestions: Que
               <strong style={{fontSize:13,display:'block',marginBottom:2,color:'#fff'}}><span className="tf">🎁</span> 친구 초대하고 베리 받기</strong>
               <span style={{fontSize:11,color:'rgba(255,255,255,.7)'}}>초대한 친구가 첫 질문 올리면 100 베리!</span>
             </div>
-            <button className={styles.refCopy} onClick={() => {
-              navigator.clipboard?.writeText('https://jaetechwhanip.vercel.app/invite/abc');
-              showT('🔗 초대 링크 복사됐어요!');
-            }}>초대 링크 복사</button>
+            <button className={styles.refCopy} onClick={() => { navigator.clipboard?.writeText('https://jaetechwhanip.vercel.app'); showT('🔗 초대 링크 복사됐어요!'); }}>초대 링크 복사</button>
           </div>
           <FeedList questions={filtered} mobile={false}/>
         </div>
 
-        {/* 사이드바 */}
         <aside className={styles.pcSide}>
           <div className={styles.widget}>
             <div className={styles.sparW}>
@@ -174,7 +263,9 @@ export default function HomeClient({ initialQuestions }: { initialQuestions: Que
           <div className={styles.moIcons}>
             <button className={styles.moIcon}><Search size={20}/></button>
             <button className={styles.moIcon}><Bell size={20}/></button>
-            <button className={styles.moIcon} onClick={() => router.push('/auth')}><User size={20}/></button>
+            <button className={styles.moIcon} onClick={() => router.push(user ? '/' : '/auth')}>
+              {user ? <span style={{fontSize:12,fontWeight:700,color:'var(--green)'}}>{userName[0]?.toUpperCase()}</span> : <User size={20}/>}
+            </button>
           </div>
         </div>
         <nav className={styles.moGnav}>
@@ -206,9 +297,10 @@ export default function HomeClient({ initialQuestions }: { initialQuestions: Que
         <button className={styles.bnav}><LayoutList size={22}/><span>토픽</span></button>
         <button className={styles.bnav}><Swords size={22}/><span>스파링</span></button>
         <button className={styles.bnav}><Bell size={22}/><span>알림</span></button>
-        <button className={styles.bnav} onClick={() => router.push(user ? '/' : '/auth')} style={user ? {color:'var(--green)'} : {}}><User size={22}/><span>{user ? (user.user_metadata?.name?.[0] || 'MY') : '로그인'}</span></button>
+        <button className={styles.bnav} onClick={() => router.push(user ? '/' : '/auth')} style={user ? {color:'var(--green)'} : {}}>
+          <User size={22}/><span>{user ? (userName[0]?.toUpperCase() || 'MY') : '로그인'}</span>
+        </button>
       </nav>
-
 
       {/* 질문하기 모달 */}
       {showModal && (
@@ -251,6 +343,18 @@ export default function HomeClient({ initialQuestions }: { initialQuestions: Que
   );
 }
 
+function formatTime(dateStr: string): string {
+  if (!dateStr) return '';
+  const diff = Date.now() - new Date(dateStr).getTime();
+  const m = Math.floor(diff / 60000);
+  if (m < 1) return '방금 전';
+  if (m < 60) return `${m}분 전`;
+  const h = Math.floor(m / 60);
+  if (h < 24) return `${h}시간 전`;
+  const d = Math.floor(h / 24);
+  return `${d}일 전`;
+}
+
 function FeedList({ questions, mobile }: { questions: Question[], mobile: boolean }) {
   return (
     <div className={mobile ? styles.moFeed : styles.pcFeedList}>
@@ -265,14 +369,12 @@ function FeedList({ questions, mobile }: { questions: Question[], mobile: boolea
               <div className={styles.qmeta}>
                 <span style={{fontSize:12,fontWeight:700}}>{q.cat}</span>
                 <span style={{fontSize:10,color:'var(--t3)'}}>·</span>
-                <span style={{fontSize:12,color:'var(--t3)'}}>{q.topic}</span>
-                <span style={{fontSize:10,color:'var(--t3)'}}>·</span>
                 <span style={{fontSize:12,color:'var(--blue)',fontWeight:600}}>{q.author}</span>
                 <span style={{fontSize:10,color:'var(--t3)'}}>·</span>
                 <span style={{fontSize:12,color:'var(--t3)'}}>{q.time}</span>
                 {q.adopted && <span className={styles.adopted}>✅ 채택됨</span>}
               </div>
-              <h3 className={styles.qtitle}><a href={`/questions/${q.slug}`}>{q.title}</a></h3>
+              <h3 className={styles.qtitle}><a href={`/q/${q.slug}`}>{q.title}</a></h3>
               <p className={styles.qbody}>{q.body}</p>
               <div className={styles.qfoot}>
                 <div style={{display:'flex',alignItems:'center',gap:6}}>
