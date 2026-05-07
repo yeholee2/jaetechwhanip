@@ -40,14 +40,24 @@ export default function HomeClient({ initialQuestions }: { initialQuestions: Que
   useEffect(() => {
     if (!hasSupabase()) { setAuthLoading(false); return; }
     const supabase = createClient();
+
+    // onAuthStateChange가 URL hash의 access_token 자동 파싱 → SIGNED_IN 이벤트 발생
+    // getSession보다 먼저 등록해야 hash 처리가 됨
     const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
       setUser(session?.user ?? null);
       setAuthLoading(false);
+      // 로그인 후 hash 제거 (깔끔한 URL)
+      if (typeof window !== 'undefined' && window.location.hash.includes('access_token')) {
+        window.history.replaceState(null, '', window.location.pathname);
+      }
     });
+
+    // 이미 세션 있는 경우 처리 (페이지 새로고침 등)
     supabase.auth.getSession().then(({ data }) => {
       setUser(data.session?.user ?? null);
       setAuthLoading(false);
     });
+
     return () => sub.subscription.unsubscribe();
   }, []);
 
