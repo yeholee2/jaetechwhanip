@@ -1,11 +1,30 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import type { ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
-import { ThumbsUp, ThumbsDown, ChevronLeft, Share2, BookOpen, Bookmark, MessageCircle, CheckCircle2 } from 'lucide-react';
+import {
+  Bell,
+  Bold,
+  Bookmark,
+  BookOpen,
+  CheckCircle2,
+  ChevronLeft,
+  Gift,
+  Heart,
+  List,
+  MessageCircle,
+  MoreHorizontal,
+  Search,
+  Send,
+  Share2,
+  Sparkles,
+  ThumbsUp,
+  UserRound,
+} from 'lucide-react';
 import { createClient, hasSupabase } from '@/lib/supabase/client';
+import styles from './QuestionClient.module.css';
 
-// ─── 유틸 ───────────────────────────────────────────
 function ft(d: string) {
   if (!d) return '';
   const diff = Date.now() - new Date(d).getTime();
@@ -19,7 +38,10 @@ function ft(d: string) {
   return new Date(d).toLocaleDateString('ko-KR', { month: 'long', day: 'numeric' });
 }
 
-// ─── 메인 컴포넌트 ───────────────────────────────────
+function initials(name?: string) {
+  return (name || '익명').slice(0, 1).toUpperCase();
+}
+
 export default function QuestionClient({ slug }: { slug: string }) {
   const router = useRouter();
   const [q, setQ] = useState<any>(null);
@@ -35,16 +57,18 @@ export default function QuestionClient({ slug }: { slug: string }) {
   const [openComments, setOpenComments] = useState<Set<string>>(new Set());
   const [comments, setComments] = useState<Record<string, any[]>>({});
   const [commentInput, setCommentInput] = useState<Record<string, string>>({});
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  const showT = (msg: string) => { setToast(msg); setTimeout(() => setToast(''), 2500); };
+  const showT = (msg: string) => {
+    setToast(msg);
+    setTimeout(() => setToast(''), 2500);
+  };
 
   useEffect(() => {
     if (!hasSupabase() || !slug) return;
     const supabase = createClient();
+    const auth = supabase.auth.onAuthStateChange((_e, s) => setUser(s?.user ?? null));
 
     supabase.auth.getSession().then(({ data }) => setUser(data.session?.user ?? null));
-    supabase.auth.onAuthStateChange((_e, s) => setUser(s?.user ?? null));
 
     supabase
       .from('questions')
@@ -52,11 +76,14 @@ export default function QuestionClient({ slug }: { slug: string }) {
       .eq('slug', slug)
       .single()
       .then(async ({ data, error }) => {
-        if (error || !data) { setLoading(false); return; }
+        if (error || !data) {
+          setLoading(false);
+          return;
+        }
+
         setQ(data);
         supabase.from('questions').update({ view_count: (data.view_count || 0) + 1 }).eq('id', data.id);
 
-        // 답변: 채택 → 추천수 → 최신 순
         const { data: ans } = await supabase
           .from('answers')
           .select('*, users:author_id(id, name, avatar_url)')
@@ -66,7 +93,6 @@ export default function QuestionClient({ slug }: { slug: string }) {
           .order('created_at', { ascending: true });
         setAnswers(ans || []);
 
-        // 관련 질문
         const { data: rel } = await supabase
           .from('questions')
           .select('id, title, slug, answer_count, is_answered')
@@ -77,9 +103,10 @@ export default function QuestionClient({ slug }: { slug: string }) {
         setRelated(rel || []);
         setLoading(false);
       });
+
+    return () => auth.data.subscription.unsubscribe();
   }, [slug]);
 
-  // 답변 등록
   const submitAnswer = async () => {
     if (!answerBody.trim() || !user || !q) return;
     setSubmitting(true);
@@ -89,20 +116,20 @@ export default function QuestionClient({ slug }: { slug: string }) {
       .insert({ question_id: q.id, body: answerBody.trim(), author_id: user.id })
       .select('*, users:author_id(id, name, avatar_url)')
       .single();
+
     if (!error && newAns) {
       const newCount = (q.answer_count || 0) + 1;
       await supabase.from('questions').update({ answer_count: newCount }).eq('id', q.id);
       setAnswers(prev => [...prev, newAns]);
       setQ((prev: any) => ({ ...prev, answer_count: newCount }));
       setAnswerBody('');
-      showT('✅ 답변이 등록됐어요!');
+      showT('답변이 등록됐어요.');
     } else {
-      showT('❌ 답변 등록에 실패했어요');
+      showT('답변 등록에 실패했어요.');
     }
     setSubmitting(false);
   };
 
-  // 답변 채택
   const adoptAnswer = async (answerId: string) => {
     if (!user || !q || user.id !== q.author_id) return;
     const supabase = createClient();
@@ -111,36 +138,42 @@ export default function QuestionClient({ slug }: { slug: string }) {
     await supabase.from('questions').update({ is_answered: true }).eq('id', q.id);
     setAnswers(prev => prev.map(a => ({ ...a, is_adopted: a.id === answerId })));
     setQ((prev: any) => ({ ...prev, is_answered: true }));
-    showT('🏆 채택 완료!');
+    showT('채택 완료!');
   };
 
-  // 답변 추천
   const likeAnswer = async (answerId: string, current: number) => {
-    if (!user) { showT('로그인 후 추천할 수 있어요'); return; }
-    if (likedAnswers.has(answerId)) { showT('이미 추천했어요'); return; }
+    if (!user) {
+      showT('로그인 후 추천할 수 있어요.');
+      return;
+    }
+    if (likedAnswers.has(answerId)) {
+      showT('이미 추천했어요.');
+      return;
+    }
     const supabase = createClient();
     await supabase.from('answers').update({ like_count: current + 1 }).eq('id', answerId);
-    setAnswers(prev => prev.map(a => a.id === answerId ? { ...a, like_count: current + 1 } : a));
+    setAnswers(prev => prev.map(a => (a.id === answerId ? { ...a, like_count: current + 1 } : a)));
     setLikedAnswers(prev => new Set([...prev, answerId]));
   };
 
-  // 질문 좋아요
-  const likeQ = async () => {
-    if (!user) { showT('로그인 후 좋아요를 누를 수 있어요'); return; }
+  const likeQuestion = async () => {
+    if (!user) {
+      showT('로그인 후 좋아요를 누를 수 있어요.');
+      return;
+    }
     const supabase = createClient();
     const newCount = (q.like_count || 0) + 1;
     await supabase.from('questions').update({ like_count: newCount }).eq('id', q.id);
     setQ((prev: any) => ({ ...prev, like_count: newCount }));
-    showT('❤️ 도움됐어요!');
+    showT('도움돼요를 남겼어요.');
   };
 
-  // 댓글 토글
   const toggleComments = async (answerId: string) => {
     const next = new Set(openComments);
-    if (next.has(answerId)) { next.delete(answerId); }
-    else {
+    if (next.has(answerId)) {
+      next.delete(answerId);
+    } else {
       next.add(answerId);
-      // 댓글 로드 (answers 테이블에 parent_id 컬럼 없으면 빈 배열)
       if (!comments[answerId]) setComments(prev => ({ ...prev, [answerId]: [] }));
     }
     setOpenComments(next);
@@ -149,293 +182,312 @@ export default function QuestionClient({ slug }: { slug: string }) {
   const share = () => {
     const url = window.location.href;
     if (navigator.share) navigator.share({ title: q?.title, url });
-    else { navigator.clipboard?.writeText(url); showT('🔗 링크 복사됐어요!'); }
+    else {
+      navigator.clipboard?.writeText(url);
+      showT('링크를 복사했어요.');
+    }
   };
 
-  if (loading) return (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh' }}>
-      <div style={{ width: 36, height: 36, border: '3px solid #F2F4F6', borderTopColor: '#3182F6', borderRadius: '50%', animation: 'spin .7s linear infinite' }} />
-      <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
-    </div>
+  const userName = user?.user_metadata?.full_name || user?.user_metadata?.name || user?.email?.split('@')[0] || '나';
+  const answerCount = q?.answer_count ?? answers.length;
+  const minAnswerLength = 55;
+  const remainingLength = Math.max(0, minAnswerLength - answerBody.trim().length);
+
+  const expertColumns = useMemo(
+    () => [
+      { tag: '절세', title: 'ISA와 연금저축, 같이 쓰면 어디서 세금이 줄어들까요?', stat: '답변 12' },
+      { tag: '투자', title: 'S&P500 장기투자 전에 꼭 정해야 하는 기준', stat: '조회 1,284' },
+      { tag: '보험', title: '실손보험 갈아타기 전 확인해야 할 약관 포인트', stat: '답변 8' },
+    ],
+    [],
   );
 
-  if (!q) return (
-    <div style={{ maxWidth: 640, margin: '80px auto', textAlign: 'center', padding: '0 20px' }}>
-      <p style={{ fontSize: 48, marginBottom: 16 }}>🔍</p>
-      <p style={{ fontSize: 18, fontWeight: 700, color: '#191F28', marginBottom: 8 }}>질문을 찾을 수 없어요</p>
-      <p style={{ fontSize: 14, color: '#8B95A1', marginBottom: 24 }}>삭제됐거나 잘못된 주소예요</p>
-      <button onClick={() => router.push('/')} style={{ padding: '12px 28px', background: '#3182F6', color: 'white', border: 'none', borderRadius: 10, fontWeight: 700, cursor: 'pointer', fontSize: 14 }}>홈으로</button>
-    </div>
-  );
+  if (loading) {
+    return (
+      <div className={styles.loading}>
+        <div className={styles.spinner} />
+      </div>
+    );
+  }
+
+  if (!q) {
+    return (
+      <div className={styles.empty}>
+        <p className={styles.emptyIcon}>?</p>
+        <h1>질문을 찾을 수 없어요</h1>
+        <p>삭제됐거나 잘못된 주소예요.</p>
+        <button onClick={() => router.push('/')}>홈으로</button>
+      </div>
+    );
+  }
 
   const authorName = q.users?.name || '익명';
-  const userName = user?.user_metadata?.full_name || user?.user_metadata?.name || user?.email?.split('@')[0] || '';
 
   return (
-    <div style={{ maxWidth: 720, margin: '0 auto', background: 'white', minHeight: '100vh', fontFamily: 'Pretendard, sans-serif' }}>
-
-      {/* ── 헤더 ── */}
-      <header style={{ position: 'sticky', top: 0, zIndex: 20, background: 'white', borderBottom: '1px solid #F2F4F6', padding: '0 16px', height: 52, display: 'flex', alignItems: 'center', gap: 12 }}>
-        <button onClick={() => router.back()} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#191F28', display: 'flex', padding: 6, borderRadius: 8 }}>
-          <ChevronLeft size={22} />
+    <div className={styles.shell}>
+      <header className={styles.topNav}>
+        <button className={styles.logo} onClick={() => router.push('/')}>
+          재테크<em>한입</em>
         </button>
-        <span onClick={() => router.push('/')} className="logo-font" style={{ fontSize: 17, cursor: 'pointer', flex: 1, color: '#191F28' }}>
-          재테크<em style={{ fontStyle: 'normal', color: '#3182F6' }}>한입</em>
-        </span>
-        <button onClick={() => setBookmarked(v => !v)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: bookmarked ? '#3182F6' : '#8B95A1', display: 'flex', padding: 6 }}>
-          <Bookmark size={20} fill={bookmarked ? '#3182F6' : 'none'} />
-        </button>
-        <button onClick={share} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#8B95A1', display: 'flex', padding: 6 }}>
-          <Share2 size={20} />
-        </button>
+        <nav className={styles.navLinks} aria-label="주요 메뉴">
+          <button onClick={() => router.push('/')}>홈</button>
+          <button>토픽</button>
+          <button>스파링</button>
+          <button>잉크</button>
+          <button>미션</button>
+          <span />
+          <button>전문가 신청</button>
+        </nav>
+        <div className={styles.navActions}>
+          <button aria-label="검색"><Search size={21} /></button>
+          <button aria-label="알림"><Bell size={20} /></button>
+          <button aria-label="내 정보"><UserRound size={20} /></button>
+          <button className={styles.askButton} onClick={() => router.push('/')}>나도 질문하기</button>
+        </div>
       </header>
 
-      <div style={{ padding: '20px 16px 100px' }}>
+      <header className={styles.mobileHeader}>
+        <button aria-label="뒤로" onClick={() => router.back()}><ChevronLeft size={24} /></button>
+        <button className={styles.mobileLogo} onClick={() => router.push('/')}>재테크<em>한입</em></button>
+        <button aria-label="공유" onClick={share}><Share2 size={20} /></button>
+      </header>
 
-        {/* ── 카테고리 브레드크럼 ── */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 14 }}>
-          <span onClick={() => router.push('/')} style={{ fontSize: 13, color: '#8B95A1', cursor: 'pointer' }}>홈</span>
-          <span style={{ fontSize: 13, color: '#D1D6DB' }}>›</span>
-          <span style={{ fontSize: 13, color: '#8B95A1', cursor: 'pointer' }}>{q.category}</span>
-        </div>
-
-        {/* ── 질문 카드 ── */}
-        <div style={{ background: 'white', borderRadius: 16, border: '1px solid #F2F4F6', padding: '20px 18px', marginBottom: 4, boxShadow: '0 1px 4px rgba(0,0,0,.04)' }}>
-          {/* 작성자 */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
-            <div style={{ width: 38, height: 38, borderRadius: '50%', background: '#E8F3FF', color: '#3182F6', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 15, fontWeight: 800, flexShrink: 0, cursor: 'pointer' }}
-              onClick={() => q.users?.id && router.push(`/u/${q.users.id}`)}>
-              {authorName[0]?.toUpperCase()}
-            </div>
-            <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                <span style={{ fontSize: 14, fontWeight: 700, color: '#191F28', cursor: 'pointer' }}
-                  onClick={() => q.users?.id && router.push(`/u/${q.users.id}`)}>
-                  {authorName}
-                </span>
-                {q.is_answered && (
-                  <span style={{ fontSize: 11, fontWeight: 700, color: '#00C73C', background: '#E8F9EE', padding: '2px 7px', borderRadius: 10 }}>채택률 높음</span>
-                )}
-              </div>
-              <div style={{ fontSize: 12, color: '#8B95A1', marginTop: 1 }}>
-                {ft(q.created_at)} · 조회 {q.view_count || 0}
-              </div>
-            </div>
-            <div style={{ marginLeft: 'auto', display: 'flex', gap: 4 }}>
-              <span style={{ fontSize: 12, fontWeight: 700, background: '#EFF6FF', color: '#3182F6', padding: '4px 10px', borderRadius: 20 }}>{q.category}</span>
-              {q.is_answered && <span style={{ fontSize: 12, fontWeight: 700, background: '#E8F9EE', color: '#00C73C', padding: '4px 10px', borderRadius: 20 }}>✅ 채택완료</span>}
-            </div>
+      <main className={styles.layout}>
+        <section className={styles.mainColumn}>
+          <div className={styles.topicHeader}>
+            <span>{q.category || '재테크'}</span>
+            <h1>{q.category || '재테크 입문'}</h1>
+            <button aria-label="관심 토픽"><Heart size={25} /></button>
           </div>
 
-          {/* 제목 */}
-          <h1 style={{ fontSize: 20, fontWeight: 800, lineHeight: 1.45, color: '#191F28', marginBottom: 12, letterSpacing: '-0.3px' }}>{q.title}</h1>
-
-          {/* 본문 */}
-          {q.body && <p style={{ fontSize: 15, color: '#4E5968', lineHeight: 1.8, marginBottom: 16, whiteSpace: 'pre-wrap' }}>{q.body}</p>}
-
-          {/* 액션 바 */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, paddingTop: 14, borderTop: '1px solid #F2F4F6' }}>
-            <ActionBtn icon={<ThumbsUp size={15} />} label={q.like_count > 0 ? String(q.like_count) : '도움돼요'} onClick={likeQ} active={false} />
-            <ActionBtn icon={<Bookmark size={15} />} label="저장" onClick={() => { setBookmarked(v => !v); showT(bookmarked ? '북마크 해제' : '📌 저장됐어요'); }} active={bookmarked} />
-            <ActionBtn icon={<Share2 size={15} />} label="공유" onClick={share} active={false} />
-          </div>
-        </div>
-
-        {/* ── 구분선 ── */}
-        <div style={{ height: 8, background: '#F9FAFB', margin: '0 -16px 20px' }} />
-
-        {/* ── 답변 수 ── */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
-          <h2 style={{ fontSize: 17, fontWeight: 800, color: '#191F28' }}>
-            답변 <span style={{ color: '#3182F6' }}>{answers.length}</span>
-          </h2>
-          {answers.length > 0 && (
-            <div style={{ display: 'flex', marginLeft: 4 }}>
-              {answers.slice(0, 3).map((a, i) => (
-                <div key={i} style={{ width: 24, height: 24, borderRadius: '50%', background: '#3182F6', border: '2px solid white', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 700, marginLeft: i > 0 ? -8 : 0 }}>
-                  {(a.users?.name || '?')[0]}
-                </div>
-              ))}
+          <article className={styles.questionCard}>
+            <div className={styles.profileRow}>
+              <Avatar name={authorName} imageUrl={q.users?.avatar_url} onClick={() => q.users?.id && router.push(`/u/${q.users.id}`)} />
+              <button className={styles.profileText} onClick={() => q.users?.id && router.push(`/u/${q.users.id}`)}>
+                <strong>{authorName}</strong>
+                <span>{ft(q.created_at)} · 조회 {q.view_count || 0}</span>
+              </button>
+              <button className={styles.moreButton} aria-label="더보기"><MoreHorizontal size={20} /></button>
             </div>
-          )}
-        </div>
 
-        {/* ── 답변 목록 ── */}
-        {answers.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '40px 0 32px', color: '#8B95A1' }}>
-            <p style={{ fontSize: 36, marginBottom: 10 }}>💬</p>
-            <p style={{ fontSize: 15, fontWeight: 700, marginBottom: 4 }}>아직 답변이 없어요</p>
-            <p style={{ fontSize: 13 }}>첫 번째 답변을 남겨보세요!</p>
-          </div>
-        ) : answers.map(a => (
-          <AnswerCard
-            key={a.id}
-            answer={a}
-            isMyQuestion={user?.id === q.author_id}
-            isAnswered={q.is_answered}
-            liked={likedAnswers.has(a.id)}
-            onLike={() => likeAnswer(a.id, a.like_count || 0)}
-            onAdopt={() => adoptAnswer(a.id)}
-            onCommentToggle={() => toggleComments(a.id)}
-            showComments={openComments.has(a.id)}
-            comments={comments[a.id] || []}
-            commentInput={commentInput[a.id] || ''}
-            onCommentChange={(v: string) => setCommentInput(prev => ({ ...prev, [a.id]: v }))}
-            router={router}
-          />
-        ))}
+            <h2 className={styles.questionTitle}>{q.title}</h2>
+            {q.body && <p className={styles.questionBody}>{q.body}</p>}
 
-        {/* ── 답변 입력 ── */}
-        <div style={{ marginBottom: 32 }}>
-          {user ? (
-            <div style={{ background: '#FAFAFA', borderRadius: 14, padding: '16px', border: '1.5px solid #E5E8EB' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
-                <div style={{ width: 32, height: 32, borderRadius: '50%', background: '#3182F6', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 800 }}>
-                  {userName[0]?.toUpperCase() || 'U'}
-                </div>
-                <span style={{ fontSize: 14, fontWeight: 700, color: '#191F28' }}>{userName}</span>
-              </div>
-              <textarea
-                ref={textareaRef}
-                value={answerBody}
-                onChange={e => setAnswerBody(e.target.value)}
-                placeholder="지식을 나눠주세요. 경험담이면 더욱 좋아요! 😊"
-                rows={4}
-                style={{ width: '100%', padding: '12px 14px', border: '1.5px solid #E5E8EB', borderRadius: 10, fontSize: 14, lineHeight: 1.7, outline: 'none', resize: 'none', boxSizing: 'border-box', background: 'white', transition: 'border-color .15s' }}
-                onFocus={e => e.target.style.borderColor = '#3182F6'}
-                onBlur={e => e.target.style.borderColor = '#E5E8EB'}
+            <div className={styles.questionActions}>
+              <IconAction icon={<ThumbsUp size={22} />} label={q.like_count > 0 ? `도움돼요 ${q.like_count}` : '도움돼요'} onClick={likeQuestion} />
+              <IconAction icon={<MessageCircle size={22} />} label={`답변 ${answerCount || answers.length}`} onClick={() => document.getElementById('answer-editor')?.scrollIntoView({ behavior: 'smooth' })} />
+              <IconAction
+                icon={<Bookmark size={22} fill={bookmarked ? 'currentColor' : 'none'} />}
+                label="저장"
+                active={bookmarked}
+                onClick={() => {
+                  setBookmarked(v => !v);
+                  showT(bookmarked ? '저장을 해제했어요.' : '질문을 저장했어요.');
+                }}
               />
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 10 }}>
-                <span style={{ fontSize: 12, color: '#D1D6DB' }}>{answerBody.length}자</span>
-                <button
-                  onClick={submitAnswer}
-                  disabled={submitting || !answerBody.trim()}
-                  style={{ padding: '10px 24px', background: answerBody.trim() ? '#3182F6' : '#E5E8EB', border: 'none', borderRadius: 10, color: answerBody.trim() ? 'white' : '#8B95A1', fontSize: 14, fontWeight: 700, cursor: answerBody.trim() ? 'pointer' : 'default', transition: 'all .2s' }}
-                >
-                  {submitting ? '등록 중...' : '답변 등록'}
-                </button>
-              </div>
+              <IconAction icon={<Share2 size={22} />} label="공유" onClick={share} />
             </div>
-          ) : (
-            <div style={{ textAlign: 'center', padding: '28px 20px', background: '#F9FAFB', borderRadius: 14, border: '1.5px dashed #E5E8EB' }}>
-              <p style={{ fontSize: 22, marginBottom: 8 }}>💡</p>
-              <p style={{ fontSize: 15, fontWeight: 700, color: '#191F28', marginBottom: 4 }}>나도 답변할 수 있어요</p>
-              <p style={{ fontSize: 13, color: '#8B95A1', marginBottom: 16 }}>내 지식이 누군가에게 도움이 돼요</p>
-              <button onClick={() => router.push(`/auth?next=/q/${slug}`)}
-                style={{ padding: '12px 28px', background: '#3182F6', border: 'none', borderRadius: 10, color: 'white', fontSize: 14, fontWeight: 700, cursor: 'pointer' }}>
-                로그인하고 답변하기
+          </article>
+
+          <section className={styles.answerEditor} id="answer-editor">
+            {user ? (
+              <>
+                <div className={styles.editorHeader}>
+                  <Avatar name={userName} />
+                  <strong>{userName}</strong>
+                </div>
+                <textarea
+                  value={answerBody}
+                  onChange={e => setAnswerBody(e.target.value)}
+                  placeholder="당신의 지식을 공유해 보세요."
+                  rows={5}
+                />
+                <div className={styles.editorFooter}>
+                  <div className={styles.editorTools}>
+                    <button aria-label="굵게"><Bold size={16} /></button>
+                    <button aria-label="목록"><List size={16} /></button>
+                    <button aria-label="전송 힌트"><Send size={16} /></button>
+                  </div>
+                  <span>{remainingLength > 0 ? `${remainingLength}글자 더 채워주세요.` : `${answerBody.trim().length}글자`}</span>
+                  <button className={styles.submitButton} onClick={submitAnswer} disabled={submitting || !answerBody.trim()}>
+                    {submitting ? '등록 중...' : '답변하기'}
+                  </button>
+                </div>
+              </>
+            ) : (
+              <div className={styles.guestEditor}>
+                <p>당신의 지식을 공유해 보세요.</p>
+                <span>로그인하면 바로 답변을 남길 수 있어요.</span>
+                <button onClick={() => router.push(`/auth?next=/q/${slug}`)}>로그인하고 답변하기</button>
+              </div>
+            )}
+          </section>
+
+          <section className={styles.answersSection}>
+            <div className={styles.answersHead}>
+              <h2>{answers.length}개의 답변이 있어요!</h2>
+              <button onClick={() => showT('AI 요약은 곧 연결할게요.')}>
+                <Sparkles size={17} />
+                AI 답변 요약
               </button>
             </div>
-          )}
-        </div>
 
-        {/* ── 관련 질문 ── */}
-        {related.length > 0 && (
-          <div>
-            <h3 style={{ fontSize: 15, fontWeight: 800, color: '#191F28', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
-              <BookOpen size={16} color="#3182F6" /> 관련 질문
-            </h3>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-              {related.map(r => (
-                <div key={r.id}
-                  onClick={() => router.push(`/q/${r.slug}`)}
-                  style={{ padding: '12px 14px', background: '#FAFAFA', borderRadius: 10, cursor: 'pointer', border: '1px solid #F2F4F6', transition: 'all .15s' }}
-                  onMouseEnter={e => { e.currentTarget.style.background = '#EFF6FF'; e.currentTarget.style.borderColor = '#BFDBFE'; }}
-                  onMouseLeave={e => { e.currentTarget.style.background = '#FAFAFA'; e.currentTarget.style.borderColor = '#F2F4F6'; }}
-                >
-                  <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8 }}>
-                    <p style={{ fontSize: 14, fontWeight: 600, color: '#191F28', lineHeight: 1.4 }}>{r.title}</p>
-                    {r.is_answered && <CheckCircle2 size={16} color="#00C73C" style={{ flexShrink: 0, marginTop: 1 }} />}
-                  </div>
-                  <span style={{ fontSize: 12, color: '#8B95A1', marginTop: 4, display: 'block' }}>답변 {r.answer_count || 0}개</span>
-                </div>
-              ))}
+            {answers.length === 0 ? (
+              <div className={styles.noAnswers}>
+                <MessageCircle size={34} />
+                <strong>아직 답변이 없어요</strong>
+                <span>첫 번째 답변을 남겨보세요.</span>
+              </div>
+            ) : (
+              <div className={styles.answerList}>
+                {answers.map(a => (
+                  <AnswerCard
+                    key={a.id}
+                    answer={a}
+                    isMyQuestion={user?.id === q.author_id}
+                    isAnswered={q.is_answered}
+                    liked={likedAnswers.has(a.id)}
+                    onLike={() => likeAnswer(a.id, a.like_count || 0)}
+                    onAdopt={() => adoptAnswer(a.id)}
+                    onCommentToggle={() => toggleComments(a.id)}
+                    showComments={openComments.has(a.id)}
+                    comments={comments[a.id] || []}
+                    commentInput={commentInput[a.id] || ''}
+                    onCommentChange={(v: string) => setCommentInput(prev => ({ ...prev, [a.id]: v }))}
+                    router={router}
+                  />
+                ))}
+              </div>
+            )}
+          </section>
+        </section>
+
+        <aside className={styles.sideColumn}>
+          <button className={styles.pollCard}>
+            <span>33명 투표 중</span>
+            <strong>지금 S&P500,<br />들어가도 될까요?</strong>
+            <div className={styles.pollVisual}>
+              <span />
+              <span />
             </div>
-          </div>
-        )}
-      </div>
+            <em>4일 남았어요 · 참여하기</em>
+          </button>
 
-      {/* ── 토스트 ── */}
-      {toast && (
-        <div style={{ position: 'fixed', bottom: 80, left: '50%', transform: 'translateX(-50%)', background: '#191F28', color: 'white', padding: '10px 20px', borderRadius: 10, fontSize: 14, fontWeight: 500, zIndex: 999, whiteSpace: 'nowrap', boxShadow: '0 4px 20px rgba(0,0,0,.2)', animation: 'toastIn .2s ease' }}>
-          {toast}
-          <style>{`@keyframes toastIn{from{opacity:0;transform:translateX(-50%) translateY(6px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}`}</style>
-        </div>
-      )}
+          <section className={styles.sideBox}>
+            <h3>전문가들의 생각, 잉크</h3>
+            {expertColumns.map(item => (
+              <button key={item.title} className={styles.columnLink}>
+                <span>{item.tag}</span>
+                <strong>{item.title}</strong>
+                <em>{item.stat}</em>
+              </button>
+            ))}
+          </section>
+
+          <section className={styles.sideBox}>
+            <h3>유사한 질문이 있어요.</h3>
+            {related.length > 0 ? related.map(r => (
+              <button key={r.id} className={styles.relatedLink} onClick={() => router.push(`/q/${r.slug}`)}>
+                <span>{r.title}</span>
+                <em>답변 {r.answer_count || 0}개</em>
+              </button>
+            )) : (
+              <p className={styles.sideEmpty}>같은 카테고리의 질문을 모으는 중이에요.</p>
+            )}
+          </section>
+
+          <section className={styles.appCard}>
+            <Gift size={20} />
+            <strong>재테크한입 앱 알림 준비 중</strong>
+            <p>관심 질문 답변을 놓치지 않게 알려드릴게요.</p>
+          </section>
+        </aside>
+      </main>
+
+      <nav className={styles.floatDock} aria-label="빠른 메뉴">
+        <button><BookOpen size={18} /></button>
+        <button><MessageCircle size={18} /></button>
+        <button onClick={share}><Share2 size={18} /></button>
+      </nav>
+
+      {toast && <div className={styles.toast}>{toast}</div>}
     </div>
   );
 }
 
-// ─── 액션 버튼 ───────────────────────────────────────
-function ActionBtn({ icon, label, onClick, active }: { icon: React.ReactNode, label: string, onClick: () => void, active: boolean }) {
+function Avatar({ name, imageUrl, onClick }: { name?: string; imageUrl?: string; onClick?: () => void }) {
   return (
-    <button onClick={onClick} style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '7px 14px', background: active ? '#EFF6FF' : '#F9FAFB', border: `1px solid ${active ? '#BFDBFE' : '#E5E8EB'}`, borderRadius: 20, fontSize: 13, cursor: 'pointer', color: active ? '#3182F6' : '#4E5968', fontWeight: 500, transition: 'all .15s' }}>
-      {icon} {label}
+    <button className={styles.avatar} onClick={onClick} disabled={!onClick} aria-label={name || '프로필'}>
+      {imageUrl ? <img src={imageUrl} alt="" /> : initials(name)}
     </button>
   );
 }
 
-// ─── 답변 카드 ───────────────────────────────────────
+function IconAction({ icon, label, onClick, active }: { icon: ReactNode; label: string; onClick: () => void; active?: boolean }) {
+  return (
+    <button className={`${styles.iconAction} ${active ? styles.active : ''}`} onClick={onClick}>
+      {icon}
+      <span>{label}</span>
+    </button>
+  );
+}
+
 function AnswerCard({ answer: a, isMyQuestion, isAnswered, liked, onLike, onAdopt, onCommentToggle, showComments, comments, commentInput, onCommentChange, router }: any) {
   const name = a.users?.name || '익명';
+
   return (
-    <div style={{ padding: '18px 0', borderBottom: '1px solid #F2F4F6' }}>
+    <article className={`${styles.answerCard} ${a.is_adopted ? styles.adoptedAnswer : ''}`}>
       {a.is_adopted && (
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 700, color: '#00C73C', background: '#F0FDF4', border: '1px solid #BBF7D0', padding: '6px 12px', borderRadius: 8, marginBottom: 14, width: 'fit-content' }}>
-          <CheckCircle2 size={14} /> 채택된 답변
+        <div className={styles.adoptedBadge}>
+          <CheckCircle2 size={15} />
+          채택된 답변
         </div>
       )}
-      {/* 작성자 */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
-        <div
-          onClick={() => a.users?.id && router.push(`/u/${a.users.id}`)}
-          style={{ width: 36, height: 36, borderRadius: '50%', background: '#3182F6', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 800, cursor: 'pointer', flexShrink: 0 }}>
-          {name[0]?.toUpperCase()}
-        </div>
-        <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-            <span onClick={() => a.users?.id && router.push(`/u/${a.users.id}`)} style={{ fontSize: 14, fontWeight: 700, color: '#191F28', cursor: 'pointer' }}>{name}</span>
-          </div>
-          <span style={{ fontSize: 12, color: '#8B95A1' }}>{a.ft || ''}{a.created_at ? ft(a.created_at) : ''}</span>
-        </div>
+
+      <div className={styles.answerProfile}>
+        <Avatar name={name} imageUrl={a.users?.avatar_url} onClick={() => a.users?.id && router.push(`/u/${a.users.id}`)} />
+        <button onClick={() => a.users?.id && router.push(`/u/${a.users.id}`)}>
+          <strong>{name}</strong>
+          <span>{a.created_at ? ft(a.created_at) : ''}</span>
+        </button>
+        <button className={styles.moreButton} aria-label="답변 더보기"><MoreHorizontal size={19} /></button>
       </div>
 
-      {/* 본문 */}
-      <p style={{ fontSize: 15, color: '#191F28', lineHeight: 1.8, marginBottom: 14, whiteSpace: 'pre-wrap' }}>{a.body}</p>
+      <p className={styles.answerBody}>{a.body}</p>
 
-      {/* 액션 */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-        <button onClick={onLike} style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '6px 14px', background: liked ? '#EFF6FF' : '#F9FAFB', border: `1px solid ${liked ? '#BFDBFE' : '#E5E8EB'}`, borderRadius: 20, fontSize: 13, cursor: 'pointer', color: liked ? '#3182F6' : '#4E5968', fontWeight: 600, transition: 'all .15s' }}>
-          <ThumbsUp size={13} /> 추천 {a.like_count > 0 ? a.like_count : ''}
+      <div className={styles.answerActions}>
+        <button className={liked ? styles.answerActionActive : ''} onClick={onLike}>
+          <ThumbsUp size={15} />
+          평가 {a.like_count > 0 ? a.like_count : ''}
         </button>
-        <button onClick={onCommentToggle} style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '6px 14px', background: showComments ? '#F5F3FF' : '#F9FAFB', border: `1px solid ${showComments ? '#DDD6FE' : '#E5E8EB'}`, borderRadius: 20, fontSize: 13, cursor: 'pointer', color: showComments ? '#7C3AED' : '#4E5968', fontWeight: 500 }}>
-          <MessageCircle size={13} /> 댓글 {comments.length > 0 ? comments.length : ''}
+        <button className={showComments ? styles.answerActionActive : ''} onClick={onCommentToggle}>
+          <MessageCircle size={15} />
+          댓글 {comments.length > 0 ? comments.length : ''}
+        </button>
+        <button>
+          <Gift size={15} />
+          응원하기
         </button>
         {isMyQuestion && !isAnswered && (
-          <button onClick={onAdopt} style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '6px 14px', background: '#00C73C', border: 'none', borderRadius: 20, fontSize: 13, color: 'white', cursor: 'pointer', fontWeight: 700, marginLeft: 'auto' }}>
-            <CheckCircle2 size={13} /> 채택하기
+          <button className={styles.adoptButton} onClick={onAdopt}>
+            <CheckCircle2 size={15} />
+            채택하기
           </button>
         )}
       </div>
 
-      {/* 댓글 영역 */}
       {showComments && (
-        <div style={{ marginTop: 12, paddingLeft: 16, borderLeft: '2px solid #E5E8EB' }}>
-          {comments.length === 0 && <p style={{ fontSize: 13, color: '#8B95A1', padding: '8px 0' }}>아직 댓글이 없어요</p>}
+        <div className={styles.commentBox}>
+          {comments.length === 0 && <p>아직 댓글이 없어요.</p>}
           {comments.map((c: any, i: number) => (
-            <div key={i} style={{ fontSize: 13, color: '#4E5968', padding: '6px 0', borderBottom: '1px solid #F9FAFB' }}>{c.body}</div>
+            <div key={i} className={styles.commentItem}>{c.body}</div>
           ))}
-          <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
-            <input
-              value={commentInput}
-              onChange={e => onCommentChange(e.target.value)}
-              placeholder="댓글 달기..."
-              style={{ flex: 1, padding: '8px 12px', border: '1px solid #E5E8EB', borderRadius: 8, fontSize: 13, outline: 'none' }}
-            />
-            <button style={{ padding: '8px 14px', background: '#3182F6', border: 'none', borderRadius: 8, color: 'white', fontSize: 13, cursor: 'pointer', fontWeight: 600 }}>등록</button>
+          <div className={styles.commentInput}>
+            <input value={commentInput} onChange={e => onCommentChange(e.target.value)} placeholder="댓글 달기..." />
+            <button>등록</button>
           </div>
         </div>
       )}
-    </div>
+    </article>
   );
 }
