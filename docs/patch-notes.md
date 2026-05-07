@@ -1,5 +1,40 @@
 # 패치노트
 
+## [2026-05-07] Auth 버그수정 + 로그인 UI + 질문 모달
+**작업자:** Claude Sonnet 4.6
+**태그:** #Auth #UI개발 #버그수정
+
+### 변경사항
+- [Auth] 네이버 OAuth 재활성화 — Custom OAuth 방식 유지
+- [Fix] Supabase Site URL localhost → https://jaetechwhanip.vercel.app 수정
+- [Fix] Supabase Redirect URLs 추가 (jaetechwhanip.vercel.app/**)
+- [Fix] auth callback route.ts — origin을 request.url 대신 NEXT_PUBLIC_SITE_URL로 변경
+- [UI] 로그인 후 유저 아이콘 드롭다운 (이름 + 로그아웃 버튼)
+- [UI] 질문하기 모달 UI 완성 (카테고리/제목/내용 입력)
+- [Fix] authLoading state 추가 — 세션 확인 전 버튼 클릭 방지
+- [Fix] URL hash access_token 감지 후 세션 처리 (getSession 사용)
+- [기능] 질문 Supabase DB 저장 연동 (questions 테이블)
+- [기능] 로그아웃 (supabase.auth.signOut)
+
+### 현재 동작 확인
+- ✅ 네이버 로그인
+- ✅ Google 로그인 (확인되지 않은 앱 경고, 우회 가능)
+- ✅ 로그아웃 드롭다운
+- ✅ 질문하기 모달
+- ✅ 질문 DB 저장
+
+### 다음 작업자 TODO
+- [ ] auth hydration 완전 해결 (로그인 후 바로 user 상태 반영)
+- [ ] 홈 질문 목록 Supabase 실시간 로드
+- [ ] /q/[slug] 상세 페이지 연동 확인
+- [ ] SEO 메타태그
+- [ ] 답변 좋아요 기능
+- [ ] 카카오 비즈 인증 후 재활성화 여부 결정
+
+---
+
+
+
 ## [2026-05-07] 홈 기능 전체 완성
 **작업자:** Claude Sonnet 4.6
 **태그:** #백엔드 #Auth #UI개발
