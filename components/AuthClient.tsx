@@ -1,4 +1,5 @@
 'use client';
+// OAuth: Google ✅ | Naver Custom ✅ | Kakao 준비중
 
 import { useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
