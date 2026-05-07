@@ -10,10 +10,10 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const next = searchParams.get('next') ?? '/';
   
-  // origin을 env에서 가져와서 localhost 문제 방지
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://jaetechwhanip.vercel.app';
+  // request.url에서 origin 추출 (Vercel 도메인 정확히 반영)
+  const origin = process.env.NEXT_PUBLIC_SITE_URL || new URL(request.url).origin;
   const state = crypto.randomBytes(16).toString('hex');
-  const callbackUrl = `${siteUrl}/api/auth/naver/callback`;
+  const callbackUrl = `${origin}/api/auth/naver/callback`;
 
   const naverUrl = new URL('https://nid.naver.com/oauth2.0/authorize');
   naverUrl.searchParams.set('response_type', 'code');
