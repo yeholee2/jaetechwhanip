@@ -7,6 +7,7 @@
 ### 변경사항
 - [Auth] 로그인 화면에 카카오 OAuth 버튼 추가
 - [Auth] Google/카카오가 같은 Supabase OAuth 콜백(`/api/auth/callback`)을 사용하도록 공통 처리
+- [Auth] 카카오 비즈 인증 전에도 로그인 플로우가 열리도록 `account_email` scope 제외
 - [UI] 카카오 버튼 로딩 상태와 간단한 톡 아이콘 추가
 - [Docs] README/context의 카카오 OAuth 상태와 설정 안내 갱신
 
@@ -14,11 +15,12 @@
 - ✅ `npm_config_cache=.npm-cache npm run build` 통과
 - ✅ Kakao Developers 앱 `1449623` 카카오 로그인 상태 ON 확인
 - ✅ REST API 키의 카카오 로그인 리다이렉트 URI `https://fqoeacfkzptlzohdzhgd.supabase.co/auth/v1/callback` 등록 확인
-- [ ] Supabase Provider 콘솔 설정 후 실로그인 확인 필요
+- ⚠️ 기존 요청은 이메일 권한 때문에 `KOE205` 발생 → 카카오 scope에서 이메일 제외
 
 ### 다음 작업자 TODO
 - [ ] Supabase Auth Providers > Kakao에 REST API 키/Client Secret 등록 확인
-- [ ] 카카오 이메일 권한이 막히면 비즈 인증 또는 public.users 트리거 fallback 확인
+- [ ] 카카오 실로그인 후 `auth.users.email`이 비어도 public.users 트리거가 통과하는지 확인
+- [ ] 이메일 수집이 필요해지면 카카오 비즈 인증 후 `account_email` scope 재추가
 
 ---
 

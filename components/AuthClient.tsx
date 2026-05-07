@@ -29,6 +29,7 @@ export default function AuthClient() {
         provider,
         options: {
           redirectTo: `${window.location.origin}/api/auth/callback?next=${encodeURIComponent(next)}`,
+          scopes: provider === 'kakao' ? 'profile_nickname profile_image' : undefined,
         },
       });
       if (error) throw error;
