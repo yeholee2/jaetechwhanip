@@ -8,6 +8,7 @@
 - [Auth] 로그인 화면에 카카오 OAuth 버튼 추가
 - [Auth] Google/카카오가 같은 Supabase OAuth 콜백(`/api/auth/callback`)을 사용하도록 공통 처리
 - [Auth] 카카오 비즈 인증 전에도 로그인 플로우가 열리도록 `account_email` scope 제외
+- [Fix] 카카오 `KOE205` 재발 원인인 공백 구분 scope를 `openid,profile_nickname,profile_image` 쉼표 구분으로 수정
 - [UI] 카카오 버튼 로딩 상태와 간단한 톡 아이콘 추가
 - [Docs] README/context의 카카오 OAuth 상태와 설정 안내 갱신
 
@@ -15,7 +16,9 @@
 - ✅ `npm_config_cache=.npm-cache npm run build` 통과
 - ✅ Kakao Developers 앱 `1449623` 카카오 로그인 상태 ON 확인
 - ✅ REST API 키의 카카오 로그인 리다이렉트 URI `https://fqoeacfkzptlzohdzhgd.supabase.co/auth/v1/callback` 등록 확인
-- ⚠️ 기존 요청은 이메일 권한 때문에 `KOE205` 발생 → 카카오 scope에서 이메일 제외
+- ✅ Vercel production 배포 `a1d0ec1` READY 확인
+- ✅ 라이브 `/auth` JS chunk에서 카카오 scope `openid,profile_nickname,profile_image` 반영 확인
+- ⚠️ 기존 요청은 이메일 권한 및 scope 형식 때문에 `KOE205` 발생 → 카카오 scope에서 이메일 제외, 쉼표 구분 사용
 
 ### 다음 작업자 TODO
 - [ ] Supabase Auth Providers > Kakao에 REST API 키/Client Secret 등록 확인
