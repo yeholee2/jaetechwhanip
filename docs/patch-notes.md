@@ -1,5 +1,51 @@
 # 패치노트
 
+## [2026-05-08] 카카오 로그인 버튼 활성화
+**작업자:** Codex
+**태그:** #Auth #OAuth #UI
+
+### 변경사항
+- [Auth] 로그인 화면에 카카오 OAuth 버튼 추가
+- [Auth] Google/카카오가 같은 Supabase OAuth 콜백(`/api/auth/callback`)을 사용하도록 공통 처리
+- [UI] 카카오 버튼 로딩 상태와 간단한 톡 아이콘 추가
+- [Docs] README/context의 카카오 OAuth 상태와 설정 안내 갱신
+
+### 현재 동작 확인
+- ✅ `npm_config_cache=.npm-cache npm run build` 통과
+- ✅ Kakao Developers 앱 `1449623` 카카오 로그인 상태 ON 확인
+- ✅ REST API 키의 카카오 로그인 리다이렉트 URI `https://fqoeacfkzptlzohdzhgd.supabase.co/auth/v1/callback` 등록 확인
+- [ ] Supabase Provider 콘솔 설정 후 실로그인 확인 필요
+
+### 다음 작업자 TODO
+- [ ] Supabase Auth Providers > Kakao에 REST API 키/Client Secret 등록 확인
+- [ ] 카카오 이메일 권한이 막히면 비즈 인증 또는 public.users 트리거 fallback 확인
+
+---
+
+## [2026-05-08] 문서 현행화 + 레거시 질문 URL 정리
+**작업자:** Codex
+**태그:** #문서 #SEO #라우팅
+
+### 변경사항
+- [Docs] `docs/context.md`의 OAuth/파일 구조/DB 컬럼/우선순위를 현재 코드 기준으로 갱신
+- [Docs] `README.md` OAuth 가이드를 Google 유지, 카카오 비활성, 네이버 제거 상태로 정리
+- [SEO] `/questions/[slug]` 레거시 상세 페이지를 `/q/[slug]`로 permanent redirect 처리
+- [Auth] 로그인 페이지 메타 설명을 현재 Google 단일 로그인 상태와 맞춤
+- [Dev] 로컬 npm 캐시 폴더가 Git 상태를 더럽히지 않도록 `.npm-cache/` ignore 추가
+
+### 현재 동작 확인
+- ✅ `npm_config_cache=.npm-cache npm run build` 통과
+- ✅ `/q/[slug]` 상세 페이지는 Supabase 기반 메타데이터 유지
+- ✅ `/questions/[slug]`는 중복 샘플 상세 대신 새 질문 상세 URL로 이동
+
+### 다음 작업자 TODO
+- [ ] 운영 Supabase의 `questions.like_count`, `questions.view_count`, `questions.is_answered`, `answers.like_count`, `users.provider` 컬럼 존재 확인
+- [ ] Google 로그인 실기기 테스트 후 `public.users` 동기화 확인
+- [ ] 답변 좋아요 중복 방지 정책 또는 별도 테이블 설계
+- [ ] 네이버 로그인 재활성화 여부는 사용자 확인 후 진행
+
+---
+
 ## [2026-05-07] Auth 버그수정 + 로그인 UI + 질문 모달
 **작업자:** Claude Sonnet 4.6
 **태그:** #Auth #UI개발 #버그수정

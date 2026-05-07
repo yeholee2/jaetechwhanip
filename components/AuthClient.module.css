@@ -68,6 +68,19 @@
 .kakao  { background: #FEE500; color: #191919; }
 .naver  { background: #03C75A; color: #fff; }
 .google { background: #fff; color: var(--t1); border: 1.5px solid var(--line) !important; }
+.kakaoIcon {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #191919;
+  color: #FEE500;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0;
+}
 .divider {
   display: flex;
   align-items: center;
