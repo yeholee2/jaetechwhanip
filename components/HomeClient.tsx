@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { createClient, hasSupabase } from '@/lib/supabase/client';
 import type { Question } from '@/lib/sampleData';
 import { LEVELS, EMOJI, sampleQuestions } from '@/lib/sampleData';
+import { createQuestionSlug } from '@/lib/slugs';
 import styles from './HomeClient.module.css';
 
 const CATS = ['전체','재테크 입문','주식·ETF','절세','보험','대출·부채'];
@@ -188,13 +189,17 @@ export default function HomeClient({ initialQuestions }: { initialQuestions: Que
   };
 
   const submitQ = async (title: string, body: string, cat: string) => {
-    const slug = title.replace(/[^a-z0-9가-힣]/gi, '-').toLowerCase().slice(0, 50) + '-' + Date.now();
+    const slug = createQuestionSlug(title);
     if (hasSupabase() && user) {
       const supabase = createClient();
-      const { error } = await supabase.from('questions').insert({
+      const { data, error } = await supabase.from('questions').insert({
         title, body, category: cat, slug, author_id: user.id, answer_count: 0,
-      });
+      }).select('id, slug').single();
       if (error) { showT('❌ 오류가 생겼어요. 다시 시도해주세요.'); return; }
+      setShowModal(false);
+      showT('✅ 질문이 등록되었어요!');
+      router.push(`/q/${data?.slug || data?.id || slug}`);
+      return;
     }
     setShowModal(false);
     showT('✅ 질문이 등록되었어요!');

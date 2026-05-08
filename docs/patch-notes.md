@@ -1,5 +1,25 @@
 # 패치노트
 
+## [2026-05-09] 질문 URL SEO 고도화
+**작업자:** Codex
+**태그:** #SEO #질문작성 #URL
+
+### 변경사항
+- [SEO] 질문 제목 기반 slug 생성기를 `lib/slugs.ts`로 분리
+  - 공백/특수문자 정리, 중복 하이픈 제거, 너무 긴 URL 방지
+  - 긴 타임스탬프 대신 짧은 base36 suffix 사용
+- [UX/SEO] 홈 질문하기에서 질문 등록 후 새 질문 상세 `/q/[slug]`로 바로 이동
+- [UX/SEO] 질문 상세 내 질문하기 모달도 등록 후 새 질문 상세로 바로 이동
+
+### 확인
+- [x] `npm_config_cache=/Users/yeho/Documents/New\ project/jaetechwhanip/.npm-cache npm run build` 통과
+
+### 다음 작업자 TODO
+- [ ] 기존 DB 질문 중 slug가 UUID/빈 값인 데이터 정리 여부 결정
+- [ ] 중복 slug 충돌이 실제로 발생하면 DB unique 정책 또는 재시도 로직 추가
+
+---
+
 ## [2026-05-09] SEO 기본 업로드
 **작업자:** Codex
 **태그:** #SEO #검색노출 #NextJS

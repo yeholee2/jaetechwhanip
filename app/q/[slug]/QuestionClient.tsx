@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import { createClient, hasSupabase } from '@/lib/supabase/client';
 import { EMOJI, sampleQuestions } from '@/lib/sampleData';
+import { createQuestionSlug } from '@/lib/slugs';
 import styles from './QuestionClient.module.css';
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -703,11 +704,19 @@ function AskModal({ onClose, router, user, onToast }: any) {
 
   const submit = async () => {
     if (!title.trim()) return;
-    const slug = title.replace(/[^a-z0-9가-힣]/gi, '-').toLowerCase().slice(0, 50) + '-' + Date.now();
+    const slug = createQuestionSlug(title);
     if (hasSupabase() && user) {
       const supabase = createClient();
-      const { error } = await supabase.from('questions').insert({ title, body, category: cat, slug, author_id: user.id, answer_count: 0 });
+      const { data, error } = await supabase
+        .from('questions')
+        .insert({ title, body, category: cat, slug, author_id: user.id, answer_count: 0 })
+        .select('id, slug')
+        .single();
       if (error) { onToast('❌ 오류가 생겼어요.'); return; }
+      onClose();
+      onToast('✅ 질문이 등록됐어요!');
+      router.push(`/q/${data?.slug || data?.id || slug}`);
+      return;
     }
     onClose();
     onToast('✅ 질문이 등록됐어요!');
