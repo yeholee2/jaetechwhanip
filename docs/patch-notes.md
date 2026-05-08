@@ -108,6 +108,29 @@
 
 
 
+## [2026-05-08] 질문 상세 조회/이동 버그 수정
+**작업자:** Codex
+**태그:** #버그수정 #질문상세 #배포
+
+### 변경사항
+- [Fix] `/q/[slug]` 상세 조회가 slug만 찾던 문제 수정
+  - URL 값이 UUID면 `questions.id`, 아니면 `questions.slug`로 조회
+  - DB에 없는 샘플 질문 slug는 `sampleQuestions` fallback으로 표시
+- [Fix] 홈/관련질문/프로필에서 slug가 비어 있을 때 `id`로 이동하도록 보강
+  - `/q/null` 또는 빈 slug 이동으로 "질문을 찾을 수 없어요"가 뜨는 경로 차단
+- [Guard] 샘플 질문에서는 답변/채택 DB 쓰기 방지
+
+### 확인
+- `npm run build` 통과
+- Vercel production 배포 READY
+- `https://jaetechwhanip.vercel.app/q/monthly-300` 200 응답 확인
+
+### 다음 작업자 TODO
+- [ ] 실제 로그인 계정으로 새 질문 작성 → 홈 클릭 → 상세 진입 1회 점검
+- [ ] 질문 slug가 비어 있는 기존 DB row가 있으면 백필 여부 결정
+
+---
+
 ## [2026-05-07] 홈 기능 전체 완성
 **작업자:** Claude Sonnet 4.6
 **태그:** #백엔드 #Auth #UI개발
