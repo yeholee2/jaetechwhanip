@@ -446,7 +446,7 @@ export default function QuestionClient({ slug }: { slug: string }) {
           <section className={styles.sideBox}>
             <h3>유사한 질문이 있어요.</h3>
             {related.length > 0 ? related.map(r => (
-              <button key={r.id} className={styles.relatedLink} onClick={() => router.push(`/q/${r.slug}`)}>
+              <button key={r.id} className={styles.relatedLink} onClick={() => router.push(`/q/${r.slug || r.id}`)}>
                 <span>{r.title}</span>
                 <em>답변 {r.answer_count || 0}개</em>
               </button>

@@ -386,8 +386,11 @@ function FeedList({ questions, mobile, router }: { questions: Question[], mobile
           <p style={{fontSize:15,fontWeight:600}}>검색 결과가 없어요</p>
         </div>
       )}
-      {questions.map(q => (
-        <article key={q.id} className={styles.qcard} onClick={() => router.push(`/q/${q.slug}`)} style={{cursor:'pointer'}}>
+      {questions.map(q => {
+        const questionPath = q.slug || q.dbId || String(q.id);
+
+        return (
+        <article key={q.id} className={styles.qcard} onClick={() => router.push(`/q/${questionPath}`)} style={{cursor:'pointer'}}>
           <div className={styles.qcardRow}>
             <div className={`${styles.qavatar} tf`}>
               {q.em}
@@ -415,14 +418,15 @@ function FeedList({ questions, mobile, router }: { questions: Question[], mobile
                   <button className={styles.qbtn}><ThumbsUp size={14}/></button>
                   <button className={styles.qbtn}><MessageCircle size={14}/></button>
                   <button className={styles.qbtn} onClick={() => {
-                    navigator.clipboard?.writeText(`${window.location.origin}/q/${q.slug}`);
+                    navigator.clipboard?.writeText(`${window.location.origin}/q/${questionPath}`);
                   }}><Share2 size={14}/></button>
                 </div>
               </div>
             </div>
           </div>
         </article>
-      ))}
+        );
+      })}
     </div>
   );
 }

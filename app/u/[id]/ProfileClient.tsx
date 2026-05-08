@@ -47,7 +47,7 @@ export default function ProfileClient({ userId }: { userId: string }) {
 
     // 답변 로드 — 필요한 컬럼만
     supabase.from('answers')
-      .select('id, body, is_adopted, like_count, created_at, question_id, questions:question_id(title, slug)')
+      .select('id, body, is_adopted, like_count, created_at, question_id, questions:question_id(id, title, slug)')
       .eq('author_id', userId)
       .order('created_at', { ascending: false })
       .limit(20)
@@ -120,7 +120,7 @@ export default function ProfileClient({ userId }: { userId: string }) {
           questions.length === 0
             ? <Empty msg="아직 질문이 없어요"/>
             : questions.map(q => (
-              <div key={q.id} onClick={() => router.push(`/q/${q.slug}`)} style={{padding:'16px 20px',borderBottom:'1px solid #F9FAFB',cursor:'pointer',transition:'background .15s'}} onMouseEnter={e=>e.currentTarget.style.background='#FAFAFA'} onMouseLeave={e=>e.currentTarget.style.background='white'}>
+              <div key={q.id} onClick={() => router.push(`/q/${q.slug || q.id}`)} style={{padding:'16px 20px',borderBottom:'1px solid #F9FAFB',cursor:'pointer',transition:'background .15s'}} onMouseEnter={e=>e.currentTarget.style.background='#FAFAFA'} onMouseLeave={e=>e.currentTarget.style.background='white'}>
                 <div style={{display:'flex',gap:6,marginBottom:8,alignItems:'center'}}>
                   <span style={{fontSize:11,fontWeight:700,background:'#F2F4F6',color:'#4E5968',padding:'3px 8px',borderRadius:20}}>{q.category}</span>
                   {q.is_answered && <span style={{fontSize:11,fontWeight:700,background:'#E8F9EE',color:'#00C73C',padding:'3px 8px',borderRadius:20}}>✅ 채택됨</span>}
@@ -137,7 +137,10 @@ export default function ProfileClient({ userId }: { userId: string }) {
           answers.length === 0
             ? <Empty msg="아직 답변이 없어요"/>
             : answers.map(a => (
-              <div key={a.id} onClick={() => a.questions?.slug && router.push(`/q/${a.questions.slug}`)} style={{padding:'16px 20px',borderBottom:'1px solid #F9FAFB',cursor:'pointer',transition:'background .15s'}} onMouseEnter={e=>e.currentTarget.style.background='#FAFAFA'} onMouseLeave={e=>e.currentTarget.style.background='white'}>
+              <div key={a.id} onClick={() => {
+                const questionPath = a.questions?.slug || a.questions?.id || a.question_id;
+                if (questionPath) router.push(`/q/${questionPath}`);
+              }} style={{padding:'16px 20px',borderBottom:'1px solid #F9FAFB',cursor:'pointer',transition:'background .15s'}} onMouseEnter={e=>e.currentTarget.style.background='#FAFAFA'} onMouseLeave={e=>e.currentTarget.style.background='white'}>
                 {a.is_adopted && <div style={{fontSize:11,fontWeight:700,color:'#00C73C',marginBottom:6}}>✅ 채택된 답변</div>}
                 <p style={{fontSize:13,color:'#8B95A1',marginBottom:6,fontWeight:500}}>→ {a.questions?.title || '질문'}</p>
                 <p style={{fontSize:14,color:'#191F28',lineHeight:1.6,marginBottom:8,display:'-webkit-box',WebkitLineClamp:2,WebkitBoxOrient:'vertical',overflow:'hidden'}}>{a.body}</p>
