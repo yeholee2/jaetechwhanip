@@ -1,23 +1,35 @@
 import { Metadata } from 'next';
 import {
-  fetchQuestionForSeo,
   isIndexableQuestion,
   questionPath,
   questionUrl,
   SITE_NAME,
   SITE_URL,
-  truncateDescription,
+  type SeoQuestion,
 } from '@/lib/seo';
+import {
+  buildAnswerSnippet,
+  buildJsonLdQuestionText,
+  buildSeoAnswerText,
+  buildSeoDescription,
+  buildSeoKeywords,
+  buildSeoQuestionTitle,
+  getAnswerCount,
+  getCreatedAt,
+  getLikeCount,
+  getQuestionCategory,
+  getQuestionTopicPath,
+} from '@/lib/seo-content';
 import { fetchQuestionPageData, type AnswerDetail, type QuestionDetail } from '@/lib/question-detail';
 import QuestionClient from './QuestionClient';
 
 type Props = { params: { slug: string } };
-type QuestionForSeo = NonNullable<Awaited<ReturnType<typeof fetchQuestionForSeo>>>;
 
 export const revalidate = 60;
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const question = await fetchQuestionForSeo(params.slug);
+  const pageData = await fetchQuestionPageData(params.slug);
+  const question = pageData.question;
 
   if (!question) {
     return {
@@ -26,14 +38,16 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     };
   }
 
-  const description = truncateDescription(question.body || question.title);
+  const description = buildSeoDescription(question, pageData.answers);
+  const seoTitle = buildSeoQuestionTitle(question);
   const canonicalPath = questionPath(question.slug);
   const shouldIndex = isIndexableQuestion(question);
+  const keywords = buildSeoKeywords(question);
 
   return {
-    title: question.title,
+    title: seoTitle,
     description,
-    keywords: [question.category, '재테크 질문', '금융 Q&A', SITE_NAME].filter(Boolean) as string[],
+    keywords,
     alternates: {
       canonical: canonicalPath,
     },
@@ -42,18 +56,18 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       follow: true,
     },
     openGraph: {
-      title: question.title,
+      title: seoTitle,
       description,
       url: canonicalPath,
       siteName: SITE_NAME,
       locale: 'ko_KR',
       type: 'article',
-      publishedTime: question.createdAt,
-      section: question.category,
+      publishedTime: getCreatedAt(question),
+      section: getQuestionCategory(question),
     },
     twitter: {
       card: 'summary',
-      title: question.title,
+      title: seoTitle,
       description,
     },
   };
@@ -62,7 +76,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 function answerJsonLd(answer: AnswerDetail, pageUrl: string) {
   return {
     '@type': 'Answer',
-    text: answer.body,
+    text: buildSeoAnswerText(answer),
     dateCreated: answer.created_at,
     upvoteCount: answer.like_count ?? 0,
     url: `${pageUrl}#answer-${encodeURIComponent(answer.id)}`,
@@ -73,24 +87,24 @@ function answerJsonLd(answer: AnswerDetail, pageUrl: string) {
   };
 }
 
-function jsonLdForQuestion(question: QuestionForSeo | QuestionDetail, answers: AnswerDetail[] = []) {
-  const normalized = question as QuestionForSeo & Partial<QuestionDetail>;
-  const createdAt = normalized.createdAt ?? normalized.created_at;
-  const answerCount = normalized.answerCount ?? normalized.answer_count;
-  const likeCount = normalized.likeCount ?? normalized.like_count;
+function jsonLdForQuestion(question: SeoQuestion | QuestionDetail, answers: AnswerDetail[] = []) {
   const acceptedAnswer = answers.find(answer => answer.is_adopted);
   const suggestedAnswers = answers.filter(answer => !answer.is_adopted && answer.body?.trim());
   const pageUrl = questionUrl(question.slug);
+  const answerSnippet = buildAnswerSnippet(answers);
 
   const mainEntity: Record<string, unknown> = {
     '@type': 'Question',
-    name: question.title,
-    text: question.body,
+    name: buildSeoQuestionTitle(question),
+    text: buildJsonLdQuestionText(question, answers),
     url: pageUrl,
-    dateCreated: createdAt,
-    answerCount: answerCount ?? answers.length,
-    upvoteCount: likeCount ?? 0,
-    about: question.category,
+    dateCreated: getCreatedAt(question),
+    answerCount: Math.max(getAnswerCount(question), answers.length),
+    upvoteCount: getLikeCount(question),
+    about: getQuestionCategory(question),
+    inLanguage: 'ko-KR',
+    keywords: buildSeoKeywords(question).join(', '),
+    description: buildSeoDescription(question, answers),
     publisher: {
       '@type': 'Organization',
       name: SITE_NAME,
@@ -98,14 +112,41 @@ function jsonLdForQuestion(question: QuestionForSeo | QuestionDetail, answers: A
     },
   };
 
+  if (answerSnippet) mainEntity.abstract = answerSnippet;
   if (acceptedAnswer) mainEntity.acceptedAnswer = answerJsonLd(acceptedAnswer, pageUrl);
   if (suggestedAnswers.length > 0) mainEntity.suggestedAnswer = suggestedAnswers.map(answer => answerJsonLd(answer, pageUrl));
 
-  return {
-    '@context': 'https://schema.org',
-    '@type': 'QAPage',
-    mainEntity,
-  };
+  return [
+    {
+      '@context': 'https://schema.org',
+      '@type': 'QAPage',
+      mainEntity,
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        {
+          '@type': 'ListItem',
+          position: 1,
+          name: SITE_NAME,
+          item: SITE_URL,
+        },
+        {
+          '@type': 'ListItem',
+          position: 2,
+          name: getQuestionCategory(question),
+          item: `${SITE_URL}${getQuestionTopicPath(question)}`,
+        },
+        {
+          '@type': 'ListItem',
+          position: 3,
+          name: buildSeoQuestionTitle(question),
+          item: pageUrl,
+        },
+      ],
+    },
+  ];
 }
 
 export default async function QuestionPage({ params }: Props) {

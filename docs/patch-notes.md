@@ -1,5 +1,27 @@
 # 패치노트
 
+## [2026-05-09] 질문/답변 SEO S급 정규화 레이어
+**작업자:** Codex
+**태그:** #SEO #QAPage #검색노출 #질문상세
+
+### 변경사항
+- [SEO] 사용자 질문이 짧거나 어색해도 검색 의도가 드러나도록 SEO 제목/설명/키워드 생성기 `lib/seo-content.ts` 추가
+- [SEO] 질문 상세 metadata title/description/OG/Twitter를 원문 그대로가 아니라 카테고리·본문·답변 맥락 기반으로 정규화
+- [SEO] QAPage JSON-LD의 `name`, `text`, `description`, `keywords`, 답변 본문을 검색 친화적으로 정리
+- [SEO] 채택/주요 답변 발췌를 JSON-LD `abstract`에 반영
+- [SEO] BreadcrumbList JSON-LD 추가
+- [콘텐츠] 질문 상세 본문에 검색엔진과 사용자가 함께 읽을 수 있는 `핵심 요약` 블록 추가
+
+### 확인
+- [x] `npm_config_cache=/Users/yeho/Documents/New\ project/jaetechwhanip/.npm-cache npm run build` 통과
+- [ ] 라이브 질문 상세 HTML에서 `핵심 요약`, QAPage, BreadcrumbList 확인
+
+### 다음 작업자 TODO
+- [ ] 질문 작성/답변 작성 시점에 SEO title/summary를 DB에 캐시하는 구조 검토
+- [ ] Search Console에서 노출 쿼리 기반 키워드 사전 고도화
+
+---
+
 ## [2026-05-09] 자동번역 MVP + 스파링 페이지 업그레이드
 **작업자:** Codex
 **태그:** #번역 #글로벌 #스파링 #UX #OpenAI

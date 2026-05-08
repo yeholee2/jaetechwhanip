@@ -15,6 +15,7 @@ import type { AnswerDetail, QuestionDetail, RelatedQuestion } from '@/lib/questi
 import { createQuestionSlug } from '@/lib/slugs';
 import { getAuthNickname, syncFinanceNickname } from '@/lib/nicknames';
 import { useAutoTranslation } from '@/lib/useAutoTranslation';
+import { buildSeoDescription } from '@/lib/seo-content';
 import styles from './QuestionClient.module.css';
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -365,10 +366,12 @@ export default function QuestionClient({
   const answerCount = q?.answer_count ?? answers.length;
   const minLen = 20;
   const remaining = Math.max(0, minLen - answerBody.trim().length);
+  const rawSeoSummary = q ? buildSeoDescription(q, answers) : '';
   const translation = useAutoTranslation([
     ...(q ? [
       { id: 'question:title', type: 'question_title', text: q.title || '' },
       { id: 'question:body', type: 'question_body', text: q.body || '' },
+      { id: 'question:summary', type: 'seo_summary', text: rawSeoSummary },
     ] : []),
     ...answers.map(a => ({ id: `answer:${a.id}:body`, type: 'answer_body', text: a.body || '' })),
     ...Object.values(comments).flatMap(list => (list || []).map((c: any) => ({
@@ -401,6 +404,7 @@ export default function QuestionClient({
   const qTitle = translation.text('question:title', q.title);
   const qBody = translation.text('question:body', q.body || '');
   const qTranslated = translation.isTranslated('question:title') || translation.isTranslated('question:body');
+  const seoSummary = translation.text('question:summary', rawSeoSummary);
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg)' }}>
@@ -483,6 +487,10 @@ export default function QuestionClient({
 
             <h1 className={styles.qTitle}>{qTitle}</h1>
             {qBody && <p className={styles.qBody}>{qBody}</p>}
+            <div className={styles.seoSummary}>
+              <strong>핵심 요약</strong>
+              <span>{seoSummary}</span>
+            </div>
 
             <div className={styles.qActions}>
               <button
