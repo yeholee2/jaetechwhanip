@@ -1,29 +1,15 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
-import type { ReactNode } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import {
-  Bell,
-  Bold,
-  Bookmark,
-  BookOpen,
-  CheckCircle2,
-  ChevronLeft,
-  Gift,
-  Heart,
-  List,
-  MessageCircle,
-  MoreHorizontal,
-  Search,
-  Send,
-  Share2,
-  Sparkles,
-  ThumbsUp,
-  UserRound,
+  Bell, Bookmark, CheckCircle2, ChevronLeft,
+  Home as HomeIcon, LayoutList, MessageCircle,
+  MoreHorizontal, Plus, Search, Share2,
+  Sparkles, Swords, ThumbsUp, User, X,
 } from 'lucide-react';
 import { createClient, hasSupabase } from '@/lib/supabase/client';
-import { sampleQuestions } from '@/lib/sampleData';
+import { EMOJI, sampleQuestions } from '@/lib/sampleData';
 import styles from './QuestionClient.module.css';
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -41,42 +27,37 @@ function ft(d: string) {
   return new Date(d).toLocaleDateString('ko-KR', { month: 'long', day: 'numeric' });
 }
 
-function initials(name?: string) {
-  return (name || '익명').slice(0, 1).toUpperCase();
+function getUserName(user: any): string {
+  if (!user) return '';
+  const m = user.user_metadata || {};
+  return m.full_name || m.name || user.email?.split('@')[0] || 'ME';
 }
 
 function sampleQuestion(slug: string) {
   const found = sampleQuestions.find(item => item.slug === slug);
   if (!found) return null;
-
   return {
     id: `sample-${found.id}`,
-    title: found.title,
-    body: found.body,
-    category: found.cat,
-    slug: found.slug,
-    author_id: null,
-    created_at: new Date(Date.now() - found.id * 60 * 60 * 1000).toISOString(),
-    answer_count: found.ans,
-    like_count: found.id * 3,
-    view_count: found.id * 127,
-    is_answered: found.adopted,
-    is_sample: true,
-    users: {
-      id: null,
-      name: found.author,
-      avatar_url: null,
-      provider: 'sample',
-    },
+    title: found.title, body: found.body, category: found.cat,
+    slug: found.slug, author_id: null,
+    created_at: new Date(Date.now() - found.id * 3600000).toISOString(),
+    answer_count: found.ans, like_count: found.id * 3,
+    view_count: found.id * 127, is_answered: found.adopted, is_sample: true,
+    users: { id: null, name: found.author, avatar_url: null },
   };
 }
 
+const CATS = ['재테크 입문','주식·ETF','절세','보험','대출·부채'];
+
 export default function QuestionClient({ slug }: { slug: string }) {
   const router = useRouter();
+  const dropRef = useRef<HTMLDivElement>(null);
+
   const [q, setQ] = useState<any>(null);
   const [answers, setAnswers] = useState<any[]>([]);
   const [related, setRelated] = useState<any[]>([]);
   const [user, setUser] = useState<any>(null);
+  const [authLoading, setAuthLoading] = useState(true);
   const [answerBody, setAnswerBody] = useState('');
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -88,327 +69,286 @@ export default function QuestionClient({ slug }: { slug: string }) {
   const [comments, setComments] = useState<Record<string, any[]>>({});
   const [commentInput, setCommentInput] = useState<Record<string, string>>({});
   const [commentSubmitting, setCommentSubmitting] = useState<Record<string, boolean>>({});
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [showAskModal, setShowAskModal] = useState(false);
 
-  const showT = (msg: string) => {
-    setToast(msg);
-    setTimeout(() => setToast(''), 2500);
-  };
+  const showT = (msg: string) => { setToast(msg); setTimeout(() => setToast(''), 2500); };
 
+  // 드롭다운 외부 클릭 닫기
   useEffect(() => {
-    if (!slug) {
-      setLoading(false);
-      return;
-    }
+    const h = (e: MouseEvent) => {
+      if (dropRef.current && !dropRef.current.contains(e.target as Node)) setShowDropdown(false);
+    };
+    document.addEventListener('mousedown', h);
+    return () => document.removeEventListener('mousedown', h);
+  }, []);
 
-    const fallbackQuestion = sampleQuestion(slug);
+  // 질문 + 인증 로드
+  useEffect(() => {
+    if (!slug) { setLoading(false); return; }
+    const fallback = sampleQuestion(slug);
 
     if (!hasSupabase()) {
-      setQ(fallbackQuestion);
-      setAnswers([]);
-      setRelated(sampleQuestions.filter(item => item.slug !== slug).slice(0, 5));
-      setLoading(false);
+      setQ(fallback);
+      setRelated(sampleQuestions.filter(i => i.slug !== slug).slice(0, 5));
+      setLoading(false); setAuthLoading(false);
       return;
     }
 
     const supabase = createClient();
-    const auth = supabase.auth.onAuthStateChange((_e, s) => setUser(s?.user ?? null));
+    const { data: authSub } = supabase.auth.onAuthStateChange((_e, s) => {
+      setUser(s?.user ?? null);
+      setAuthLoading(false);
+    });
 
     (async () => {
       const { data: sessionData } = await supabase.auth.getSession();
       const sessionUser = sessionData.session?.user ?? null;
-      setUser(sessionUser);
+      setUser(sessionUser); setAuthLoading(false);
 
-      const questionQuery = supabase
-        .from('questions')
-        .select('*, users:author_id(id, name, avatar_url, provider)');
-
-      const { data: questionData, error } = await (
-        UUID_RE.test(slug) ? questionQuery.eq('id', slug) : questionQuery.eq('slug', slug)
+      const qQuery = supabase.from('questions').select('*, users:author_id(id,name,avatar_url)');
+      const { data: qData, error } = await (
+        UUID_RE.test(slug) ? qQuery.eq('id', slug) : qQuery.eq('slug', slug)
       ).maybeSingle();
 
-      if (error || !questionData) {
-        if (fallbackQuestion) {
-          setQ(fallbackQuestion);
-          setRelated(sampleQuestions.filter(item => item.slug !== slug).slice(0, 5));
-        }
+      if (error || !qData) {
+        setQ(fallback);
+        setRelated(sampleQuestions.filter(i => i.slug !== slug).slice(0, 5));
         setLoading(false);
         return;
       }
 
-      setQ(questionData);
-      supabase.from('questions').update({ view_count: (questionData.view_count || 0) + 1 }).eq('id', questionData.id);
+      setQ(qData);
+      supabase.from('questions').update({ view_count: (qData.view_count || 0) + 1 }).eq('id', qData.id);
 
       const [{ data: ans }, { data: rel }] = await Promise.all([
-        supabase
-          .from('answers')
-          .select('*, users:author_id(id, name, avatar_url)')
-          .eq('question_id', questionData.id)
+        supabase.from('answers').select('*, users:author_id(id,name,avatar_url)')
+          .eq('question_id', qData.id)
           .order('is_adopted', { ascending: false })
           .order('like_count', { ascending: false })
           .order('created_at', { ascending: true }),
-        supabase
-          .from('questions')
-          .select('id, title, slug, answer_count, is_answered')
-          .eq('category', questionData.category)
-          .neq('id', questionData.id)
-          .order('created_at', { ascending: false })
-          .limit(5),
+        supabase.from('questions').select('id,title,slug,answer_count,is_answered')
+          .eq('category', qData.category).neq('id', qData.id)
+          .order('created_at', { ascending: false }).limit(5),
       ]);
 
       const loadedAnswers = ans || [];
       setAnswers(loadedAnswers);
       setRelated(rel || []);
 
-      // 로그인 유저의 좋아요 이력 로드 (liked_questions / liked_answers 테이블)
       if (sessionUser) {
         try {
-          const answerIds = loadedAnswers.map((a: any) => a.id);
-          const lqRes = await supabase
-            .from('liked_questions')
-            .select('question_id')
-            .eq('user_id', sessionUser.id)
-            .eq('question_id', questionData.id)
-            .maybeSingle();
+          const lqRes = await supabase.from('liked_questions').select('question_id')
+            .eq('user_id', sessionUser.id).eq('question_id', qData.id).maybeSingle();
           if (lqRes.data) setLikedQuestion(true);
 
-          if (answerIds.length > 0) {
-            const laRes = await supabase
-              .from('liked_answers')
-              .select('answer_id')
+          if (loadedAnswers.length > 0) {
+            const laRes = await supabase.from('liked_answers').select('answer_id')
               .eq('user_id', sessionUser.id)
-              .in('answer_id', answerIds);
+              .in('answer_id', loadedAnswers.map((a: any) => a.id));
             if (laRes.data) setLikedAnswers(new Set((laRes.data as any[]).map((r: any) => r.answer_id)));
           }
-        } catch {
-          // liked_questions/liked_answers 테이블이 아직 없으면 무시
-        }
+        } catch { /* 테이블 없으면 무시 */ }
       }
 
       setLoading(false);
     })();
 
-    return () => auth.data.subscription.unsubscribe();
+    return () => authSub.subscription.unsubscribe();
   }, [slug]);
 
+  // 답변 제출
   const submitAnswer = async () => {
     if (!answerBody.trim() || !user || !q) return;
-    if (q.is_sample) {
-      showT('샘플 질문에는 답변을 저장하지 않아요.');
-      return;
-    }
+    if (q.is_sample) { showT('샘플 질문에는 답변할 수 없어요.'); return; }
     setSubmitting(true);
     const supabase = createClient();
     const { data: newAns, error } = await supabase
-      .from('answers')
-      .insert({ question_id: q.id, body: answerBody.trim(), author_id: user.id })
-      .select('*, users:author_id(id, name, avatar_url)')
-      .single();
-
+      .from('answers').insert({ question_id: q.id, body: answerBody.trim(), author_id: user.id })
+      .select('*, users:author_id(id,name,avatar_url)').single();
     if (!error && newAns) {
-      const newCount = (q.answer_count || 0) + 1;
-      await supabase.from('questions').update({ answer_count: newCount }).eq('id', q.id);
+      const cnt = (q.answer_count || 0) + 1;
+      await supabase.from('questions').update({ answer_count: cnt }).eq('id', q.id);
       setAnswers(prev => [...prev, newAns]);
-      setQ((prev: any) => ({ ...prev, answer_count: newCount }));
+      setQ((p: any) => ({ ...p, answer_count: cnt }));
       setAnswerBody('');
-      showT('답변이 등록됐어요.');
+      showT('답변이 등록됐어요!');
     } else {
       showT('답변 등록에 실패했어요.');
     }
     setSubmitting(false);
   };
 
+  // 채택
   const adoptAnswer = async (answerId: string) => {
-    if (!user || !q || user.id !== q.author_id) return;
-    if (q.is_sample) return;
+    if (!user || !q || user.id !== q.author_id || q.is_sample) return;
     const supabase = createClient();
     await supabase.from('answers').update({ is_adopted: false }).eq('question_id', q.id);
     await supabase.from('answers').update({ is_adopted: true }).eq('id', answerId);
     await supabase.from('questions').update({ is_answered: true }).eq('id', q.id);
     setAnswers(prev => prev.map(a => ({ ...a, is_adopted: a.id === answerId })));
-    setQ((prev: any) => ({ ...prev, is_answered: true }));
+    setQ((p: any) => ({ ...p, is_answered: true }));
     showT('채택 완료!');
   };
 
+  // 답변 좋아요 (토글)
   const likeAnswer = async (answerId: string, current: number) => {
-    if (!user) {
-      showT('로그인 후 추천할 수 있어요.');
-      return;
-    }
+    if (!user) { showT('로그인 후 추천할 수 있어요.'); return; }
     const supabase = createClient();
-    const alreadyLiked = likedAnswers.has(answerId);
-
+    const already = likedAnswers.has(answerId);
     try {
-      if (alreadyLiked) {
+      if (already) {
         await supabase.from('liked_answers').delete().eq('user_id', user.id).eq('answer_id', answerId);
-        const newCount = Math.max(0, current - 1);
-        await supabase.from('answers').update({ like_count: newCount }).eq('id', answerId);
-        setAnswers(prev => prev.map(a => (a.id === answerId ? { ...a, like_count: newCount } : a)));
+        const cnt = Math.max(0, current - 1);
+        await supabase.from('answers').update({ like_count: cnt }).eq('id', answerId);
+        setAnswers(prev => prev.map(a => a.id === answerId ? { ...a, like_count: cnt } : a));
         setLikedAnswers(prev => { const s = new Set(prev); s.delete(answerId); return s; });
       } else {
         const { error } = await supabase.from('liked_answers').insert({ user_id: user.id, answer_id: answerId });
         if (!error) {
-          const newCount = current + 1;
-          await supabase.from('answers').update({ like_count: newCount }).eq('id', answerId);
-          setAnswers(prev => prev.map(a => (a.id === answerId ? { ...a, like_count: newCount } : a)));
+          const cnt = current + 1;
+          await supabase.from('answers').update({ like_count: cnt }).eq('id', answerId);
+          setAnswers(prev => prev.map(a => a.id === answerId ? { ...a, like_count: cnt } : a));
           setLikedAnswers(prev => new Set([...prev, answerId]));
         }
       }
     } catch {
-      // liked_answers 테이블 없으면 단순 카운트만 업데이트 (마이그레이션 전 fallback)
-      if (!alreadyLiked) {
-        const newCount = current + 1;
-        await supabase.from('answers').update({ like_count: newCount }).eq('id', answerId);
-        setAnswers(prev => prev.map(a => (a.id === answerId ? { ...a, like_count: newCount } : a)));
+      if (!already) {
+        const cnt = current + 1;
+        await supabase.from('answers').update({ like_count: cnt }).eq('id', answerId);
+        setAnswers(prev => prev.map(a => a.id === answerId ? { ...a, like_count: cnt } : a));
         setLikedAnswers(prev => new Set([...prev, answerId]));
       }
     }
   };
 
+  // 질문 좋아요 (토글)
   const likeQuestion = async () => {
-    if (!user) {
-      showT('로그인 후 좋아요를 누를 수 있어요.');
-      return;
-    }
+    if (!user) { showT('로그인 후 좋아요를 누를 수 있어요.'); return; }
     if (q.is_sample) {
-      setQ((prev: any) => ({ ...prev, like_count: (prev.like_count || 0) + 1 }));
+      setQ((p: any) => ({ ...p, like_count: (p.like_count || 0) + 1 }));
       showT('도움돼요를 남겼어요.');
       return;
     }
     const supabase = createClient();
-
     try {
       if (likedQuestion) {
         await supabase.from('liked_questions').delete().eq('user_id', user.id).eq('question_id', q.id);
-        const newCount = Math.max(0, (q.like_count || 0) - 1);
-        await supabase.from('questions').update({ like_count: newCount }).eq('id', q.id);
-        setQ((prev: any) => ({ ...prev, like_count: newCount }));
+        const cnt = Math.max(0, (q.like_count || 0) - 1);
+        await supabase.from('questions').update({ like_count: cnt }).eq('id', q.id);
+        setQ((p: any) => ({ ...p, like_count: cnt }));
         setLikedQuestion(false);
         showT('도움돼요를 취소했어요.');
       } else {
         const { error } = await supabase.from('liked_questions').insert({ user_id: user.id, question_id: q.id });
         if (!error) {
-          const newCount = (q.like_count || 0) + 1;
-          await supabase.from('questions').update({ like_count: newCount }).eq('id', q.id);
-          setQ((prev: any) => ({ ...prev, like_count: newCount }));
+          const cnt = (q.like_count || 0) + 1;
+          await supabase.from('questions').update({ like_count: cnt }).eq('id', q.id);
+          setQ((p: any) => ({ ...p, like_count: cnt }));
           setLikedQuestion(true);
           showT('도움돼요를 남겼어요.');
         }
       }
     } catch {
-      // liked_questions 테이블 없으면 단순 카운트만 업데이트 (마이그레이션 전 fallback)
       if (!likedQuestion) {
-        const newCount = (q.like_count || 0) + 1;
-        await supabase.from('questions').update({ like_count: newCount }).eq('id', q.id);
-        setQ((prev: any) => ({ ...prev, like_count: newCount }));
+        const cnt = (q.like_count || 0) + 1;
+        await supabase.from('questions').update({ like_count: cnt }).eq('id', q.id);
+        setQ((p: any) => ({ ...p, like_count: cnt }));
         showT('도움돼요를 남겼어요.');
       }
     }
   };
 
+  // 댓글 토글 + DB 로드
   const toggleComments = async (answerId: string) => {
     const next = new Set(openComments);
     if (next.has(answerId)) {
       next.delete(answerId);
     } else {
       next.add(answerId);
-      // DB에서 댓글 로드 (아직 안 불러왔을 때만)
-      if (comments[answerId] === undefined) {
-        if (hasSupabase()) {
-          const supabase = createClient();
-          try {
-            const { data } = await supabase
-              .from('comments')
-              .select('*, users:author_id(name, avatar_url)')
-              .eq('answer_id', answerId)
-              .order('created_at', { ascending: true });
-            setComments(prev => ({ ...prev, [answerId]: data || [] }));
-          } catch {
-            setComments(prev => ({ ...prev, [answerId]: [] }));
-          }
-        } else {
+      if (comments[answerId] === undefined && hasSupabase()) {
+        const supabase = createClient();
+        try {
+          const { data } = await supabase.from('comments')
+            .select('*, users:author_id(name,avatar_url)')
+            .eq('answer_id', answerId).order('created_at', { ascending: true });
+          setComments(prev => ({ ...prev, [answerId]: data || [] }));
+        } catch {
           setComments(prev => ({ ...prev, [answerId]: [] }));
         }
+      } else if (comments[answerId] === undefined) {
+        setComments(prev => ({ ...prev, [answerId]: [] }));
       }
     }
     setOpenComments(next);
   };
 
+  // 댓글 제출
   const submitComment = async (answerId: string) => {
     const body = commentInput[answerId]?.trim();
     if (!body || !user) return;
     setCommentSubmitting(prev => ({ ...prev, [answerId]: true }));
     const supabase = createClient();
     try {
-      const { data, error } = await supabase
-        .from('comments')
+      const { data, error } = await supabase.from('comments')
         .insert({ answer_id: answerId, author_id: user.id, body })
-        .select('*, users:author_id(name, avatar_url)')
-        .single();
+        .select('*, users:author_id(name,avatar_url)').single();
       if (!error && data) {
         setComments(prev => ({ ...prev, [answerId]: [...(prev[answerId] || []), data] }));
         setCommentInput(prev => ({ ...prev, [answerId]: '' }));
       } else {
         showT('댓글 등록에 실패했어요.');
       }
-    } catch {
-      showT('댓글 등록에 실패했어요. (comments 테이블 마이그레이션 필요)');
-    }
+    } catch { showT('댓글 등록에 실패했어요.'); }
     setCommentSubmitting(prev => ({ ...prev, [answerId]: false }));
   };
 
+  // 답변 삭제
   const deleteAnswer = async (answerId: string) => {
     if (!user || q.is_sample) return;
     if (!confirm('답변을 삭제할까요?')) return;
     const supabase = createClient();
     const { error } = await supabase.from('answers').delete().eq('id', answerId).eq('author_id', user.id);
     if (!error) {
-      const newCount = Math.max(0, (q.answer_count || 0) - 1);
-      await supabase.from('questions').update({ answer_count: newCount }).eq('id', q.id);
+      const cnt = Math.max(0, (q.answer_count || 0) - 1);
+      await supabase.from('questions').update({ answer_count: cnt }).eq('id', q.id);
       setAnswers(prev => prev.filter(a => a.id !== answerId));
-      setQ((prev: any) => ({ ...prev, answer_count: newCount }));
+      setQ((p: any) => ({ ...p, answer_count: cnt }));
       showT('답변을 삭제했어요.');
-    } else {
-      showT('삭제에 실패했어요.');
     }
   };
 
+  // 댓글 삭제
   const deleteComment = async (answerId: string, commentId: string) => {
     if (!user) return;
     const supabase = createClient();
     const { error } = await supabase.from('comments').delete().eq('id', commentId).eq('author_id', user.id);
-    if (!error) {
-      setComments(prev => ({ ...prev, [answerId]: prev[answerId].filter((c: any) => c.id !== commentId) }));
-    } else {
-      showT('삭제에 실패했어요.');
-    }
+    if (!error) setComments(prev => ({ ...prev, [answerId]: prev[answerId].filter((c: any) => c.id !== commentId) }));
   };
 
+  // 공유
   const share = () => {
     const url = window.location.href;
     if (navigator.share) navigator.share({ title: q?.title, url });
-    else {
-      navigator.clipboard?.writeText(url);
-      showT('링크를 복사했어요.');
-    }
+    else { navigator.clipboard?.writeText(url); showT('링크를 복사했어요.'); }
   };
 
-  const userName = user?.user_metadata?.full_name || user?.user_metadata?.name || user?.email?.split('@')[0] || '나';
-  const answerCount = q?.answer_count ?? answers.length;
-  const minAnswerLength = 55;
-  const remainingLength = Math.max(0, minAnswerLength - answerBody.trim().length);
+  // 로그아웃
+  const handleSignOut = async () => {
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    setUser(null); setShowDropdown(false);
+    showT('👋 로그아웃 되었어요');
+  };
 
-  const expertColumns = useMemo(
-    () => [
-      { tag: '절세', title: 'ISA와 연금저축, 같이 쓰면 어디서 세금이 줄어들까요?', stat: '답변 12' },
-      { tag: '투자', title: 'S&P500 장기투자 전에 꼭 정해야 하는 기준', stat: '조회 1,284' },
-      { tag: '보험', title: '실손보험 갈아타기 전 확인해야 할 약관 포인트', stat: '답변 8' },
-    ],
-    [],
-  );
+  const userName = getUserName(user);
+  const answerCount = q?.answer_count ?? answers.length;
+  const minLen = 20;
+  const remaining = Math.max(0, minLen - answerBody.trim().length);
 
   if (loading) {
     return (
-      <div className={styles.loading}>
+      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <div className={styles.spinner} />
       </div>
     );
@@ -416,11 +356,11 @@ export default function QuestionClient({ slug }: { slug: string }) {
 
   if (!q) {
     return (
-      <div className={styles.empty}>
-        <p className={styles.emptyIcon}>?</p>
-        <h1>질문을 찾을 수 없어요</h1>
-        <p>삭제됐거나 잘못된 주소예요.</p>
-        <button onClick={() => router.push('/')}>홈으로</button>
+      <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 12 }}>
+        <div style={{ fontSize: 48 }}>😕</div>
+        <h1 style={{ fontSize: 18, fontWeight: 700 }}>질문을 찾을 수 없어요</h1>
+        <p style={{ color: 'var(--t3)', fontSize: 14 }}>삭제됐거나 잘못된 주소예요.</p>
+        <button onClick={() => router.push('/')} style={{ marginTop: 8, padding: '10px 24px', background: 'var(--blue)', color: 'white', borderRadius: 8, fontWeight: 700, fontSize: 14 }}>홈으로</button>
       </div>
     );
   }
@@ -428,287 +368,295 @@ export default function QuestionClient({ slug }: { slug: string }) {
   const authorName = q.users?.name || '익명';
 
   return (
-    <div className={styles.shell}>
-      <header className={styles.topNav}>
-        <button className={styles.logo} onClick={() => router.push('/')}>
+    <div style={{ minHeight: '100vh', background: 'var(--bg)' }}>
+
+      {/* ── PC 네비 (홈과 동일) ── */}
+      <nav className={styles.pcNav}>
+        <div className={`logo-font ${styles.navLogo}`} onClick={() => router.push('/')}>
           재테크<em>한입</em>
-        </button>
-        <nav className={styles.navLinks} aria-label="주요 메뉴">
-          <button onClick={() => router.push('/')}>홈</button>
-          <button>토픽</button>
-          <button>스파링</button>
-          <button>잉크</button>
-          <button>미션</button>
-          <span />
-          <button>전문가 신청</button>
-        </nav>
-        <div className={styles.navActions}>
-          <button aria-label="검색"><Search size={21} /></button>
-          <button aria-label="알림"><Bell size={20} /></button>
-          <button aria-label="내 정보"><UserRound size={20} /></button>
-          <button className={styles.askButton} onClick={() => router.push('/')}>나도 질문하기</button>
         </div>
-      </header>
+        <ul className={styles.navMenu}>
+          <li><button onClick={() => router.push('/')}>홈</button></li>
+          <li><button>토픽</button></li>
+          <li><button>스파링</button></li>
+          <li><button>잉크</button></li>
+          <li><button>미션</button></li>
+          <li><div className={styles.navSep} /></li>
+          <li><button style={{ fontSize: 13, color: 'var(--t3)' }}>전문가 신청</button></li>
+        </ul>
+        <div className={styles.navRight}>
+          <button className={styles.iconBtn} aria-label="검색"><Search size={18} /></button>
+          <button className={styles.iconBtn} aria-label="알림"><Bell size={18} /></button>
+          {!authLoading && (user ? (
+            <div style={{ position: 'relative' }} ref={dropRef}>
+              <div className={styles.avatar} onClick={() => setShowDropdown(v => !v)} title={userName}>
+                {userName[0]?.toUpperCase() || 'U'}
+              </div>
+              {showDropdown && (
+                <div className={styles.dropdown}>
+                  <div className={styles.dropName}>{userName}</div>
+                  <button onClick={() => { router.push(`/u/${user.id}`); setShowDropdown(false); }}>내 프로필</button>
+                  <button onClick={handleSignOut} style={{ color: '#FF3B30' }}>로그아웃</button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <button className={styles.iconBtn} onClick={() => router.push('/auth')}><User size={18} /></button>
+          ))}
+          <button className={styles.btnAsk} onClick={() => user ? setShowAskModal(true) : router.push('/auth?next=/')}>나도 질문하기</button>
+        </div>
+      </nav>
 
+      {/* ── 모바일 헤더 ── */}
       <header className={styles.mobileHeader}>
-        <button aria-label="뒤로" onClick={() => router.back()}><ChevronLeft size={24} /></button>
-        <button className={styles.mobileLogo} onClick={() => router.push('/')}>재테크<em>한입</em></button>
-        <button aria-label="공유" onClick={share}><Share2 size={20} /></button>
+        <button onClick={() => router.back()}><ChevronLeft size={24} /></button>
+        <div className={`logo-font ${styles.navLogo}`} onClick={() => router.push('/')} style={{ cursor: 'pointer' }}>
+          재테크<em>한입</em>
+        </div>
+        <button onClick={share}><Share2 size={20} /></button>
       </header>
 
-      <main className={styles.layout}>
-        <section className={styles.mainColumn}>
-          <div className={styles.topicHeader}>
-            <span>{q.category || '재테크'}</span>
-            <h1>{q.category || '재테크 입문'}</h1>
-            <button aria-label="관심 토픽"><Heart size={25} /></button>
+      {/* ── 본문 ── */}
+      <div className={styles.body}>
+
+        {/* 메인 컬럼 */}
+        <main className={styles.main}>
+
+          {/* 브레드크럼 */}
+          <div className={styles.breadcrumb}>
+            <button onClick={() => router.push('/')} className={styles.catChip}>{q.category || '재테크'}</button>
           </div>
 
-          <article className={styles.questionCard}>
-            <div className={styles.profileRow}>
-              <Avatar name={authorName} imageUrl={q.users?.avatar_url} onClick={() => q.users?.id && router.push(`/u/${q.users.id}`)} />
-              <button className={styles.profileText} onClick={() => q.users?.id && router.push(`/u/${q.users.id}`)}>
-                <strong>{authorName}</strong>
-                <span>{ft(q.created_at)} · 조회 {q.view_count || 0}</span>
-              </button>
-              <button className={styles.moreButton} aria-label="더보기"><MoreHorizontal size={20} /></button>
+          {/* 질문 카드 */}
+          <article className={styles.qCard}>
+            <div className={styles.qProfile}>
+              <div className={styles.qAvatarWrap}>
+                <div className={`${styles.qAvatar} tf`}>{EMOJI[0]}</div>
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 2 }}>
+                  <span style={{ fontSize: 14, fontWeight: 700 }}>{authorName}</span>
+                  {q.is_answered && <span className={styles.adoptedChip}>✅ 채택됨</span>}
+                </div>
+                <div style={{ fontSize: 12, color: 'var(--t3)' }}>
+                  {ft(q.created_at)} · 조회 {q.view_count || 0}
+                </div>
+              </div>
+              <button className={styles.iconBtn} aria-label="더보기"><MoreHorizontal size={18} /></button>
             </div>
 
-            <h2 className={styles.questionTitle}>{q.title}</h2>
-            {q.body && <p className={styles.questionBody}>{q.body}</p>}
+            <h1 className={styles.qTitle}>{q.title}</h1>
+            {q.body && <p className={styles.qBody}>{q.body}</p>}
 
-            <div className={styles.questionActions}>
-              <IconAction
-                icon={<ThumbsUp size={22} />}
-                label={q.like_count > 0 ? `도움돼요 ${q.like_count}` : '도움돼요'}
+            <div className={styles.qActions}>
+              <button
+                className={`${styles.qActionBtn} ${likedQuestion ? styles.active : ''}`}
                 onClick={likeQuestion}
-                active={likedQuestion}
-              />
-              <IconAction icon={<MessageCircle size={22} />} label={`답변 ${answerCount || answers.length}`} onClick={() => document.getElementById('answer-editor')?.scrollIntoView({ behavior: 'smooth' })} />
-              <IconAction
-                icon={<Bookmark size={22} fill={bookmarked ? 'currentColor' : 'none'} />}
-                label="저장"
-                active={bookmarked}
-                onClick={() => {
-                  setBookmarked(v => !v);
-                  showT(bookmarked ? '저장을 해제했어요.' : '질문을 저장했어요.');
-                }}
-              />
-              <IconAction icon={<Share2 size={22} />} label="공유" onClick={share} />
+              >
+                <ThumbsUp size={15} />
+                도움돼요 {q.like_count > 0 ? q.like_count : ''}
+              </button>
+              <button
+                className={styles.qActionBtn}
+                onClick={() => document.getElementById('answer-editor')?.scrollIntoView({ behavior: 'smooth' })}
+              >
+                <MessageCircle size={15} />
+                답변 {answerCount > 0 ? answerCount : ''}
+              </button>
+              <button
+                className={`${styles.qActionBtn} ${bookmarked ? styles.active : ''}`}
+                onClick={() => { setBookmarked(v => !v); showT(bookmarked ? '저장 해제했어요.' : '질문을 저장했어요.'); }}
+              >
+                <Bookmark size={15} fill={bookmarked ? 'currentColor' : 'none'} />
+                저장
+              </button>
+              <button className={styles.qActionBtn} onClick={share}>
+                <Share2 size={15} />
+                공유
+              </button>
             </div>
           </article>
 
-          <section className={styles.answerEditor} id="answer-editor">
+          {/* 답변 에디터 */}
+          <section className={styles.editorBox} id="answer-editor">
             {user ? (
               <>
-                <div className={styles.editorHeader}>
-                  <Avatar name={userName} />
-                  <strong>{userName}</strong>
+                <div className={styles.editorHead}>
+                  <div className={styles.editorAvatar}>{userName[0]?.toUpperCase() || 'U'}</div>
+                  <span style={{ fontWeight: 700, fontSize: 14 }}>{userName}</span>
                 </div>
                 <textarea
+                  className={styles.editorArea}
                   value={answerBody}
                   onChange={e => setAnswerBody(e.target.value)}
                   placeholder="당신의 지식을 공유해 보세요."
                   rows={5}
                 />
-                <div className={styles.editorFooter}>
-                  <div className={styles.editorTools}>
-                    <button aria-label="굵게"><Bold size={16} /></button>
-                    <button aria-label="목록"><List size={16} /></button>
-                    <button aria-label="전송 힌트"><Send size={16} /></button>
-                  </div>
-                  <span>{remainingLength > 0 ? `${remainingLength}글자 더 채워주세요.` : `${answerBody.trim().length}글자`}</span>
-                  <button className={styles.submitButton} onClick={submitAnswer} disabled={submitting || !answerBody.trim()}>
+                <div className={styles.editorFoot}>
+                  <span style={{ fontSize: 12, color: 'var(--t3)' }}>
+                    {remaining > 0 ? `${remaining}글자 더 채워주세요.` : `${answerBody.trim().length}글자`}
+                  </span>
+                  <button
+                    className={styles.submitBtn}
+                    onClick={submitAnswer}
+                    disabled={submitting || answerBody.trim().length < minLen}
+                  >
                     {submitting ? '등록 중...' : '답변하기'}
                   </button>
                 </div>
               </>
             ) : (
-              <div className={styles.guestEditor}>
-                <p>당신의 지식을 공유해 보세요.</p>
-                <span>로그인하면 바로 답변을 남길 수 있어요.</span>
-                <button onClick={() => router.push(`/auth?next=/q/${slug}`)}>로그인하고 답변하기</button>
+              <div className={styles.guestBox}>
+                <MessageCircle size={20} color="var(--t3)" />
+                <div>
+                  <p style={{ fontWeight: 700, fontSize: 14 }}>당신의 지식을 공유해 보세요</p>
+                  <p style={{ fontSize: 13, color: 'var(--t3)', marginTop: 2 }}>로그인하면 바로 답변을 남길 수 있어요.</p>
+                </div>
+                <button className={styles.submitBtn} onClick={() => router.push(`/auth?next=/q/${slug}`)}>
+                  로그인하고 답변하기
+                </button>
               </div>
             )}
           </section>
 
-          <section className={styles.answersSection}>
+          {/* 답변 목록 */}
+          <section>
             <div className={styles.answersHead}>
-              <h2>{answers.length}개의 답변이 있어요!</h2>
-              <button onClick={() => showT('AI 요약은 곧 연결할게요.')}>
-                <Sparkles size={17} />
-                AI 답변 요약
+              <h2 style={{ fontSize: 16, fontWeight: 700 }}>{answers.length}개의 답변</h2>
+              <button className={styles.aiBtn} onClick={() => showT('AI 요약은 곧 연결할게요.')}>
+                <Sparkles size={14} /> AI 요약
               </button>
             </div>
 
             {answers.length === 0 ? (
-              <div className={styles.noAnswers}>
-                <MessageCircle size={34} />
-                <strong>아직 답변이 없어요</strong>
-                <span>첫 번째 답변을 남겨보세요.</span>
+              <div className={styles.emptyAnswers}>
+                <MessageCircle size={32} color="var(--t3)" />
+                <p style={{ fontWeight: 700, marginTop: 10 }}>아직 답변이 없어요</p>
+                <p style={{ fontSize: 13, color: 'var(--t3)', marginTop: 4 }}>첫 번째 답변을 남겨보세요.</p>
               </div>
             ) : (
-              <div className={styles.answerList}>
-                {answers.map(a => (
-                  <AnswerCard
-                    key={a.id}
-                    answer={a}
-                    currentUserId={user?.id}
-                    isMyQuestion={user?.id === q.author_id}
-                    isAnswered={q.is_answered}
-                    liked={likedAnswers.has(a.id)}
-                    onLike={() => likeAnswer(a.id, a.like_count || 0)}
-                    onAdopt={() => adoptAnswer(a.id)}
-                    onDelete={() => deleteAnswer(a.id)}
-                    onCommentToggle={() => toggleComments(a.id)}
-                    showComments={openComments.has(a.id)}
-                    comments={comments[a.id] ?? null}
-                    commentInput={commentInput[a.id] || ''}
-                    commentSubmitting={commentSubmitting[a.id] || false}
-                    onCommentChange={(v: string) => setCommentInput(prev => ({ ...prev, [a.id]: v }))}
-                    onCommentSubmit={() => submitComment(a.id)}
-                    onCommentDelete={(commentId: string) => deleteComment(a.id, commentId)}
-                    router={router}
-                  />
-                ))}
-              </div>
+              answers.map(a => (
+                <AnswerCard
+                  key={a.id}
+                  answer={a}
+                  currentUserId={user?.id}
+                  isMyQuestion={user?.id === q.author_id}
+                  isAnswered={q.is_answered}
+                  liked={likedAnswers.has(a.id)}
+                  onLike={() => likeAnswer(a.id, a.like_count || 0)}
+                  onAdopt={() => adoptAnswer(a.id)}
+                  onDelete={() => deleteAnswer(a.id)}
+                  onCommentToggle={() => toggleComments(a.id)}
+                  showComments={openComments.has(a.id)}
+                  comments={comments[a.id] ?? null}
+                  commentInput={commentInput[a.id] || ''}
+                  commentSubmitting={commentSubmitting[a.id] || false}
+                  onCommentChange={(v: string) => setCommentInput(prev => ({ ...prev, [a.id]: v }))}
+                  onCommentSubmit={() => submitComment(a.id)}
+                  onCommentDelete={(cid: string) => deleteComment(a.id, cid)}
+                  router={router}
+                  styles={styles}
+                />
+              ))
             )}
           </section>
-        </section>
+        </main>
 
-        <aside className={styles.sideColumn}>
-          <button className={styles.pollCard}>
-            <span>33명 투표 중</span>
-            <strong>지금 S&P500,<br />들어가도 될까요?</strong>
-            <div className={styles.pollVisual}>
-              <span />
-              <span />
+        {/* 사이드바 */}
+        <aside className={styles.sidebar}>
+          {/* 투표 위젯 */}
+          <div className={styles.widget}>
+            <div className={styles.pollCard}>
+              <div style={{ fontSize: 11, color: 'rgba(255,255,255,.5)', marginBottom: 4 }}>🔥 지금 투표 중</div>
+              <div style={{ fontSize: 15, fontWeight: 700, color: '#fff', lineHeight: 1.4, marginBottom: 12 }}>지금 S&P500<br />들어가도 될까요?</div>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <span style={{ fontSize: 11, color: 'rgba(255,255,255,.5)' }}>⏱ 4일 남았어요</span>
+                <button style={{ height: 26, padding: '0 12px', background: '#fff', borderRadius: 5, fontSize: 12, fontWeight: 700, color: 'var(--t1)' }}>참여하기</button>
+              </div>
             </div>
-            <em>4일 남았어요 · 참여하기</em>
-          </button>
+          </div>
 
-          <section className={styles.sideBox}>
-            <h3>전문가들의 생각, 잉크</h3>
-            {expertColumns.map(item => (
-              <button key={item.title} className={styles.columnLink}>
-                <span>{item.tag}</span>
-                <strong>{item.title}</strong>
-                <em>{item.stat}</em>
-              </button>
-            ))}
-          </section>
-
-          <section className={styles.sideBox}>
-            <h3>유사한 질문이 있어요.</h3>
+          {/* 유사 질문 */}
+          <div className={styles.widget}>
+            <div className={styles.widgetHead}>유사한 질문이 있어요.</div>
             {related.length > 0 ? related.map(r => (
-              <button key={r.id} className={styles.relatedLink} onClick={() => router.push(`/q/${r.slug || r.id}`)}>
+              <button key={r.id} className={styles.relatedItem} onClick={() => router.push(`/q/${r.slug || r.id}`)}>
                 <span>{r.title}</span>
                 <em>답변 {r.answer_count || 0}개</em>
               </button>
             )) : (
-              <p className={styles.sideEmpty}>같은 카테고리의 질문을 모으는 중이에요.</p>
+              <p style={{ padding: '12px 15px', fontSize: 13, color: 'var(--t3)' }}>같은 카테고리의 질문을 모으는 중이에요.</p>
             )}
-          </section>
+          </div>
 
-          <section className={styles.appCard}>
-            <Gift size={20} />
-            <strong>재테크한입 앱 알림 준비 중</strong>
-            <p>관심 질문 답변을 놓치지 않게 알려드릴게요.</p>
-          </section>
+          {/* 앱 알림 */}
+          <div className={styles.widget} style={{ padding: '14px 15px', textAlign: 'center' }}>
+            <div style={{ fontSize: 22, marginBottom: 6 }}>🎁</div>
+            <p style={{ fontSize: 13, fontWeight: 700 }}>재테크한입 앱 알림 준비 중</p>
+            <p style={{ fontSize: 12, color: 'var(--t3)', marginTop: 4 }}>관심 질문 답변을 놓치지 않게 알려드릴게요.</p>
+          </div>
         </aside>
-      </main>
+      </div>
 
-      <nav className={styles.floatDock} aria-label="빠른 메뉴">
-        <button><BookOpen size={18} /></button>
-        <button><MessageCircle size={18} /></button>
-        <button onClick={share}><Share2 size={18} /></button>
+      {/* ── 모바일 하단 네비 ── */}
+      <nav className={styles.bottomNav}>
+        <button className={styles.bnav} onClick={() => router.push('/')}><HomeIcon size={22} /><span>홈</span></button>
+        <button className={styles.bnav}><LayoutList size={22} /><span>토픽</span></button>
+        <button className={styles.bnav}><Swords size={22} /><span>스파링</span></button>
+        <button className={styles.bnav}><Bell size={22} /><span>알림</span></button>
+        <button className={styles.bnav} onClick={() => router.push(user ? `/u/${user.id}` : '/auth')} style={user ? { color: 'var(--blue)' } : {}}>
+          <User size={22} /><span>{user ? userName[0]?.toUpperCase() || 'MY' : '로그인'}</span>
+        </button>
       </nav>
+      <button className={styles.fab} onClick={() => user ? setShowAskModal(true) : router.push('/auth?next=/')}>
+        <Plus size={24} color="white" />
+      </button>
+
+      {/* 질문하기 모달 */}
+      {showAskModal && <AskModal onClose={() => setShowAskModal(false)} router={router} user={user} onToast={showT} />}
 
       {toast && <div className={styles.toast}>{toast}</div>}
     </div>
   );
 }
 
-function Avatar({ name, imageUrl, onClick }: { name?: string; imageUrl?: string; onClick?: () => void }) {
-  return (
-    <button className={styles.avatar} onClick={onClick} disabled={!onClick} aria-label={name || '프로필'}>
-      {imageUrl ? <img src={imageUrl} alt="" /> : initials(name)}
-    </button>
-  );
-}
-
-function IconAction({ icon, label, onClick, active }: { icon: ReactNode; label: string; onClick: () => void; active?: boolean }) {
-  return (
-    <button className={`${styles.iconAction} ${active ? styles.active : ''}`} onClick={onClick}>
-      {icon}
-      <span>{label}</span>
-    </button>
-  );
-}
-
-function AnswerCard({
-  answer: a,
-  currentUserId,
-  isMyQuestion,
-  isAnswered,
-  liked,
-  onLike,
-  onAdopt,
-  onDelete,
-  onCommentToggle,
-  showComments,
-  comments,
-  commentInput,
-  commentSubmitting,
-  onCommentChange,
-  onCommentSubmit,
-  onCommentDelete,
-  router,
-}: any) {
+// ── 답변 카드 ──
+function AnswerCard({ answer: a, currentUserId, isMyQuestion, isAnswered, liked, onLike, onAdopt, onDelete, onCommentToggle, showComments, comments, commentInput, commentSubmitting, onCommentChange, onCommentSubmit, onCommentDelete, router, styles }: any) {
   const name = a.users?.name || '익명';
   const isMyAnswer = currentUserId && a.author_id === currentUserId;
 
   return (
-    <article className={`${styles.answerCard} ${a.is_adopted ? styles.adoptedAnswer : ''}`}>
+    <article className={`${styles.answerCard} ${a.is_adopted ? styles.adoptedCard : ''}`}>
       {a.is_adopted && (
         <div className={styles.adoptedBadge}>
-          <CheckCircle2 size={15} />
-          채택된 답변
+          <CheckCircle2 size={14} /> 채택된 답변
         </div>
       )}
-
       <div className={styles.answerProfile}>
-        <Avatar name={name} imageUrl={a.users?.avatar_url} onClick={() => a.users?.id && router.push(`/u/${a.users.id}`)} />
-        <button onClick={() => a.users?.id && router.push(`/u/${a.users.id}`)}>
-          <strong>{name}</strong>
-          <span>{a.created_at ? ft(a.created_at) : ''}</span>
-        </button>
-        {isMyAnswer ? (
-          <button className={styles.deleteButton} onClick={onDelete} aria-label="답변 삭제">삭제</button>
-        ) : (
-          <button className={styles.moreButton} aria-label="답변 더보기"><MoreHorizontal size={19} /></button>
+        <div className={`${styles.answerAvatar} tf`}>{EMOJI[1]}</div>
+        <div style={{ flex: 1 }}>
+          <div style={{ fontWeight: 700, fontSize: 14 }}>{name}</div>
+          <div style={{ fontSize: 12, color: 'var(--t3)' }}>{a.created_at ? ft(a.created_at) : ''}</div>
+        </div>
+        {isMyAnswer && (
+          <button className={styles.deleteBtn} onClick={onDelete}>삭제</button>
         )}
       </div>
 
       <p className={styles.answerBody}>{a.body}</p>
 
       <div className={styles.answerActions}>
-        <button className={liked ? styles.answerActionActive : ''} onClick={onLike}>
-          <ThumbsUp size={15} />
-          평가 {a.like_count > 0 ? a.like_count : ''}
+        <button className={`${styles.answerBtn} ${liked ? styles.answerBtnActive : ''}`} onClick={onLike}>
+          <ThumbsUp size={13} />
+          {liked ? '추천됨' : '추천'} {a.like_count > 0 ? a.like_count : ''}
         </button>
-        <button className={showComments ? styles.answerActionActive : ''} onClick={onCommentToggle}>
-          <MessageCircle size={15} />
+        <button className={`${styles.answerBtn} ${showComments ? styles.answerBtnActive : ''}`} onClick={onCommentToggle}>
+          <MessageCircle size={13} />
           댓글 {comments !== null && comments.length > 0 ? comments.length : ''}
         </button>
-        <button>
-          <Gift size={15} />
-          응원하기
-        </button>
         {isMyQuestion && !isAnswered && (
-          <button className={styles.adoptButton} onClick={onAdopt}>
-            <CheckCircle2 size={15} />
-            채택하기
+          <button className={styles.adoptBtn} onClick={onAdopt}>
+            <CheckCircle2 size={13} /> 채택하기
           </button>
         )}
       </div>
@@ -716,16 +664,16 @@ function AnswerCard({
       {showComments && (
         <div className={styles.commentBox}>
           {comments === null ? (
-            <p>댓글 로딩 중...</p>
+            <p style={{ color: 'var(--t3)', fontSize: 13 }}>로딩 중...</p>
           ) : comments.length === 0 ? (
-            <p>아직 댓글이 없어요.</p>
+            <p style={{ color: 'var(--t3)', fontSize: 13 }}>아직 댓글이 없어요.</p>
           ) : (
             comments.map((c: any, i: number) => (
               <div key={i} className={styles.commentItem}>
                 <strong>{c.users?.name || '익명'}</strong>
                 <span>{c.body}</span>
                 {currentUserId && c.author_id === currentUserId && (
-                  <button className={styles.commentDeleteBtn} onClick={() => onCommentDelete(c.id)} aria-label="댓글 삭제">×</button>
+                  <button className={styles.commentDeleteBtn} onClick={() => onCommentDelete(c.id)}>×</button>
                 )}
               </div>
             ))
@@ -744,5 +692,56 @@ function AnswerCard({
         </div>
       )}
     </article>
+  );
+}
+
+// ── 질문하기 모달 ──
+function AskModal({ onClose, router, user, onToast }: any) {
+  const [title, setTitle] = useState('');
+  const [body, setBody] = useState('');
+  const [cat, setCat] = useState('재테크 입문');
+
+  const submit = async () => {
+    if (!title.trim()) return;
+    const slug = title.replace(/[^a-z0-9가-힣]/gi, '-').toLowerCase().slice(0, 50) + '-' + Date.now();
+    if (hasSupabase() && user) {
+      const supabase = createClient();
+      const { error } = await supabase.from('questions').insert({ title, body, category: cat, slug, author_id: user.id, answer_count: 0 });
+      if (error) { onToast('❌ 오류가 생겼어요.'); return; }
+    }
+    onClose();
+    onToast('✅ 질문이 등록됐어요!');
+    router.push('/');
+  };
+
+  return (
+    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.45)', zIndex: 300, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }} onClick={onClose}>
+      <div style={{ background: 'white', borderRadius: 16, width: '100%', maxWidth: 560, boxShadow: '0 24px 60px rgba(0,0,0,.18)' }} onClick={e => e.stopPropagation()}>
+        <div style={{ padding: '18px 22px 14px', borderBottom: '1px solid var(--line)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <h2 style={{ fontSize: 16, fontWeight: 700 }}>질문하기</h2>
+          <button onClick={onClose} style={{ width: 30, height: 30, background: 'var(--bg)', borderRadius: 7, fontSize: 18, color: 'var(--t2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><X size={16} /></button>
+        </div>
+        <div style={{ padding: '18px 22px 20px' }}>
+          <div style={{ marginBottom: 12 }}>
+            <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--t2)', display: 'block', marginBottom: 6 }}>카테고리</label>
+            <select value={cat} onChange={e => setCat(e.target.value)} style={{ width: '100%', padding: '10px 12px', border: '1.5px solid var(--line)', borderRadius: 9, fontSize: 14, outline: 'none' }}>
+              {CATS.map(c => <option key={c}>{c}</option>)}
+            </select>
+          </div>
+          <div style={{ marginBottom: 12 }}>
+            <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--t2)', display: 'block', marginBottom: 6 }}>질문 제목</label>
+            <input value={title} onChange={e => setTitle(e.target.value)} placeholder="궁금한 점을 간단히 써주세요" style={{ width: '100%', padding: '11px 13px', border: '1.5px solid var(--line)', borderRadius: 9, fontSize: 14, outline: 'none', boxSizing: 'border-box' }} />
+          </div>
+          <div style={{ marginBottom: 16 }}>
+            <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--t2)', display: 'block', marginBottom: 6 }}>상세 내용 <span style={{ fontWeight: 400, color: 'var(--t3)' }}>(선택)</span></label>
+            <textarea value={body} onChange={e => setBody(e.target.value)} rows={4} placeholder="상황을 더 설명해주시면 더 좋은 답변을 받을 수 있어요" style={{ width: '100%', padding: '11px 13px', border: '1.5px solid var(--line)', borderRadius: 9, fontSize: 14, outline: 'none', resize: 'none', boxSizing: 'border-box' }} />
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
+            <button onClick={onClose} style={{ height: 38, padding: '0 18px', background: 'var(--bg)', border: '1px solid var(--line)', borderRadius: 8, fontSize: 14 }}>취소</button>
+            <button onClick={submit} disabled={!title.trim()} style={{ height: 38, padding: '0 22px', background: title.trim() ? 'var(--blue)' : 'var(--line)', border: 'none', borderRadius: 8, color: title.trim() ? 'white' : 'var(--t3)', fontSize: 14, fontWeight: 700, cursor: title.trim() ? 'pointer' : 'default' }}>질문 올리기</button>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }

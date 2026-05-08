@@ -1,1000 +1,339 @@
-.shell {
-  min-height: 100vh;
-  background: #ffffff;
-  color: var(--t1);
+/* ── 네비 (홈과 동일) ── */
+.pcNav {
+  position: fixed; top: 0; left: 0; right: 0; height: 56px;
+  background: var(--white); border-bottom: 1px solid var(--line);
+  display: flex; align-items: center; padding: 0 28px; z-index: 200;
 }
-
-.topNav {
-  position: sticky;
-  top: 0;
-  z-index: 30;
-  height: 64px;
-  border-bottom: 1px solid #edf0f3;
-  background: rgba(255,255,255,.96);
-  backdrop-filter: blur(10px);
-  display: flex;
-  align-items: center;
-  padding: 0 calc((100vw - 1080px) / 2);
-  min-width: 0;
+.navLogo {
+  font-size: 22px; font-weight: 800; color: var(--blue);
+  letter-spacing: -0.5px; margin-right: 28px; cursor: pointer;
 }
-
-.logo {
-  width: 106px;
-  text-align: left;
-  font-size: 23px;
-  font-weight: 800;
-  color: var(--blue);
+.navLogo em { color: var(--t1); font-style: normal; }
+.navMenu {
+  display: flex; list-style: none; height: 56px;
 }
-
-.logo em,
-.mobileLogo em {
-  color: var(--t1);
-  font-style: normal;
+.navMenu li > button {
+  display: flex; align-items: center; height: 56px;
+  padding: 0 13px; font-size: 14px; font-weight: 500; color: var(--t3);
+  border-bottom: 2px solid transparent; transition: color .12s;
 }
-
-.navLinks {
-  display: flex;
-  align-items: center;
-  gap: 2px;
-  height: 100%;
+.navMenu li > button:hover { color: var(--t2); }
+.navSep { width: 1px; height: 20px; background: var(--line); margin: auto 6px; }
+.navRight { margin-left: auto; display: flex; align-items: center; gap: 6px; }
+.iconBtn {
+  width: 36px; height: 36px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--t2); transition: background .12s;
 }
-
-.navLinks button {
-  height: 100%;
-  padding: 0 14px;
-  font-size: 15px;
-  font-weight: 700;
-  color: #252b34;
+.iconBtn:hover { background: var(--bg); }
+.btnAsk {
+  height: 36px; padding: 0 16px; background: var(--blue);
+  border-radius: 6px; color: #fff; font-size: 14px; font-weight: 700;
+  transition: background .12s;
 }
+.btnAsk:hover { background: var(--blue-dk); }
 
-.navLinks button:hover,
-.navActions button:hover,
-.mobileHeader button:hover {
-  background: #f7f9fb;
+/* 유저 아바타 */
+.avatar {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: #00C73C; color: white;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 13px; cursor: pointer;
 }
-
-.navLinks span {
-  width: 1px;
-  height: 18px;
-  margin: 0 8px;
-  background: #e5e8eb;
+.dropdown {
+  position: absolute; right: 0; top: 40px;
+  background: white; border: 1px solid var(--line);
+  border-radius: 10px; box-shadow: 0 4px 16px rgba(0,0,0,.1);
+  min-width: 160px; z-index: 300;
 }
-
-.navActions {
-  margin-left: auto;
-  display: flex;
-  align-items: center;
-  gap: 8px;
+.dropName {
+  padding: 12px 14px; font-size: 13px; color: var(--t2);
+  border-bottom: 1px solid var(--line); font-weight: 600;
 }
-
-.navActions button,
-.mobileHeader button {
-  width: 38px;
-  height: 38px;
-  border-radius: 50%;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  color: #1f2937;
+.dropdown button {
+  width: 100%; padding: 10px 14px; border: none; background: none;
+  text-align: left; font-size: 13px; color: var(--t1); cursor: pointer;
 }
+.dropdown button:hover { background: var(--bg); }
 
-.navActions .askButton {
-  width: auto;
-  height: 42px;
-  border-radius: 10px;
-  padding: 0 18px;
-  background: var(--blue);
-  color: white;
-  font-size: 15px;
-  font-weight: 800;
-}
-
-.navActions .askButton:hover {
-  background: var(--blue-dk);
-}
-
+/* ── 모바일 헤더 ── */
 .mobileHeader {
   display: none;
+  position: fixed; top: 0; left: 0; right: 0;
+  height: 50px; background: var(--white); border-bottom: 1px solid var(--line);
+  z-index: 200; align-items: center; justify-content: space-between;
+  padding: 0 16px;
 }
+.mobileHeader button { color: var(--t2); }
 
-.mobileLogo {
-  width: auto !important;
-  flex: 1;
-  border-radius: 0 !important;
-  justify-content: flex-start !important;
-  font-size: 18px;
-  font-weight: 800;
-  color: var(--blue) !important;
+/* ── 본문 레이아웃 ── */
+.body {
+  max-width: 1040px; margin: 56px auto 0;
+  padding: 24px 24px 60px;
+  display: flex; gap: 20px;
 }
+.main { flex: 1; min-width: 0; }
+.sidebar { width: 280px; flex-shrink: 0; }
 
-.layout {
-  width: min(1080px, calc(100vw - 40px));
-  margin: 0 auto;
-  padding: 72px 0 96px;
-  display: grid;
-  grid-template-columns: minmax(0, 666px) 280px;
-  gap: 24px;
-  align-items: start;
+/* ── 브레드크럼 ── */
+.breadcrumb { margin-bottom: 14px; }
+.catChip {
+  height: 28px; padding: 0 13px; border-radius: 20px;
+  border: 1.5px solid var(--line); background: var(--white);
+  font-size: 12px; font-weight: 700; color: var(--blue);
+  background: var(--blue-bg); transition: all .12s;
 }
+.catChip:hover { border-color: var(--blue); }
 
-.mainColumn,
-.sideColumn {
-  min-width: 0;
+/* ── 질문 카드 ── */
+.qCard {
+  background: var(--white); border-radius: 12px;
+  border: 1px solid var(--line); padding: 20px;
+  margin-bottom: 12px;
 }
-
-.sideColumn {
-  position: sticky;
-  top: 88px;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
+.qProfile {
+  display: flex; align-items: center; gap: 10px; margin-bottom: 14px;
 }
-
-.topicHeader {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 6px 10px;
-  align-items: center;
-  margin-bottom: 30px;
+.qAvatarWrap { flex-shrink: 0; }
+.qAvatar {
+  width: 40px; height: 40px; border-radius: 50%;
+  background: var(--bg); border: 1px solid var(--line);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px;
 }
-
-.topicHeader span {
-  grid-column: 1 / -1;
-  font-size: 14px;
-  font-weight: 700;
-  color: #8b95a1;
+.adoptedChip {
+  font-size: 10px; font-weight: 700; color: #E65100;
+  background: #FFF3E0; padding: 2px 7px; border-radius: 4px;
 }
-
-.topicHeader h1 {
-  font-size: 32px;
-  line-height: 1.2;
-  font-weight: 850;
-  letter-spacing: 0;
+.qTitle {
+  font-size: 20px; font-weight: 800; line-height: 1.45;
+  margin-bottom: 12px; color: var(--t1);
 }
-
-.topicHeader button {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  color: #4e5968;
+.qBody {
+  font-size: 14px; color: var(--t2); line-height: 1.7;
+  margin-bottom: 18px; white-space: pre-wrap;
 }
-
-.questionCard,
-.answerEditor {
-  border: 1px solid #eef1f4;
-  border-radius: 16px;
-  background: white;
-  box-shadow: 0 1px 2px rgba(25,31,40,.03);
+.qActions {
+  display: flex; gap: 4px; flex-wrap: wrap;
+  padding-top: 14px; border-top: 1px solid var(--line);
 }
-
-.questionCard {
-  padding: 28px 26px 24px;
-  margin-bottom: 24px;
+.qActionBtn {
+  display: flex; align-items: center; gap: 5px;
+  height: 34px; padding: 0 12px; border-radius: 20px;
+  border: 1.5px solid var(--line); background: var(--white);
+  font-size: 13px; font-weight: 500; color: var(--t2);
+  transition: all .12s;
 }
+.qActionBtn:hover { border-color: var(--blue); color: var(--blue); }
+.qActionBtn.active { border-color: var(--blue); color: var(--blue); background: var(--blue-bg); font-weight: 700; }
 
-.profileRow,
-.answerProfile,
-.editorHeader {
-  display: flex;
-  align-items: center;
-  gap: 12px;
+/* ── 답변 에디터 ── */
+.editorBox {
+  background: var(--white); border-radius: 12px;
+  border: 1px solid var(--line); padding: 18px;
+  margin-bottom: 12px;
 }
-
-.profileRow {
-  margin-bottom: 24px;
+.editorHead {
+  display: flex; align-items: center; gap: 10px; margin-bottom: 12px;
 }
-
-.avatar {
-  width: 42px;
-  height: 42px;
-  border-radius: 50%;
-  flex: 0 0 auto;
-  background: #e8f3ff;
-  color: var(--blue);
-  font-size: 15px;
-  font-weight: 850;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
+.editorAvatar {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: #00C73C; color: white;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 13px; flex-shrink: 0;
 }
-
-.avatar:disabled {
-  cursor: default;
+.editorArea {
+  width: 100%; border: 1.5px solid var(--line); border-radius: 10px;
+  padding: 12px 14px; font-size: 14px; font-family: inherit;
+  resize: vertical; outline: none; line-height: 1.6;
+  transition: border-color .12s;
 }
-
-.avatar img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.profileText,
-.answerProfile > button:not(.avatar):not(.moreButton) {
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 4px;
-}
-
-.profileText strong,
-.answerProfile strong,
-.editorHeader strong {
-  font-size: 15px;
-  font-weight: 800;
-  color: #27303b;
-}
-
-.profileText span,
-.answerProfile span {
-  font-size: 13px;
-  color: #8b95a1;
-}
-
-.moreButton {
-  margin-left: auto;
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  color: #a3acb8;
-}
-
-.moreButton:hover {
-  background: #f7f9fb;
-}
-
-.deleteButton {
-  margin-left: auto;
-  padding: 4px 10px;
-  border-radius: 7px;
-  font-size: 12px;
-  font-weight: 700;
-  color: #e03131;
-  border: 1px solid #ffc9c9;
-  background: #fff5f5;
-}
-
-.deleteButton:hover {
-  background: #ffe3e3;
-}
-
-.questionTitle {
-  font-size: 20px;
-  font-weight: 850;
-  line-height: 1.45;
-  letter-spacing: 0;
-  margin-bottom: 20px;
-}
-
-.questionBody {
-  color: #4e5968;
-  font-size: 15px;
-  line-height: 1.8;
-  white-space: pre-wrap;
-  margin-bottom: 24px;
-}
-
-.questionActions {
-  display: flex;
-  align-items: center;
-  gap: 24px;
-  padding-top: 2px;
-}
-
-.iconAction {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  color: #252b34;
-}
-
-.iconAction span {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip: rect(0 0 0 0);
-}
-
-.iconAction:hover,
-.iconAction.active {
-  color: var(--blue);
-}
-
-.answerEditor {
-  margin-bottom: 28px;
-  padding: 24px 26px 18px;
-}
-
-.answerEditor textarea {
-  width: 100%;
-  border: 0;
-  outline: none;
-  resize: vertical;
-  min-height: 116px;
-  padding: 22px 0;
-  color: var(--t1);
-  font-size: 16px;
-  line-height: 1.7;
-  background: transparent;
-}
-
-.answerEditor textarea::placeholder {
-  color: #a3acb8;
-  font-weight: 700;
-}
-
-.editorFooter {
-  border-top: 1px solid #eef1f4;
-  padding-top: 13px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.editorTools {
-  display: flex;
-  gap: 2px;
-}
-
-.editorTools button {
-  width: 30px;
-  height: 30px;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #6b7684;
-}
-
-.editorTools button:hover {
-  background: #f2f4f6;
-}
-
-.editorFooter > span {
-  margin-left: auto;
-  font-size: 13px;
-  font-weight: 700;
-  color: #8b95a1;
-}
-
-.submitButton {
-  height: 38px;
-  padding: 0 18px;
-  border-radius: 10px;
-  background: var(--blue);
-  color: white;
-  font-size: 14px;
-  font-weight: 800;
-}
-
-.submitButton:disabled {
-  background: #e5e8eb;
-  color: #8b95a1;
-  cursor: default;
-}
-
-.guestEditor {
-  min-height: 130px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 8px;
-}
-
-.guestEditor p {
-  color: #a3acb8;
-  font-size: 16px;
-  font-weight: 800;
-}
-
-.guestEditor span {
-  color: #8b95a1;
-  font-size: 14px;
-}
-
-.guestEditor button {
-  align-self: flex-start;
-  height: 40px;
+.editorArea:focus { border-color: var(--blue); }
+.editorFoot {
+  display: flex; align-items: center; justify-content: space-between;
   margin-top: 10px;
-  padding: 0 18px;
-  border-radius: 10px;
-  background: var(--blue);
-  color: white;
-  font-weight: 800;
 }
-
-.answersSection {
-  padding-top: 4px;
+.submitBtn {
+  height: 36px; padding: 0 20px; background: var(--blue);
+  border-radius: 8px; color: #fff; font-size: 14px; font-weight: 700;
+  transition: background .12s;
 }
-
-.answersHead {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  margin-bottom: 18px;
-}
-
-.answersHead h2 {
-  font-size: 21px;
-  font-weight: 850;
-  letter-spacing: 0;
-}
-
-.answersHead button {
-  height: 38px;
-  padding: 0 14px;
-  border-radius: 999px;
-  border: 1px solid #e5e8eb;
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  color: #4e5968;
-  font-size: 13px;
-  font-weight: 800;
-}
-
-.answersHead button:hover {
-  background: #f7f9fb;
-}
-
-.answerList {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.answerCard {
-  border: 1px solid #eef1f4;
-  border-radius: 16px;
-  padding: 24px 26px;
-  background: white;
-}
-
-.adoptedAnswer {
-  border-color: #bee9ce;
-  background: linear-gradient(180deg, #fbfffc 0%, #ffffff 32%);
-}
-
-.adoptedBadge {
-  width: fit-content;
-  height: 30px;
-  padding: 0 11px;
-  border-radius: 999px;
-  background: #e8f9ee;
-  color: #00a83b;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 12px;
-  font-weight: 850;
-  margin-bottom: 16px;
-}
-
-.answerProfile {
-  margin-bottom: 18px;
-}
-
-.answerBody {
-  color: #252b34;
-  font-size: 15px;
-  line-height: 1.85;
-  white-space: pre-wrap;
-  margin-bottom: 20px;
-}
-
-.answerActions {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-
-.answerActions button {
-  height: 34px;
-  padding: 0 12px;
-  border-radius: 999px;
-  border: 1px solid #e5e8eb;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  color: #4e5968;
-  font-size: 13px;
-  font-weight: 750;
-}
-
-.answerActions button:hover,
-.answerActions .answerActionActive {
-  border-color: #bcd8ff;
-  background: #eff6ff;
-  color: var(--blue);
-}
-
-.answerActions .adoptButton {
-  margin-left: auto;
-  border-color: #00c73c;
-  background: #00c73c;
-  color: white;
-}
-
-.answerActions .adoptButton:hover {
-  background: #00a83b;
-  color: white;
-}
-
-.commentBox {
-  margin-top: 16px;
-  padding: 14px;
-  border-radius: 12px;
-  background: #f7f9fb;
-}
-
-.commentBox p {
-  color: #6b7684;
-  font-size: 13px;
-  line-height: 1.6;
-}
-
-.commentItem {
-  display: flex;
-  align-items: baseline;
-  gap: 6px;
-  color: #6b7684;
-  font-size: 13px;
-  line-height: 1.6;
+.submitBtn:hover:not(:disabled) { background: var(--blue-dk); }
+.submitBtn:disabled { background: var(--line); color: var(--t3); cursor: default; }
+.guestBox {
+  display: flex; align-items: center; gap: 14px;
   padding: 4px 0;
 }
 
-.commentItem strong {
-  color: #252b34;
-  font-size: 12px;
-  font-weight: 700;
-  flex-shrink: 0;
+/* ── 답변 목록 ── */
+.answersHead {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 12px;
+}
+.aiBtn {
+  display: flex; align-items: center; gap: 5px;
+  height: 30px; padding: 0 12px; border-radius: 20px;
+  border: 1.5px solid var(--line); font-size: 12px;
+  font-weight: 700; color: var(--t2); transition: all .12s;
+}
+.aiBtn:hover { border-color: var(--blue); color: var(--blue); }
+.emptyAnswers {
+  background: var(--white); border-radius: 12px;
+  border: 1px dashed var(--line); padding: 40px 20px;
+  text-align: center; color: var(--t3);
 }
 
-.commentItem span {
-  flex: 1;
-}
-
-.commentDeleteBtn {
-  flex-shrink: 0;
-  color: #a3acb8;
-  font-size: 15px;
-  line-height: 1;
-  padding: 0 2px;
-}
-
-.commentDeleteBtn:hover {
-  color: #e03131;
-}
-
-.commentInput {
-  display: flex;
-  gap: 8px;
-  margin-top: 10px;
-}
-
-.commentInput input {
-  flex: 1;
-  min-width: 0;
-  height: 36px;
-  border: 1px solid #e5e8eb;
-  border-radius: 9px;
-  padding: 0 12px;
-  outline: none;
-  font-size: 13px;
-}
-
-.commentInput button {
-  width: 54px;
-  border-radius: 9px;
-  background: var(--blue);
-  color: white;
-  font-size: 13px;
-  font-weight: 800;
-}
-
-.noAnswers {
-  border: 1px dashed #d9dee5;
-  border-radius: 16px;
-  padding: 40px 20px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  color: #8b95a1;
-}
-
-.noAnswers strong {
-  color: #4e5968;
-  font-size: 16px;
-}
-
-.noAnswers span {
-  font-size: 14px;
-}
-
-.pollCard {
-  position: relative;
-  overflow: hidden;
-  min-height: 290px;
-  border-radius: 18px;
-  padding: 26px 20px 18px;
-  text-align: left;
-  background: linear-gradient(180deg, #68c5d1 0%, #88d6c2 62%, #4b5563 62%, #4b5563 100%);
-  color: #12202b;
-}
-
-.pollCard span {
-  display: block;
-  margin-bottom: 10px;
-  color: #46717a;
-  font-size: 13px;
-  font-weight: 800;
-}
-
-.pollCard strong {
-  display: block;
-  font-size: 23px;
-  line-height: 1.22;
-  font-weight: 900;
-  letter-spacing: 0;
-}
-
-.pollVisual {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 54px;
-  height: 68px;
-  border-top: 3px solid rgba(255,255,255,.8);
-  border-bottom: 3px solid rgba(255,255,255,.55);
-}
-
-.pollVisual::before,
-.pollVisual::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: rgba(255,255,255,.72);
-}
-
-.pollVisual::before {
-  top: 20px;
-}
-
-.pollVisual::after {
-  bottom: 20px;
-}
-
-.pollVisual span {
-  position: absolute;
-  bottom: -24px;
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  background: #ef4444;
-  box-shadow: inset -10px -7px 0 rgba(0,0,0,.14);
-}
-
-.pollVisual span:first-child {
-  left: 76px;
-}
-
-.pollVisual span:last-child {
-  right: 76px;
-  background: #2563eb;
-}
-
-.pollCard em {
-  position: absolute;
-  left: 18px;
-  right: 18px;
-  bottom: 14px;
-  color: white;
-  font-size: 13px;
-  font-style: normal;
-  font-weight: 800;
-  display: flex;
-  justify-content: space-between;
-}
-
-.sideBox,
-.appCard {
-  border: 1px solid #eef1f4;
-  border-radius: 16px;
-  background: white;
-  padding: 18px;
-}
-
-.sideBox h3 {
-  font-size: 16px;
-  font-weight: 850;
-  margin-bottom: 14px;
-}
-
-.columnLink,
-.relatedLink {
-  width: 100%;
-  text-align: left;
-  padding: 12px 0;
-  border-top: 1px solid #f2f4f6;
-  display: block;
-}
-
-.columnLink:first-of-type,
-.relatedLink:first-of-type {
-  border-top: 0;
-}
-
-.columnLink span {
-  display: inline-flex;
-  height: 22px;
-  align-items: center;
-  padding: 0 8px;
-  border-radius: 999px;
-  background: #f1f5f9;
-  color: #536273;
-  font-size: 11px;
-  font-weight: 850;
-  margin-bottom: 7px;
-}
-
-.columnLink strong,
-.relatedLink span {
-  display: block;
-  color: #252b34;
-  font-size: 14px;
-  font-weight: 760;
-  line-height: 1.45;
-}
-
-.columnLink em,
-.relatedLink em,
-.sideEmpty {
-  display: block;
-  margin-top: 6px;
-  color: #8b95a1;
-  font-size: 12px;
-  font-style: normal;
-}
-
-.appCard {
-  background: #f8fbff;
-}
-
-.appCard svg {
-  color: var(--blue);
+/* ── 답변 카드 ── */
+.answerCard {
+  background: var(--white); border-radius: 12px;
+  border: 1px solid var(--line); padding: 18px;
   margin-bottom: 8px;
 }
-
-.appCard strong {
-  display: block;
-  font-size: 15px;
-  font-weight: 850;
-  margin-bottom: 5px;
+.adoptedCard { border-color: var(--blue); }
+.adoptedBadge {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 12px; font-weight: 700; color: var(--blue);
+  margin-bottom: 12px;
 }
-
-.appCard p {
-  color: #6b7684;
-  font-size: 13px;
-  line-height: 1.5;
+.answerProfile {
+  display: flex; align-items: center; gap: 10px; margin-bottom: 12px;
 }
-
-.floatDock {
-  position: fixed;
-  right: 24px;
-  top: 50%;
-  transform: translateY(-50%);
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  z-index: 20;
+.answerAvatar {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: var(--bg); border: 1px solid var(--line);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; flex-shrink: 0;
 }
-
-.floatDock button {
-  width: 42px;
-  height: 42px;
-  border-radius: 50%;
-  background: white;
-  border: 1px solid #eef1f4;
-  box-shadow: 0 4px 12px rgba(25,31,40,.08);
-  color: #4e5968;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.deleteBtn {
+  margin-left: auto; padding: 4px 10px; border-radius: 6px;
+  font-size: 12px; font-weight: 700; color: #e03131;
+  border: 1px solid #ffc9c9; background: #fff5f5;
 }
-
-.toast {
-  position: fixed;
-  left: 50%;
-  bottom: 78px;
-  transform: translateX(-50%);
-  z-index: 100;
-  padding: 11px 20px;
-  border-radius: 12px;
-  background: #191f28;
-  color: white;
-  font-size: 14px;
-  font-weight: 650;
-  box-shadow: 0 10px 30px rgba(25,31,40,.2);
-  white-space: nowrap;
-  animation: toastIn .18s ease;
+.deleteBtn:hover { background: #ffe3e3; }
+.answerBody {
+  font-size: 14px; color: var(--t2); line-height: 1.7;
+  margin-bottom: 14px; white-space: pre-wrap;
 }
-
-.loading,
-.empty {
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.answerActions {
+  display: flex; gap: 4px; flex-wrap: wrap;
+  padding-top: 12px; border-top: 1px solid var(--line);
 }
+.answerBtn {
+  display: flex; align-items: center; gap: 4px;
+  height: 30px; padding: 0 10px; border-radius: 20px;
+  border: 1.5px solid var(--line); background: var(--white);
+  font-size: 12px; font-weight: 500; color: var(--t2);
+  transition: all .12s;
+}
+.answerBtn:hover { border-color: var(--blue); color: var(--blue); }
+.answerBtnActive { border-color: var(--blue); color: var(--blue); background: var(--blue-bg); font-weight: 700; }
+.adoptBtn {
+  display: flex; align-items: center; gap: 4px;
+  height: 30px; padding: 0 12px; border-radius: 20px;
+  border: 1.5px solid #00C73C; background: #F0FFF4;
+  font-size: 12px; font-weight: 700; color: #00C73C;
+  transition: all .12s; margin-left: auto;
+}
+.adoptBtn:hover { background: #00C73C; color: white; }
 
+/* ── 댓글 ── */
+.commentBox {
+  margin-top: 14px; padding: 14px;
+  border-radius: 10px; background: var(--bg);
+}
+.commentItem {
+  display: flex; align-items: baseline; gap: 6px;
+  font-size: 13px; color: var(--t2); padding: 4px 0;
+}
+.commentItem strong { color: var(--t1); font-size: 12px; font-weight: 700; flex-shrink: 0; }
+.commentItem span { flex: 1; }
+.commentDeleteBtn { flex-shrink: 0; color: var(--t3); font-size: 15px; padding: 0 2px; }
+.commentDeleteBtn:hover { color: #e03131; }
+.commentInput { display: flex; gap: 8px; margin-top: 10px; }
+.commentInput input {
+  flex: 1; min-width: 0; height: 36px;
+  border: 1px solid var(--line); border-radius: 9px;
+  padding: 0 12px; outline: none; font-size: 13px;
+  font-family: inherit;
+}
+.commentInput input:focus { border-color: var(--blue); }
+.commentInput button {
+  width: 54px; border-radius: 9px; background: var(--blue);
+  color: white; font-size: 13px; font-weight: 700;
+}
+.commentInput button:disabled { background: var(--line); color: var(--t3); cursor: default; }
+
+/* ── 사이드바 ── */
+.widget {
+  background: var(--white); border-radius: 12px;
+  border: 1px solid var(--line); overflow: hidden;
+  margin-bottom: 10px;
+}
+.pollCard { background: var(--t1); padding: 16px; }
+.widgetHead {
+  padding: 13px 15px 10px; font-size: 13px; font-weight: 700;
+  border-bottom: 1px solid var(--line);
+}
+.relatedItem {
+  display: flex; flex-direction: column; gap: 3px;
+  width: 100%; padding: 11px 15px; text-align: left;
+  border-bottom: 1px solid var(--line); transition: background .12s;
+}
+.relatedItem:last-child { border-bottom: none; }
+.relatedItem:hover { background: var(--bg); }
+.relatedItem span { font-size: 13px; font-weight: 500; color: var(--t1); }
+.relatedItem em { font-size: 11px; color: var(--t3); font-style: normal; }
+
+/* ── 모바일 하단 네비 ── */
+.bottomNav {
+  display: none; position: fixed; bottom: 0; left: 0; right: 0;
+  background: var(--white); border-top: 1px solid var(--line);
+  padding: 6px 0 calc(6px + var(--sb)); z-index: 200;
+}
+.bnav {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; gap: 3px; padding: 4px 0; color: var(--t3);
+}
+.bnav span { font-size: 10px; font-weight: 500; }
+
+/* ── FAB ── */
+.fab {
+  display: none; position: fixed;
+  bottom: calc(64px + var(--sb) + 10px); right: 16px;
+  width: 50px; height: 50px; border-radius: 50%;
+  background: var(--blue); box-shadow: 0 4px 14px rgba(49,130,246,.38);
+  align-items: center; justify-content: center; z-index: 190;
+}
+.fab:active { transform: scale(.94); }
+
+/* ── 로딩 스피너 ── */
 .spinner {
-  width: 38px;
-  height: 38px;
-  border-radius: 50%;
-  border: 3px solid #eef1f4;
-  border-top-color: var(--blue);
+  width: 36px; height: 36px; border-radius: 50%;
+  border: 3px solid var(--line); border-top-color: var(--blue);
   animation: spin .7s linear infinite;
 }
+@keyframes spin { to { transform: rotate(360deg); } }
 
-.empty {
-  flex-direction: column;
-  text-align: center;
-  gap: 10px;
-  padding: 0 20px;
+/* ── 토스트 ── */
+.toast {
+  position: fixed; bottom: 26px; left: 50%;
+  transform: translateX(-50%); background: var(--t1);
+  color: #fff; padding: 10px 17px; border-radius: 8px;
+  font-size: 13px; z-index: 500; animation: fadeUp .22s ease;
 }
+@keyframes fadeUp { from { opacity: 0; transform: translateX(-50%) translateY(12px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
 
-.emptyIcon {
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  background: #f2f4f6;
-  color: #6b7684;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 28px;
-  font-weight: 850;
-}
-
-.empty h1 {
-  font-size: 20px;
-}
-
-.empty p {
-  color: #8b95a1;
-}
-
-.empty button {
-  height: 42px;
-  padding: 0 22px;
-  border-radius: 10px;
-  background: var(--blue);
-  color: white;
-  font-weight: 800;
-  margin-top: 10px;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-@keyframes toastIn {
-  from { opacity: 0; transform: translateX(-50%) translateY(8px); }
-  to { opacity: 1; transform: translateX(-50%) translateY(0); }
-}
-
-@media (max-width: 1180px) {
-  .topNav {
-    padding: 0 24px;
+/* ── 모바일 미디어쿼리 ── */
+@media (max-width: 768px) {
+  .pcNav { display: none !important; }
+  .mobileHeader { display: flex; }
+  .body {
+    flex-direction: column; margin-top: 50px;
+    padding: 16px 0 calc(80px + var(--sb));
   }
-
-  .floatDock {
-    display: none;
-  }
-}
-
-@media (max-width: 900px) {
-  .topNav {
-    display: none;
-  }
-
-  .mobileHeader {
-    position: sticky;
-    top: 0;
-    z-index: 30;
-    height: 54px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 0 14px;
-    border-bottom: 1px solid #eef1f4;
-    background: rgba(255,255,255,.96);
-    backdrop-filter: blur(10px);
-  }
-
-  .layout {
-    width: 100%;
-    display: block;
-    padding: 24px 16px 80px;
-  }
-
-  .sideColumn {
-    position: static;
-    margin-top: 24px;
-  }
-
-  .topicHeader {
-    margin-bottom: 18px;
-  }
-
-  .topicHeader h1 {
-    font-size: 25px;
-  }
-
-  .questionCard,
-  .answerEditor,
-  .answerCard,
-  .sideBox,
-  .appCard {
-    border-radius: 14px;
-  }
-
-  .questionCard,
-  .answerEditor,
-  .answerCard {
-    padding: 20px 18px;
-  }
-
-  .questionTitle {
-    font-size: 19px;
-  }
-
-  .questionActions {
-    justify-content: space-between;
-    gap: 10px;
-  }
-
-  .iconAction span {
-    position: static;
-    width: auto;
-    height: auto;
-    overflow: visible;
-    clip: auto;
-    font-size: 12px;
-    font-weight: 750;
-  }
-
-  .editorFooter {
-    flex-wrap: wrap;
-  }
-
-  .editorFooter > span {
-    order: 3;
-    width: 100%;
-    margin-left: 0;
-  }
-
-  .submitButton {
-    margin-left: auto;
-  }
-
-  .answersHead {
-    align-items: flex-start;
-    flex-direction: column;
-  }
-
-  .pollCard {
-    min-height: 220px;
-  }
-
-  .pollVisual {
-    bottom: 48px;
-  }
+  .main { padding: 0 16px; }
+  .sidebar { width: 100%; padding: 0 16px; }
+  .bottomNav { display: flex; }
+  .fab { display: flex; }
+  .toast { bottom: calc(74px + var(--sb)); }
 }
