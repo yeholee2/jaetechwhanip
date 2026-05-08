@@ -1,6 +1,8 @@
 import { sampleQuestions } from '@/lib/sampleData';
 
-export const SITE_URL = 'https://jaetechwhanip.vercel.app';
+export const SITE_URL =
+  process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, '') ||
+  'https://jaetechwhanip.vercel.app';
 export const SITE_NAME = '재테크한입';
 
 export type SeoQuestion = {
