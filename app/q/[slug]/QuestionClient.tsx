@@ -82,10 +82,12 @@ export default function QuestionClient({ slug }: { slug: string }) {
   const [submitting, setSubmitting] = useState(false);
   const [toast, setToast] = useState('');
   const [bookmarked, setBookmarked] = useState(false);
+  const [likedQuestion, setLikedQuestion] = useState(false);
   const [likedAnswers, setLikedAnswers] = useState<Set<string>>(new Set());
   const [openComments, setOpenComments] = useState<Set<string>>(new Set());
   const [comments, setComments] = useState<Record<string, any[]>>({});
   const [commentInput, setCommentInput] = useState<Record<string, string>>({});
+  const [commentSubmitting, setCommentSubmitting] = useState<Record<string, boolean>>({});
 
   const showT = (msg: string) => {
     setToast(msg);
@@ -111,47 +113,79 @@ export default function QuestionClient({ slug }: { slug: string }) {
     const supabase = createClient();
     const auth = supabase.auth.onAuthStateChange((_e, s) => setUser(s?.user ?? null));
 
-    supabase.auth.getSession().then(({ data }) => setUser(data.session?.user ?? null));
+    (async () => {
+      const { data: sessionData } = await supabase.auth.getSession();
+      const sessionUser = sessionData.session?.user ?? null;
+      setUser(sessionUser);
 
-    const questionQuery = supabase
-      .from('questions')
-      .select('*, users:author_id(id, name, avatar_url, provider)');
+      const questionQuery = supabase
+        .from('questions')
+        .select('*, users:author_id(id, name, avatar_url, provider)');
 
-    (UUID_RE.test(slug) ? questionQuery.eq('id', slug) : questionQuery.eq('slug', slug))
-      .maybeSingle()
-      .then(async ({ data, error }) => {
-        if (error || !data) {
-          if (fallbackQuestion) {
-            setQ(fallbackQuestion);
-            setAnswers([]);
-            setRelated(sampleQuestions.filter(item => item.slug !== slug).slice(0, 5));
-          }
-          setLoading(false);
-          return;
+      const { data: questionData, error } = await (
+        UUID_RE.test(slug) ? questionQuery.eq('id', slug) : questionQuery.eq('slug', slug)
+      ).maybeSingle();
+
+      if (error || !questionData) {
+        if (fallbackQuestion) {
+          setQ(fallbackQuestion);
+          setRelated(sampleQuestions.filter(item => item.slug !== slug).slice(0, 5));
         }
+        setLoading(false);
+        return;
+      }
 
-        setQ(data);
-        supabase.from('questions').update({ view_count: (data.view_count || 0) + 1 }).eq('id', data.id);
+      setQ(questionData);
+      supabase.from('questions').update({ view_count: (questionData.view_count || 0) + 1 }).eq('id', questionData.id);
 
-        const { data: ans } = await supabase
+      const [{ data: ans }, { data: rel }] = await Promise.all([
+        supabase
           .from('answers')
           .select('*, users:author_id(id, name, avatar_url)')
-          .eq('question_id', data.id)
+          .eq('question_id', questionData.id)
           .order('is_adopted', { ascending: false })
           .order('like_count', { ascending: false })
-          .order('created_at', { ascending: true });
-        setAnswers(ans || []);
-
-        const { data: rel } = await supabase
+          .order('created_at', { ascending: true }),
+        supabase
           .from('questions')
           .select('id, title, slug, answer_count, is_answered')
-          .eq('category', data.category)
-          .neq('id', data.id)
+          .eq('category', questionData.category)
+          .neq('id', questionData.id)
           .order('created_at', { ascending: false })
-          .limit(5);
-        setRelated(rel || []);
-        setLoading(false);
-      });
+          .limit(5),
+      ]);
+
+      const loadedAnswers = ans || [];
+      setAnswers(loadedAnswers);
+      setRelated(rel || []);
+
+      // 로그인 유저의 좋아요 이력 로드 (liked_questions / liked_answers 테이블)
+      if (sessionUser) {
+        try {
+          const answerIds = loadedAnswers.map((a: any) => a.id);
+          const lqRes = await supabase
+            .from('liked_questions')
+            .select('question_id')
+            .eq('user_id', sessionUser.id)
+            .eq('question_id', questionData.id)
+            .maybeSingle();
+          if (lqRes.data) setLikedQuestion(true);
+
+          if (answerIds.length > 0) {
+            const laRes = await supabase
+              .from('liked_answers')
+              .select('answer_id')
+              .eq('user_id', sessionUser.id)
+              .in('answer_id', answerIds);
+            if (laRes.data) setLikedAnswers(new Set((laRes.data as any[]).map((r: any) => r.answer_id)));
+          }
+        } catch {
+          // liked_questions/liked_answers 테이블이 아직 없으면 무시
+        }
+      }
+
+      setLoading(false);
+    })();
 
     return () => auth.data.subscription.unsubscribe();
   }, [slug]);
@@ -200,14 +234,34 @@ export default function QuestionClient({ slug }: { slug: string }) {
       showT('로그인 후 추천할 수 있어요.');
       return;
     }
-    if (likedAnswers.has(answerId)) {
-      showT('이미 추천했어요.');
-      return;
-    }
     const supabase = createClient();
-    await supabase.from('answers').update({ like_count: current + 1 }).eq('id', answerId);
-    setAnswers(prev => prev.map(a => (a.id === answerId ? { ...a, like_count: current + 1 } : a)));
-    setLikedAnswers(prev => new Set([...prev, answerId]));
+    const alreadyLiked = likedAnswers.has(answerId);
+
+    try {
+      if (alreadyLiked) {
+        await supabase.from('liked_answers').delete().eq('user_id', user.id).eq('answer_id', answerId);
+        const newCount = Math.max(0, current - 1);
+        await supabase.from('answers').update({ like_count: newCount }).eq('id', answerId);
+        setAnswers(prev => prev.map(a => (a.id === answerId ? { ...a, like_count: newCount } : a)));
+        setLikedAnswers(prev => { const s = new Set(prev); s.delete(answerId); return s; });
+      } else {
+        const { error } = await supabase.from('liked_answers').insert({ user_id: user.id, answer_id: answerId });
+        if (!error) {
+          const newCount = current + 1;
+          await supabase.from('answers').update({ like_count: newCount }).eq('id', answerId);
+          setAnswers(prev => prev.map(a => (a.id === answerId ? { ...a, like_count: newCount } : a)));
+          setLikedAnswers(prev => new Set([...prev, answerId]));
+        }
+      }
+    } catch {
+      // liked_answers 테이블 없으면 단순 카운트만 업데이트 (마이그레이션 전 fallback)
+      if (!alreadyLiked) {
+        const newCount = current + 1;
+        await supabase.from('answers').update({ like_count: newCount }).eq('id', answerId);
+        setAnswers(prev => prev.map(a => (a.id === answerId ? { ...a, like_count: newCount } : a)));
+        setLikedAnswers(prev => new Set([...prev, answerId]));
+      }
+    }
   };
 
   const likeQuestion = async () => {
@@ -221,10 +275,34 @@ export default function QuestionClient({ slug }: { slug: string }) {
       return;
     }
     const supabase = createClient();
-    const newCount = (q.like_count || 0) + 1;
-    await supabase.from('questions').update({ like_count: newCount }).eq('id', q.id);
-    setQ((prev: any) => ({ ...prev, like_count: newCount }));
-    showT('도움돼요를 남겼어요.');
+
+    try {
+      if (likedQuestion) {
+        await supabase.from('liked_questions').delete().eq('user_id', user.id).eq('question_id', q.id);
+        const newCount = Math.max(0, (q.like_count || 0) - 1);
+        await supabase.from('questions').update({ like_count: newCount }).eq('id', q.id);
+        setQ((prev: any) => ({ ...prev, like_count: newCount }));
+        setLikedQuestion(false);
+        showT('도움돼요를 취소했어요.');
+      } else {
+        const { error } = await supabase.from('liked_questions').insert({ user_id: user.id, question_id: q.id });
+        if (!error) {
+          const newCount = (q.like_count || 0) + 1;
+          await supabase.from('questions').update({ like_count: newCount }).eq('id', q.id);
+          setQ((prev: any) => ({ ...prev, like_count: newCount }));
+          setLikedQuestion(true);
+          showT('도움돼요를 남겼어요.');
+        }
+      }
+    } catch {
+      // liked_questions 테이블 없으면 단순 카운트만 업데이트 (마이그레이션 전 fallback)
+      if (!likedQuestion) {
+        const newCount = (q.like_count || 0) + 1;
+        await supabase.from('questions').update({ like_count: newCount }).eq('id', q.id);
+        setQ((prev: any) => ({ ...prev, like_count: newCount }));
+        showT('도움돼요를 남겼어요.');
+      }
+    }
   };
 
   const toggleComments = async (answerId: string) => {
@@ -233,9 +311,49 @@ export default function QuestionClient({ slug }: { slug: string }) {
       next.delete(answerId);
     } else {
       next.add(answerId);
-      if (!comments[answerId]) setComments(prev => ({ ...prev, [answerId]: [] }));
+      // DB에서 댓글 로드 (아직 안 불러왔을 때만)
+      if (comments[answerId] === undefined) {
+        if (hasSupabase()) {
+          const supabase = createClient();
+          try {
+            const { data } = await supabase
+              .from('comments')
+              .select('*, users:author_id(name, avatar_url)')
+              .eq('answer_id', answerId)
+              .order('created_at', { ascending: true });
+            setComments(prev => ({ ...prev, [answerId]: data || [] }));
+          } catch {
+            setComments(prev => ({ ...prev, [answerId]: [] }));
+          }
+        } else {
+          setComments(prev => ({ ...prev, [answerId]: [] }));
+        }
+      }
     }
     setOpenComments(next);
+  };
+
+  const submitComment = async (answerId: string) => {
+    const body = commentInput[answerId]?.trim();
+    if (!body || !user) return;
+    setCommentSubmitting(prev => ({ ...prev, [answerId]: true }));
+    const supabase = createClient();
+    try {
+      const { data, error } = await supabase
+        .from('comments')
+        .insert({ answer_id: answerId, author_id: user.id, body })
+        .select('*, users:author_id(name, avatar_url)')
+        .single();
+      if (!error && data) {
+        setComments(prev => ({ ...prev, [answerId]: [...(prev[answerId] || []), data] }));
+        setCommentInput(prev => ({ ...prev, [answerId]: '' }));
+      } else {
+        showT('댓글 등록에 실패했어요.');
+      }
+    } catch {
+      showT('댓글 등록에 실패했어요. (comments 테이블 마이그레이션 필요)');
+    }
+    setCommentSubmitting(prev => ({ ...prev, [answerId]: false }));
   };
 
   const share = () => {
@@ -333,7 +451,12 @@ export default function QuestionClient({ slug }: { slug: string }) {
             {q.body && <p className={styles.questionBody}>{q.body}</p>}
 
             <div className={styles.questionActions}>
-              <IconAction icon={<ThumbsUp size={22} />} label={q.like_count > 0 ? `도움돼요 ${q.like_count}` : '도움돼요'} onClick={likeQuestion} />
+              <IconAction
+                icon={<ThumbsUp size={22} />}
+                label={q.like_count > 0 ? `도움돼요 ${q.like_count}` : '도움돼요'}
+                onClick={likeQuestion}
+                active={likedQuestion}
+              />
               <IconAction icon={<MessageCircle size={22} />} label={`답변 ${answerCount || answers.length}`} onClick={() => document.getElementById('answer-editor')?.scrollIntoView({ behavior: 'smooth' })} />
               <IconAction
                 icon={<Bookmark size={22} fill={bookmarked ? 'currentColor' : 'none'} />}
@@ -410,9 +533,11 @@ export default function QuestionClient({ slug }: { slug: string }) {
                     onAdopt={() => adoptAnswer(a.id)}
                     onCommentToggle={() => toggleComments(a.id)}
                     showComments={openComments.has(a.id)}
-                    comments={comments[a.id] || []}
+                    comments={comments[a.id] ?? null}
                     commentInput={commentInput[a.id] || ''}
+                    commentSubmitting={commentSubmitting[a.id] || false}
                     onCommentChange={(v: string) => setCommentInput(prev => ({ ...prev, [a.id]: v }))}
+                    onCommentSubmit={() => submitComment(a.id)}
                     router={router}
                   />
                 ))}
@@ -491,7 +616,22 @@ function IconAction({ icon, label, onClick, active }: { icon: ReactNode; label: 
   );
 }
 
-function AnswerCard({ answer: a, isMyQuestion, isAnswered, liked, onLike, onAdopt, onCommentToggle, showComments, comments, commentInput, onCommentChange, router }: any) {
+function AnswerCard({
+  answer: a,
+  isMyQuestion,
+  isAnswered,
+  liked,
+  onLike,
+  onAdopt,
+  onCommentToggle,
+  showComments,
+  comments,
+  commentInput,
+  commentSubmitting,
+  onCommentChange,
+  onCommentSubmit,
+  router,
+}: any) {
   const name = a.users?.name || '익명';
 
   return (
@@ -521,7 +661,7 @@ function AnswerCard({ answer: a, isMyQuestion, isAnswered, liked, onLike, onAdop
         </button>
         <button className={showComments ? styles.answerActionActive : ''} onClick={onCommentToggle}>
           <MessageCircle size={15} />
-          댓글 {comments.length > 0 ? comments.length : ''}
+          댓글 {comments !== null && comments.length > 0 ? comments.length : ''}
         </button>
         <button>
           <Gift size={15} />
@@ -537,13 +677,28 @@ function AnswerCard({ answer: a, isMyQuestion, isAnswered, liked, onLike, onAdop
 
       {showComments && (
         <div className={styles.commentBox}>
-          {comments.length === 0 && <p>아직 댓글이 없어요.</p>}
-          {comments.map((c: any, i: number) => (
-            <div key={i} className={styles.commentItem}>{c.body}</div>
-          ))}
+          {comments === null ? (
+            <p>댓글 로딩 중...</p>
+          ) : comments.length === 0 ? (
+            <p>아직 댓글이 없어요.</p>
+          ) : (
+            comments.map((c: any, i: number) => (
+              <div key={i} className={styles.commentItem}>
+                <strong>{c.users?.name || '익명'}</strong>
+                <span>{c.body}</span>
+              </div>
+            ))
+          )}
           <div className={styles.commentInput}>
-            <input value={commentInput} onChange={e => onCommentChange(e.target.value)} placeholder="댓글 달기..." />
-            <button>등록</button>
+            <input
+              value={commentInput}
+              onChange={e => onCommentChange(e.target.value)}
+              placeholder="댓글 달기..."
+              onKeyDown={e => e.key === 'Enter' && !e.shiftKey && onCommentSubmit()}
+            />
+            <button onClick={onCommentSubmit} disabled={commentSubmitting || !commentInput.trim()}>
+              {commentSubmitting ? '...' : '등록'}
+            </button>
           </div>
         </div>
       )}

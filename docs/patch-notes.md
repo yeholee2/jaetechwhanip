@@ -1,5 +1,37 @@
 # 패치노트
 
+## [2026-05-08] 좋아요 중복 방지 + 댓글 DB 저장
+**작업자:** Claude Sonnet 4.6
+**태그:** #기능추가 #DB #좋아요 #댓글
+
+### 변경사항
+- [기능] 질문/답변 좋아요 중복 방지 DB 기반으로 교체
+  - `liked_questions(user_id, question_id)`, `liked_answers(user_id, answer_id)` 테이블 사용
+  - 페이지 재진입 시 이전 좋아요 상태 복원 (로그인 유저)
+  - 좋아요 토글 지원: 다시 누르면 취소
+  - 마이그레이션 전(테이블 없는 경우) fallback으로 graceful 처리 — 앱 중단 없음
+- [기능] 답변 댓글 DB 저장 (`comments` 테이블 연동)
+  - 댓글 섹션 열 때 Supabase에서 실시간 로드
+  - Enter 키로 등록 지원
+  - 댓글 작성자 이름 표시
+  - 마이그레이션 전 fallback — "마이그레이션 필요" 토스트
+
+### ⚠️ 반드시 실행 필요: Supabase SQL 마이그레이션
+**`docs/migration_likes_comments.sql`을 Supabase SQL Editor에서 실행해야 좋아요/댓글이 DB에 저장됩니다.**
+- 실행 전까지는 앱이 fallback 모드로 동작 (기능은 제한되나 오류 없음)
+
+### 빌드 확인
+- ✅ `npm_config_cache=.npm-cache npm run build` 통과
+
+### 다음 작업자 TODO
+- [ ] **Supabase SQL Editor에서 `docs/migration_likes_comments.sql` 실행** (최우선)
+- [ ] 실로그인 후 좋아요 중복 방지 동작 확인 (다른 계정 2개로 테스트)
+- [ ] 댓글 입력 → 새로고침 후 유지 확인
+- [ ] Google 로그인 앱 검증 진행
+- [ ] 카카오 비즈 인증 후 재활성화 여부 결정
+
+---
+
 ## [2026-05-08] Env 버그 수정 + 아하 스타일 업그레이드
 **작업자:** Claude Sonnet 4.6
 **태그:** #버그수정 #UI업그레이드 #배포
