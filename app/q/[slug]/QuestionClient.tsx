@@ -13,6 +13,7 @@ import { createClient, hasSupabase } from '@/lib/supabase/client';
 import { EMOJI, sampleQuestions } from '@/lib/sampleData';
 import type { AnswerDetail, QuestionDetail, RelatedQuestion } from '@/lib/question-detail';
 import { createQuestionSlug } from '@/lib/slugs';
+import { getAuthNickname, syncFinanceNickname } from '@/lib/nicknames';
 import styles from './QuestionClient.module.css';
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -32,8 +33,7 @@ function ft(d: string) {
 
 function getUserName(user: any): string {
   if (!user) return '';
-  const m = user.user_metadata || {};
-  return m.full_name || m.name || user.email?.split('@')[0] || 'ME';
+  return getAuthNickname(user) || 'ME';
 }
 
 function sampleQuestion(slug: string) {
@@ -113,7 +113,9 @@ export default function QuestionClient({
 
     const supabase = createClient();
     const { data: authSub } = supabase.auth.onAuthStateChange((_e, s) => {
-      setUser(s?.user ?? null);
+      const nextUser = s?.user ?? null;
+      setUser(nextUser);
+      if (nextUser) syncFinanceNickname(supabase, nextUser);
       setAuthLoading(false);
     });
 
@@ -121,6 +123,7 @@ export default function QuestionClient({
       const { data: sessionData } = await supabase.auth.getSession();
       const sessionUser = sessionData.session?.user ?? null;
       setUser(sessionUser); setAuthLoading(false);
+      if (sessionUser) syncFinanceNickname(supabase, sessionUser);
 
       const qQuery = supabase.from('questions').select('*, users:author_id(id,name,avatar_url)');
       const { data: qData, error } = await (

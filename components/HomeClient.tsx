@@ -8,6 +8,7 @@ import { createClient, hasSupabase } from '@/lib/supabase/client';
 import type { Question } from '@/lib/sampleData';
 import { LEVELS, EMOJI, sampleQuestions } from '@/lib/sampleData';
 import { createQuestionSlug } from '@/lib/slugs';
+import { getAuthNickname, syncFinanceNickname } from '@/lib/nicknames';
 import styles from './HomeClient.module.css';
 
 const CATS = ['전체','재테크 입문','주식·ETF','절세','보험','대출·부채'];
@@ -20,11 +21,9 @@ const FEED_TABS = [
 ] as const;
 type FeedTab = typeof FEED_TABS[number]['key'];
 
-// 유저 이름 추출 (Google은 full_name, 일반은 name)
 function getUserName(user: any): string {
   if (!user) return '';
-  const meta = user.user_metadata || {};
-  return meta.full_name || meta.name || meta.email?.split('@')[0] || user.email?.split('@')[0] || 'ME';
+  return getAuthNickname(user) || 'ME';
 }
 
 export default function HomeClient({ initialQuestions }: { initialQuestions: Question[] }) {
@@ -53,7 +52,9 @@ export default function HomeClient({ initialQuestions }: { initialQuestions: Que
     // onAuthStateChange가 URL hash의 access_token 자동 파싱 → SIGNED_IN 이벤트 발생
     // getSession보다 먼저 등록해야 hash 처리가 됨
     const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
-      setUser(session?.user ?? null);
+      const nextUser = session?.user ?? null;
+      setUser(nextUser);
+      if (nextUser) syncFinanceNickname(supabase, nextUser);
       setAuthLoading(false);
       // 로그인 후 hash 제거 (깔끔한 URL)
       if (typeof window !== 'undefined' && window.location.hash.includes('access_token')) {
@@ -63,7 +64,9 @@ export default function HomeClient({ initialQuestions }: { initialQuestions: Que
 
     // 이미 세션 있는 경우 처리 (페이지 새로고침 등)
     supabase.auth.getSession().then(({ data }) => {
-      setUser(data.session?.user ?? null);
+      const nextUser = data.session?.user ?? null;
+      setUser(nextUser);
+      if (nextUser) syncFinanceNickname(supabase, nextUser);
       setAuthLoading(false);
     });
 

@@ -36,6 +36,7 @@ public.answers     -- id, question_id, body, author_id, is_adopted, like_count, 
 ```
 - RLS: 누구나 읽기 / 본인만 쓰기
 - 트리거: 로그인 시 auth.users → public.users 자동 생성
+- 신규 회원 기본 닉네임: OAuth 실명 대신 경제형 랜덤닉네임 사용 (`신림동의현인`, `소현버핏` 등)
 
 ## 파일 구조
 ```

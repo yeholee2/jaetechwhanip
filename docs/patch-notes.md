@@ -1,5 +1,27 @@
 # 패치노트
 
+## [2026-05-09] 경제형 랜덤닉네임 도입
+**작업자:** Codex
+**태그:** #Auth #닉네임 #운영정책 #DB
+
+### 변경사항
+- [Auth] 로그인 유저 표시명을 OAuth 실명/이메일 대신 경제형 랜덤닉네임으로 표시
+  - 예: `신림동의현인`, `소현버핏`, `판교배당수집가`
+- [Auth] 로그인 직후 `public.users.name`이 비어 있거나 OAuth 기본 이름이면 랜덤닉네임으로 동기화
+- [DB] Supabase 트리거에서도 신규 회원 기본 이름을 랜덤닉네임으로 저장하도록 `docs/migration_random_nicknames.sql` 추가
+- [운영] 유동성 공급은 여러 가짜 유저처럼 보이게 하기보다 운영/시드 답변 원칙을 지키는 방향 권장
+
+### 확인
+- [x] `npm_config_cache=/Users/yeho/Documents/New\ project/jaetechwhanip/.npm-cache npm run build` 통과
+- [ ] Supabase SQL Editor에서 `docs/migration_random_nicknames.sql` 실행
+- [ ] Google/Kakao 로그인 후 `public.users.name` 랜덤닉네임 반영 확인
+
+### 다음 작업자 TODO
+- [ ] 프로필 편집 화면이 생기면 사용자가 닉네임을 직접 바꿀 수 있게 열기
+- [ ] 운영 답변 계정은 내부 운영 주체임을 숨기지 않는 문구/배지 정책 검토
+
+---
+
 ## [2026-05-09] 답변 SEO + 토픽 페이지 추가
 **작업자:** Codex
 **태그:** #SEO #AhaReference #TopicPage #StructuredData
