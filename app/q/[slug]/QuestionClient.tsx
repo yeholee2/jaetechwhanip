@@ -14,6 +14,7 @@ import { EMOJI, sampleQuestions } from '@/lib/sampleData';
 import type { AnswerDetail, QuestionDetail, RelatedQuestion } from '@/lib/question-detail';
 import { createQuestionSlug } from '@/lib/slugs';
 import { getAuthNickname, syncFinanceNickname } from '@/lib/nicknames';
+import { useAutoTranslation } from '@/lib/useAutoTranslation';
 import styles from './QuestionClient.module.css';
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -364,6 +365,18 @@ export default function QuestionClient({
   const answerCount = q?.answer_count ?? answers.length;
   const minLen = 20;
   const remaining = Math.max(0, minLen - answerBody.trim().length);
+  const translation = useAutoTranslation([
+    ...(q ? [
+      { id: 'question:title', type: 'question_title', text: q.title || '' },
+      { id: 'question:body', type: 'question_body', text: q.body || '' },
+    ] : []),
+    ...answers.map(a => ({ id: `answer:${a.id}:body`, type: 'answer_body', text: a.body || '' })),
+    ...Object.values(comments).flatMap(list => (list || []).map((c: any) => ({
+      id: `comment:${c.id}:body`,
+      type: 'comment_body',
+      text: c.body || '',
+    }))),
+  ]);
 
   if (loading) {
     return (
@@ -385,6 +398,9 @@ export default function QuestionClient({
   }
 
   const authorName = q.users?.name || '익명';
+  const qTitle = translation.text('question:title', q.title);
+  const qBody = translation.text('question:body', q.body || '');
+  const qTranslated = translation.isTranslated('question:title') || translation.isTranslated('question:body');
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg)' }}>
@@ -396,8 +412,8 @@ export default function QuestionClient({
         </div>
         <ul className={styles.navMenu}>
           <li><button onClick={() => router.push('/')}>홈</button></li>
-          <li><button>토픽</button></li>
-          <li><button>스파링</button></li>
+          <li><button onClick={() => router.push('/topics/finance-basics')}>토픽</button></li>
+          <li><button onClick={() => router.push('/sparring')}>스파링</button></li>
           <li><button>잉크</button></li>
           <li><button>미션</button></li>
           <li><div className={styles.navSep} /></li>
@@ -456,6 +472,7 @@ export default function QuestionClient({
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 2 }}>
                   <span style={{ fontSize: 14, fontWeight: 700 }}>{authorName}</span>
                   {q.is_answered && <span className={styles.adoptedChip}>✅ 채택됨</span>}
+                  {qTranslated && <span className={styles.translatedBadge}>Translated</span>}
                 </div>
                 <div style={{ fontSize: 12, color: 'var(--t3)' }}>
                   {ft(q.created_at)} · 조회 {q.view_count || 0}
@@ -464,8 +481,8 @@ export default function QuestionClient({
               <button className={styles.iconBtn} aria-label="더보기"><MoreHorizontal size={18} /></button>
             </div>
 
-            <h1 className={styles.qTitle}>{q.title}</h1>
-            {q.body && <p className={styles.qBody}>{q.body}</p>}
+            <h1 className={styles.qTitle}>{qTitle}</h1>
+            {qBody && <p className={styles.qBody}>{qBody}</p>}
 
             <div className={styles.qActions}>
               <button
@@ -573,6 +590,8 @@ export default function QuestionClient({
                   onCommentChange={(v: string) => setCommentInput(prev => ({ ...prev, [a.id]: v }))}
                   onCommentSubmit={() => submitComment(a.id)}
                   onCommentDelete={(cid: string) => deleteComment(a.id, cid)}
+                  translateText={(id: string, fallback: string) => translation.text(id, fallback)}
+                  isTranslated={(id: string) => translation.isTranslated(id)}
                   router={router}
                   styles={styles}
                 />
@@ -590,7 +609,7 @@ export default function QuestionClient({
               <div style={{ fontSize: 15, fontWeight: 700, color: '#fff', lineHeight: 1.4, marginBottom: 12 }}>지금 S&P500<br />들어가도 될까요?</div>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <span style={{ fontSize: 11, color: 'rgba(255,255,255,.5)' }}>⏱ 4일 남았어요</span>
-                <button style={{ height: 26, padding: '0 12px', background: '#fff', borderRadius: 5, fontSize: 12, fontWeight: 700, color: 'var(--t1)' }}>참여하기</button>
+                <button onClick={() => router.push('/sparring')} style={{ height: 26, padding: '0 12px', background: '#fff', borderRadius: 5, fontSize: 12, fontWeight: 700, color: 'var(--t1)' }}>참여하기</button>
               </div>
             </div>
           </div>
@@ -620,8 +639,8 @@ export default function QuestionClient({
       {/* ── 모바일 하단 네비 ── */}
       <nav className={styles.bottomNav}>
         <button className={styles.bnav} onClick={() => router.push('/')}><HomeIcon size={22} /><span>홈</span></button>
-        <button className={styles.bnav}><LayoutList size={22} /><span>토픽</span></button>
-        <button className={styles.bnav}><Swords size={22} /><span>스파링</span></button>
+        <button className={styles.bnav} onClick={() => router.push('/topics/finance-basics')}><LayoutList size={22} /><span>토픽</span></button>
+        <button className={styles.bnav} onClick={() => router.push('/sparring')}><Swords size={22} /><span>스파링</span></button>
         <button className={styles.bnav}><Bell size={22} /><span>알림</span></button>
         <button className={styles.bnav} onClick={() => router.push(user ? `/u/${user.id}` : '/auth')} style={user ? { color: 'var(--blue)' } : {}}>
           <User size={22} /><span>{user ? userName[0]?.toUpperCase() || 'MY' : '로그인'}</span>
@@ -640,9 +659,11 @@ export default function QuestionClient({
 }
 
 // ── 답변 카드 ──
-function AnswerCard({ answer: a, currentUserId, isMyQuestion, isAnswered, liked, onLike, onAdopt, onDelete, onCommentToggle, showComments, comments, commentInput, commentSubmitting, onCommentChange, onCommentSubmit, onCommentDelete, router, styles }: any) {
+function AnswerCard({ answer: a, currentUserId, isMyQuestion, isAnswered, liked, onLike, onAdopt, onDelete, onCommentToggle, showComments, comments, commentInput, commentSubmitting, onCommentChange, onCommentSubmit, onCommentDelete, translateText, isTranslated, router, styles }: any) {
   const name = a.users?.name || '익명';
   const isMyAnswer = currentUserId && a.author_id === currentUserId;
+  const answerBodyId = `answer:${a.id}:body`;
+  const answerBody = translateText(answerBodyId, a.body);
 
   return (
     <article className={`${styles.answerCard} ${a.is_adopted ? styles.adoptedCard : ''}`}>
@@ -656,13 +677,14 @@ function AnswerCard({ answer: a, currentUserId, isMyQuestion, isAnswered, liked,
         <div style={{ flex: 1 }}>
           <div style={{ fontWeight: 700, fontSize: 14 }}>{name}</div>
           <div style={{ fontSize: 12, color: 'var(--t3)' }}>{a.created_at ? ft(a.created_at) : ''}</div>
+          {isTranslated(answerBodyId) && <span className={styles.translatedBadge}>Translated</span>}
         </div>
         {isMyAnswer && (
           <button className={styles.deleteBtn} onClick={onDelete}>삭제</button>
         )}
       </div>
 
-      <p className={styles.answerBody}>{a.body}</p>
+      <p className={styles.answerBody}>{answerBody}</p>
 
       <div className={styles.answerActions}>
         <button className={`${styles.answerBtn} ${liked ? styles.answerBtnActive : ''}`} onClick={onLike}>
@@ -690,7 +712,7 @@ function AnswerCard({ answer: a, currentUserId, isMyQuestion, isAnswered, liked,
             comments.map((c: any, i: number) => (
               <div key={i} className={styles.commentItem}>
                 <strong>{c.users?.name || '익명'}</strong>
-                <span>{c.body}</span>
+                <span>{translateText(`comment:${c.id}:body`, c.body)}</span>
                 {currentUserId && c.author_id === currentUserId && (
                   <button className={styles.commentDeleteBtn} onClick={() => onCommentDelete(c.id)}>×</button>
                 )}

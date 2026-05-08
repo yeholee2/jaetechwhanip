@@ -1,5 +1,31 @@
 # 패치노트
 
+## [2026-05-09] 자동번역 MVP + 스파링 페이지 업그레이드
+**작업자:** Codex
+**태그:** #번역 #글로벌 #스파링 #UX #OpenAI
+
+### 변경사항
+- [번역] 영어권 브라우저에서 버튼 없이 질문/답변/댓글을 미국 Reddit 톤의 영어로 자동 표시
+- [번역] `/api/translate` 추가: OpenAI Responses API 기반 번역, 숫자/금리/상품명 보존 프롬프트 적용
+- [번역] `public.translations` 캐시용 `docs/migration_translations.sql` 추가
+- [번역] 홈 피드와 질문 상세에 작은 `Translated` 배지만 표시하고, 큰 영어 버튼은 만들지 않음
+- [스파링] `/sparring` 페이지 추가: 주제 선택, 찬반 선택, 반대논리, 체크리스트, 판단 준비도 슬라이더
+- [내비게이션] 홈/질문 상세의 토픽·스파링 링크를 실제 경로로 연결
+
+### 확인
+- [x] `npm_config_cache=/Users/yeho/Documents/New\ project/jaetechwhanip/.npm-cache npm run build` 통과
+- [x] 로컬 `/sparring` 200 확인
+- [x] 로컬 `/api/translate` fallback 응답 확인
+- [ ] Vercel `OPENAI_API_KEY`, `OPENAI_TRANSLATION_MODEL` 설정
+- [ ] Supabase SQL Editor에서 `docs/migration_translations.sql` 실행
+- [ ] 영어 브라우저에서 홈/질문 상세 자동번역 확인
+
+### 다음 작업자 TODO
+- [ ] 번역 품질 로그를 보고 용어집(ISA, 연금저축, 전세대출 등) 고도화
+- [ ] 스파링 결과를 질문/투표 데이터와 연결
+
+---
+
 ## [2026-05-09] 경제형 랜덤닉네임 도입
 **작업자:** Codex
 **태그:** #Auth #닉네임 #운영정책 #DB

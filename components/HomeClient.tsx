@@ -9,6 +9,7 @@ import type { Question } from '@/lib/sampleData';
 import { LEVELS, EMOJI, sampleQuestions } from '@/lib/sampleData';
 import { createQuestionSlug } from '@/lib/slugs';
 import { getAuthNickname, syncFinanceNickname } from '@/lib/nicknames';
+import { useAutoTranslation } from '@/lib/useAutoTranslation';
 import styles from './HomeClient.module.css';
 
 const CATS = ['전체','재테크 입문','주식·ETF','절세','보험','대출·부채'];
@@ -226,9 +227,9 @@ export default function HomeClient({ initialQuestions }: { initialQuestions: Que
       <nav className={styles.pcNav}>
         <div className={`${styles.pcLogo} logo-font`}>재테크<em>한입</em></div>
         <ul className={styles.pcMenu}>
-          <li><a href="#" className={styles.on}>홈</a></li>
-          <li><a href="#">토픽</a></li>
-          <li><a href="#">스파링</a></li>
+          <li><Link href="/" className={styles.on}>홈</Link></li>
+          <li><Link href="/topics/finance-basics">토픽</Link></li>
+          <li><Link href="/sparring">스파링</Link></li>
           <li><a href="#">잉크</a></li>
           <li><a href="#">미션</a></li>
           <li><div className={styles.sep}/></li>
@@ -322,10 +323,10 @@ export default function HomeClient({ initialQuestions }: { initialQuestions: Que
               <div className={styles.sparTitle}>지금 S&P500<br/>들어가도 될까요?</div>
               <div className={styles.sparFoot}>
                 <span style={{fontSize:11,color:'rgba(255,255,255,.5)'}}>⏱ 3일 남았어요</span>
-                <button className={styles.sparJoin}>참여하기</button>
+                <button className={styles.sparJoin} onClick={() => router.push('/sparring')}>참여하기</button>
               </div>
             </div>
-            <a href="#" className={styles.wlink}><Briefcase size={14}/><span>전문가 신청하기</span><span style={{marginLeft:'auto',color:'var(--t3)'}}>›</span></a>
+          <a href="#" className={styles.wlink}><Briefcase size={14}/><span>전문가 신청하기</span><span style={{marginLeft:'auto',color:'var(--t3)'}}>›</span></a>
             <a href="#" className={styles.wlink}><TrendingUp size={14}/><span>ETF 시세 보기</span><span style={{marginLeft:'auto',color:'var(--t3)'}}>›</span></a>
           </div>
           <div className={styles.widget}>
@@ -365,8 +366,8 @@ export default function HomeClient({ initialQuestions }: { initialQuestions: Que
           </div>
         )}
         <nav className={styles.moGnav}>
-          <a href="#" className={styles.on}>홈</a>
-          <a href="#">토픽</a><a href="#">스파링</a><a href="#">잉크</a><a href="#">미션</a>
+          <Link href="/" className={styles.on}>홈</Link>
+          <Link href="/topics/finance-basics">토픽</Link><Link href="/sparring">스파링</Link><a href="#">잉크</a><a href="#">미션</a>
         </nav>
       </header>
 
@@ -408,8 +409,8 @@ export default function HomeClient({ initialQuestions }: { initialQuestions: Que
 
       <nav className={styles.bottomNav}>
         <button className={`${styles.bnav} ${styles.on}`}><HomeIcon size={22}/><span>홈</span></button>
-        <button className={styles.bnav}><LayoutList size={22}/><span>토픽</span></button>
-        <button className={styles.bnav}><Swords size={22}/><span>스파링</span></button>
+        <button className={styles.bnav} onClick={() => router.push('/topics/finance-basics')}><LayoutList size={22}/><span>토픽</span></button>
+        <button className={styles.bnav} onClick={() => router.push('/sparring')}><Swords size={22}/><span>스파링</span></button>
         <button className={styles.bnav}><Bell size={22}/><span>알림</span></button>
         <button className={styles.bnav} onClick={() => router.push(user ? `/u/${user.id}` : '/auth')} style={user?{color:'var(--green)'}:{}}>
           <User size={22}/><span>{user ? userName[0]?.toUpperCase() || 'MY' : '로그인'}</span>
@@ -475,6 +476,13 @@ function formatTime(dateStr: string): string {
 }
 
 function FeedList({ questions, mobile, router }: { questions: Question[], mobile: boolean, router: any }) {
+  const translation = useAutoTranslation(
+    questions.flatMap(q => [
+      { id: `q:${q.slug || q.dbId || q.id}:title`, type: 'question_title', text: q.title },
+      { id: `q:${q.slug || q.dbId || q.id}:body`, type: 'question_body', text: q.body || '' },
+    ]),
+  );
+
   return (
     <div className={mobile ? styles.moFeed : styles.pcFeedList}>
       {questions.length === 0 && (
@@ -485,6 +493,11 @@ function FeedList({ questions, mobile, router }: { questions: Question[], mobile
       )}
       {questions.map(q => {
         const questionPath = q.slug || q.dbId || String(q.id);
+        const titleId = `q:${questionPath}:title`;
+        const bodyId = `q:${questionPath}:body`;
+        const title = translation.text(titleId, q.title);
+        const body = translation.text(bodyId, q.body || '');
+        const translated = translation.isTranslated(titleId) || translation.isTranslated(bodyId);
 
         return (
         <article key={q.id} className={styles.qcard} onClick={() => router.push(`/q/${questionPath}`)} style={{cursor:'pointer'}}>
@@ -499,11 +512,12 @@ function FeedList({ questions, mobile, router }: { questions: Question[], mobile
                 <span style={{fontSize:10,color:'var(--t3)'}}>·</span>
                 <span style={{fontSize:12,color:'var(--t3)'}}>{q.time}</span>
                 {q.adopted && <span className={styles.adopted}>✅ 채택됨</span>}
+                {translated && <span className={styles.translatedBadge}>Translated</span>}
               </div>
               <h3 className={styles.qtitle}>
-                <Link href={`/q/${questionPath}`}>{q.title}</Link>
+                <Link href={`/q/${questionPath}`}>{title}</Link>
               </h3>
-              <p className={styles.qbody}>{q.body}</p>
+              <p className={styles.qbody}>{body}</p>
               <div className={styles.qfoot} onClick={e => e.stopPropagation()}>
                 <div style={{display:'flex',alignItems:'center',gap:6}}>
                   <div style={{display:'flex'}}>

@@ -60,6 +60,7 @@
 .qinfo { flex:1; min-width:0; }
 .qmeta { display:flex; align-items:center; gap:4px; flex-wrap:wrap; margin-bottom:7px; }
 .adopted { font-size:10px; font-weight:700; color:#E65100; background:#FFF3E0; padding:1px 5px; border-radius:3px; }
+.translatedBadge { font-size:10px; font-weight:700; color:var(--blue); background:var(--blue-bg); padding:1px 6px; border-radius:4px; }
 .qtitle { font-size:15px; font-weight:700; line-height:1.45; margin-bottom:6px; }
 .qtitle a { color:var(--t1); text-decoration:none; }
 .qtitle a:hover { text-decoration:underline; text-underline-offset:3px; }

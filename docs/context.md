@@ -33,10 +33,12 @@
 public.users       -- id, email, name, avatar_url, provider, created_at
 public.questions   -- id, title, body, category, slug, author_id, created_at, answer_count, like_count, view_count, is_answered
 public.answers     -- id, question_id, body, author_id, is_adopted, like_count, created_at
+public.translations -- cache_key, source_text, translated_text, target_locale, item_type, created_at
 ```
 - RLS: 누구나 읽기 / 본인만 쓰기
 - 트리거: 로그인 시 auth.users → public.users 자동 생성
 - 신규 회원 기본 닉네임: OAuth 실명 대신 경제형 랜덤닉네임 사용 (`신림동의현인`, `소현버핏` 등)
+- 영어권 브라우저는 버튼 없이 질문/답변/댓글 자동번역 표시. 번역 원문은 유지하고 `/api/translate` + OpenAI + `public.translations` 캐시 사용
 
 ## 파일 구조
 ```
@@ -44,9 +46,11 @@ app/
   page.tsx                          # 홈 (SSG, revalidate=60)
   auth/page.tsx                     # 로그인 페이지
   api/auth/callback/route.ts        # Google OAuth 콜백
+  api/translate/route.ts            # 영어권 브라우저 자동번역 API
   q/[slug]/page.tsx                 # 질문 상세 SEO 메타데이터
   q/[slug]/QuestionClient.tsx       # 질문 상세/답변/채택 UI
   questions/[slug]/page.tsx         # 레거시 URL → /q/[slug] 리다이렉트
+  sparring/page.tsx                 # 머니 스파링 의사결정 훈련
   u/[id]/page.tsx                   # 유저 프로필
 components/
   HomeClient.tsx                    # 홈 UI
