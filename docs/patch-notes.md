@@ -1,5 +1,34 @@
 # 패치노트
 
+## [2026-05-08] Env 버그 수정 + 아하 스타일 업그레이드
+**작업자:** Claude Sonnet 4.6
+**태그:** #버그수정 #UI업그레이드 #배포
+
+### 핵심 버그 수정
+- `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` Sensitive 해제
+  - Sensitive 설정 시 빌드 번들에 포함 안 됨 → 모든 Supabase 연결 실패
+  - 기존 변수 삭제 → Sensitive OFF로 재등록 → Redeploy
+  - **이게 어제부터 모든 기능이 안 되던 근본 원인**
+
+### 기능 추가/개선
+- 질문 상세 아하 스타일: 브레드크럼, 조회수, 도움돼요/저장/공유, 채택 뱃지, 관련 질문
+- SEO generateMetadata (탭 제목에 질문 제목 표시)
+- 홈: 검색, 무한스크롤(20개씩), 카테고리 DB 필터, Google full_name 이름 표시
+- 사용자 프로필 `/u/[id]` 신규 (질문/답변 탭, 통계)
+- DB: view_count, like_count 컬럼 추가
+
+### 다음 작업자 TODO
+- [ ] 답변 댓글 DB 저장 (parent_id 컬럼 필요)
+- [ ] 좋아요 중복 방지 (liked_questions/liked_answers 테이블)
+- [ ] Google 로그인 앱 검증
+- [ ] 카카오 비즈 인증 후 재활성화
+
+### RISK
+- `NEXT_PUBLIC_` 변수 절대 Sensitive 설정 금지
+
+---
+
+
 ## [2026-05-08] 질문 상세 페이지 아하형 레이아웃 적용
 **작업자:** Codex
 **태그:** #UI #질문상세 #AhaReference
