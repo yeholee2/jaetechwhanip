@@ -356,6 +356,33 @@ export default function QuestionClient({ slug }: { slug: string }) {
     setCommentSubmitting(prev => ({ ...prev, [answerId]: false }));
   };
 
+  const deleteAnswer = async (answerId: string) => {
+    if (!user || q.is_sample) return;
+    if (!confirm('답변을 삭제할까요?')) return;
+    const supabase = createClient();
+    const { error } = await supabase.from('answers').delete().eq('id', answerId).eq('author_id', user.id);
+    if (!error) {
+      const newCount = Math.max(0, (q.answer_count || 0) - 1);
+      await supabase.from('questions').update({ answer_count: newCount }).eq('id', q.id);
+      setAnswers(prev => prev.filter(a => a.id !== answerId));
+      setQ((prev: any) => ({ ...prev, answer_count: newCount }));
+      showT('답변을 삭제했어요.');
+    } else {
+      showT('삭제에 실패했어요.');
+    }
+  };
+
+  const deleteComment = async (answerId: string, commentId: string) => {
+    if (!user) return;
+    const supabase = createClient();
+    const { error } = await supabase.from('comments').delete().eq('id', commentId).eq('author_id', user.id);
+    if (!error) {
+      setComments(prev => ({ ...prev, [answerId]: prev[answerId].filter((c: any) => c.id !== commentId) }));
+    } else {
+      showT('삭제에 실패했어요.');
+    }
+  };
+
   const share = () => {
     const url = window.location.href;
     if (navigator.share) navigator.share({ title: q?.title, url });
@@ -526,11 +553,13 @@ export default function QuestionClient({ slug }: { slug: string }) {
                   <AnswerCard
                     key={a.id}
                     answer={a}
+                    currentUserId={user?.id}
                     isMyQuestion={user?.id === q.author_id}
                     isAnswered={q.is_answered}
                     liked={likedAnswers.has(a.id)}
                     onLike={() => likeAnswer(a.id, a.like_count || 0)}
                     onAdopt={() => adoptAnswer(a.id)}
+                    onDelete={() => deleteAnswer(a.id)}
                     onCommentToggle={() => toggleComments(a.id)}
                     showComments={openComments.has(a.id)}
                     comments={comments[a.id] ?? null}
@@ -538,6 +567,7 @@ export default function QuestionClient({ slug }: { slug: string }) {
                     commentSubmitting={commentSubmitting[a.id] || false}
                     onCommentChange={(v: string) => setCommentInput(prev => ({ ...prev, [a.id]: v }))}
                     onCommentSubmit={() => submitComment(a.id)}
+                    onCommentDelete={(commentId: string) => deleteComment(a.id, commentId)}
                     router={router}
                   />
                 ))}
@@ -618,11 +648,13 @@ function IconAction({ icon, label, onClick, active }: { icon: ReactNode; label: 
 
 function AnswerCard({
   answer: a,
+  currentUserId,
   isMyQuestion,
   isAnswered,
   liked,
   onLike,
   onAdopt,
+  onDelete,
   onCommentToggle,
   showComments,
   comments,
@@ -630,9 +662,11 @@ function AnswerCard({
   commentSubmitting,
   onCommentChange,
   onCommentSubmit,
+  onCommentDelete,
   router,
 }: any) {
   const name = a.users?.name || '익명';
+  const isMyAnswer = currentUserId && a.author_id === currentUserId;
 
   return (
     <article className={`${styles.answerCard} ${a.is_adopted ? styles.adoptedAnswer : ''}`}>
@@ -649,7 +683,11 @@ function AnswerCard({
           <strong>{name}</strong>
           <span>{a.created_at ? ft(a.created_at) : ''}</span>
         </button>
-        <button className={styles.moreButton} aria-label="답변 더보기"><MoreHorizontal size={19} /></button>
+        {isMyAnswer ? (
+          <button className={styles.deleteButton} onClick={onDelete} aria-label="답변 삭제">삭제</button>
+        ) : (
+          <button className={styles.moreButton} aria-label="답변 더보기"><MoreHorizontal size={19} /></button>
+        )}
       </div>
 
       <p className={styles.answerBody}>{a.body}</p>
@@ -686,6 +724,9 @@ function AnswerCard({
               <div key={i} className={styles.commentItem}>
                 <strong>{c.users?.name || '익명'}</strong>
                 <span>{c.body}</span>
+                {currentUserId && c.author_id === currentUserId && (
+                  <button className={styles.commentDeleteBtn} onClick={() => onCommentDelete(c.id)} aria-label="댓글 삭제">×</button>
+                )}
               </div>
             ))
           )}

@@ -244,6 +244,21 @@
   background: #f7f9fb;
 }
 
+.deleteButton {
+  margin-left: auto;
+  padding: 4px 10px;
+  border-radius: 7px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #e03131;
+  border: 1px solid #ffc9c9;
+  background: #fff5f5;
+}
+
+.deleteButton:hover {
+  background: #ffe3e3;
+}
+
 .questionTitle {
   font-size: 20px;
   font-weight: 850;
@@ -516,11 +531,43 @@
   background: #f7f9fb;
 }
 
-.commentBox p,
-.commentItem {
+.commentBox p {
   color: #6b7684;
   font-size: 13px;
   line-height: 1.6;
+}
+
+.commentItem {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  color: #6b7684;
+  font-size: 13px;
+  line-height: 1.6;
+  padding: 4px 0;
+}
+
+.commentItem strong {
+  color: #252b34;
+  font-size: 12px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.commentItem span {
+  flex: 1;
+}
+
+.commentDeleteBtn {
+  flex-shrink: 0;
+  color: #a3acb8;
+  font-size: 15px;
+  line-height: 1;
+  padding: 0 2px;
+}
+
+.commentDeleteBtn:hover {
+  color: #e03131;
 }
 
 .commentInput {
