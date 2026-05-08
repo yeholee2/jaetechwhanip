@@ -1,6 +1,7 @@
 import type { MetadataRoute } from 'next';
 import { fetchQuestionsForSitemap, questionUrl, SITE_URL } from '@/lib/seo';
 import { TOPICS, topicUrl } from '@/lib/topics';
+import { COLUMN_URL } from '@/lib/columns';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
@@ -12,6 +13,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: now,
       changeFrequency: 'daily',
       priority: 1,
+    },
+    {
+      url: COLUMN_URL,
+      lastModified: now,
+      changeFrequency: 'daily',
+      priority: 0.85,
     },
     ...TOPICS.map(topic => ({
       url: topicUrl(topic.slug),

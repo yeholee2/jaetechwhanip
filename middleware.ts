@@ -3,6 +3,14 @@ import { NextResponse, type NextRequest } from 'next/server';
 // Edge Runtime에서 @supabase/ssr의 cookies() 충돌 방지
 // 세션 갱신은 Server Component에서 처리
 export async function middleware(request: NextRequest) {
+  const host = request.headers.get('host')?.split(':')[0].toLowerCase();
+
+  if (host === 'column.hannipmoney.com' && request.nextUrl.pathname === '/') {
+    const url = request.nextUrl.clone();
+    url.pathname = '/columns';
+    return NextResponse.rewrite(url);
+  }
+
   return NextResponse.next();
 }
 

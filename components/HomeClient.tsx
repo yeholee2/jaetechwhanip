@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
-import { Search, Bell, User, Plus, Home as HomeIcon, LayoutList, Swords, ThumbsUp, MessageCircle, Share2, Briefcase, TrendingUp, X } from 'lucide-react';
+import { Search, Bell, User, Plus, Home as HomeIcon, LayoutList, Swords, ThumbsUp, MessageCircle, Share2, Briefcase, TrendingUp, X, Newspaper, BarChart3, Tags } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { createClient, hasSupabase } from '@/lib/supabase/client';
 import type { Question } from '@/lib/sampleData';
@@ -21,6 +21,28 @@ const FEED_TABS = [
   { key: 'waiting', label: '답변대기' },
 ] as const;
 type FeedTab = typeof FEED_TABS[number]['key'];
+
+const STOCK_ETF_TAGS = ['S&P500', '나스닥100', '미국 ETF', '국내 ETF', '배당 ETF', '월배당', '환헤지', '분할매수'];
+const MARKET_READS = [
+  {
+    label: 'S&P500 ETF',
+    title: 'VOO·IVV·SPY는 수수료보다 기간과 환율을 먼저 봐요',
+    note: '첫 매수라면 한 번에 사기보다 월별 규칙을 정하는 질문이 좋아요.',
+    tag: 'S&P500',
+  },
+  {
+    label: '국내 상장 ETF',
+    title: 'TIGER·ACE·SOL은 세금과 환전 편의성이 판단 포인트예요',
+    note: '미국 직투와 국내 상장 ETF를 비교해서 물어보면 답변 밀도가 올라가요.',
+    tag: '국내 ETF',
+  },
+  {
+    label: '배당 ETF',
+    title: '월배당은 현금흐름과 총수익률을 같이 봐야 해요',
+    note: '분배금, 세금, 장기 성장을 함께 태그해두면 답변자가 맥락을 빨리 잡아요.',
+    tag: '배당 ETF',
+  },
+] as const;
 
 function getUserName(user: any): string {
   if (!user) return '';
@@ -198,13 +220,35 @@ export default function HomeClient({ initialQuestions }: { initialQuestions: Que
     showT('👋 로그아웃 되었어요');
   };
 
-  const submitQ = async (title: string, body: string, cat: string) => {
+  const submitQ = async (title: string, body: string, cat: string, tags: string[] = []) => {
     const slug = createQuestionSlug(title);
+    const bodyWithTags = tags.length
+      ? [body, `관심 태그: ${tags.join(', ')}`].filter(Boolean).join('\n\n')
+      : body;
     if (hasSupabase() && user) {
       const supabase = createClient();
-      const { data, error } = await supabase.from('questions').insert({
-        title, body, category: cat, slug, author_id: user.id, answer_count: 0,
-      }).select('id, slug').single();
+      const basePayload = {
+        title,
+        body,
+        category: cat,
+        slug,
+        author_id: user.id,
+        answer_count: 0,
+      };
+      const insertPayload: Record<string, unknown> = tags.length ? { ...basePayload, tags } : basePayload;
+      let { data, error } = await supabase.from('questions').insert(
+        insertPayload as typeof basePayload,
+      ).select('id, slug').single();
+
+      if (error && tags.length && /tags/i.test(error.message || '')) {
+        const retry = await supabase.from('questions').insert({
+          ...basePayload,
+          body: bodyWithTags,
+        }).select('id, slug').single();
+        data = retry.data;
+        error = retry.error;
+      }
+
       if (error) { showT('❌ 오류가 생겼어요. 다시 시도해주세요.'); return; }
       setShowModal(false);
       showT('✅ 질문이 등록되었어요!');
@@ -235,7 +279,7 @@ export default function HomeClient({ initialQuestions }: { initialQuestions: Que
           <li><Link href="/" className={styles.on}>홈</Link></li>
           <li><Link href="/topics/finance-basics">토픽</Link></li>
           <li><Link href="/sparring">스파링</Link></li>
-          <li><a href="#">잉크</a></li>
+          <li><Link href="/columns">칼럼</Link></li>
           <li><a href="#">미션</a></li>
           <li><div className={styles.sep}/></li>
           <li><a href="#" style={{fontSize:13,color:'var(--t3)'}}>전문가 신청</a></li>
@@ -299,6 +343,11 @@ export default function HomeClient({ initialQuestions }: { initialQuestions: Que
               </button>
             ))}
           </div>
+          <MarketReadRail onSelect={(tag) => {
+            setCurrentCat('주식·ETF');
+            setSearchQuery(tag);
+            setShowSearch(true);
+          }} />
           {/* 검색창 (모바일 인라인) */}
           {showSearch && (
             <div style={{padding:'8px 0',display:'flex',alignItems:'center',gap:8,borderBottom:'1px solid #F2F4F6',marginBottom:4}}>
@@ -332,7 +381,20 @@ export default function HomeClient({ initialQuestions }: { initialQuestions: Que
               </div>
             </div>
           <a href="#" className={styles.wlink}><Briefcase size={14}/><span>전문가 신청하기</span><span style={{marginLeft:'auto',color:'var(--t3)'}}>›</span></a>
-            <a href="#" className={styles.wlink}><TrendingUp size={14}/><span>ETF 시세 보기</span><span style={{marginLeft:'auto',color:'var(--t3)'}}>›</span></a>
+            <button className={styles.wlink} onClick={() => {
+              setCurrentCat('주식·ETF');
+              setSearchQuery('ETF');
+              setShowSearch(true);
+            }}><TrendingUp size={14}/><span>ETF 정보 보기</span><span style={{marginLeft:'auto',color:'var(--t3)'}}>›</span></button>
+          </div>
+          <MarketReader onSelect={(tag) => {
+            setCurrentCat('주식·ETF');
+            setSearchQuery(tag);
+            setShowSearch(true);
+          }} />
+          <div className={styles.widget}>
+            <div className={styles.whead}><Newspaper size={14}/> 칼럼</div>
+            <Link href="/columns" className={styles.wlink}><Newspaper size={14}/><span>재테크 칼럼 읽기</span><span style={{marginLeft:'auto',color:'var(--t3)'}}>›</span></Link>
           </div>
           <div className={styles.widget}>
             <div className={styles.whead}><span className="tf">🔍</span> 지금 많이 찾는 키워드</div>
@@ -372,7 +434,7 @@ export default function HomeClient({ initialQuestions }: { initialQuestions: Que
         )}
         <nav className={styles.moGnav}>
           <Link href="/" className={styles.on}>홈</Link>
-          <Link href="/topics/finance-basics">토픽</Link><Link href="/sparring">스파링</Link><a href="#">잉크</a><a href="#">미션</a>
+          <Link href="/topics/finance-basics">토픽</Link><Link href="/sparring">스파링</Link><Link href="/columns">칼럼</Link><a href="#">미션</a>
         </nav>
       </header>
 
@@ -395,6 +457,11 @@ export default function HomeClient({ initialQuestions }: { initialQuestions: Que
             </button>
           ))}
         </div>
+        <MarketReadRail onSelect={(tag) => {
+          setCurrentCat('주식·ETF');
+          setSearchQuery(tag);
+          setShowSearch(true);
+        }} />
         <FeedSummary
           activeTabLabel={activeTabLabel}
           currentCat={currentCat}
@@ -455,6 +522,42 @@ function mergeQuestions(primary: Question[], fallback: Question[]) {
     seen.add(key);
     return true;
   });
+}
+
+function MarketReadRail({ onSelect }: { onSelect: (tag: string) => void }) {
+  return (
+    <section className={styles.marketRail} aria-label="주식 ETF 정보">
+      <div className={styles.marketRailHead}>
+        <span><BarChart3 size={14}/> 주식·ETF 읽기창</span>
+        <Link href="/columns">칼럼 더보기</Link>
+      </div>
+      <div className={styles.marketRailCards}>
+        {MARKET_READS.map(item => (
+          <button key={item.label} className={styles.marketRailCard} onClick={() => onSelect(item.tag)}>
+            <strong>{item.label}</strong>
+            <span>{item.title}</span>
+          </button>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function MarketReader({ onSelect }: { onSelect: (tag: string) => void }) {
+  return (
+    <div className={styles.widget}>
+      <div className={styles.whead}><BarChart3 size={14}/> 주식·ETF 정보창</div>
+      <div className={styles.marketReader}>
+        {MARKET_READS.map(item => (
+          <button key={item.label} className={styles.marketItem} onClick={() => onSelect(item.tag)}>
+            <span>{item.label}</span>
+            <strong>{item.title}</strong>
+            <em>{item.note}</em>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
 }
 
 function FeedSummary({
@@ -544,11 +647,17 @@ function FeedList({ questions, mobile, router }: { questions: Question[], mobile
             <div className={styles.qinfo}>
               <div className={styles.qmeta}>
                 <span style={{fontSize:12,fontWeight:700}}>{q.cat}</span>
+                {q.topic && <span className={styles.topicBadge}>{q.topic}</span>}
                 <span style={{fontSize:10,color:'var(--t3)'}}>·</span>
                 <span style={{fontSize:12,color:'var(--t3)'}}>{q.time}</span>
                 {q.adopted && <span className={styles.adopted}>✅ 채택됨</span>}
                 {translated && <span className={styles.translatedBadge}>Translated</span>}
               </div>
+              {q.tags && q.tags.length > 0 && (
+                <div className={styles.qtags}>
+                  {q.tags.slice(0, 3).map(tag => <span key={tag}>{tag}</span>)}
+                </div>
+              )}
               <h3 className={styles.qtitle}>
                 <Link href={`/q/${questionPath}`}>{title}</Link>
               </h3>
@@ -579,10 +688,14 @@ function FeedList({ questions, mobile, router }: { questions: Question[], mobile
   );
 }
 
-function AskModal({ onClose, onSubmit }: { onClose: () => void, onSubmit: (t: string, b: string, c: string) => void }) {
+function AskModal({ onClose, onSubmit }: { onClose: () => void, onSubmit: (t: string, b: string, c: string, tags: string[]) => void }) {
   const [title, setTitle] = useState('');
   const [body, setBody] = useState('');
   const [cat, setCat] = useState('재테크 입문');
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const toggleTag = (tag: string) => {
+    setSelectedTags(prev => prev.includes(tag) ? prev.filter(item => item !== tag) : [...prev, tag].slice(0, 4));
+  };
 
   return (
     <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,.45)',zIndex:200,display:'flex',alignItems:'center',justifyContent:'center',padding:20}} onClick={onClose}>
@@ -598,6 +711,23 @@ function AskModal({ onClose, onSubmit }: { onClose: () => void, onSubmit: (t: st
               {['재테크 입문','주식·ETF','절세','보험','대출·부채'].map(c => <option key={c}>{c}</option>)}
             </select>
           </div>
+          {cat === '주식·ETF' && (
+            <div className={styles.askTags}>
+              <label><Tags size={13}/> 관련 태그</label>
+              <div>
+                {STOCK_ETF_TAGS.map(tag => (
+                  <button
+                    key={tag}
+                    className={selectedTags.includes(tag) ? styles.selected : ''}
+                    onClick={() => toggleTag(tag)}
+                    type="button"
+                  >
+                    {tag}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
           <div style={{marginBottom:12}}>
             <label style={{fontSize:12,fontWeight:600,color:'#4E5968',display:'block',marginBottom:6}}>질문 제목</label>
             <input value={title} onChange={e=>setTitle(e.target.value)} placeholder="궁금한 점을 간단히 써주세요" style={{width:'100%',padding:'11px 13px',border:'1.5px solid #E5E8EB',borderRadius:9,fontSize:14,outline:'none',boxSizing:'border-box' as const}} onFocus={e=>e.target.style.borderColor='#00C73C'} onBlur={e=>e.target.style.borderColor='#E5E8EB'}/>
@@ -608,7 +738,7 @@ function AskModal({ onClose, onSubmit }: { onClose: () => void, onSubmit: (t: st
           </div>
           <div style={{display:'flex',justifyContent:'flex-end',gap:8}}>
             <button onClick={onClose} style={{height:38,padding:'0 18px',background:'#F9FAFB',border:'1px solid #E5E8EB',borderRadius:8,fontSize:14,cursor:'pointer'}}>취소</button>
-            <button onClick={() => { if(title.trim()) onSubmit(title.trim(), body.trim(), cat); }} disabled={!title.trim()} style={{height:38,padding:'0 22px',background:title.trim()?'#00C73C':'#E5E8EB',border:'none',borderRadius:8,color:title.trim()?'white':'#8B95A1',fontSize:14,fontWeight:700,cursor:title.trim()?'pointer':'default',transition:'all .2s'}}>질문 올리기</button>
+            <button onClick={() => { if(title.trim()) onSubmit(title.trim(), body.trim(), cat, selectedTags); }} disabled={!title.trim()} style={{height:38,padding:'0 22px',background:title.trim()?'#00C73C':'#E5E8EB',border:'none',borderRadius:8,color:title.trim()?'white':'#8B95A1',fontSize:14,fontWeight:700,cursor:title.trim()?'pointer':'default',transition:'all .2s'}}>질문 올리기</button>
           </div>
         </div>
       </div>

@@ -32,6 +32,7 @@ export const sampleQuestions = [
     createdAt: '2026-05-08T20:05:00+09:00',
     likeCount: 71,
     viewCount: 3420,
+    tags: ['S&P500', '미국 ETF', '분할매수'],
   },
   {
     id: 3,
@@ -117,6 +118,7 @@ export const sampleQuestions = [
     createdAt: '2026-05-04T15:27:00+09:00',
     likeCount: 63,
     viewCount: 3018,
+    tags: ['배당 ETF', '월배당', '세금'],
   },
   {
     id: 8,
@@ -154,6 +156,7 @@ export type Question = {
   createdAt?: string;
   likeCount?: number;
   viewCount?: number;
+  tags?: string[];
 };
 
 export type SampleAnswer = {

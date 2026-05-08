@@ -1,5 +1,32 @@
 # 패치노트
 
+## [2026-05-09] 칼럼 서브도메인 준비 + 주식·ETF 정보창/태그 UX
+**작업자:** Codex
+**태그:** #Column #Subdomain #ETF #QuestionUX #SEO
+
+### 변경사항
+- [도메인] `column.hannipmoney.com` 루트 접근 시 `/columns`로 rewrite되도록 middleware 추가
+- [칼럼] `/columns` 페이지 추가: 주식·ETF·절세 칼럼 목록, CollectionPage/Article JSON-LD, canonical/OG 메타 구성
+- [홈] PC/모바일 홈에 `주식·ETF 읽기창` 추가
+  - S&P500 ETF, 국내 상장 ETF, 배당 ETF를 빠르게 읽고 검색/질문 맥락으로 이어지게 설계
+- [질문작성] `주식·ETF` 카테고리 선택 시 `S&P500`, `나스닥100`, `미국 ETF`, `배당 ETF` 등 태그 선택 가능
+- [DB] 미래 `questions.tags text[]` 전환용 `docs/migration_question_tags.sql` 추가
+  - 현재 DB에 `tags` 컬럼이 없어도 질문 등록이 실패하지 않도록 fallback 처리
+- [내비게이션] 기존 `잉크` 임시 메뉴를 `칼럼`으로 교체하고 `/columns`에 연결
+
+### 확인
+- [x] `npm_config_cache=/Users/yeho/Documents/New\ project/jaetechwhanip/.npm-cache npm run build` 통과
+- [x] 로컬 `/columns` 200 확인
+- [x] 로컬 `Host: column.hannipmoney.com /` 접근 시 칼럼 페이지 rewrite 확인
+- [x] 로컬 홈 HTML에 `주식·ETF 읽기창`, `ETF 정보 보기`, `칼럼` 노출 확인
+
+### 다음 작업자 TODO
+- [ ] Vercel에 `column.hannipmoney.com` 추가 후 hosting.co.kr DNS `A column -> 76.76.21.21` 연결
+- [ ] Supabase SQL Editor에서 `docs/migration_question_tags.sql` 실행해 태그를 DB 정식 컬럼으로 승격
+- [ ] 칼럼 상세 페이지 `/columns/[slug]`와 Q&A 내부링크 연결
+
+---
+
 ## [2026-05-09] 운영 시드 질문/답변 콘텐츠 보강
 **작업자:** Codex
 **태그:** #SeedContent #HomeFeed #AnswerUX #SEO
