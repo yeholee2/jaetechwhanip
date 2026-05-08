@@ -1,5 +1,35 @@
 # 패치노트
 
+## [2026-05-09] 답변 SEO + 토픽 페이지 추가
+**작업자:** Codex
+**태그:** #SEO #AhaReference #TopicPage #StructuredData
+
+### 변경사항
+- [SEO] 질문 상세 QAPage 구조화 데이터에 `acceptedAnswer`/`suggestedAnswer` 추가
+- [SEO] 카테고리/토픽 랜딩 페이지 추가
+  - `/topics/finance-basics`
+  - `/topics/stocks-etf`
+  - `/topics/tax-saving`
+  - `/topics/insurance`
+  - `/topics/debt-loans`
+- [SEO] `/sitemap.xml`에 토픽 페이지 URL 추가
+- [SEO] 토픽 페이지에 CollectionPage + ItemList 구조화 데이터 추가
+- [DB] 테스트 질문 정리용 `scripts/cleanup-test-questions.mjs`, `docs/cleanup-test-questions.sql` 추가
+- [운영] 하루 1개 답변 운영 루프 문서 `docs/daily-answer-loop.md` 추가
+
+### 확인
+- [x] `npm_config_cache=/Users/yeho/Documents/New\ project/jaetechwhanip/.npm-cache npm run build` 통과
+- [ ] 라이브 `/topics/finance-basics` 200 확인
+- [ ] 라이브 `/q/[slug]` JSON-LD에 답변 데이터 포함 확인
+- [ ] `SUPABASE_SERVICE_ROLE_KEY`가 있는 환경에서 테스트 질문 정리 실행
+
+### 다음 작업자 TODO
+- [ ] `SITE_URL`을 추후 한입머니 서브도메인으로 옮길 때 canonical/sitemap/Search Console 갱신
+- [ ] 실제 토픽 메뉴를 홈 네비게이션에 연결
+- [ ] 하루 1개 운영 답변용 질문 선정표 만들기
+
+---
+
 ## [2026-05-09] 아하형 질문 상세 SEO 강화
 **작업자:** Codex
 **태그:** #SEO #AhaReference #SSR #InternalLink
