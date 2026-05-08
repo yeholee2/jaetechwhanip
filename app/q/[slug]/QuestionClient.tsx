@@ -23,7 +23,10 @@ import {
   UserRound,
 } from 'lucide-react';
 import { createClient, hasSupabase } from '@/lib/supabase/client';
+import { sampleQuestions } from '@/lib/sampleData';
 import styles from './QuestionClient.module.css';
+
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 function ft(d: string) {
   if (!d) return '';
@@ -40,6 +43,32 @@ function ft(d: string) {
 
 function initials(name?: string) {
   return (name || '익명').slice(0, 1).toUpperCase();
+}
+
+function sampleQuestion(slug: string) {
+  const found = sampleQuestions.find(item => item.slug === slug);
+  if (!found) return null;
+
+  return {
+    id: `sample-${found.id}`,
+    title: found.title,
+    body: found.body,
+    category: found.cat,
+    slug: found.slug,
+    author_id: null,
+    created_at: new Date(Date.now() - found.id * 60 * 60 * 1000).toISOString(),
+    answer_count: found.ans,
+    like_count: found.id * 3,
+    view_count: found.id * 127,
+    is_answered: found.adopted,
+    is_sample: true,
+    users: {
+      id: null,
+      name: found.author,
+      avatar_url: null,
+      provider: 'sample',
+    },
+  };
 }
 
 export default function QuestionClient({ slug }: { slug: string }) {
@@ -64,19 +93,39 @@ export default function QuestionClient({ slug }: { slug: string }) {
   };
 
   useEffect(() => {
-    if (!hasSupabase() || !slug) return;
+    if (!slug) {
+      setLoading(false);
+      return;
+    }
+
+    const fallbackQuestion = sampleQuestion(slug);
+
+    if (!hasSupabase()) {
+      setQ(fallbackQuestion);
+      setAnswers([]);
+      setRelated(sampleQuestions.filter(item => item.slug !== slug).slice(0, 5));
+      setLoading(false);
+      return;
+    }
+
     const supabase = createClient();
     const auth = supabase.auth.onAuthStateChange((_e, s) => setUser(s?.user ?? null));
 
     supabase.auth.getSession().then(({ data }) => setUser(data.session?.user ?? null));
 
-    supabase
+    const questionQuery = supabase
       .from('questions')
-      .select('*, users:author_id(id, name, avatar_url, provider)')
-      .eq('slug', slug)
-      .single()
+      .select('*, users:author_id(id, name, avatar_url, provider)');
+
+    (UUID_RE.test(slug) ? questionQuery.eq('id', slug) : questionQuery.eq('slug', slug))
+      .maybeSingle()
       .then(async ({ data, error }) => {
         if (error || !data) {
+          if (fallbackQuestion) {
+            setQ(fallbackQuestion);
+            setAnswers([]);
+            setRelated(sampleQuestions.filter(item => item.slug !== slug).slice(0, 5));
+          }
           setLoading(false);
           return;
         }
@@ -109,6 +158,10 @@ export default function QuestionClient({ slug }: { slug: string }) {
 
   const submitAnswer = async () => {
     if (!answerBody.trim() || !user || !q) return;
+    if (q.is_sample) {
+      showT('샘플 질문에는 답변을 저장하지 않아요.');
+      return;
+    }
     setSubmitting(true);
     const supabase = createClient();
     const { data: newAns, error } = await supabase
@@ -132,6 +185,7 @@ export default function QuestionClient({ slug }: { slug: string }) {
 
   const adoptAnswer = async (answerId: string) => {
     if (!user || !q || user.id !== q.author_id) return;
+    if (q.is_sample) return;
     const supabase = createClient();
     await supabase.from('answers').update({ is_adopted: false }).eq('question_id', q.id);
     await supabase.from('answers').update({ is_adopted: true }).eq('id', answerId);
@@ -159,6 +213,11 @@ export default function QuestionClient({ slug }: { slug: string }) {
   const likeQuestion = async () => {
     if (!user) {
       showT('로그인 후 좋아요를 누를 수 있어요.');
+      return;
+    }
+    if (q.is_sample) {
+      setQ((prev: any) => ({ ...prev, like_count: (prev.like_count || 0) + 1 }));
+      showT('도움돼요를 남겼어요.');
       return;
     }
     const supabase = createClient();
