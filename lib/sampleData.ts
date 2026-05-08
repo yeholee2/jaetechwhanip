@@ -39,6 +39,8 @@ export type Question = {
   adopted: boolean;
   slug: string;
   dbId?: string; // Supabase UUID
+  createdAt?: string;
+  likeCount?: number;
 };
 
 export const LEVELS = [

@@ -28,6 +28,14 @@
 .feedTabs { display:flex; gap:18px; margin-bottom:14px; }
 .ftab { font-size:20px; font-weight:700; color:var(--t3); padding-bottom:4px; border-bottom:2.5px solid transparent; transition:all .12s; }
 .ftab.on { color:var(--t1); border-bottom-color:var(--t1); }
+.ftab:hover { color:var(--t2); }
+
+.feedSummary { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:10px 2px 12px; }
+.feedSummary div { display:flex; align-items:center; gap:7px; min-width:0; }
+.feedSummary strong { font-size:13px; color:var(--t1); }
+.feedSummary span { font-size:12px; color:var(--t3); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.feedSummary button { height:28px; padding:0 10px; border-radius:7px; background:var(--bg); color:var(--t2); font-size:12px; font-weight:600; white-space:nowrap; }
+.feedSummary button:hover { background:var(--line); }
 
 /* 카테고리 */
 .catRow { display:flex; gap:5px; flex-wrap:wrap; margin-bottom:14px; }
@@ -89,6 +97,7 @@
 .moGnav a.on { color:var(--t1); font-weight:700; border-bottom-color:var(--t1); }
 .moFeedHd { padding:13px 16px 0; display:flex; gap:14px; }
 .moFeedHd .ftab { font-size:18px; }
+.moMain .feedSummary { padding:2px 16px 10px; }
 .moCat { display:flex; overflow-x:auto; padding:8px 16px; gap:5px; }
 .moCat::-webkit-scrollbar { display:none; }
 .moCat .ctag { flex-shrink:0; }

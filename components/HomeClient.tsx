@@ -11,6 +11,12 @@ import styles from './HomeClient.module.css';
 const CATS = ['전체','재테크 입문','주식·ETF','절세','보험','대출·부채'];
 const CAT_EMOJI: Record<string,string> = { '재테크 입문':'💡','주식·ETF':'📈','절세':'🏦','보험':'🛡️','대출·부채':'💳' };
 const PAGE_SIZE = 20;
+const FEED_TABS = [
+  { key: 'popular', label: '인기' },
+  { key: 'latest', label: '최신' },
+  { key: 'waiting', label: '답변대기' },
+] as const;
+type FeedTab = typeof FEED_TABS[number]['key'];
 
 // 유저 이름 추출 (Google은 full_name, 일반은 name)
 function getUserName(user: any): string {
@@ -24,6 +30,7 @@ export default function HomeClient({ initialQuestions }: { initialQuestions: Que
   const [user, setUser] = useState<any>(null);
   const [allQs, setAllQs] = useState<Question[]>(initialQuestions);
   const [currentCat, setCurrentCat] = useState('전체');
+  const [feedTab, setFeedTab] = useState<FeedTab>('popular');
   const [showModal, setShowModal] = useState(false);
   const [toast, setToast] = useState('');
   const [authLoading, setAuthLoading] = useState(true);
@@ -62,18 +69,27 @@ export default function HomeClient({ initialQuestions }: { initialQuestions: Que
   }, []);
 
   // 질문 로드 — DB에서 페이지네이션
-  const loadQuestions = useCallback(async (cat: string, pageNum: number, replace = false) => {
+  const loadQuestions = useCallback(async (cat: string, tab: FeedTab, pageNum: number, replace = false) => {
     if (!hasSupabase()) return;
     const supabase = createClient();
     // 패킷 최적화: 홈 피드에 필요한 컬럼만 select
     let query = supabase
       .from('questions')
       .select('id, title, body, category, slug, answer_count, like_count, is_answered, created_at, author_id')
-      .order('created_at', { ascending: false })
       .range(pageNum * PAGE_SIZE, (pageNum + 1) * PAGE_SIZE - 1);
 
     // 카테고리 필터는 DB에서 — 클라이언트 필터 X
     if (cat !== '전체') query = query.eq('category', cat);
+    if (tab === 'waiting') query = query.eq('answer_count', 0);
+
+    if (tab === 'popular') {
+      query = query
+        .order('answer_count', { ascending: false })
+        .order('like_count', { ascending: false })
+        .order('created_at', { ascending: false });
+    } else {
+      query = query.order('created_at', { ascending: false });
+    }
 
     const { data, error } = await query;
     if (error || !data) return;
@@ -93,6 +109,7 @@ export default function HomeClient({ initialQuestions }: { initialQuestions: Que
       slug: q.slug || q.id,
       dbId: q.id,
       likeCount: q.like_count || 0,
+      createdAt: q.created_at,
     }));
 
     if (replace) {
@@ -106,8 +123,8 @@ export default function HomeClient({ initialQuestions }: { initialQuestions: Que
 
   useEffect(() => {
     setPage(0);
-    loadQuestions(currentCat, 0, true);
-  }, [currentCat, loadQuestions]);
+    loadQuestions(currentCat, feedTab, 0, true);
+  }, [currentCat, feedTab, loadQuestions]);
 
   // 실시간 신규 질문 구독
   useEffect(() => {
@@ -118,16 +135,17 @@ export default function HomeClient({ initialQuestions }: { initialQuestions: Que
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'questions' }, (payload) => {
         const q = payload.new as any;
         if (currentCat !== '전체' && q.category !== currentCat) return;
+        if (feedTab === 'waiting' && (q.answer_count || 0) > 0) return;
         setAllQs(prev => [{
           id: Date.now(), cat: q.category || '재테크 입문', topic: '일반',
           author: '방금 전', time: '방금 전', em: '🐯', lv: 0,
           title: q.title, body: q.body || '', ans: 0, adopted: false,
-          slug: q.slug || q.id, dbId: q.id, likeCount: 0,
+          slug: q.slug || q.id, dbId: q.id, likeCount: 0, createdAt: q.created_at,
         }, ...prev]);
       })
       .subscribe();
     return () => { supabase.removeChannel(channel); };
-  }, [currentCat]);
+  }, [currentCat, feedTab]);
 
   // 무한스크롤
   useEffect(() => {
@@ -136,13 +154,13 @@ export default function HomeClient({ initialQuestions }: { initialQuestions: Que
         setLoadingMore(true);
         const nextPage = page + 1;
         setPage(nextPage);
-        loadQuestions(currentCat, nextPage, false);
+        loadQuestions(currentCat, feedTab, nextPage, false);
       }
     }, { threshold: 0.1 });
     const sentinel = document.getElementById('feed-sentinel');
     if (sentinel) observer.observe(sentinel);
     return () => observer.disconnect();
-  }, [hasMore, loadingMore, page, currentCat, loadQuestions]);
+  }, [hasMore, loadingMore, page, currentCat, feedTab, loadQuestions]);
 
   // 드롭다운 외부 클릭
   useEffect(() => {
@@ -183,9 +201,13 @@ export default function HomeClient({ initialQuestions }: { initialQuestions: Que
   };
 
   // 검색 필터 (클라이언트)
-  const filtered = searchQuery.trim()
-    ? allQs.filter(q => q.title.includes(searchQuery) || q.body?.includes(searchQuery))
-    : allQs;
+  const filtered = sortQuestions(
+    searchQuery.trim()
+      ? allQs.filter(q => q.title.includes(searchQuery) || q.body?.includes(searchQuery))
+      : allQs,
+    feedTab,
+  );
+  const activeTabLabel = FEED_TABS.find(tab => tab.key === feedTab)?.label || '인기';
 
   const userName = getUserName(user);
 
@@ -245,9 +267,15 @@ export default function HomeClient({ initialQuestions }: { initialQuestions: Que
       <div className={styles.pcBody}>
         <div className={styles.pcFeed}>
           <div className={styles.feedTabs}>
-            <button className={`${styles.ftab} ${styles.on}`}>인기</button>
-            <button className={styles.ftab}>관심</button>
-            <button className={styles.ftab}>답변</button>
+            {FEED_TABS.map(tab => (
+              <button
+                key={tab.key}
+                className={`${styles.ftab} ${feedTab === tab.key ? styles.on : ''}`}
+                onClick={() => setFeedTab(tab.key)}
+              >
+                {tab.label}
+              </button>
+            ))}
           </div>
           <div className={styles.catRow}>
             {CATS.map(c => (
@@ -264,6 +292,13 @@ export default function HomeClient({ initialQuestions }: { initialQuestions: Que
               {searchQuery && <button onClick={()=>setSearchQuery('')} style={{background:'none',border:'none',cursor:'pointer',padding:0,color:'#8B95A1'}}><X size={14}/></button>}
             </div>
           )}
+          <FeedSummary
+            activeTabLabel={activeTabLabel}
+            currentCat={currentCat}
+            count={filtered.length}
+            searchQuery={searchQuery}
+            onClearSearch={() => setSearchQuery('')}
+          />
           <FeedList questions={filtered} mobile={false} router={router}/>
           {hasMore && !searchQuery && (
             <div id="feed-sentinel" style={{padding:20,textAlign:'center',color:'#8B95A1',fontSize:13}}>
@@ -328,9 +363,15 @@ export default function HomeClient({ initialQuestions }: { initialQuestions: Que
 
       <div className={styles.moMain}>
         <div className={styles.moFeedHd}>
-          <button className={`${styles.ftab} ${styles.on}`}>인기</button>
-          <button className={styles.ftab}>관심</button>
-          <button className={styles.ftab}>답변</button>
+          {FEED_TABS.map(tab => (
+            <button
+              key={tab.key}
+              className={`${styles.ftab} ${feedTab === tab.key ? styles.on : ''}`}
+              onClick={() => setFeedTab(tab.key)}
+            >
+              {tab.label}
+            </button>
+          ))}
         </div>
         <div className={styles.moCat}>
           {CATS.map(c => (
@@ -339,6 +380,13 @@ export default function HomeClient({ initialQuestions }: { initialQuestions: Que
             </button>
           ))}
         </div>
+        <FeedSummary
+          activeTabLabel={activeTabLabel}
+          currentCat={currentCat}
+          count={filtered.length}
+          searchQuery={searchQuery}
+          onClearSearch={() => setSearchQuery('')}
+        />
         <FeedList questions={filtered} mobile={true} router={router}/>
         {hasMore && !searchQuery && (
           <div id="feed-sentinel-mo" style={{padding:20,textAlign:'center',color:'#8B95A1',fontSize:13}}>
@@ -362,6 +410,46 @@ export default function HomeClient({ initialQuestions }: { initialQuestions: Que
       {/* 질문하기 모달 */}
       {showModal && <AskModal onClose={() => setShowModal(false)} onSubmit={submitQ} />}
       {toast && <div className={`${styles.toast} ${styles.show}`}>{toast}</div>}
+    </div>
+  );
+}
+
+function sortQuestions(questions: Question[], tab: FeedTab) {
+  const copy = [...questions];
+  if (tab === 'popular') {
+    return copy.sort((a, b) => (
+      (b.ans + (b.likeCount || 0)) - (a.ans + (a.likeCount || 0))
+      || new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime()
+    ));
+  }
+  if (tab === 'waiting') return copy.filter(q => q.ans === 0);
+  return copy.sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
+}
+
+function FeedSummary({
+  activeTabLabel,
+  currentCat,
+  count,
+  searchQuery,
+  onClearSearch,
+}: {
+  activeTabLabel: string;
+  currentCat: string;
+  count: number;
+  searchQuery: string;
+  onClearSearch: () => void;
+}) {
+  return (
+    <div className={styles.feedSummary}>
+      <div>
+        <strong>{activeTabLabel}</strong>
+        <span>{currentCat === '전체' ? '전체 토픽' : currentCat} · {count}개 질문</span>
+      </div>
+      {searchQuery && (
+        <button onClick={onClearSearch}>
+          "{searchQuery}" 검색 해제
+        </button>
+      )}
     </div>
   );
 }
