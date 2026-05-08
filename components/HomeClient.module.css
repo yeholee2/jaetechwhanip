@@ -61,7 +61,8 @@
 .qmeta { display:flex; align-items:center; gap:4px; flex-wrap:wrap; margin-bottom:7px; }
 .adopted { font-size:10px; font-weight:700; color:#E65100; background:#FFF3E0; padding:1px 5px; border-radius:3px; }
 .qtitle { font-size:15px; font-weight:700; line-height:1.45; margin-bottom:6px; }
-.qtitle a { color:var(--t1); }
+.qtitle a { color:var(--t1); text-decoration:none; }
+.qtitle a:hover { text-decoration:underline; text-underline-offset:3px; }
 .qbody { font-size:13px; color:var(--t2); line-height:1.6; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; margin-bottom:12px; }
 .qfoot { display:flex; align-items:center; justify-content:space-between; }
 .av { width:20px; height:20px; border-radius:50%; border:1.5px solid #fff; margin-left:-5px; background:var(--blue-bg); display:flex; align-items:center; justify-content:center; font-size:9px; }

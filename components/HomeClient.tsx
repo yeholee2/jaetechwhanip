@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
+import Link from 'next/link';
 import { Search, Bell, User, Plus, Home as HomeIcon, LayoutList, Swords, ThumbsUp, MessageCircle, Share2, Briefcase, TrendingUp, X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { createClient, hasSupabase } from '@/lib/supabase/client';
@@ -496,7 +497,9 @@ function FeedList({ questions, mobile, router }: { questions: Question[], mobile
                 <span style={{fontSize:12,color:'var(--t3)'}}>{q.time}</span>
                 {q.adopted && <span className={styles.adopted}>✅ 채택됨</span>}
               </div>
-              <h3 className={styles.qtitle}>{q.title}</h3>
+              <h3 className={styles.qtitle}>
+                <Link href={`/q/${questionPath}`}>{q.title}</Link>
+              </h3>
               <p className={styles.qbody}>{q.body}</p>
               <div className={styles.qfoot} onClick={e => e.stopPropagation()}>
                 <div style={{display:'flex',alignItems:'center',gap:6}}>

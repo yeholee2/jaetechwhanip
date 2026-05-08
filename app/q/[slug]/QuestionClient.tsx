@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
   Bell, Bookmark, CheckCircle2, ChevronLeft,
@@ -10,6 +11,7 @@ import {
 } from 'lucide-react';
 import { createClient, hasSupabase } from '@/lib/supabase/client';
 import { EMOJI, sampleQuestions } from '@/lib/sampleData';
+import type { AnswerDetail, QuestionDetail, RelatedQuestion } from '@/lib/question-detail';
 import { createQuestionSlug } from '@/lib/slugs';
 import styles from './QuestionClient.module.css';
 
@@ -49,18 +51,30 @@ function sampleQuestion(slug: string) {
 }
 
 const CATS = ['재테크 입문','주식·ETF','절세','보험','대출·부채'];
+const EMPTY_ANSWERS: AnswerDetail[] = [];
+const EMPTY_RELATED: RelatedQuestion[] = [];
 
-export default function QuestionClient({ slug }: { slug: string }) {
+export default function QuestionClient({
+  slug,
+  initialQuestion = null,
+  initialAnswers = EMPTY_ANSWERS,
+  initialRelated = EMPTY_RELATED,
+}: {
+  slug: string;
+  initialQuestion?: QuestionDetail | null;
+  initialAnswers?: AnswerDetail[];
+  initialRelated?: RelatedQuestion[];
+}) {
   const router = useRouter();
   const dropRef = useRef<HTMLDivElement>(null);
 
-  const [q, setQ] = useState<any>(null);
-  const [answers, setAnswers] = useState<any[]>([]);
-  const [related, setRelated] = useState<any[]>([]);
+  const [q, setQ] = useState<any>(initialQuestion);
+  const [answers, setAnswers] = useState<any[]>(initialAnswers);
+  const [related, setRelated] = useState<any[]>(initialRelated);
   const [user, setUser] = useState<any>(null);
   const [authLoading, setAuthLoading] = useState(true);
   const [answerBody, setAnswerBody] = useState('');
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!initialQuestion);
   const [submitting, setSubmitting] = useState(false);
   const [toast, setToast] = useState('');
   const [bookmarked, setBookmarked] = useState(false);
@@ -87,11 +101,12 @@ export default function QuestionClient({ slug }: { slug: string }) {
   // 질문 + 인증 로드
   useEffect(() => {
     if (!slug) { setLoading(false); return; }
-    const fallback = sampleQuestion(slug);
+    const fallback = initialQuestion || sampleQuestion(slug);
+    const fallbackRelated = initialRelated.length > 0 ? initialRelated : sampleQuestions.filter(i => i.slug !== slug).slice(0, 5);
 
     if (!hasSupabase()) {
       setQ(fallback);
-      setRelated(sampleQuestions.filter(i => i.slug !== slug).slice(0, 5));
+      setRelated(fallbackRelated);
       setLoading(false); setAuthLoading(false);
       return;
     }
@@ -114,7 +129,7 @@ export default function QuestionClient({ slug }: { slug: string }) {
 
       if (error || !qData) {
         setQ(fallback);
-        setRelated(sampleQuestions.filter(i => i.slug !== slug).slice(0, 5));
+        setRelated(fallbackRelated);
         setLoading(false);
         return;
       }
@@ -156,7 +171,7 @@ export default function QuestionClient({ slug }: { slug: string }) {
     })();
 
     return () => authSub.subscription.unsubscribe();
-  }, [slug]);
+  }, [slug, initialQuestion, initialRelated]);
 
   // 답변 제출
   const submitAnswer = async () => {
@@ -581,10 +596,10 @@ export default function QuestionClient({ slug }: { slug: string }) {
           <div className={styles.widget}>
             <div className={styles.widgetHead}>유사한 질문이 있어요.</div>
             {related.length > 0 ? related.map(r => (
-              <button key={r.id} className={styles.relatedItem} onClick={() => router.push(`/q/${r.slug || r.id}`)}>
+              <Link key={r.id} className={styles.relatedItem} href={`/q/${r.slug || r.id}`}>
                 <span>{r.title}</span>
                 <em>답변 {r.answer_count || 0}개</em>
-              </button>
+              </Link>
             )) : (
               <p style={{ padding: '12px 15px', fontSize: 13, color: 'var(--t3)' }}>같은 카테고리의 질문을 모으는 중이에요.</p>
             )}

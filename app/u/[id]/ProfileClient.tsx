@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ChevronLeft, MessageCircle, ThumbsUp } from 'lucide-react';
 import { createClient, hasSupabase } from '@/lib/supabase/client';
@@ -120,7 +121,7 @@ export default function ProfileClient({ userId }: { userId: string }) {
           questions.length === 0
             ? <Empty msg="아직 질문이 없어요"/>
             : questions.map(q => (
-              <div key={q.id} onClick={() => router.push(`/q/${q.slug || q.id}`)} style={{padding:'16px 20px',borderBottom:'1px solid #F9FAFB',cursor:'pointer',transition:'background .15s'}} onMouseEnter={e=>e.currentTarget.style.background='#FAFAFA'} onMouseLeave={e=>e.currentTarget.style.background='white'}>
+              <Link key={q.id} href={`/q/${q.slug || q.id}`} style={{display:'block',padding:'16px 20px',borderBottom:'1px solid #F9FAFB',cursor:'pointer',transition:'background .15s',textDecoration:'none'}} onMouseEnter={e=>e.currentTarget.style.background='#FAFAFA'} onMouseLeave={e=>e.currentTarget.style.background='white'}>
                 <div style={{display:'flex',gap:6,marginBottom:8,alignItems:'center'}}>
                   <span style={{fontSize:11,fontWeight:700,background:'#F2F4F6',color:'#4E5968',padding:'3px 8px',borderRadius:20}}>{q.category}</span>
                   {q.is_answered && <span style={{fontSize:11,fontWeight:700,background:'#E8F9EE',color:'#00C73C',padding:'3px 8px',borderRadius:20}}>✅ 채택됨</span>}
@@ -131,16 +132,16 @@ export default function ProfileClient({ userId }: { userId: string }) {
                   <span>·</span>
                   <span>{ft(q.created_at)}</span>
                 </div>
-              </div>
+              </Link>
             ))
         ) : (
           answers.length === 0
             ? <Empty msg="아직 답변이 없어요"/>
-            : answers.map(a => (
-              <div key={a.id} onClick={() => {
-                const questionPath = a.questions?.slug || a.questions?.id || a.question_id;
-                if (questionPath) router.push(`/q/${questionPath}`);
-              }} style={{padding:'16px 20px',borderBottom:'1px solid #F9FAFB',cursor:'pointer',transition:'background .15s'}} onMouseEnter={e=>e.currentTarget.style.background='#FAFAFA'} onMouseLeave={e=>e.currentTarget.style.background='white'}>
+            : answers.map(a => {
+              const questionPath = a.questions?.slug || a.questions?.id || a.question_id;
+
+              return (
+              <Link key={a.id} href={`/q/${questionPath}`} style={{display:'block',padding:'16px 20px',borderBottom:'1px solid #F9FAFB',cursor:'pointer',transition:'background .15s',textDecoration:'none'}} onMouseEnter={e=>e.currentTarget.style.background='#FAFAFA'} onMouseLeave={e=>e.currentTarget.style.background='white'}>
                 {a.is_adopted && <div style={{fontSize:11,fontWeight:700,color:'#00C73C',marginBottom:6}}>✅ 채택된 답변</div>}
                 <p style={{fontSize:13,color:'#8B95A1',marginBottom:6,fontWeight:500}}>→ {a.questions?.title || '질문'}</p>
                 <p style={{fontSize:14,color:'#191F28',lineHeight:1.6,marginBottom:8,display:'-webkit-box',WebkitLineClamp:2,WebkitBoxOrient:'vertical',overflow:'hidden'}}>{a.body}</p>
@@ -149,8 +150,9 @@ export default function ProfileClient({ userId }: { userId: string }) {
                   <span>·</span>
                   <span>{ft(a.created_at)}</span>
                 </div>
-              </div>
-            ))
+              </Link>
+              );
+            })
         )}
       </div>
     </div>

@@ -1,5 +1,27 @@
 # 패치노트
 
+## [2026-05-09] 아하형 질문 상세 SEO 강화
+**작업자:** Codex
+**태그:** #SEO #AhaReference #SSR #InternalLink
+
+### 변경사항
+- [SEO] 질문 상세 `/q/[slug]`가 서버에서 질문/답변/유사 질문 초기 데이터를 받아 HTML에 바로 노출되도록 개선
+- [SEO] 홈 질문 카드 제목, 질문 상세 유사 질문, 프로필 질문/답변 목록을 실제 `<a href>` 링크로 노출
+- [SEO] `dld`, `test`, `asdf`처럼 얇은 테스트성 질문은 sitemap 제외 + 상세 메타 `noindex, follow` 처리
+- [SEO] 테스트성 질문은 유사 질문 내부링크에서도 제외
+- [Data] 질문 상세 서버용 데이터 로더 `lib/question-detail.ts` 추가
+
+### 확인
+- [x] `npm_config_cache=/Users/yeho/Documents/New\ project/jaetechwhanip/.npm-cache npm run build` 통과
+- [ ] 라이브 `/q/monthly-300` HTML에 질문 제목/본문이 스피너보다 먼저 노출되는지 확인
+- [ ] 라이브 `/sitemap.xml`에서 테스트성 질문이 빠졌는지 확인
+
+### 다음 작업자 TODO
+- [ ] Supabase service role로 실제 테스트 질문 row 삭제 여부 결정
+- [ ] 답변 본문까지 구조화 데이터 `acceptedAnswer`/`suggestedAnswer`로 확장 검토
+
+---
+
 ## [2026-05-09] 질문 URL SEO 고도화
 **작업자:** Codex
 **태그:** #SEO #질문작성 #URL

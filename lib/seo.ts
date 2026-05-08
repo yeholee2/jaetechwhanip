@@ -30,6 +30,22 @@ export function truncateDescription(text: string, maxLength = 150) {
   return `${normalized.slice(0, maxLength - 1).trimEnd()}…`;
 }
 
+export function isIndexableQuestion(question: Pick<SeoQuestion, 'title' | 'body'>) {
+  const title = question.title.replace(/\s+/g, ' ').trim();
+  const body = question.body.replace(/\s+/g, ' ').trim();
+  const thinText = `${title} ${body}`.toLowerCase();
+  const blockedTestWords = /^(test|asdf|qwer|dld|aaa|bbb|ccc|테스트|ㄴㄴ|ㅇㅇ)$/i;
+
+  return (
+    title.length >= 6 &&
+    body.length >= 10 &&
+    title !== body &&
+    !blockedTestWords.test(title) &&
+    !blockedTestWords.test(body) &&
+    !/^(.)\1{2,}$/.test(thinText.replace(/\s+/g, ''))
+  );
+}
+
 export function sampleQuestionToSeo(slug: string): SeoQuestion | null {
   const question = sampleQuestions.find(item => item.slug === slug);
   if (!question) return null;
@@ -113,7 +129,8 @@ export async function fetchQuestionsForSitemap(): Promise<SeoQuestion[]> {
               createdAt: item.created_at,
               answerCount: item.answer_count ?? 0,
               likeCount: item.like_count ?? 0,
-            }));
+            }))
+            .filter(isIndexableQuestion);
         }
       }
     } catch {
@@ -121,18 +138,20 @@ export async function fetchQuestionsForSitemap(): Promise<SeoQuestion[]> {
     }
   }
 
-  return sampleQuestions.map(item => {
-    const optional = item as { createdAt?: string; likeCount?: number };
+  return sampleQuestions
+    .map(item => {
+      const optional = item as { createdAt?: string; likeCount?: number };
 
-    return {
-      id: item.id,
-      slug: item.slug,
-      title: item.title,
-      body: item.body,
-      category: item.cat,
-      createdAt: optional.createdAt,
-      answerCount: item.ans,
-      likeCount: optional.likeCount,
-    };
-  });
+      return {
+        id: item.id,
+        slug: item.slug,
+        title: item.title,
+        body: item.body,
+        category: item.cat,
+        createdAt: optional.createdAt,
+        answerCount: item.ans,
+        likeCount: optional.likeCount,
+      };
+    })
+    .filter(isIndexableQuestion);
 }
