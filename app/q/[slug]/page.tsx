@@ -1,43 +1,93 @@
 import { Metadata } from 'next';
-import { sampleQuestions } from '@/lib/sampleData';
+import {
+  fetchQuestionForSeo,
+  questionPath,
+  questionUrl,
+  SITE_NAME,
+  SITE_URL,
+  truncateDescription,
+} from '@/lib/seo';
 import QuestionClient from './QuestionClient';
 
 type Props = { params: { slug: string } };
+type QuestionForSeo = NonNullable<Awaited<ReturnType<typeof fetchQuestionForSeo>>>;
 
-const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+export const revalidate = 60;
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const fallback = sampleQuestions.find(item => item.slug === params.slug);
-  const SUPA_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const SUPA_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  if (!SUPA_URL || !SUPA_KEY) {
-    return fallback
-      ? { title: `${fallback.title} | 재테크한입`, description: fallback.body.slice(0, 120) }
-      : { title: '재테크한입' };
+  const question = await fetchQuestionForSeo(params.slug);
+
+  if (!question) {
+    return {
+      title: '질문을 찾을 수 없어요',
+      robots: { index: false, follow: true },
+    };
   }
 
-  try {
-    const column = UUID_RE.test(params.slug) ? 'id' : 'slug';
-    const res = await fetch(
-      `${SUPA_URL}/rest/v1/questions?${column}=eq.${encodeURIComponent(params.slug)}&select=title,body,category&limit=1`,
-      { headers: { apikey: SUPA_KEY, Authorization: `Bearer ${SUPA_KEY}` }, next: { revalidate: 60 } }
-    );
-    const data = await res.json();
-    const q = data?.[0] || fallback;
-    if (!q) return { title: '재테크한입' };
-    return {
-      title: `${q.title} | 재테크한입`,
-      description: q.body?.slice(0, 120) || q.title,
-      openGraph: {
-        title: q.title,
-        description: q.body?.slice(0, 120) || q.title,
-        siteName: '재테크한입',
-        type: 'article',
-      },
-    };
-  } catch { return { title: '재테크한입' }; }
+  const description = truncateDescription(question.body || question.title);
+  const canonicalPath = questionPath(question.slug);
+
+  return {
+    title: question.title,
+    description,
+    keywords: [question.category, '재테크 질문', '금융 Q&A', SITE_NAME].filter(Boolean) as string[],
+    alternates: {
+      canonical: canonicalPath,
+    },
+    openGraph: {
+      title: question.title,
+      description,
+      url: canonicalPath,
+      siteName: SITE_NAME,
+      locale: 'ko_KR',
+      type: 'article',
+      publishedTime: question.createdAt,
+      section: question.category,
+    },
+    twitter: {
+      card: 'summary',
+      title: question.title,
+      description,
+    },
+  };
 }
 
-export default function QuestionPage({ params }: Props) {
-  return <QuestionClient slug={params.slug} />;
+function jsonLdForQuestion(question: QuestionForSeo) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'QAPage',
+    mainEntity: {
+      '@type': 'Question',
+      name: question.title,
+      text: question.body,
+      url: questionUrl(question.slug),
+      dateCreated: question.createdAt,
+      answerCount: question.answerCount ?? 0,
+      upvoteCount: question.likeCount ?? 0,
+      about: question.category,
+      publisher: {
+        '@type': 'Organization',
+        name: SITE_NAME,
+        url: SITE_URL,
+      },
+    },
+  };
+}
+
+export default async function QuestionPage({ params }: Props) {
+  const question = await fetchQuestionForSeo(params.slug);
+
+  return (
+    <>
+      {question ? (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(jsonLdForQuestion(question)).replace(/</g, '\\u003c'),
+          }}
+        />
+      ) : null}
+      <QuestionClient slug={params.slug} />
+    </>
+  );
 }

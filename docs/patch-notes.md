@@ -1,5 +1,26 @@
 # 패치노트
 
+## [2026-05-09] SEO 기본 업로드
+**작업자:** Codex
+**태그:** #SEO #검색노출 #NextJS
+
+### 변경사항
+- [SEO] `app/robots.ts` 추가: `/robots.txt`에서 전체 공개, `/api`, `/auth` 제외, sitemap 연결
+- [SEO] `app/sitemap.ts` 추가: 홈 + 질문 상세 URL을 `/sitemap.xml`로 노출
+- [SEO] 질문 상세 `/q/[slug]`에 canonical, Open Graph, Twitter 메타, QAPage 구조화 데이터 추가
+- [SEO] 질문 상세 title 중복 가능성을 줄이도록 `title`을 질문 제목 기준으로 정리
+- [Infra] SEO 공통 상수/헬퍼를 `lib/seo.ts`로 분리
+
+### 확인
+- `npm_config_cache=/Users/yeho/Documents/New\ project/jaetechwhanip/.npm-cache npm run build` 통과
+
+### 다음 작업자 TODO
+- [ ] Vercel 최신 배포 READY 후 `/robots.txt`, `/sitemap.xml`, `/q/monthly-300` 라이브 확인
+- [ ] Google Search Console에 `https://jaetechwhanip.vercel.app/sitemap.xml` 제출
+- [ ] 운영 질문 수가 늘면 sitemap limit/페이지네이션 설계
+
+---
+
 ## [2026-05-09] 홈 피드 탭 고도화
 **작업자:** Codex
 **태그:** #홈 #피드 #UI개발
