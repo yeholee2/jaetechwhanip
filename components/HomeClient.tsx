@@ -100,26 +100,31 @@ export default function HomeClient({ initialQuestions }: { initialQuestions: Que
     const { data, error } = await query;
     if (error || !data) return;
 
-    const mapped: Question[] = data.map((q: any, i: number) => ({
-      id: i + pageNum * PAGE_SIZE,
-      cat: q.category || '재테크 입문',
-      topic: '일반',
-      author: '익명',
-      time: formatTime(q.created_at),
-      em: EMOJI[(i + pageNum * PAGE_SIZE) % EMOJI.length],
-      lv: 0,
-      title: q.title,
-      body: q.body || '',
-      ans: q.answer_count || 0,
-      adopted: q.is_answered || false,
-      slug: q.slug || q.id,
-      dbId: q.id,
-      likeCount: q.like_count || 0,
-      createdAt: q.created_at,
-    }));
+    const usefulRows = data.filter((q: any) => isUsefulQuestion(q.title, q.body));
+    const mapped: Question[] = usefulRows.map((q: any, i: number) => {
+      const seed = sampleQuestions.find(item => item.slug === (q.slug || q.id));
+
+      return {
+        id: i + pageNum * PAGE_SIZE,
+        cat: seed?.cat || q.category || '재테크 입문',
+        topic: seed?.topic || '일반',
+        author: seed?.author || '익명',
+        time: seed?.createdAt ? formatTime(seed.createdAt) : formatTime(q.created_at),
+        em: seed?.em || EMOJI[(i + pageNum * PAGE_SIZE) % EMOJI.length],
+        lv: seed?.lv ?? 0,
+        title: seed?.title || q.title,
+        body: seed?.body || q.body || '',
+        ans: seed?.ans ?? q.answer_count ?? 0,
+        adopted: seed?.adopted ?? q.is_answered ?? false,
+        slug: q.slug || seed?.slug || q.id,
+        dbId: q.id,
+        likeCount: seed?.likeCount ?? q.like_count ?? 0,
+        createdAt: seed?.createdAt || q.created_at,
+      };
+    });
 
     if (replace) {
-      setAllQs(mapped.length > 0 ? mapped : sampleQuestions);
+      setAllQs(mergeQuestions(mapped, seedQuestionsFor(cat, tab)));
     } else {
       setAllQs(prev => [...prev, ...mapped]);
     }
@@ -436,6 +441,22 @@ function sortQuestions(questions: Question[], tab: FeedTab) {
   return copy.sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
 }
 
+function seedQuestionsFor(cat: string, tab: FeedTab) {
+  return sampleQuestions
+    .filter(q => cat === '전체' || q.cat === cat)
+    .filter(q => tab !== 'waiting' || q.ans === 0);
+}
+
+function mergeQuestions(primary: Question[], fallback: Question[]) {
+  const seen = new Set<string>();
+  return [...primary, ...fallback].filter(question => {
+    const key = question.slug || question.dbId || String(question.id);
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
 function FeedSummary({
   activeTabLabel,
   currentCat,
@@ -473,6 +494,20 @@ function formatTime(dateStr: string): string {
   const h = Math.floor(m / 60);
   if (h < 24) return `${h}시간 전`;
   return `${Math.floor(h / 24)}일 전`;
+}
+
+function isUsefulQuestion(title: string, body?: string) {
+  const cleanTitle = String(title || '').replace(/\s+/g, ' ').trim();
+  const cleanBody = String(body || '').replace(/\s+/g, ' ').trim();
+  const testWords = /^(test|asdf|qwer|dld|aaa|bbb|ccc|테스트|ㄴㄴ|ㅇㅇ)$/i;
+
+  return (
+    cleanTitle.length >= 6 &&
+    cleanBody.length >= 10 &&
+    cleanTitle !== cleanBody &&
+    !testWords.test(cleanTitle) &&
+    !testWords.test(cleanBody)
+  );
 }
 
 function FeedList({ questions, mobile, router }: { questions: Question[], mobile: boolean, router: any }) {

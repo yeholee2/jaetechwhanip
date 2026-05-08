@@ -1,4 +1,4 @@
-import { sampleQuestions } from '@/lib/sampleData';
+import { getSampleAnswers, sampleQuestions } from '@/lib/sampleData';
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const TEST_TITLE_RE = /^(test|asdf|qwer|dld|aaa|bbb|ccc|테스트|ㄴㄴ|ㅇㅇ)$/i;
@@ -55,6 +55,7 @@ export type QuestionPageData = {
 function sampleQuestion(slug: string): QuestionDetail | null {
   const found = sampleQuestions.find(item => item.slug === slug);
   if (!found) return null;
+  const optional = found as { createdAt?: string; likeCount?: number; viewCount?: number };
 
   return {
     id: `sample-${found.id}`,
@@ -63,14 +64,27 @@ function sampleQuestion(slug: string): QuestionDetail | null {
     category: found.cat,
     slug: found.slug,
     author_id: null,
-    created_at: new Date(Date.now() - found.id * 3600000).toISOString(),
+    created_at: optional.createdAt || new Date(Date.now() - found.id * 3600000).toISOString(),
     answer_count: found.ans,
-    like_count: found.id * 3,
-    view_count: found.id * 127,
+    like_count: optional.likeCount ?? found.id * 3,
+    view_count: optional.viewCount ?? found.id * 127,
     is_answered: found.adopted,
     is_sample: true,
     users: { id: null, name: found.author, avatar_url: null },
   };
+}
+
+function sampleAnswers(slug: string, questionId: string): AnswerDetail[] {
+  return getSampleAnswers(slug).map(answer => ({
+    id: answer.id,
+    question_id: questionId,
+    body: answer.body,
+    author_id: null,
+    created_at: answer.createdAt,
+    like_count: answer.likeCount,
+    is_adopted: !!answer.adopted,
+    users: { id: null, name: answer.author, avatar_url: null },
+  }));
 }
 
 function sampleRelated(slug: string): RelatedQuestion[] {
@@ -92,29 +106,33 @@ function isUsefulRelatedTitle(title: string) {
 }
 
 function mapQuestion(row: any): QuestionDetail {
+  const seed = sampleQuestions.find(item => item.slug === (row.slug || row.id));
+  const seedOptional = seed as { createdAt?: string; likeCount?: number; viewCount?: number } | undefined;
+
   return {
     id: row.id,
-    title: row.title,
-    body: row.body || '',
-    category: row.category || '재테크 입문',
+    title: seed?.title || row.title,
+    body: seed?.body || row.body || '',
+    category: seed?.cat || row.category || '재테크 입문',
     slug: row.slug || row.id,
     author_id: row.author_id || null,
-    created_at: row.created_at,
-    answer_count: row.answer_count || 0,
-    like_count: row.like_count || 0,
-    view_count: row.view_count || 0,
-    is_answered: row.is_answered || false,
-    users: row.users || null,
+    created_at: seedOptional?.createdAt || row.created_at,
+    answer_count: seed?.ans ?? row.answer_count ?? 0,
+    like_count: seedOptional?.likeCount ?? row.like_count ?? 0,
+    view_count: seedOptional?.viewCount ?? row.view_count ?? 0,
+    is_answered: seed?.adopted ?? row.is_answered ?? false,
+    users: seed ? { id: row.users?.id || null, name: seed.author, avatar_url: row.users?.avatar_url || null } : row.users || null,
   };
 }
 
 export async function fetchQuestionPageData(slug: string): Promise<QuestionPageData> {
   const fallback = sampleQuestion(slug);
+  const fallbackAnswers = fallback ? sampleAnswers(slug, fallback.id) : [];
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
   if (!supabaseUrl || !supabaseKey) {
-    return { question: fallback, answers: [], related: sampleRelated(slug) };
+    return { question: fallback, answers: fallbackAnswers, related: sampleRelated(slug) };
   }
 
   const headers = { apikey: supabaseKey, Authorization: `Bearer ${supabaseKey}` };
@@ -126,13 +144,14 @@ export async function fetchQuestionPageData(slug: string): Promise<QuestionPageD
       { headers, next: { revalidate: 60 } }
     );
 
-    if (!questionRes.ok) return { question: fallback, answers: [], related: sampleRelated(slug) };
+    if (!questionRes.ok) return { question: fallback, answers: fallbackAnswers, related: sampleRelated(slug) };
 
     const questionRows = await questionRes.json();
     const rawQuestion = questionRows?.[0];
-    if (!rawQuestion) return { question: fallback, answers: [], related: sampleRelated(slug) };
+    if (!rawQuestion) return { question: fallback, answers: fallbackAnswers, related: sampleRelated(slug) };
 
     const question = mapQuestion(rawQuestion);
+    const seededAnswers = sampleAnswers(question.slug, question.id);
 
     const [answersRes, relatedRes] = await Promise.all([
       fetch(
@@ -153,10 +172,10 @@ export async function fetchQuestionPageData(slug: string): Promise<QuestionPageD
 
     return {
       question,
-      answers: Array.isArray(answers) ? answers : [],
+      answers: Array.isArray(answers) && answers.length > 0 ? answers : seededAnswers,
       related: indexableRelated.length > 0 ? indexableRelated : sampleRelated(slug),
     };
   } catch {
-    return { question: fallback, answers: [], related: sampleRelated(slug) };
+    return { question: fallback, answers: fallbackAnswers, related: sampleRelated(slug) };
   }
 }

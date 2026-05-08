@@ -10,7 +10,7 @@ import {
   Sparkles, Swords, ThumbsUp, User, X,
 } from 'lucide-react';
 import { createClient, hasSupabase } from '@/lib/supabase/client';
-import { EMOJI, sampleQuestions } from '@/lib/sampleData';
+import { EMOJI, getSampleAnswers, sampleQuestions } from '@/lib/sampleData';
 import type { AnswerDetail, QuestionDetail, RelatedQuestion } from '@/lib/question-detail';
 import { createQuestionSlug } from '@/lib/slugs';
 import { getAuthNickname, syncFinanceNickname } from '@/lib/nicknames';
@@ -41,14 +41,47 @@ function getUserName(user: any): string {
 function sampleQuestion(slug: string) {
   const found = sampleQuestions.find(item => item.slug === slug);
   if (!found) return null;
+  const optional = found as { createdAt?: string; likeCount?: number; viewCount?: number };
   return {
     id: `sample-${found.id}`,
     title: found.title, body: found.body, category: found.cat,
     slug: found.slug, author_id: null,
-    created_at: new Date(Date.now() - found.id * 3600000).toISOString(),
-    answer_count: found.ans, like_count: found.id * 3,
-    view_count: found.id * 127, is_answered: found.adopted, is_sample: true,
+    created_at: optional.createdAt || new Date(Date.now() - found.id * 3600000).toISOString(),
+    answer_count: found.ans, like_count: optional.likeCount ?? found.id * 3,
+    view_count: optional.viewCount ?? found.id * 127, is_answered: found.adopted, is_sample: true,
     users: { id: null, name: found.author, avatar_url: null },
+  };
+}
+
+function sampleAnswerRows(slug: string, questionId: string) {
+  return getSampleAnswers(slug).map(answer => ({
+    id: answer.id,
+    question_id: questionId,
+    body: answer.body,
+    author_id: null,
+    created_at: answer.createdAt,
+    like_count: answer.likeCount,
+    is_adopted: !!answer.adopted,
+    users: { id: null, name: answer.author, avatar_url: null },
+  }));
+}
+
+function seedQuestionOverlay(row: any) {
+  const seed = sampleQuestions.find(item => item.slug === (row?.slug || row?.id));
+  if (!seed) return row;
+  const optional = seed as { createdAt?: string; likeCount?: number; viewCount?: number };
+
+  return {
+    ...row,
+    title: seed.title,
+    body: seed.body,
+    category: seed.cat,
+    created_at: optional.createdAt || row.created_at,
+    answer_count: seed.ans,
+    like_count: optional.likeCount ?? row.like_count ?? 0,
+    view_count: optional.viewCount ?? row.view_count ?? 0,
+    is_answered: seed.adopted,
+    users: { ...(row.users || {}), name: seed.author },
   };
 }
 
@@ -105,9 +138,11 @@ export default function QuestionClient({
     if (!slug) { setLoading(false); return; }
     const fallback = initialQuestion || sampleQuestion(slug);
     const fallbackRelated = initialRelated.length > 0 ? initialRelated : sampleQuestions.filter(i => i.slug !== slug).slice(0, 5);
+    const fallbackAnswers = fallback ? sampleAnswerRows(fallback.slug, fallback.id) : [];
 
     if (!hasSupabase()) {
       setQ(fallback);
+      setAnswers(fallbackAnswers);
       setRelated(fallbackRelated);
       setLoading(false); setAuthLoading(false);
       return;
@@ -134,12 +169,14 @@ export default function QuestionClient({
 
       if (error || !qData) {
         setQ(fallback);
+        setAnswers(fallbackAnswers);
         setRelated(fallbackRelated);
         setLoading(false);
         return;
       }
 
-      setQ(qData);
+      const displayQuestion = seedQuestionOverlay(qData);
+      setQ(displayQuestion);
       supabase.from('questions').update({ view_count: (qData.view_count || 0) + 1 }).eq('id', qData.id);
 
       const [{ data: ans }, { data: rel }] = await Promise.all([
@@ -154,7 +191,8 @@ export default function QuestionClient({
       ]);
 
       const loadedAnswers = ans || [];
-      setAnswers(loadedAnswers);
+      const seededAnswers = sampleAnswerRows(displayQuestion.slug || slug, displayQuestion.id);
+      setAnswers(loadedAnswers.length > 0 ? loadedAnswers : seededAnswers);
       setRelated(rel || []);
 
       if (sessionUser) {
@@ -566,7 +604,9 @@ export default function QuestionClient({
           {/* 답변 목록 */}
           <section>
             <div className={styles.answersHead}>
-              <h2 style={{ fontSize: 16, fontWeight: 700 }}>{answers.length}개의 답변</h2>
+              <h2 style={{ fontSize: 16, fontWeight: 700 }}>
+                {answerCount > answers.length ? `주요 답변 ${answers.length}개` : `${answers.length}개의 답변`}
+              </h2>
               <button className={styles.aiBtn} onClick={() => showT('AI 요약은 곧 연결할게요.')}>
                 <Sparkles size={14} /> AI 요약
               </button>
