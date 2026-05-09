@@ -6,6 +6,7 @@
 
 ### 변경사항
 - [라우팅] 정식 콘텐츠 경로를 `/feed`로 추가하고 기존 `/articles`, `/articles/[slug]`, `/columns`, `/columns/[slug]`는 `/feed` 계열로 영구 이동
+- [라우팅] SEO용 `Location` 헤더가 확실히 나오도록 `next.config.js` redirects에도 `/articles`, `/columns` 레거시 경로를 등록
 - [네비게이션] PC/모바일 메뉴와 홈 사이드 링크의 UI 라벨을 `아티클`에서 `피드`로 정리
 - [피드] 한입 칼럼 + 외부 뉴스 카드가 같은 리스트에 섞이는 `/feed` 페이지 추가
 - [상세] 한입 자체 칼럼용 `/feed/[slug]` 상세 페이지와 canonical/OG 메타 추가
@@ -17,6 +18,7 @@
 ### 확인
 - [x] `npm run build` 통과
 - [x] Vercel Hobby 플랜 제한으로 hourly cron 배포 실패 확인 후 daily cron(`0 0 * * *`, 한국 오전 9시)으로 조정
+- [x] live `https://we.hannipmoney.com/feed` 200 확인
 - [ ] Supabase에서 `docs/migration_news_items.sql` 실행 필요
 - [x] Vercel production env에 `CRON_SECRET` 추가
 
