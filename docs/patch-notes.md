@@ -8,6 +8,7 @@
 1. **카드 모티브:** a-ha 그대로 → bg/border/shadow 모두 없음, 디바이더만
 2. **잉크/피드 카드 썸네일:** 좌측 정사각 (a-ha 패턴, 우리 spec 위 16:9 → 좌측 변경)
 3. **스파링 댓글:** 단일 피드 + 사이드 뱃지 + "투표 항목별 ▼" 필터 (두 컬럼 분리 X)
+4. **Primary 색:** a-ha 블루(#1e59da) 채택 (그린 X, 사용자 추가 결정)
 
 ### 변경
 - `docs/ui-principles.md` v2.2 — 카드 모티브 갱신 ("카드는 카드가 아니다")
@@ -24,6 +25,37 @@
 - [ ] (Codex/GPT — 현재 A·B 작업 끝나면 즉시) sparring-engagement-spec.md Phase 1~5 진행
 - [ ] (Codex) feed-page-spec.md 카드 새 레이아웃(좌측 정사각) 반영
 - [ ] (Codex) ui-principles v2.2 — 카드 background/border/shadow 모두 제거, 디바이더만
+
+---
+
+## [2026-05-09] ui-principles v2.1 — a-ha 추출본 큐레이션 흡수 — Claude
+**작업자:** Claude
+**태그:** #UIPrinciples #DesignTokens #Accessibility
+
+### 변경사항
+- `docs/ui-principles.md` v2 → v2.1 갱신
+- 외부 도구(TypeUI Style Extractor)로 추출한 a-ha 25개 md 파일을 큐레이션해서 신뢰값만 흡수
+- 추가:
+  - **Pretendard 폰트 스택 (full fallback)** — `Pretendard Variable, Pretendard, -apple-system, ..., 'Apple SD Gothic Neo', 'Noto Sans KR', ...`
+  - **모션 토큰 4종** — instant 150ms / fast 200ms / normal 300ms / slow 400ms
+  - **컴포넌트 필수 상태 7종 표** — default/hover/focus-visible/active/disabled/loading/error
+  - **접근성 표준** — WCAG 2.2 AA, 명도 대비 4.5:1, prefers-reduced-motion 존중
+  - **작성 규칙** — must / should 분리, 시스템 일관성 우선
+  - 색상 토큰 보강 (a-ha의 inverse 텍스트 색 #191f28 등)
+- 거른 노이즈:
+  - `radius.lg=16777200px` (1677만 px 버그)
+  - `color.surface.base=#000000` (검정 surface 오추출)
+  - `color.text.primary=#0000ee` (브라우저 링크 기본값 오추출)
+
+### 운영 룰 (지금부터)
+- 추출본 25개 md는 레포에 안 넣음 (재현 가능 + ui-principles.md가 SSOT)
+- GPT/Codex는 `docs/ui-principles.md`만 참조. 외부 추출본 직접 먹이지 말 것
+- UI 토큰 변경은 반드시 ui-principles.md 먼저 수정 → 그다음 코드/CSS 반영
+
+### 다음 작업자 TODO
+- [x] (Codex) `globals.css` 또는 토큰 파일에 v2.1 색상/폰트 스택/모션 반영 — fix/ui-v2.2-cleanup PR
+- [x] (Codex) 모든 인터랙티브 컴포넌트에 `focus-visible` 스타일 점검 — globals.css :focus-visible 글로벌
+- [x] (Codex) `prefers-reduced-motion` 미디어쿼리로 트랜지션 0ms 처리 — globals.css 추가됨
 
 ---
 
