@@ -51,8 +51,8 @@
 }
 
 .topicGrid .topicOn {
-  background: var(--blue);
-  border-color: var(--blue);
+  background: var(--primary);
+  border-color: var(--primary);
   color: #fff;
 }
 
@@ -79,14 +79,15 @@
 
 .card {
   background: var(--white);
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  margin-bottom: 10px;
-  transition: box-shadow .15s, transform .15s;
+  border: none;
+  box-shadow: 0 1px 3px rgba(0,0,0,.06);
+  border-radius: 16px;
+  margin-bottom: 12px;
+  transition: box-shadow var(--duration-instant), transform var(--duration-instant);
 }
 
 .card:hover {
-  box-shadow: 0 8px 20px rgba(0, 0, 0, .06);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, .08);
   transform: translateY(-1px);
 }
 
@@ -133,8 +134,9 @@
   text-align: center;
   color: var(--t3);
   background: var(--white);
-  border: 1px solid var(--line);
-  border-radius: 8px;
+  border: none;
+  box-shadow: 0 1px 3px rgba(0,0,0,.06);
+  border-radius: 16px;
 }
 
 .empty strong {

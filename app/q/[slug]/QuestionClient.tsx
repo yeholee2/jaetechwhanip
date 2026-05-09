@@ -818,21 +818,21 @@ function AskModal({ onClose, router, user, onToast }: any) {
         <div style={{ padding: '18px 22px 20px' }}>
           <div style={{ marginBottom: 12 }}>
             <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--t2)', display: 'block', marginBottom: 6 }}>카테고리</label>
-            <select value={cat} onChange={e => setCat(e.target.value)} style={{ width: '100%', padding: '10px 12px', border: '1.5px solid var(--line)', borderRadius: 9, fontSize: 14, outline: 'none' }}>
+            <select value={cat} onChange={e => setCat(e.target.value)} style={{ width: '100%', padding: '10px 12px', border: '1.5px solid var(--line)', borderRadius: 9, fontSize: 14 }}>
               {CATS.map(c => <option key={c}>{c}</option>)}
             </select>
           </div>
           <div style={{ marginBottom: 12 }}>
             <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--t2)', display: 'block', marginBottom: 6 }}>질문 제목</label>
-            <input value={title} onChange={e => setTitle(e.target.value)} placeholder="궁금한 점을 간단히 써주세요" style={{ width: '100%', padding: '11px 13px', border: '1.5px solid var(--line)', borderRadius: 9, fontSize: 14, outline: 'none', boxSizing: 'border-box' }} />
+            <input value={title} onChange={e => setTitle(e.target.value)} placeholder="궁금한 점을 간단히 써주세요" style={{ width: '100%', padding: '11px 13px', border: '1.5px solid var(--line)', borderRadius: 9, fontSize: 14, boxSizing: 'border-box' }} />
           </div>
           <div style={{ marginBottom: 16 }}>
             <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--t2)', display: 'block', marginBottom: 6 }}>상세 내용 <span style={{ fontWeight: 400, color: 'var(--t3)' }}>(선택)</span></label>
-            <textarea value={body} onChange={e => setBody(e.target.value)} rows={4} placeholder="상황을 더 설명해주시면 더 좋은 답변을 받을 수 있어요" style={{ width: '100%', padding: '11px 13px', border: '1.5px solid var(--line)', borderRadius: 9, fontSize: 14, outline: 'none', resize: 'none', boxSizing: 'border-box' }} />
+            <textarea value={body} onChange={e => setBody(e.target.value)} rows={4} placeholder="상황을 더 설명해주시면 더 좋은 답변을 받을 수 있어요" style={{ width: '100%', padding: '11px 13px', border: '1.5px solid var(--line)', borderRadius: 9, fontSize: 14, resize: 'none', boxSizing: 'border-box' }} />
           </div>
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
             <button onClick={onClose} style={{ height: 38, padding: '0 18px', background: 'var(--bg)', border: '1px solid var(--line)', borderRadius: 8, fontSize: 14 }}>취소</button>
-            <button onClick={submit} disabled={!title.trim()} style={{ height: 38, padding: '0 22px', background: title.trim() ? 'var(--blue)' : 'var(--line)', border: 'none', borderRadius: 8, color: title.trim() ? 'white' : 'var(--t3)', fontSize: 14, fontWeight: 700, cursor: title.trim() ? 'pointer' : 'default' }}>질문 올리기</button>
+            <button onClick={submit} disabled={!title.trim()} style={{ height: 38, padding: '0 22px', background: title.trim() ? 'var(--primary)' : 'var(--line)', border: 'none', borderRadius: 12, color: title.trim() ? 'white' : 'var(--t3)', fontSize: 14, fontWeight: 700, cursor: title.trim() ? 'pointer' : 'default' }}>질문 올리기</button>
           </div>
         </div>
       </div>

@@ -72,9 +72,9 @@
 }
 
 .filterRow a.on {
-  background: rgba(49, 130, 246, .1);
-  border-color: rgba(49, 130, 246, .24);
-  color: var(--blue-dk);
+  background: var(--primary-bg);
+  border-color: var(--primary);
+  color: var(--primary-strong);
 }
 
 .grid {
@@ -86,16 +86,18 @@
 .card {
   display: block;
   background: var(--white);
-  border: 1px solid var(--line);
-  border-radius: 8px;
+  border: none;
+  box-shadow: 0 1px 3px rgba(0,0,0,.06);
+  border-radius: 16px;
   padding: 18px;
   color: inherit;
   text-decoration: none;
+  transition: box-shadow var(--duration-instant), transform var(--duration-instant);
 }
 
 .card:hover {
-  border-color: rgba(49, 130, 246, .24);
-  box-shadow: 0 8px 24px rgba(49, 130, 246, .08);
+  box-shadow: 0 4px 14px rgba(0,0,0,.08);
+  transform: translateY(-1px);
 }
 
 .meta {
@@ -136,8 +138,8 @@
 }
 
 .columnBadge {
-  background: rgba(49, 130, 246, .1);
-  color: var(--blue-dk);
+  background: var(--primary-bg);
+  color: var(--primary-strong);
 }
 
 .newsBadge {
@@ -194,8 +196,9 @@
   text-align: center;
   color: var(--t3);
   background: var(--white);
-  border: 1px solid var(--line);
-  border-radius: 8px;
+  border: none;
+  box-shadow: 0 1px 3px rgba(0,0,0,.06);
+  border-radius: 16px;
 }
 
 .articleDetail {
@@ -228,7 +231,7 @@
 }
 
 .articleBody mark {
-  background: rgba(49, 130, 246, .12);
+  background: var(--primary-bg);
   color: inherit;
   padding: 0 3px;
 }

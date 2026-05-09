@@ -1,5 +1,27 @@
 # 패치노트
 
+## [2026-05-09] 전역 UI v2.1 토큰 반영 — Codex
+**작업자:** Codex
+**태그:** #UI #Tokens #Accessibility #AhaTone
+
+### 변경사항
+- [토큰] `globals.css`에 primary/text/font/motion/focus 토큰 추가 및 기존 `--blue`, `--t1~3` 별칭을 v2.1 값에 연결
+- [폰트] Pretendard Variable 우선 폰트 스택으로 교체
+- [카드] 홈/피드/스파링/토픽/질문 상세의 반복 카드·위젯·패널을 border 없이 `0 1px 3px rgba(0,0,0,.06)` shadow와 16px radius로 정리
+- [CTA] 나도 질문하기/질문 올리기/답변하기/활성 칩이 primary green 계열을 사용하도록 정리
+- [접근성] 전역 `:focus-visible` outline 및 `prefers-reduced-motion` 0ms 처리 추가
+
+### 확인
+- [x] `npm_config_cache=.npm-cache npm run build` 통과
+- [x] 로컬 `/`, `/feed`, `/sparring`, `/q/sp500-etf` 200 확인
+- [x] 토큰/focus/reduced-motion 및 주요 카드 shadow CSS 검색 확인
+- [ ] Vercel preview URL 동작 확인
+
+### 다음 작업자 TODO
+- [ ] 스파링 댓글·투표 시스템 v1 구현 시 새 토큰/카드 규칙 유지
+
+---
+
 ## [2026-05-09] 질문 상세 요약/CTA 정리 — Codex
 **작업자:** Codex
 **태그:** #QuestionDetail #UI #AhaTone
