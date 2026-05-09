@@ -27,11 +27,11 @@
 }
 .iconBtn:hover { background: var(--bg); }
 .btnAsk {
-  height: 36px; padding: 0 16px; background: var(--blue);
-  border-radius: 6px; color: #fff; font-size: 14px; font-weight: 700;
-  transition: background .12s;
+  height: 36px; padding: 0 16px; background: var(--primary);
+  border-radius: 8px; color: #fff; font-size: 14px; font-weight: 700;
+  transition: background var(--duration-instant) var(--ease-in-out);
 }
-.btnAsk:hover { background: var(--blue-dk); }
+.btnAsk:hover { background: var(--primary-dk); }
 
 /* 유저 아바타 */
 .avatar {
@@ -178,11 +178,11 @@
   margin-top: 10px;
 }
 .submitBtn {
-  height: 36px; padding: 0 20px; background: var(--blue);
+  height: 36px; padding: 0 20px; background: var(--primary);
   border-radius: 8px; color: #fff; font-size: 14px; font-weight: 700;
-  transition: background .12s;
+  transition: background var(--duration-instant) var(--ease-in-out);
 }
-.submitBtn:hover:not(:disabled) { background: var(--blue-dk); }
+.submitBtn:hover:not(:disabled) { background: var(--primary-dk); }
 .submitBtn:disabled { background: var(--line); color: var(--t3); cursor: default; }
 .guestBox {
   display: flex; align-items: center; gap: 14px;

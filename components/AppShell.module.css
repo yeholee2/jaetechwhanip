@@ -94,16 +94,16 @@
 .askBtn {
   height: 36px;
   padding: 0 16px;
-  border-radius: 6px;
-  background: var(--blue);
+  border-radius: 8px;
+  background: var(--primary);
   color: #fff;
   font-size: 14px;
   font-weight: 800;
-  transition: background .14s, transform .14s;
+  transition: background var(--duration-instant) var(--ease-in-out), transform var(--duration-instant) var(--ease-in-out);
 }
 
 .askBtn:hover {
-  background: var(--blue-dk);
+  background: var(--primary-dk);
 }
 
 .askBtn:active {
@@ -238,14 +238,14 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--blue);
+  background: var(--primary);
   color: #fff;
-  box-shadow: 0 4px 14px rgba(49, 130, 246, .32);
+  box-shadow: 0 4px 14px rgba(3, 199, 90, .32);
 }
 
 .bnavAsk span:last-child {
   margin-top: -2px;
-  color: var(--blue);
+  color: var(--primary);
 }
 
 .filterBar {

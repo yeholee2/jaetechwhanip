@@ -13,20 +13,54 @@
 }
 
 :root {
+  /* === Primary brand (재테크한입 — 네이버 그린) === */
+  --primary:#03C75A; --primary-bg:#E5F8EE; --primary-dk:#02A04B;
+  /* Legacy blue accent (서브 액센트, 링크/포커스 등에서 점진 사용) */
   --blue:#3182F6; --blue-bg:#EBF3FF; --blue-dk:#1A6DE0;
+  /* 텍스트 / 배경 (a-ha gray scale 매칭) */
   --t1:#191F28; --t2:#4E5968; --t3:#8B95A1;
-  --line:#E5E8EB; --bg:#F9FAFB; --white:#fff;
+  --line:#E5E8EB; --bg:#F9FAFB; --white:#fff; --surface:#fff;
   --orange:#FF6B35;
+  --kakao:#FEE500;
   --sb: env(safe-area-inset-bottom, 0px);
+
+  /* === 모션 토큰 (a-ha 추출본 그대로) === */
+  --duration-instant: 150ms;
+  --duration-fast: 200ms;
+  --duration-normal: 300ms;
+  --duration-slow: 400ms;
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
 }
 
 *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
 html, body { height:100%; overflow-x:hidden; }
 body {
-  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
+  /* Pretendard Variable 우선 + 한글 fallback 풀 스택 (a-ha 동일) */
+  font-family:
+    'Pretendard Variable', Pretendard,
+    -apple-system, BlinkMacSystemFont, system-ui,
+    Roboto, 'Helvetica Neue', 'Segoe UI',
+    'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic',
+    'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
+    sans-serif;
   background: var(--bg);
   color: var(--t1);
   font-size: 15px;
+}
+
+/* === 접근성: 키보드 포커스 인디케이터 (WCAG 2.2 AA) === */
+:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+/* 모션 감소 선호하는 사용자 존중 */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0ms !important;
+    transition-duration: 0ms !important;
+  }
 }
 a { text-decoration:none; color:inherit; }
 button { font-family:inherit; cursor:pointer; border:none; background:none; }
