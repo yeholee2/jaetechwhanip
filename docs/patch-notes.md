@@ -9,13 +9,14 @@
 - [네비게이션] PC/모바일 메뉴와 홈 사이드 링크의 UI 라벨을 `아티클`에서 `피드`로 정리
 - [피드] 한입 칼럼 + 외부 뉴스 카드가 같은 리스트에 섞이는 `/feed` 페이지 추가
 - [상세] 한입 자체 칼럼용 `/feed/[slug]` 상세 페이지와 canonical/OG 메타 추가
-- [RSS] `news_items` 수집용 `/api/cron/fetch-news` 추가, `vercel.json` hourly cron 추가
+- [RSS] `news_items` 수집용 `/api/cron/fetch-news` 추가, `vercel.json` daily cron 추가
 - [RSS] `news_items` 테이블이 아직 없어도 cron이 500으로 실패하지 않고 `news_items_table_missing`으로 넘어가도록 안전 처리
 - [DB] `docs/migration_news_items.sql` 추가
 - [SEO] sitemap에 `/feed` 및 `/feed/[slug]` 포함
 
 ### 확인
 - [x] `npm run build` 통과
+- [x] Vercel Hobby 플랜 제한으로 hourly cron 배포 실패 확인 후 daily cron(`0 0 * * *`, 한국 오전 9시)으로 조정
 - [ ] Supabase에서 `docs/migration_news_items.sql` 실행 필요
 - [x] Vercel production env에 `CRON_SECRET` 추가
 
