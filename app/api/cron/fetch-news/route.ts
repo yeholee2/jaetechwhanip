@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import { NEWS_SOURCES, classifyNewsCategory } from '@/lib/feed';
+import { parseRss, truncateText } from '@/lib/rss';
 
 export const dynamic = 'force-dynamic';
 
@@ -54,7 +55,15 @@ export async function GET(req: Request) {
     }).then(res => (res.ok ? res.text() : null)).catch(() => null);
 
     if (!feed) continue;
-    rows.push(...parseRssItems(feed, source.name));
+    rows.push(...parseRss(feed, 20).map(item => ({
+      source: source.name,
+      title: item.title,
+      summary: truncateText(item.description, 200),
+      url: item.link,
+      thumbnail_url: item.thumbnailUrl,
+      category: classifyNewsCategory(item.title, item.description),
+      published_at: item.publishedAt,
+    })));
   }
 
   if (rows.length === 0) {
@@ -83,61 +92,4 @@ export async function GET(req: Request) {
     inserted: rows.length,
     sources: NEWS_SOURCES.length,
   });
-}
-
-function parseRssItems(xml: string, source: string): ParsedNews[] {
-  return Array.from(xml.matchAll(/<item\b[\s\S]*?<\/item>/gi))
-    .slice(0, 20)
-    .map(match => parseRssItem(match[0], source))
-    .filter((item): item is ParsedNews => !!item);
-}
-
-function parseRssItem(itemXml: string, source: string): ParsedNews | null {
-  const title = readTag(itemXml, 'title');
-  const url = readTag(itemXml, 'link');
-  const summary = stripHtml(readTag(itemXml, 'description')).slice(0, 200);
-  const publishedRaw = readTag(itemXml, 'pubDate') || readTag(itemXml, 'dc:date');
-  const thumbnail = readEnclosure(itemXml);
-
-  if (!title || !url) return null;
-
-  const publishedAt = publishedRaw && !Number.isNaN(new Date(publishedRaw).getTime())
-    ? new Date(publishedRaw).toISOString()
-    : new Date().toISOString();
-
-  return {
-    source,
-    title,
-    summary,
-    url,
-    thumbnail_url: thumbnail,
-    category: classifyNewsCategory(title, summary),
-    published_at: publishedAt,
-  };
-}
-
-function readTag(xml: string, tag: string) {
-  const pattern = new RegExp(`<${tag}\\b[^>]*>([\\s\\S]*?)<\\/${tag}>`, 'i');
-  const match = xml.match(pattern);
-  return decodeXml(match?.[1] || '').trim();
-}
-
-function readEnclosure(xml: string) {
-  const enclosure = xml.match(/<enclosure\b[^>]*url=["']([^"']+)["'][^>]*>/i);
-  const media = xml.match(/<media:content\b[^>]*url=["']([^"']+)["'][^>]*>/i);
-  return decodeXml(enclosure?.[1] || media?.[1] || '').trim() || null;
-}
-
-function stripHtml(value: string) {
-  return value.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
-}
-
-function decodeXml(value: string) {
-  return value
-    .replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, '$1')
-    .replace(/&amp;/g, '&')
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'");
 }

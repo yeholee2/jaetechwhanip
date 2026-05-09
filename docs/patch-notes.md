@@ -1,5 +1,32 @@
 # 패치노트
 
+## [2026-05-09] 피드 v2 실데이터화 — Codex
+**작업자:** Codex
+**태그:** #Feed #Ghost #RSS #SEO #NewsClick
+
+### 변경사항
+- [Ghost] `/feed`와 `/feed/[slug]`가 `https://www.hannipmoney.com/rss/`에서 한입머니 Ghost 글을 실시간으로 읽어오도록 연결
+- [상세] Ghost RSS 본문(`content:encoded`)을 안전하게 정리해서 `/feed/[slug]`에 렌더링하고, 원문 Ghost 글로 이동하는 링크 추가
+- [RSS] `lib/rss.ts` 공용 RSS 파서/본문 정리 헬퍼 추가. cron 수집 API와 Ghost 피드가 같은 파서를 사용
+- [피드] 한입 칼럼 + 외부 뉴스 통합 fetch(`fetchFeedItems`)로 정리하고, 피드 통계/출처 배지/조회수 표시 추가
+- [카테고리] 피드 기준 6개 카테고리(`재테크입문/국내주식·ETF/해외주식·ETF/절세/보험/대출·부채`)로 자동 매핑 정리
+- [뉴스] 외부 뉴스 클릭을 `/api/feed/news-click` 경유로 처리해 허용된 RSS 매체 URL만 이동시키고 `click_count` 증가 시도
+- [뉴스] `https://rss.mt.co.kr/mt_stock.xml`은 실제 404 응답 확인되어 운영 소스에서 제외
+
+### 확인
+- [x] `npm run build` 통과
+- [x] 로컬 `/feed`에서 Ghost 최신 글 노출 확인
+- [x] 로컬 `/feed/lunr-jugajeonmang` 200 및 상세 본문/메타/원문 링크 확인
+- [x] `/api/feed/news-click` 허용 뉴스 URL은 302, 비허용 URL은 400 확인
+- [ ] Supabase production `public.news_items` 테이블은 아직 없음. `docs/migration_news_items.sql` 실행 필요
+
+### 다음 작업자 TODO
+- [ ] Supabase SQL Editor에서 `docs/migration_news_items.sql` 실행 후 cron 수집 재확인
+- [ ] RSS 매체별 약관 확인 후 운영 소스 2~3개부터 유지/확정
+- [ ] 운영 1주 후 카테고리 자동 매핑 키워드 보강
+
+---
+
 ## [2026-05-09] 피드 전환 + RSS v1 — Codex
 **작업자:** Codex
 **태그:** #Feed #RSS #SEO #Routing
@@ -23,9 +50,9 @@
 - [x] Vercel production env에 `CRON_SECRET` 추가
 
 ### 다음 작업자 TODO
-- [ ] Ghost Content API 실제 연결 후 한입 칼럼을 `hanipArticles` 하드코딩에서 CMS fetch로 교체
+- [x] Ghost RSS 실제 연결 후 한입 칼럼을 `hanipArticles` 하드코딩에서 CMS fetch로 교체
 - [ ] RSS 매체별 약관 확인 후 운영 소스 2~3개부터 켜기
-- [ ] `news_items.click_count` 증가 API 추가
+- [x] `news_items.click_count` 증가 API 추가
 
 ---
 
