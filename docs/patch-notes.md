@@ -15,7 +15,8 @@
 - [x] `npm_config_cache=.npm-cache npm run build` 통과
 - [x] 로컬 `/sparring`, `/sparring/sp500-etf-entry` 200 확인
 - [x] 투표 → 결과 노출 → 양측 댓글 입력 → 두 컬럼 분리 확인
-- [x] Vercel preview `/sparring`, `/sparring/sp500-etf-entry` 200 확인: `https://jaetechwhanip-git-feat-sparring-engagement-yeholees-projects.vercel.app`
+- [x] Vercel preview 배포 URL `/sparring`, `/sparring/sp500-etf-entry` 200 확인: `https://jaetechwhanip-b5htlg6bu-yeholees-projects.vercel.app`
+- [x] 브랜치 별칭: `https://jaetechwhanip-git-feat-sparring-engagement-yeholees-projects.vercel.app`
 
 ### 다음 작업자 TODO
 - [ ] Supabase SQL Editor에서 `docs/migration_sparring_engagement.sql` 실행 후 실사용 투표/댓글 저장 확인
