@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import type { CSSProperties } from 'react';
 import { Clock3, Megaphone, UsersRound } from 'lucide-react';
+import BookmarkButton from '@/components/bookmark/BookmarkButton';
 import Countdown from '@/components/sparring/Countdown';
 import type { Sparring } from '@/lib/sparring';
 import styles from './SparringCards.module.css';
@@ -45,6 +46,15 @@ export default function SparringActiveCard({ sparring }: { sparring: Sparring })
           <strong><Megaphone size={16} /> 참여하기</strong>
         </div>
       </Link>
+      <div className={styles.activeBookmark}>
+        <BookmarkButton
+          targetType="sparring"
+          targetId={sparring.slug}
+          title={sparring.title}
+          href={`/sparring/${sparring.slug}`}
+          category={sparring.category}
+        />
+      </div>
     </article>
   );
 }

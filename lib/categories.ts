@@ -93,8 +93,12 @@ export function normalizeCategory(input?: string | null) {
 }
 
 export function getCategoryBySlug(slug: string) {
+  const decoded = decodeURIComponent(slug);
   return CATEGORY_DEFINITIONS.find(category => (
-    category.slug === slug || category.aliases?.includes(slug)
+    category.slug === decoded ||
+    category.key === decoded ||
+    category.label === decoded ||
+    category.aliases?.includes(decoded)
   )) || null;
 }
 

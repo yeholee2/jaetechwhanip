@@ -1,0 +1,31 @@
+.button {
+  height: 42px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 0 14px;
+  border-radius: 12px;
+  background: var(--primary);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 850;
+  transition: background var(--duration-instant), transform var(--duration-instant);
+}
+
+.button:hover {
+  background: var(--primary-dk);
+}
+
+.button:active {
+  transform: scale(.98);
+}
+
+.following {
+  background: #eef1f4;
+  color: var(--t2);
+}
+
+.following:hover {
+  background: #e5e8eb;
+}

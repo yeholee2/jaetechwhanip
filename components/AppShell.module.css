@@ -91,6 +91,39 @@
   background: var(--bg);
 }
 
+.searchForm {
+  width: 220px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 0 10px;
+  border-radius: 12px;
+  background: #f3f5f6;
+  color: var(--t3);
+}
+
+.searchForm input,
+.moSearchForm input {
+  min-width: 0;
+  flex: 1;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--t1);
+  font: inherit;
+  font-size: 14px;
+}
+
+.searchForm button {
+  width: 24px;
+  height: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--t3);
+}
+
 .askBtn {
   height: 36px;
   padding: 0 16px;
@@ -161,6 +194,18 @@
 .moIcons {
   display: flex;
   gap: 2px;
+}
+
+.moSearchForm {
+  height: 42px;
+  margin: 0 16px 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 12px;
+  border-radius: 12px;
+  background: #f3f5f6;
+  color: var(--t3);
 }
 
 .moIcon {
