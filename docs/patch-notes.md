@@ -13,7 +13,7 @@
 ### 확인
 - [x] `npm_config_cache=.npm-cache npm run build` 통과
 - [x] 금지 문구/클래스 잔여 검색 확인
-- [ ] Vercel preview URL 동작 확인
+- [x] Vercel preview `/q/sp500-etf` 200 확인: `https://jaetechwhanip-git-fix-q-detail-cleanup-yeholees-projects.vercel.app/q/sp500-etf`
 
 ### 다음 작업자 TODO
 - [ ] 전역 UI 토큰 정리 작업에서 질문 상세 카드/CTA 색상도 함께 재점검
