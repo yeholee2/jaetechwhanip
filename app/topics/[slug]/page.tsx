@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { MessageCircle, Search } from 'lucide-react';
+import { AppShell, UnifiedFilterBar } from '@/components/AppShell';
+import { CATEGORY_FILTERS, TOPIC_TABS } from '@/lib/ia';
 import { questionPath, SITE_NAME, truncateDescription } from '@/lib/seo';
 import { fetchTopicQuestions, getTopicBySlug, TOPICS, topicPath, topicUrl } from '@/lib/topics';
 import styles from './TopicPage.module.css';
@@ -72,7 +74,7 @@ export default async function TopicPage({ params }: Props) {
   const questions = await fetchTopicQuestions(topic);
 
   return (
-    <main className={styles.page}>
+    <AppShell active="topics">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
@@ -80,24 +82,18 @@ export default async function TopicPage({ params }: Props) {
         }}
       />
 
-      <nav className={styles.nav}>
-        <Link className={`${styles.logo} logo-font`} href="/">
-          재테크<em>한입</em>
-        </Link>
-        <div className={styles.navLinks}>
-          {TOPICS.slice(0, 4).map(item => (
-            <Link key={item.slug} href={topicPath(item.slug)} className={item.slug === topic.slug ? styles.active : ''}>
-              {item.category}
-            </Link>
-          ))}
-        </div>
-      </nav>
-
       <header className={styles.header}>
         <span className={styles.eyebrow}>토픽</span>
         <h1>{topic.title} 모음</h1>
         <p>{topic.description}</p>
       </header>
+
+      <UnifiedFilterBar
+        tabs={TOPIC_TABS}
+        activeTab="popular"
+        categories={CATEGORY_FILTERS}
+        activeCategory={topic.category}
+      />
 
       <section className={styles.topicGrid} aria-label="재테크 토픽">
         {TOPICS.map(item => (
@@ -130,6 +126,6 @@ export default async function TopicPage({ params }: Props) {
           </div>
         )}
       </section>
-    </main>
+    </AppShell>
   );
 }

@@ -1,5 +1,34 @@
 # 패치노트
 
+## [2026-05-09] IA 1차 정렬 — 공통 앱 골격 도입
+**작업자:** Codex
+**태그:** #IA #AhaReference #Navigation #MobileUX #UI
+
+### 변경사항
+- [IA] Claude의 `재테크한입-IA-redesign.md` 방향 반영: 홈 골격을 토픽/스파링/칼럼에도 이식하는 쪽으로 1차 정렬
+- [공통] `components/AppShell.tsx` 추가
+  - PC 공통 네비: 홈 / 토픽 / 스파링 / 칼럼 / 미션 / 검색 / 알림 / 나도 질문하기
+  - 모바일 공통 상단 네비 + 하단 탭바: 홈 / 토픽 / 질문 / 스파링 / 마이
+  - 헤더 아래 한 줄 슬로건 추가
+- [공통] `UnifiedFilterBar` 추가
+  - 페이지별 탭 이름은 다르지만 위치/간격/카테고리 칩은 같은 패턴 사용
+- [토픽] `/topics/[slug]`를 AppShell 기반으로 교체
+- [스파링] `/sparring`을 AppShell 기반으로 교체
+- [칼럼] `/columns`를 AppShell 기반으로 교체
+- [토큰] `lib/ia.ts`에 공통 카테고리/탭 구성을 분리
+
+### 확인
+- [x] `npm_config_cache=/Users/yeho/Documents/New\ project/jaetechwhanip/.npm-cache npm run build` 통과
+- [x] 로컬 `/topics/stocks-etf`, `/sparring`, `/columns`에서 공통 헤더/슬로건/필터/모바일 하단탭 HTML 노출 확인
+
+### 다음 작업자 TODO
+- [ ] 홈 `HomeClient`도 AppShell/UnifiedFilterBar 내부 구조로 점진 통합
+- [ ] QnACard/TopicCard/SparringCard/ColumnCard를 별도 컴포넌트로 추출
+- [ ] 홈을 큐레이션 허브로 재배치: 스파링 → Q&A → 추천 토픽 → 칼럼
+- [ ] 같은 topicId 기반 Q&A/스파링/칼럼 cross-link 추가
+
+---
+
 ## [2026-05-09] 칼럼 서브도메인 준비 + 주식·ETF 정보창/태그 UX
 **작업자:** Codex
 **태그:** #Column #Subdomain #ETF #QuestionUX #SEO

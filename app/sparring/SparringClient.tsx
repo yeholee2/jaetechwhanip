@@ -1,9 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import Link from 'next/link';
 import {
-  ArrowLeft,
   BarChart3,
   CheckCircle2,
   ChevronRight,
@@ -15,6 +13,8 @@ import {
   ThumbsDown,
   ThumbsUp,
 } from 'lucide-react';
+import { AppShell, UnifiedFilterBar } from '@/components/AppShell';
+import { CATEGORY_FILTERS, SPARRING_TABS } from '@/lib/ia';
 import styles from './SparringPage.module.css';
 
 const SCENARIOS = [
@@ -80,24 +80,21 @@ export default function SparringClient() {
   };
 
   return (
-    <main className={styles.page}>
-      <nav className={styles.nav}>
-        <Link className={`${styles.logo} logo-font`} href="/">재테크<em>한입</em></Link>
-        <div className={styles.navLinks}>
-          <Link href="/">홈</Link>
-          <Link href="/topics/finance-basics">토픽</Link>
-          <Link className={styles.active} href="/sparring">스파링</Link>
-        </div>
-      </nav>
-
+    <AppShell active="sparring">
       <section className={styles.header}>
-        <Link href="/" className={styles.back}><ArrowLeft size={16} /> 홈</Link>
         <div>
-          <span className={styles.eyebrow}><Swords size={15} /> Money Sparring</span>
+          <span className={styles.eyebrow}><Swords size={15} /> 스파링</span>
           <h1>돈 결정, 바로 지르기 전에 한 판 붙어보기</h1>
           <p>찬성 쪽과 반대 쪽을 같이 세워두고, 내가 놓친 리스크를 먼저 확인해요.</p>
         </div>
       </section>
+
+      <UnifiedFilterBar
+        tabs={SPARRING_TABS}
+        activeTab="ongoing"
+        categories={CATEGORY_FILTERS}
+        activeCategory="전체"
+      />
 
       <section className={styles.layout}>
         <aside className={styles.rail} aria-label="스파링 주제">
@@ -207,6 +204,6 @@ export default function SparringClient() {
           </div>
         </aside>
       </section>
-    </main>
+    </AppShell>
   );
 }

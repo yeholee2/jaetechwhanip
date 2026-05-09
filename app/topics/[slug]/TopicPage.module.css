@@ -1,57 +1,5 @@
-.page {
-  min-height: 100vh;
-  background: #f9fafb;
-  color: #191f28;
-}
-
-.nav {
-  height: 58px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 24px;
-  max-width: 960px;
-  margin: 0 auto;
-  padding: 0 20px;
-  background: #fff;
-  border-bottom: 1px solid #e5e8eb;
-}
-
-.logo {
-  font-size: 20px;
-  font-weight: 800;
-  color: #191f28;
-  text-decoration: none;
-  white-space: nowrap;
-}
-
-.logo em {
-  color: #00c73c;
-  font-style: normal;
-}
-
-.navLinks {
-  display: flex;
-  gap: 18px;
-  overflow-x: auto;
-  white-space: nowrap;
-}
-
-.navLinks a {
-  color: #6b7684;
-  font-size: 14px;
-  font-weight: 700;
-  text-decoration: none;
-}
-
-.navLinks .active {
-  color: #00c73c;
-}
-
 .header {
-  max-width: 960px;
-  margin: 0 auto;
-  padding: 38px 20px 20px;
+  padding: 24px 0 8px;
 }
 
 .eyebrow {
@@ -60,30 +8,29 @@
   height: 28px;
   padding: 0 10px;
   border-radius: 999px;
-  background: #e8f9ee;
-  color: #00a834;
+  background: var(--blue-bg);
+  color: var(--blue);
   font-size: 12px;
   font-weight: 800;
   margin-bottom: 12px;
 }
 
 .header h1 {
-  font-size: 30px;
+  font-size: 28px;
   line-height: 1.25;
   margin-bottom: 10px;
+  letter-spacing: 0;
 }
 
 .header p {
-  color: #4e5968;
+  color: var(--t2);
   font-size: 15px;
   line-height: 1.7;
   max-width: 640px;
 }
 
 .topicGrid {
-  max-width: 960px;
-  margin: 0 auto;
-  padding: 0 20px 18px;
+  padding: 2px 0 18px;
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
@@ -95,24 +42,22 @@
   align-items: center;
   padding: 0 14px;
   border-radius: 999px;
-  background: #fff;
-  border: 1px solid #e5e8eb;
-  color: #4e5968;
+  background: var(--white);
+  border: 1px solid var(--line);
+  color: var(--t2);
   text-decoration: none;
   font-size: 13px;
   font-weight: 700;
 }
 
 .topicGrid .topicOn {
-  background: #00c73c;
-  border-color: #00c73c;
+  background: var(--blue);
+  border-color: var(--blue);
   color: #fff;
 }
 
 .list {
-  max-width: 960px;
-  margin: 0 auto;
-  padding: 0 20px 56px;
+  padding: 0 0 56px;
 }
 
 .listHead {
@@ -128,14 +73,14 @@
 }
 
 .listHead span {
-  color: #8b95a1;
+  color: var(--t3);
   font-size: 13px;
 }
 
 .card {
-  background: #fff;
-  border: 1px solid #e5e8eb;
-  border-radius: 12px;
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: 8px;
   margin-bottom: 10px;
   transition: box-shadow .15s, transform .15s;
 }
@@ -155,7 +100,7 @@
 .card span {
   display: inline-flex;
   margin-bottom: 8px;
-  color: #00a834;
+  color: var(--blue);
   font-size: 12px;
   font-weight: 800;
 }
@@ -167,7 +112,7 @@
 }
 
 .card p {
-  color: #4e5968;
+  color: var(--t2);
   font-size: 14px;
   line-height: 1.65;
   margin-bottom: 12px;
@@ -177,7 +122,7 @@
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  color: #8b95a1;
+  color: var(--t3);
   font-size: 12px;
   font-style: normal;
   font-weight: 700;
@@ -186,15 +131,15 @@
 .empty {
   padding: 60px 20px;
   text-align: center;
-  color: #8b95a1;
-  background: #fff;
-  border: 1px solid #e5e8eb;
-  border-radius: 12px;
+  color: var(--t3);
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: 8px;
 }
 
 .empty strong {
   display: block;
-  color: #191f28;
+  color: var(--t1);
   margin: 12px 0 6px;
 }
 
@@ -203,18 +148,8 @@
 }
 
 @media (max-width: 720px) {
-  .nav {
-    position: sticky;
-    top: 0;
-    z-index: 10;
-  }
-
-  .navLinks {
-    display: none;
-  }
-
   .header {
-    padding-top: 28px;
+    padding-top: 20px;
   }
 
   .header h1 {

@@ -1,5 +1,7 @@
 import type { Metadata } from 'next';
+import { AppShell, UnifiedFilterBar } from '@/components/AppShell';
 import { columnArticles, COLUMN_URL } from '@/lib/columns';
+import { CATEGORY_FILTERS, COLUMN_TABS } from '@/lib/ia';
 import { SITE_NAME } from '@/lib/seo';
 import styles from './ColumnsPage.module.css';
 
@@ -36,43 +38,44 @@ export default function ColumnsPage() {
   };
 
   return (
-    <main className={styles.page}>
+    <AppShell active="columns">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <div className={styles.shell}>
-        <section className={styles.hero}>
-          <div>
-            <div className={styles.eyebrow}>재테크 칼럼</div>
-            <h1>질문하기 전에 한입만 읽어도 돈 고민이 선명해져요</h1>
-            <p>
-              재테크한입 칼럼은 어려운 금융 용어를 먼저 밀어 넣지 않고,
-              사람들이 실제로 헷갈리는 질문에서 출발해 주식·ETF·절세 판단 기준을 정리합니다.
-            </p>
-          </div>
-          <div className={styles.ruleBox}>
-            <strong>운영 원칙</strong>
-            <span>칼럼은 Q&A로 연결되고, Q&A는 다시 칼럼의 소재가 됩니다. 검색 유입과 커뮤니티 유동성을 같이 키우는 구조예요.</span>
-          </div>
-        </section>
+      <section className={styles.hero}>
+        <div>
+          <div className={styles.eyebrow}>칼럼</div>
+          <h1>질문하기 전에 한입만 읽어도 돈 고민이 선명해져요</h1>
+          <p>
+            질문에서 자주 막히는 부분을 칼럼으로 먼저 정리하고,
+            더 구체적인 상황은 Q&A와 스파링으로 이어가요.
+          </p>
+        </div>
+      </section>
 
-        <section className={styles.grid} aria-label="칼럼 목록">
-          {columnArticles.map(article => (
-            <article key={article.slug} className={styles.card}>
-              <div className={styles.meta}>
-                <span className={styles.category}>{article.category}</span>
-                <span>{article.readingTime}</span>
-              </div>
-              <h2>{article.title}</h2>
-              <p>{article.description}</p>
-              <div className={styles.tags}>
-                {article.tags.map(tag => <span key={tag}>{tag}</span>)}
-              </div>
-            </article>
-          ))}
-        </section>
-      </div>
-    </main>
+      <UnifiedFilterBar
+        tabs={COLUMN_TABS}
+        activeTab="recommended"
+        categories={CATEGORY_FILTERS}
+        activeCategory="전체"
+      />
+
+      <section className={styles.grid} aria-label="칼럼 목록">
+        {columnArticles.map(article => (
+          <article key={article.slug} className={styles.card}>
+            <div className={styles.meta}>
+              <span className={styles.category}>{article.category}</span>
+              <span>{article.readingTime} 읽기</span>
+            </div>
+            <h2>{article.title}</h2>
+            <p>{article.description}</p>
+            <div className={styles.tags}>
+              {article.tags.map(tag => <span key={tag}>{tag}</span>)}
+            </div>
+          </article>
+        ))}
+      </section>
+    </AppShell>
   );
 }
