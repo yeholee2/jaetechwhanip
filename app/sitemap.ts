@@ -1,5 +1,5 @@
 import type { MetadataRoute } from 'next';
-import { ARTICLE_URL } from '@/lib/articles';
+import { FEED_URL, hanipArticles } from '@/lib/feed';
 import { fetchQuestionsForSitemap, questionUrl, SITE_URL } from '@/lib/seo';
 import { TOPICS, topicUrl } from '@/lib/topics';
 
@@ -15,11 +15,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 1,
     },
     {
-      url: ARTICLE_URL,
+      url: FEED_URL,
       lastModified: now,
       changeFrequency: 'daily',
       priority: 0.85,
     },
+    ...hanipArticles.map(article => ({
+      url: `${FEED_URL}/${encodeURIComponent(article.slug)}`,
+      lastModified: new Date(article.publishedAt),
+      changeFrequency: 'monthly' as const,
+      priority: 0.65,
+    })),
     ...TOPICS.map(topic => ({
       url: topicUrl(topic.slug),
       lastModified: now,

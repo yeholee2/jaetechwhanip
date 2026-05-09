@@ -26,8 +26,10 @@ export const SPARRING_TABS = [
   { key: 'closed', label: '종료' },
 ];
 
-export const ARTICLE_TABS = [
-  { key: 'recommended', label: '추천' },
-  { key: 'latest', label: '최신' },
-  { key: 'popular', label: '인기' },
+export const FEED_TABS = [
+  { key: 'all', label: '전체' },
+  { key: 'column', label: '한입 칼럼' },
+  { key: 'news', label: '뉴스' },
 ];
+
+export const ARTICLE_TABS = FEED_TABS;

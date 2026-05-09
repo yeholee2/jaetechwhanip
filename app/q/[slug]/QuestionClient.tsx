@@ -456,7 +456,7 @@ export default function QuestionClient({
           <li><button onClick={() => router.push('/')}>홈</button></li>
           <li><button onClick={() => router.push('/topics/재테크-입문')}>토픽</button></li>
           <li><button onClick={() => router.push('/sparring')}>스파링</button></li>
-          <li><button onClick={() => router.push('/articles')}>아티클</button></li>
+          <li><button onClick={() => router.push('/feed')}>피드</button></li>
           <li><button>미션</button></li>
           <li><div className={styles.navSep} /></li>
           <li><button style={{ fontSize: 13, color: 'var(--t3)' }}>전문가 신청</button></li>
