@@ -2,8 +2,9 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 import type { ReactNode } from 'react';
-import { Bell, Home, LayoutList, Plus, Search, Swords, User } from 'lucide-react';
+import { Bell, Home, LayoutList, Plus, Search, Swords, User, X } from 'lucide-react';
 import styles from './AppShell.module.css';
 
 export type AppNavKey = 'home' | 'topics' | 'sparring' | 'feed' | 'mission' | 'my';
@@ -26,7 +27,17 @@ export function AppShell({
   wide?: boolean;
 }) {
   const router = useRouter();
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchValue, setSearchValue] = useState('');
   const ask = () => router.push('/auth?next=/');
+  const submitSearch = () => {
+    const query = searchValue.trim();
+    if (!query) {
+      setSearchOpen(open => !open);
+      return;
+    }
+    router.push(`/search?q=${encodeURIComponent(query)}`);
+  };
 
   return (
     <div className={styles.shell}>
@@ -44,7 +55,30 @@ export function AppShell({
           <li><a href="#" style={{ fontSize: 13, color: 'var(--t3)' }}>전문가 신청</a></li>
         </ul>
         <div className={styles.pcRight}>
-          <button className={styles.iconBtn} aria-label="검색"><Search size={18} /></button>
+          {searchOpen && (
+            <form
+              className={styles.searchForm}
+              onSubmit={event => {
+                event.preventDefault();
+                submitSearch();
+              }}
+            >
+              <Search size={16} />
+              <input
+                value={searchValue}
+                autoFocus
+                onChange={event => setSearchValue(event.target.value)}
+                placeholder="ETF 검색"
+              />
+              <button type="button" aria-label="검색 닫기" onClick={() => {
+                setSearchOpen(false);
+                setSearchValue('');
+              }}>
+                <X size={15} />
+              </button>
+            </form>
+          )}
+          {!searchOpen && <button className={styles.iconBtn} aria-label="검색" onClick={() => setSearchOpen(true)}><Search size={18} /></button>}
           <button className={styles.iconBtn} aria-label="알림"><Bell size={18} /></button>
           <button className={styles.askBtn} onClick={ask}>나도 질문하기</button>
         </div>
@@ -54,10 +88,27 @@ export function AppShell({
         <div className={styles.moTop}>
           <Link className={`${styles.moLogo} logo-font`} href="/">재테크<em>한입</em></Link>
           <div className={styles.moIcons}>
-            <button className={styles.moIcon} aria-label="검색"><Search size={20} /></button>
+            <button className={styles.moIcon} aria-label="검색" onClick={() => setSearchOpen(open => !open)}><Search size={20} /></button>
             <button className={styles.moIcon} aria-label="알림"><Bell size={20} /></button>
           </div>
         </div>
+        {searchOpen && (
+          <form
+            className={styles.moSearchForm}
+            onSubmit={event => {
+              event.preventDefault();
+              submitSearch();
+            }}
+          >
+            <Search size={16} />
+            <input
+              value={searchValue}
+              autoFocus
+              onChange={event => setSearchValue(event.target.value)}
+              placeholder="질문, 스파링, 피드 검색"
+            />
+          </form>
+        )}
         <nav className={styles.moGnav}>
           {NAV_ITEMS.map(item => (
             <Link key={item.key} href={item.href} className={active === item.key ? styles.active : ''}>

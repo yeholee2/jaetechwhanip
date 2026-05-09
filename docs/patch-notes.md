@@ -857,3 +857,24 @@
 - Supabase 프로젝트 생성
 - 카카오/Google OAuth 앱 생성
 - 레거시 백업 (`legacy/index.html`)
+
+---
+
+## [2026-05-10] 마이페이지 + 토픽 + 검색 v1
+**작업자:** Codex/GPT
+**태그:** #마이페이지 #토픽 #검색 #북마크 #팔로우
+
+### 변경사항
+- [DB] `bookmarks`, `follows` 테이블 마이그레이션 작성 (`docs/migration_my_page.sql`)
+- [기능] `/u/[id]` 마이페이지 5탭 구성: 내 질문, 내 답변, 저장한 글, 팔로우, 활동
+- [기능] Q&A/피드/스파링 카드 북마크 버튼 추가
+- [기능] `/topics/[slug]` 6개 토픽 라우트와 팔로우/질문/스파링/피드 통합 목록 구현
+- [기능] `/search?q=` 통합 검색과 질문/스파링/피드/토픽 탭 구현
+
+### 검증
+- [ ] `migration_my_page.sql` Supabase 실행 필요
+- [x] `npm run build` 통과
+- [x] 로컬 `/u/me` 200 확인
+- [x] 6개 토픽 라우트 200 확인
+- [x] 로컬 `/search?q=ETF` 4개 탭 결과 확인
+- [x] Vercel preview `/u/me`, `/search?q=ETF` 200 확인

@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import { Search, Bell, User, Plus, Home as HomeIcon, LayoutList, Swords, ThumbsUp, MessageCircle, Share2, Briefcase, TrendingUp, X, Newspaper, BarChart3, Tags } from 'lucide-react';
+import BookmarkButton from '@/components/bookmark/BookmarkButton';
 import { useRouter } from 'next/navigation';
 import { createClient, hasSupabase } from '@/lib/supabase/client';
 import { CATEGORY_EMOJI, CATEGORY_LABELS } from '@/lib/categories';
@@ -681,6 +682,13 @@ function FeedList({ questions, mobile, router }: { questions: Question[], mobile
                   <span style={{fontSize:12,color:'var(--t2)'}}><b>{q.ans}명</b>이 답변했어요</span>
                 </div>
                 <div style={{display:'flex',gap:2}}>
+                  <BookmarkButton
+                    targetType="question"
+                    targetId={questionPath}
+                    title={q.title}
+                    href={`/q/${questionPath}`}
+                    category={q.cat}
+                  />
                   <button className={styles.qbtn}><ThumbsUp size={14}/></button>
                   <button className={styles.qbtn}><MessageCircle size={14}/></button>
                   <button className={styles.qbtn} onClick={() => {

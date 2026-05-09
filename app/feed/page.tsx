@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { AppShell } from '@/components/AppShell';
+import BookmarkButton from '@/components/bookmark/BookmarkButton';
 import {
   FEED_CATEGORY_FILTERS,
   FEED_URL,
@@ -139,35 +140,56 @@ function feedItemKey(item: FeedItem) {
 }
 
 function FeedCard({ item }: { item: FeedItem }) {
+  const title = item.title;
+  const category = item.category;
+  const href = item.type === 'column' ? articleUrl(item.slug) : newsClickUrl(item.url);
+  const targetId = item.type === 'column' ? item.slug : item.url;
+
   if (item.type === 'news') {
     return (
-      <a className={styles.card} href={newsClickUrl(item.url)} target="_blank" rel="noreferrer">
-        <div className={styles.meta}>
-          <span className={styles.newsSource}><span className={styles.newsBadge}>뉴스</span>{item.source} · {item.category}</span>
-          <span className={styles.external}>원문 보기</span>
+      <article className={styles.cardWrap}>
+        <a className={styles.card} href={href} target="_blank" rel="noreferrer">
+          <div className={styles.thumb} aria-hidden="true">{item.source.slice(0, 2)}</div>
+          <div className={styles.cardBody}>
+            <div className={styles.meta}>
+              <span className={styles.newsSource}><span className={styles.newsBadge}>뉴스</span>{item.source} · {item.category}</span>
+              <span className={styles.external}>원문 보기</span>
+            </div>
+            <h2>{item.title}</h2>
+            <p>{item.summary}</p>
+            <div className={styles.tags}>
+              <span>{formatDate(item.publishedAt)}</span>
+              {(item.clickCount || 0) > 0 && <span>{item.clickCount}번 읽음</span>}
+            </div>
+          </div>
+        </a>
+        <div className={styles.bookmarkSlot}>
+          <BookmarkButton targetType="column" targetId={targetId} title={title} href={href} category={category} />
         </div>
-        <h2>{item.title}</h2>
-        <p>{item.summary}</p>
-        <div className={styles.tags}>
-          <span>{formatDate(item.publishedAt)}</span>
-          {(item.clickCount || 0) > 0 && <span>{item.clickCount}번 읽음</span>}
-        </div>
-      </a>
+      </article>
     );
   }
 
   return (
-    <Link className={styles.card} href={articleUrl(item.slug)}>
-      <div className={styles.meta}>
-        <span className={styles.source}><span className={styles.columnBadge}>한입</span>{item.category}</span>
-        <span>{item.readingTime} 읽기</span>
+    <article className={styles.cardWrap}>
+      <Link className={styles.card} href={href}>
+        <div className={styles.thumb} aria-hidden="true">한입</div>
+        <div className={styles.cardBody}>
+          <div className={styles.meta}>
+            <span className={styles.source}><span className={styles.columnBadge}>한입</span>{item.category}</span>
+            <span>{item.readingTime} 읽기</span>
+          </div>
+          <h2>{item.title}</h2>
+          <p>{item.description}</p>
+          <div className={styles.tags}>
+            {item.tags.map(tag => <span key={tag}>{tag}</span>)}
+          </div>
+        </div>
+      </Link>
+      <div className={styles.bookmarkSlot}>
+        <BookmarkButton targetType="column" targetId={targetId} title={title} href={href} category={category} />
       </div>
-      <h2>{item.title}</h2>
-      <p>{item.description}</p>
-      <div className={styles.tags}>
-        {item.tags.map(tag => <span key={tag}>{tag}</span>)}
-      </div>
-    </Link>
+    </article>
   );
 }
 
