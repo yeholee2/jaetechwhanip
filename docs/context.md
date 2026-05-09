@@ -17,8 +17,9 @@
 | 항목 | 값 |
 |---|---|
 | GitHub | `yeholee2/jaetechwhanip` |
-| 라이브 | https://home.hannipmoney.com |
-| Vercel 기본 도메인 | https://jaetechwhanip.vercel.app |
+| 블로그 | https://hannipmoney.com (Ghost, SEO 보호 위해 앱에서 건드리지 않음) |
+| 라이브 서비스 | https://we.hannipmoney.com |
+| Vercel 기본 도메인 | https://jaetechwhanip.vercel.app (staging/fallback) |
 | Supabase Project ID | `fqoeacfkzptlzohdzhgd` |
 | Vercel 계정 | `yeholees-projects` (imyeho@gmail.com) |
 
@@ -72,7 +73,8 @@ lib/supabase/
 4. 민감한 키는 코드에 절대 하드코딩 금지 — Vercel env 참조
 
 ## 현재 우선순위
-1. Google 로그인 실제 플로우 재확인
-2. 질문 상세/답변/프로필의 Supabase 컬럼과 운영 DB 스키마 일치 확인
-3. 답변 좋아요 중복 방지용 별도 테이블 또는 정책 설계
-4. Google 앱 검증, 카카오 로그인 실동작 확인, 네이버 재활성화 여부 결정
+1. `we.hannipmoney.com` SSL/검색콘솔/Supabase Auth/OAuth redirect 최종 확인
+2. Google 로그인 실제 플로우 재확인
+3. 질문 상세/답변/프로필의 Supabase 컬럼과 운영 DB 스키마 일치 확인
+4. 한글 slug 백필 마이그레이션 검토 후 실행
+5. 답변 좋아요 중복 방지용 별도 테이블 또는 정책 설계

@@ -1,4 +1,5 @@
 import { SITE_NAME, truncateDescription, type SeoQuestion } from '@/lib/seo';
+import { getCategoryByKey } from '@/lib/categories';
 import type { AnswerDetail, QuestionDetail } from '@/lib/question-detail';
 
 type SeoInput = SeoQuestion | QuestionDetail;
@@ -9,14 +10,6 @@ const CATEGORY_TERMS: Record<string, string[]> = {
   '절세': ['ISA', '연금저축', '세액공제', '절세계좌'],
   '보험': ['실손보험', '보험 리모델링', '보장 분석', '20대 보험'],
   '대출·부채': ['대출 상환', '부채 관리', '금리', '신용 관리'],
-};
-
-const CATEGORY_TOPIC_PATHS: Record<string, string> = {
-  '재테크 입문': '/topics/finance-basics',
-  '주식·ETF': '/topics/stocks-etf',
-  '절세': '/topics/tax-saving',
-  '보험': '/topics/insurance',
-  '대출·부채': '/topics/debt-loans',
 };
 
 const SEARCH_INTENTS = [
@@ -45,7 +38,8 @@ export function getQuestionCategory(question: SeoInput) {
 }
 
 export function getQuestionTopicPath(question: SeoInput) {
-  return CATEGORY_TOPIC_PATHS[getQuestionCategory(question)] || '/topics/finance-basics';
+  const category = getCategoryByKey(getQuestionCategory(question));
+  return `/topics/${encodeURIComponent(category?.slug || '재테크-입문')}`;
 }
 
 export function getAnswerCount(question: SeoInput) {

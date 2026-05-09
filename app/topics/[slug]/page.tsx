@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
+import { notFound, permanentRedirect } from 'next/navigation';
 import { MessageCircle, Search } from 'lucide-react';
 import { AppShell, UnifiedFilterBar } from '@/components/AppShell';
 import { CATEGORY_FILTERS, TOPIC_TABS } from '@/lib/ia';
@@ -70,6 +70,7 @@ function collectionJsonLd(topic: NonNullable<ReturnType<typeof getTopicBySlug>>,
 export default async function TopicPage({ params }: Props) {
   const topic = getTopicBySlug(params.slug);
   if (!topic) notFound();
+  if (params.slug !== topic.slug) permanentRedirect(topicPath(topic.slug));
 
   const questions = await fetchTopicQuestions(topic);
 

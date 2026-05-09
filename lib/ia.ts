@@ -1,10 +1,11 @@
+import { CATEGORY_DEFINITIONS } from '@/lib/categories';
+
 export const CATEGORY_FILTERS = [
   { key: '전체', label: '전체' },
-  { key: '재테크 입문', label: '💡 재테크 입문' },
-  { key: '주식·ETF', label: '📈 주식·ETF' },
-  { key: '절세', label: '🏦 절세' },
-  { key: '보험', label: '🛡️ 보험' },
-  { key: '대출·부채', label: '💳 대출·부채' },
+  ...CATEGORY_DEFINITIONS.map(category => ({
+    key: category.key,
+    label: `${category.emoji} ${category.label}`,
+  })),
 ];
 
 export const HOME_TABS = [

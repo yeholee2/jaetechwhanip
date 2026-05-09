@@ -1,4 +1,5 @@
 import { Metadata } from 'next';
+import { permanentRedirect } from 'next/navigation';
 import {
   isIndexableQuestion,
   questionPath,
@@ -26,6 +27,7 @@ import QuestionClient from './QuestionClient';
 type Props = { params: { slug: string } };
 
 export const revalidate = 60;
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const pageData = await fetchQuestionPageData(params.slug);
@@ -152,6 +154,9 @@ function jsonLdForQuestion(question: SeoQuestion | QuestionDetail, answers: Answ
 export default async function QuestionPage({ params }: Props) {
   const pageData = await fetchQuestionPageData(params.slug);
   const question = pageData.question;
+  if (question?.slug && UUID_RE.test(params.slug) && question.slug !== params.slug) {
+    permanentRedirect(questionPath(question.slug));
+  }
   const shouldIndex = question ? isIndexableQuestion({ title: question.title, body: question.body }) : false;
 
   return (

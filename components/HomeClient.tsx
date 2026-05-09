@@ -5,15 +5,16 @@ import Link from 'next/link';
 import { Search, Bell, User, Plus, Home as HomeIcon, LayoutList, Swords, ThumbsUp, MessageCircle, Share2, Briefcase, TrendingUp, X, Newspaper, BarChart3, Tags } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { createClient, hasSupabase } from '@/lib/supabase/client';
+import { CATEGORY_EMOJI, CATEGORY_LABELS } from '@/lib/categories';
 import type { Question } from '@/lib/sampleData';
 import { LEVELS, EMOJI, sampleQuestions } from '@/lib/sampleData';
-import { createQuestionSlug } from '@/lib/slugs';
+import { createQuestionSlug, ensureUniqueSlug } from '@/lib/slugs';
 import { getAuthNickname, syncFinanceNickname } from '@/lib/nicknames';
 import { useAutoTranslation } from '@/lib/useAutoTranslation';
 import styles from './HomeClient.module.css';
 
-const CATS = ['전체','재테크 입문','주식·ETF','절세','보험','대출·부채'];
-const CAT_EMOJI: Record<string,string> = { '재테크 입문':'💡','주식·ETF':'📈','절세':'🏦','보험':'🛡️','대출·부채':'💳' };
+const CATS = CATEGORY_LABELS;
+const CAT_EMOJI = CATEGORY_EMOJI;
 const PAGE_SIZE = 20;
 const FEED_TABS = [
   { key: 'popular', label: '인기' },
@@ -221,12 +222,20 @@ export default function HomeClient({ initialQuestions }: { initialQuestions: Que
   };
 
   const submitQ = async (title: string, body: string, cat: string, tags: string[] = []) => {
-    const slug = createQuestionSlug(title);
+    let slug = createQuestionSlug(title);
     const bodyWithTags = tags.length
       ? [body, `관심 태그: ${tags.join(', ')}`].filter(Boolean).join('\n\n')
       : body;
     if (hasSupabase() && user) {
       const supabase = createClient();
+      slug = await ensureUniqueSlug(slug, async candidate => {
+        const { data } = await supabase
+          .from('questions')
+          .select('id')
+          .eq('slug', candidate)
+          .maybeSingle();
+        return Boolean(data);
+      });
       const basePayload = {
         title,
         body,
@@ -277,7 +286,7 @@ export default function HomeClient({ initialQuestions }: { initialQuestions: Que
         <div className={`${styles.pcLogo} logo-font`}>재테크<em>한입</em></div>
         <ul className={styles.pcMenu}>
           <li><Link href="/" className={styles.on}>홈</Link></li>
-          <li><Link href="/topics/finance-basics">토픽</Link></li>
+          <li><Link href="/topics/재테크-입문">토픽</Link></li>
           <li><Link href="/sparring">스파링</Link></li>
           <li><Link href="/articles">아티클</Link></li>
           <li><a href="#">미션</a></li>
@@ -434,7 +443,7 @@ export default function HomeClient({ initialQuestions }: { initialQuestions: Que
         )}
         <nav className={styles.moGnav}>
           <Link href="/" className={styles.on}>홈</Link>
-          <Link href="/topics/finance-basics">토픽</Link><Link href="/sparring">스파링</Link><Link href="/articles">아티클</Link><a href="#">미션</a>
+          <Link href="/topics/재테크-입문">토픽</Link><Link href="/sparring">스파링</Link><Link href="/articles">아티클</Link><a href="#">미션</a>
         </nav>
       </header>
 
@@ -481,7 +490,7 @@ export default function HomeClient({ initialQuestions }: { initialQuestions: Que
 
       <nav className={styles.bottomNav}>
         <button className={`${styles.bnav} ${styles.on}`}><HomeIcon size={22}/><span>홈</span></button>
-        <button className={styles.bnav} onClick={() => router.push('/topics/finance-basics')}><LayoutList size={22}/><span>토픽</span></button>
+        <button className={styles.bnav} onClick={() => router.push('/topics/재테크-입문')}><LayoutList size={22}/><span>토픽</span></button>
         <button className={styles.bnav} onClick={() => router.push('/sparring')}><Swords size={22}/><span>스파링</span></button>
         <button className={styles.bnav}><Bell size={22}/><span>알림</span></button>
         <button className={styles.bnav} onClick={() => router.push(user ? `/u/${user.id}` : '/auth')} style={user?{color:'var(--green)'}:{}}>

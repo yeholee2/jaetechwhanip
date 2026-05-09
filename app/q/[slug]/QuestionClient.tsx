@@ -12,7 +12,7 @@ import {
 import { createClient, hasSupabase } from '@/lib/supabase/client';
 import { EMOJI, getSampleAnswers, sampleQuestions } from '@/lib/sampleData';
 import type { AnswerDetail, QuestionDetail, RelatedQuestion } from '@/lib/question-detail';
-import { createQuestionSlug } from '@/lib/slugs';
+import { createQuestionSlug, ensureUniqueSlug } from '@/lib/slugs';
 import { getAuthNickname, syncFinanceNickname } from '@/lib/nicknames';
 import { useAutoTranslation } from '@/lib/useAutoTranslation';
 import { buildSeoDescription } from '@/lib/seo-content';
@@ -454,9 +454,9 @@ export default function QuestionClient({
         </div>
         <ul className={styles.navMenu}>
           <li><button onClick={() => router.push('/')}>홈</button></li>
-          <li><button onClick={() => router.push('/topics/finance-basics')}>토픽</button></li>
+          <li><button onClick={() => router.push('/topics/재테크-입문')}>토픽</button></li>
           <li><button onClick={() => router.push('/sparring')}>스파링</button></li>
-          <li><button>잉크</button></li>
+          <li><button onClick={() => router.push('/articles')}>아티클</button></li>
           <li><button>미션</button></li>
           <li><div className={styles.navSep} /></li>
           <li><button style={{ fontSize: 13, color: 'var(--t3)' }}>전문가 신청</button></li>
@@ -687,7 +687,7 @@ export default function QuestionClient({
       {/* ── 모바일 하단 네비 ── */}
       <nav className={styles.bottomNav}>
         <button className={styles.bnav} onClick={() => router.push('/')}><HomeIcon size={22} /><span>홈</span></button>
-        <button className={styles.bnav} onClick={() => router.push('/topics/finance-basics')}><LayoutList size={22} /><span>토픽</span></button>
+        <button className={styles.bnav} onClick={() => router.push('/topics/재테크-입문')}><LayoutList size={22} /><span>토픽</span></button>
         <button className={styles.bnav} onClick={() => router.push('/sparring')}><Swords size={22} /><span>스파링</span></button>
         <button className={styles.bnav}><Bell size={22} /><span>알림</span></button>
         <button className={styles.bnav} onClick={() => router.push(user ? `/u/${user.id}` : '/auth')} style={user ? { color: 'var(--blue)' } : {}}>
@@ -792,9 +792,17 @@ function AskModal({ onClose, router, user, onToast }: any) {
 
   const submit = async () => {
     if (!title.trim()) return;
-    const slug = createQuestionSlug(title);
+    let slug = createQuestionSlug(title);
     if (hasSupabase() && user) {
       const supabase = createClient();
+      slug = await ensureUniqueSlug(slug, async candidate => {
+        const { data } = await supabase
+          .from('questions')
+          .select('id')
+          .eq('slug', candidate)
+          .maybeSingle();
+        return Boolean(data);
+      });
       const { data, error } = await supabase
         .from('questions')
         .insert({ title, body, category: cat, slug, author_id: user.id, answer_count: 0 })

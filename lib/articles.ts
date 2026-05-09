@@ -1,7 +1,7 @@
+import { SITE_URL } from '@/lib/seo';
+
 export const ARTICLE_PATH = '/articles';
-export const ARTICLE_URL =
-  process.env.NEXT_PUBLIC_ARTICLE_URL?.replace(/\/$/, '') ||
-  'https://article.hannipmoney.com';
+export const ARTICLE_URL = `${SITE_URL}${ARTICLE_PATH}`;
 
 export type HanipArticle = {
   slug: string;

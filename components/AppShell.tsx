@@ -10,7 +10,7 @@ export type AppNavKey = 'home' | 'topics' | 'sparring' | 'articles' | 'mission' 
 
 const NAV_ITEMS: { key: AppNavKey; label: string; href: string }[] = [
   { key: 'home', label: '홈', href: '/' },
-  { key: 'topics', label: '토픽', href: '/topics/finance-basics' },
+  { key: 'topics', label: '토픽', href: '/topics/재테크-입문' },
   { key: 'sparring', label: '스파링', href: '/sparring' },
   { key: 'articles', label: '아티클', href: '/articles' },
   { key: 'mission', label: '미션', href: '#' },
@@ -72,7 +72,7 @@ export function AppShell({
         <Link className={`${styles.bnav} ${active === 'home' ? styles.active : ''}`} href="/">
           <Home size={22} /><span>홈</span>
         </Link>
-        <Link className={`${styles.bnav} ${active === 'topics' ? styles.active : ''}`} href="/topics/finance-basics">
+        <Link className={`${styles.bnav} ${active === 'topics' ? styles.active : ''}`} href="/topics/재테크-입문">
           <LayoutList size={22} /><span>토픽</span>
         </Link>
         <button className={`${styles.bnav} ${styles.bnavAsk}`} onClick={ask}>

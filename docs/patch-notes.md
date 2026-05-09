@@ -1,5 +1,35 @@
 # 패치노트
 
+## [2026-05-09] 서비스 도메인을 we.hannipmoney.com으로 전환 준비
+**작업자:** Codex
+**태그:** #Domain #SEO #Slug #Auth
+
+### 변경사항
+- [도메인] 서비스 대표 URL 기준을 `https://we.hannipmoney.com`으로 변경
+- [SEO] `SITE_URL`, canonical, OG, sitemap, JSON-LD 기본 베이스를 `we.hannipmoney.com`으로 통일
+- [아티클] `article.hannipmoney.com` 독립 기준을 폐기하고 `/articles`를 `we.hannipmoney.com/articles` 안으로 통합
+- [리다이렉트] `qa/home/article/column.hannipmoney.com` 유입은 `we.hannipmoney.com`으로 308 이동 처리
+- [슬러그] `docs/slug-spec.md` 추가: 한글 URL, 3~5 키워드, 50자 이내, 충돌 시 `-2`, `-3`
+- [슬러그] `lib/slugs.ts`에 `generateSlug()`, `ensureUniqueSlug()` 추가
+- [토픽] `lib/categories.ts`에 카테고리 UI label/emoji/topic slug 매핑을 직접 정의
+- [토픽] 기존 영문 토픽 URL은 새 한글 토픽 URL로 영구 이동
+- [질문] UUID로 `/q/[uuid]` 접근 시 실제 slug URL로 영구 이동
+- [DB] 기존 질문 한글 slug 백필 초안 `docs/migration_korean_slugs.sql` 추가
+
+### 확인
+- [x] `npm_config_cache=/Users/yeho/Documents/New\ project/jaetechwhanip/.npm-cache npm run build` 통과
+- [x] Vercel `NEXT_PUBLIC_SITE_URL=https://we.hannipmoney.com` production env 교체
+- [x] Vercel Domains에 `we.hannipmoney.com` 추가
+- [ ] DNS `A we.hannipmoney.com 76.76.21.21` 전파 및 SSL 발급 확인
+
+### 다음 작업자 TODO
+- [ ] Supabase Auth Site URL / Redirect URLs에 `https://we.hannipmoney.com/**` 추가
+- [ ] Google/Kakao OAuth Redirect URI에 `https://we.hannipmoney.com/api/auth/callback` 계열 추가
+- [ ] Google Search Console에 `we.hannipmoney.com` property 등록 후 sitemap 제출
+- [ ] `docs/migration_korean_slugs.sql`은 실행 전 중복 slug SELECT로 검토
+
+---
+
 ## [2026-05-09] 대표 앱 주소를 home 서브도메인으로 변경
 **작업자:** Codex
 **태그:** #Domain #SEO #Auth #Vercel
