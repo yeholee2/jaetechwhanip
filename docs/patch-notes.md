@@ -1,5 +1,25 @@
 # 패치노트
 
+## [2026-05-09] 질문 상세 요약/CTA 정리 — Codex
+**작업자:** Codex
+**태그:** #QuestionDetail #UI #AhaTone
+
+### 변경사항
+- [질문상세] 질문 본문 직후의 핵심 요약/SEO 요약 블록 제거
+- [질문상세] 답변 목록 헤더의 AI 요약 버튼 제거
+- [답변흐름] 답변 작성/로그인 프롬프트를 답변 리스트 아래로 이동
+- [CTA] "당신의 지식을 공유해 보세요" 배너성 문구 제거
+
+### 확인
+- [x] `npm_config_cache=.npm-cache npm run build` 통과
+- [x] 금지 문구/클래스 잔여 검색 확인
+- [x] Vercel preview `/q/sp500-etf` 200 확인: `https://jaetechwhanip-git-fix-q-detail-cleanup-yeholees-projects.vercel.app/q/sp500-etf`
+
+### 다음 작업자 TODO
+- [ ] 전역 UI 토큰 정리 작업에서 질문 상세 카드/CTA 색상도 함께 재점검
+
+---
+
 ## [2026-05-09] 피드 v2 실데이터화 — Codex
 **작업자:** Codex
 **태그:** #Feed #Ghost #RSS #SEO #NewsClick

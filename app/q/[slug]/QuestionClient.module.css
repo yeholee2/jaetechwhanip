@@ -118,25 +118,6 @@
   font-size: 14px; color: var(--t2); line-height: 1.7;
   margin-bottom: 18px; white-space: pre-wrap;
 }
-.seoSummary {
-  display: grid;
-  gap: 5px;
-  margin: -4px 0 18px;
-  padding: 12px 13px;
-  border-radius: 8px;
-  background: var(--blue-bg);
-  border: 1px solid rgba(49,130,246,.16);
-}
-.seoSummary strong {
-  color: var(--blue);
-  font-size: 12px;
-  font-weight: 800;
-}
-.seoSummary span {
-  color: var(--t2);
-  font-size: 13px;
-  line-height: 1.6;
-}
 .qActions {
   display: flex; gap: 4px; flex-wrap: wrap;
   padding-top: 14px; border-top: 1px solid var(--line);
@@ -194,13 +175,6 @@
   display: flex; align-items: center; justify-content: space-between;
   margin-bottom: 12px;
 }
-.aiBtn {
-  display: flex; align-items: center; gap: 5px;
-  height: 30px; padding: 0 12px; border-radius: 20px;
-  border: 1.5px solid var(--line); font-size: 12px;
-  font-weight: 700; color: var(--t2); transition: all .12s;
-}
-.aiBtn:hover { border-color: var(--blue); color: var(--blue); }
 .emptyAnswers {
   background: var(--white); border-radius: 12px;
   border: 1px dashed var(--line); padding: 40px 20px;
