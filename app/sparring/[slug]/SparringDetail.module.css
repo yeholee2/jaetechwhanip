@@ -1,0 +1,347 @@
+.page {
+  padding: 22px 0 60px;
+}
+
+.back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--t2);
+  font-size: 13px;
+  font-weight: 800;
+  text-decoration: none;
+  margin-bottom: 14px;
+}
+
+.hero,
+.votePanel,
+.commentComposer,
+.opinionColumn {
+  background: var(--white);
+  border: none;
+  box-shadow: 0 1px 3px rgba(0,0,0,.06);
+  border-radius: 16px;
+}
+
+.hero {
+  padding: 24px;
+  margin-bottom: 12px;
+}
+
+.heroMeta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.heroMeta span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 28px;
+  padding: 0 10px;
+  border-radius: 999px;
+  background: var(--primary-bg);
+  color: var(--primary);
+  font-size: 12px;
+  font-weight: 850;
+}
+
+.hero h1 {
+  max-width: 760px;
+  color: var(--t1);
+  font-size: 30px;
+  line-height: 1.3;
+  letter-spacing: 0;
+  margin-bottom: 10px;
+}
+
+.hero p {
+  max-width: 760px;
+  color: var(--t2);
+  font-size: 15px;
+  line-height: 1.75;
+}
+
+.votePanel,
+.commentComposer {
+  padding: 18px;
+  margin-bottom: 12px;
+}
+
+.voteHead,
+.sectionHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.voteHead span,
+.sectionHead span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--t2);
+  font-size: 13px;
+  font-weight: 850;
+}
+
+.voteHead strong {
+  color: var(--t3);
+  font-size: 12px;
+}
+
+.voteButtons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.voteButton {
+  min-height: 118px;
+  padding: 17px;
+  border: none;
+  border-radius: 16px;
+  background: var(--bg);
+  color: var(--t2);
+  display: grid;
+  gap: 7px;
+  justify-items: start;
+  text-align: left;
+  transition: background var(--duration-instant), box-shadow var(--duration-instant), transform var(--duration-instant);
+}
+
+.voteButton span {
+  color: var(--t3);
+  font-size: 12px;
+  font-weight: 850;
+}
+
+.voteButton strong {
+  color: var(--t1);
+  font-size: 18px;
+  line-height: 1.35;
+}
+
+.voteOnA {
+  background: var(--primary-bg);
+  color: var(--primary);
+  box-shadow: inset 0 0 0 2px var(--primary);
+}
+
+.voteOnB {
+  background: #edf4ff;
+  color: #2f6fe4;
+  box-shadow: inset 0 0 0 2px #4f8cff;
+}
+
+.chart {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+  display: grid;
+  gap: 9px;
+}
+
+.chartLine {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  color: var(--t2);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.chart p {
+  color: var(--t3);
+  font-size: 12px;
+}
+
+.resultBar {
+  display: flex;
+  height: 14px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--bg);
+}
+
+.resultBar span {
+  display: block;
+  min-width: 8px;
+  transition: width var(--duration-normal);
+}
+
+.sideA {
+  background: var(--primary);
+}
+
+.sideB {
+  background: #4f8cff;
+}
+
+.commentComposer form {
+  display: grid;
+  gap: 10px;
+}
+
+.sideToggle {
+  display: inline-grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  max-width: 320px;
+  border-radius: 12px;
+  background: var(--bg);
+  padding: 4px;
+}
+
+.sideToggle button {
+  min-height: 36px;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--t2);
+  font-size: 13px;
+  font-weight: 850;
+}
+
+.sideToggle .sideOnA {
+  background: var(--primary);
+  color: var(--white);
+}
+
+.sideToggle .sideOnB {
+  background: #4f8cff;
+  color: var(--white);
+}
+
+.commentComposer textarea {
+  width: 100%;
+  min-height: 112px;
+  resize: vertical;
+  border: none;
+  border-radius: 12px;
+  background: var(--bg);
+  color: var(--t1);
+  padding: 14px;
+  font: inherit;
+  line-height: 1.55;
+}
+
+.commentComposer button[type='submit'] {
+  justify-self: start;
+  min-height: 40px;
+  padding: 0 15px;
+  border: none;
+  border-radius: 12px;
+  background: var(--primary);
+  color: var(--white);
+  font-size: 13px;
+  font-weight: 850;
+}
+
+.commentComposer button[type='submit']:disabled {
+  opacity: .45;
+}
+
+.columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.opinionColumn {
+  padding: 18px;
+}
+
+.columnHead {
+  display: grid;
+  gap: 5px;
+  margin-bottom: 12px;
+}
+
+.columnHead span {
+  font-size: 12px;
+  font-weight: 850;
+}
+
+.columnHead strong {
+  color: var(--t1);
+  font-size: 18px;
+  line-height: 1.35;
+}
+
+.toneA {
+  color: var(--primary);
+}
+
+.toneB {
+  color: #2f6fe4;
+}
+
+.commentList {
+  display: grid;
+  gap: 9px;
+}
+
+.comment {
+  border-radius: 12px;
+  background: var(--bg);
+  padding: 13px;
+}
+
+.comment p {
+  color: var(--t2);
+  font-size: 13px;
+  line-height: 1.65;
+  margin-bottom: 8px;
+}
+
+.comment span,
+.emptyComment {
+  color: var(--t3);
+  font-size: 12px;
+  font-weight: 750;
+}
+
+.emptyComment {
+  padding: 16px;
+  border-radius: 12px;
+  background: var(--bg);
+}
+
+.related {
+  padding-top: 4px;
+}
+
+.relatedGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+@media (max-width: 760px) {
+  .voteButtons,
+  .columns,
+  .relatedGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .hero h1 {
+    font-size: 24px;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero,
+  .votePanel,
+  .commentComposer,
+  .opinionColumn {
+    padding: 16px;
+  }
+}

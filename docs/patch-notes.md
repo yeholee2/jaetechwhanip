@@ -1,5 +1,27 @@
 # 패치노트
 
+## [2026-05-09] 스파링 댓글·투표 시스템 v1 — Codex
+**작업자:** Codex
+**태그:** #Sparring #Voting #Comments #Supabase #AhaTone
+
+### 변경사항
+- [스키마] `docs/migration_sparring_engagement.sql` 추가: `sparrings`, `sparring_votes`, `sparring_comments` 및 라운드 1 시드
+- [카테고리] `docs/categories.md` 6개 SSOT에 맞춰 전역 카테고리 상수/샘플 표기 정리
+- [목록] `/sparring`에 라운드 카드, 양측 progress bar, 우세 의견/퍼센트, 투표 수/토론 수, 카운트다운, 참여 CTA 추가
+- [상세] `/sparring/[slug]` 추가: 상단 투표 버튼, 투표 후 결과 차트, 찬성/반대 2컬럼 댓글, 같은 카테고리 추천
+- [저장] Supabase 환경이 있으면 투표/댓글 저장을 시도하고, 미로그인·미적용 환경에서도 화면 검증이 가능하도록 즉시 반영
+
+### 확인
+- [x] `npm_config_cache=.npm-cache npm run build` 통과
+- [x] 로컬 `/sparring`, `/sparring/sp500-etf-entry` 200 확인
+- [x] 투표 → 결과 노출 → 양측 댓글 입력 → 두 컬럼 분리 확인
+- [ ] Vercel preview URL 동작 확인
+
+### 다음 작업자 TODO
+- [ ] Supabase SQL Editor에서 `docs/migration_sparring_engagement.sql` 실행 후 실사용 투표/댓글 저장 확인
+
+---
+
 ## [2026-05-09] 전역 UI v2.1 토큰 반영 — Codex
 **작업자:** Codex
 **태그:** #UI #Tokens #Accessibility #AhaTone

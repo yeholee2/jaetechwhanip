@@ -129,7 +129,7 @@ export default function HomeClient({ initialQuestions }: { initialQuestions: Que
 
       return {
         id: i + pageNum * PAGE_SIZE,
-        cat: seed?.cat || q.category || '재테크 입문',
+        cat: seed?.cat || q.category || '재테크입문',
         topic: seed?.topic || '일반',
         author: seed?.author || '익명',
         time: seed?.createdAt ? formatTime(seed.createdAt) : formatTime(q.created_at),
@@ -171,7 +171,7 @@ export default function HomeClient({ initialQuestions }: { initialQuestions: Que
         if (currentCat !== '전체' && q.category !== currentCat) return;
         if (feedTab === 'waiting' && (q.answer_count || 0) > 0) return;
         setAllQs(prev => [{
-          id: Date.now(), cat: q.category || '재테크 입문', topic: '일반',
+          id: Date.now(), cat: q.category || '재테크입문', topic: '일반',
           author: '방금 전', time: '방금 전', em: '🐯', lv: 0,
           title: q.title, body: q.body || '', ans: 0, adopted: false,
           slug: q.slug || q.id, dbId: q.id, likeCount: 0, createdAt: q.created_at,
@@ -353,7 +353,7 @@ export default function HomeClient({ initialQuestions }: { initialQuestions: Que
             ))}
           </div>
           <MarketReadRail onSelect={(tag) => {
-            setCurrentCat('주식·ETF');
+            setCurrentCat('국내주식·ETF');
             setSearchQuery(tag);
             setShowSearch(true);
           }} />
@@ -391,13 +391,13 @@ export default function HomeClient({ initialQuestions }: { initialQuestions: Que
             </div>
           <a href="#" className={styles.wlink}><Briefcase size={14}/><span>전문가 신청하기</span><span style={{marginLeft:'auto',color:'var(--t3)'}}>›</span></a>
             <button className={styles.wlink} onClick={() => {
-              setCurrentCat('주식·ETF');
+              setCurrentCat('국내주식·ETF');
               setSearchQuery('ETF');
               setShowSearch(true);
             }}><TrendingUp size={14}/><span>ETF 정보 보기</span><span style={{marginLeft:'auto',color:'var(--t3)'}}>›</span></button>
           </div>
           <MarketReader onSelect={(tag) => {
-            setCurrentCat('주식·ETF');
+            setCurrentCat('국내주식·ETF');
             setSearchQuery(tag);
             setShowSearch(true);
           }} />
@@ -467,7 +467,7 @@ export default function HomeClient({ initialQuestions }: { initialQuestions: Que
           ))}
         </div>
         <MarketReadRail onSelect={(tag) => {
-          setCurrentCat('주식·ETF');
+          setCurrentCat('국내주식·ETF');
           setSearchQuery(tag);
           setShowSearch(true);
         }} />
@@ -537,7 +537,7 @@ function MarketReadRail({ onSelect }: { onSelect: (tag: string) => void }) {
   return (
     <section className={styles.marketRail} aria-label="주식 ETF 정보">
       <div className={styles.marketRailHead}>
-        <span><BarChart3 size={14}/> 주식·ETF 읽기창</span>
+        <span><BarChart3 size={14}/> 국내주식·ETF 읽기창</span>
         <Link href="/feed">피드 더보기</Link>
       </div>
       <div className={styles.marketRailCards}>
@@ -555,7 +555,7 @@ function MarketReadRail({ onSelect }: { onSelect: (tag: string) => void }) {
 function MarketReader({ onSelect }: { onSelect: (tag: string) => void }) {
   return (
     <div className={styles.widget}>
-      <div className={styles.whead}><BarChart3 size={14}/> 주식·ETF 정보창</div>
+      <div className={styles.whead}><BarChart3 size={14}/> 국내주식·ETF 정보창</div>
       <div className={styles.marketReader}>
         {MARKET_READS.map(item => (
           <button key={item.label} className={styles.marketItem} onClick={() => onSelect(item.tag)}>
@@ -700,7 +700,7 @@ function FeedList({ questions, mobile, router }: { questions: Question[], mobile
 function AskModal({ onClose, onSubmit }: { onClose: () => void, onSubmit: (t: string, b: string, c: string, tags: string[]) => void }) {
   const [title, setTitle] = useState('');
   const [body, setBody] = useState('');
-  const [cat, setCat] = useState('재테크 입문');
+  const [cat, setCat] = useState('재테크입문');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const toggleTag = (tag: string) => {
     setSelectedTags(prev => prev.includes(tag) ? prev.filter(item => item !== tag) : [...prev, tag].slice(0, 4));
@@ -717,10 +717,10 @@ function AskModal({ onClose, onSubmit }: { onClose: () => void, onSubmit: (t: st
           <div style={{marginBottom:12}}>
             <label style={{fontSize:12,fontWeight:600,color:'#4E5968',display:'block',marginBottom:6}}>카테고리</label>
             <select value={cat} onChange={e=>setCat(e.target.value)} style={{width:'100%',padding:'10px 12px',border:'1.5px solid #E5E8EB',borderRadius:9,fontSize:14}}>
-              {['재테크 입문','주식·ETF','절세','보험','대출·부채'].map(c => <option key={c}>{c}</option>)}
+              {['재테크입문','국내주식·ETF','해외주식·ETF','절세','보험','대출·부채'].map(c => <option key={c}>{c}</option>)}
             </select>
           </div>
-          {cat === '주식·ETF' && (
+          {cat === '국내주식·ETF' && (
             <div className={styles.askTags}>
               <label><Tags size={13}/> 관련 태그</label>
               <div>
