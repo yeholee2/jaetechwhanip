@@ -16,8 +16,8 @@
 .pcRight { margin-left:auto; display:flex; align-items:center; gap:6px; }
 .iconBtn { width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center; color:var(--t2); transition:background .12s; }
 .iconBtn:hover { background:var(--bg); }
-.btnAsk { height:36px; padding:0 16px; background:var(--blue); border-radius:6px; color:#fff; font-size:14px; font-weight:700; transition:background .12s; }
-.btnAsk:hover { background:var(--blue-dk); }
+.btnAsk { height:36px; padding:0 16px; background:var(--primary); border-radius:8px; color:#fff; font-size:14px; font-weight:700; transition:background var(--duration-instant) var(--ease-in-out); }
+.btnAsk:hover { background:var(--primary-dk); }
 
 /* PC 본문 */
 .pcBody { max-width:1040px; margin:56px auto 0; padding:24px 24px 40px; display:flex; gap:20px; }

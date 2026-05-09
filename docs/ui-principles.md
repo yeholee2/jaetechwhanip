@@ -19,7 +19,7 @@
 - ✅ 본문 14-16px, 카드 제목 16-18px, 메타 12-13px gray
 - ✅ 라인 높이 1.5-1.6 (스캐너블한 정도)
 - ✅ Pretendard 기본, 로고만 Cafe24 Ssurround
-- ✅ Primary 색 `#03C75A` (네이버 그린)을 핵심 CTA에 명확히 노출
+- ✅ Primary 색 `#1e59da` (a-ha 블루, blue-600)을 핵심 CTA에 명확히 노출. dark 호버는 `#0649db`
 - ✅ 카드형 피드 (border-radius: 16px 유지)
 
 ## Don't

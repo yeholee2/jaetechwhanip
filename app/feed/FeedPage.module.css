@@ -251,11 +251,12 @@
   align-items: center;
   padding: 0 15px;
   border-radius: 8px;
-  background: var(--blue);
+  background: var(--primary);
   color: white;
   font-size: 14px;
   font-weight: 800;
   text-decoration: none;
+  transition: background var(--duration-instant) var(--ease-in-out);
 }
 
 @media (max-width: 768px) {
