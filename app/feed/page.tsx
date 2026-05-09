@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { AppShell } from '@/components/AppShell';
+import { FaIcon } from '@/components/FaIcon';
+import { createFeedDigest } from '@/lib/feed-digest';
 import {
   FEED_CATEGORY_FILTERS,
   FEED_URL,
@@ -77,10 +79,10 @@ export default async function FeedPage({
       <section className={styles.hero}>
         <div>
           <div className={styles.eyebrow}>피드</div>
-          <h1>한입 칼럼과 시장 소식을 한 흐름에서 읽어요</h1>
+          <h1>시장 소식과 칼럼을 한입 크기로 정리해요</h1>
           <p>
-            자체 칼럼은 깊게, 외부 뉴스는 빠르게. 질문으로 이어질 만한 재테크 신호만
-            토픽별로 모아 보여줘요.
+            RSS 제목을 그대로 던지지 않고, 내 돈의 판단 기준으로 읽을 수 있게
+            핵심 포인트와 다음 질문까지 함께 묶어 보여줘요.
           </p>
         </div>
       </section>
@@ -139,34 +141,70 @@ function feedItemKey(item: FeedItem) {
 }
 
 function FeedCard({ item }: { item: FeedItem }) {
-  if (item.type === 'news') {
-    return (
-      <a className={styles.card} href={newsClickUrl(item.url)} target="_blank" rel="noreferrer">
+  const digest = createFeedDigest(item);
+  const sourceLabel = item.type === 'news' ? item.source : '재테크한입';
+  const metaRight = item.type === 'news'
+    ? '원문 보기'
+    : `${item.readingTime} 읽기`;
+  const href = item.type === 'news' ? newsClickUrl(item.url) : articleUrl(item.slug);
+  const isExternal = item.type === 'news';
+  const thumbUrl = item.type === 'news' ? item.thumbnailUrl : null;
+  const content = (
+    <>
+      <div className={styles.thumb} aria-hidden="true">
+        {thumbUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={thumbUrl} alt="" />
+        ) : (
+          <span>{item.type === 'news' ? 'NEWS' : '한입'}</span>
+        )}
+      </div>
+      <div className={styles.cardBody}>
         <div className={styles.meta}>
-          <span className={styles.newsSource}><span className={styles.newsBadge}>뉴스</span>{item.source} · {item.category}</span>
-          <span className={styles.external}>원문 보기</span>
+          <span className={item.type === 'news' ? styles.newsSource : styles.source}>
+            <span className={item.type === 'news' ? styles.newsBadge : styles.columnBadge}>
+              {item.type === 'news' ? '뉴스' : '한입'}
+            </span>
+            {sourceLabel} · {item.category}
+          </span>
+          <span className={styles.external}>
+            {metaRight}
+            {isExternal && <FaIcon name="arrow-up-right-from-square" size={11} />}
+          </span>
         </div>
         <h2>{item.title}</h2>
-        <p>{item.summary}</p>
+        <p className={styles.digestLead}>{digest.oneLine}</p>
+        <div className={styles.digestBox}>
+          <strong><FaIcon name="wand-magic-sparkles" size={13} /> {digest.kicker}</strong>
+          <p>{digest.why}</p>
+          <ul>
+            {digest.points.slice(0, 2).map(point => <li key={point}>{point}</li>)}
+          </ul>
+        </div>
+        <div className={styles.nextQuestion}>
+          <span>이렇게 물어보면 좋아요</span>
+          <em>{digest.nextQuestion}</em>
+        </div>
         <div className={styles.tags}>
           <span>{formatDate(item.publishedAt)}</span>
-          {(item.clickCount || 0) > 0 && <span>{item.clickCount}번 읽음</span>}
+          {item.type === 'column' && item.tags.slice(0, 3).map(tag => <span key={tag}>{tag}</span>)}
+          {item.type === 'news' && (item.clickCount || 0) > 0 && <span>{item.clickCount}번 읽음</span>}
         </div>
+      </div>
+    </>
+  );
+
+  if (item.type === 'news') {
+    return (
+      <a className={styles.card} href={href} target="_blank" rel="noreferrer">
+        {content}
       </a>
     );
   }
 
   return (
-    <Link className={styles.card} href={articleUrl(item.slug)}>
-      <div className={styles.meta}>
-        <span className={styles.source}><span className={styles.columnBadge}>한입</span>{item.category}</span>
-        <span>{item.readingTime} 읽기</span>
-      </div>
-      <h2>{item.title}</h2>
-      <p>{item.description}</p>
-      <div className={styles.tags}>
-        {item.tags.map(tag => <span key={tag}>{tag}</span>)}
-      </div>
+    <Link className={styles.card} href={href}>
+      {content}
     </Link>
   );
 }

@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
-import { Search, Bell, User, Plus, Home as HomeIcon, LayoutList, Swords, ThumbsUp, MessageCircle, Share2, Briefcase, TrendingUp, X, Newspaper, BarChart3, Tags } from 'lucide-react';
+import { Swords } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { createClient, hasSupabase } from '@/lib/supabase/client';
 import { CATEGORY_EMOJI, CATEGORY_LABELS } from '@/lib/categories';
@@ -11,6 +11,7 @@ import { LEVELS, EMOJI, sampleQuestions } from '@/lib/sampleData';
 import { createQuestionSlug, ensureUniqueSlug } from '@/lib/slugs';
 import { getAuthNickname, syncFinanceNickname } from '@/lib/nicknames';
 import { useAutoTranslation } from '@/lib/useAutoTranslation';
+import { FaIcon } from './FaIcon';
 import styles from './HomeClient.module.css';
 
 const CATS = CATEGORY_LABELS;
@@ -296,17 +297,17 @@ export default function HomeClient({ initialQuestions }: { initialQuestions: Que
         <div className={styles.pcRight}>
           <div style={{position:'relative'}}>
             <button className={styles.iconBtn} onClick={() => { setShowSearch(v=>!v); setTimeout(()=>searchRef.current?.focus(), 50); }}>
-              <Search size={18}/>
+              <FaIcon name="magnifying-glass" size={18}/>
             </button>
             {showSearch && (
               <div style={{position:'absolute',right:0,top:40,background:'white',border:'1px solid #E5E8EB',borderRadius:10,boxShadow:'0 4px 16px rgba(0,0,0,.1)',width:280,zIndex:100,display:'flex',alignItems:'center',padding:'8px 12px',gap:8}}>
-                <Search size={14} color="#8B95A1"/>
+                <FaIcon name="magnifying-glass" size={14} color="#8B95A1"/>
                 <input ref={searchRef} value={searchQuery} onChange={e=>setSearchQuery(e.target.value)} placeholder="질문 검색..." style={{flex:1,border:'none',outline:'none',fontSize:14}}/>
-                {searchQuery && <button onClick={()=>setSearchQuery('')} style={{background:'none',border:'none',cursor:'pointer',padding:0,display:'flex',color:'#8B95A1'}}><X size={14}/></button>}
+                {searchQuery && <button onClick={()=>setSearchQuery('')} style={{background:'none',border:'none',cursor:'pointer',padding:0,display:'flex',color:'#8B95A1'}}><FaIcon name="xmark" size={14}/></button>}
               </div>
             )}
           </div>
-          <button className={styles.iconBtn}><Bell size={18}/></button>
+          <button className={styles.iconBtn}><FaIcon name="bell" size={18}/></button>
           {!authLoading && (user ? (
             <div style={{position:'relative'}} ref={dropRef}>
               <div
@@ -325,7 +326,7 @@ export default function HomeClient({ initialQuestions }: { initialQuestions: Que
               )}
             </div>
           ) : (
-            <button className={styles.iconBtn} onClick={() => router.push('/auth')}><User size={18}/></button>
+            <button className={styles.iconBtn} onClick={() => router.push('/auth')}><FaIcon name="user" size={18}/></button>
           ))}
           <button className={styles.btnAsk} onClick={tryAsk}>나도 질문하기</button>
         </div>
@@ -360,9 +361,9 @@ export default function HomeClient({ initialQuestions }: { initialQuestions: Que
           {/* 검색창 (모바일 인라인) */}
           {showSearch && (
             <div style={{padding:'8px 0',display:'flex',alignItems:'center',gap:8,borderBottom:'1px solid #F2F4F6',marginBottom:4}}>
-              <Search size={14} color="#8B95A1"/>
+              <FaIcon name="magnifying-glass" size={14} color="#8B95A1"/>
               <input value={searchQuery} onChange={e=>setSearchQuery(e.target.value)} placeholder="질문 검색..." style={{flex:1,border:'none',outline:'none',fontSize:14}}/>
-              {searchQuery && <button onClick={()=>setSearchQuery('')} style={{background:'none',border:'none',cursor:'pointer',padding:0,color:'#8B95A1'}}><X size={14}/></button>}
+              {searchQuery && <button onClick={()=>setSearchQuery('')} style={{background:'none',border:'none',cursor:'pointer',padding:0,color:'#8B95A1'}}><FaIcon name="xmark" size={14}/></button>}
             </div>
           )}
           <FeedSummary
@@ -389,12 +390,12 @@ export default function HomeClient({ initialQuestions }: { initialQuestions: Que
                 <button className={styles.sparJoin} onClick={() => router.push('/sparring')}>참여하기</button>
               </div>
             </div>
-          <a href="#" className={styles.wlink}><Briefcase size={14}/><span>전문가 신청하기</span><span style={{marginLeft:'auto',color:'var(--t3)'}}>›</span></a>
+          <a href="#" className={styles.wlink}><FaIcon name="briefcase" size={14}/><span>전문가 신청하기</span><span style={{marginLeft:'auto',color:'var(--t3)'}}>›</span></a>
             <button className={styles.wlink} onClick={() => {
               setCurrentCat('국내주식·ETF');
               setSearchQuery('ETF');
               setShowSearch(true);
-            }}><TrendingUp size={14}/><span>ETF 정보 보기</span><span style={{marginLeft:'auto',color:'var(--t3)'}}>›</span></button>
+            }}><FaIcon name="chart-line" size={14}/><span>ETF 정보 보기</span><span style={{marginLeft:'auto',color:'var(--t3)'}}>›</span></button>
           </div>
           <MarketReader onSelect={(tag) => {
             setCurrentCat('국내주식·ETF');
@@ -402,8 +403,8 @@ export default function HomeClient({ initialQuestions }: { initialQuestions: Que
             setShowSearch(true);
           }} />
           <div className={styles.widget}>
-            <div className={styles.whead}><Newspaper size={14}/> 피드</div>
-            <Link href="/feed" className={styles.wlink}><Newspaper size={14}/><span>재테크 피드 읽기</span><span style={{marginLeft:'auto',color:'var(--t3)'}}>›</span></Link>
+            <div className={styles.whead}><FaIcon name="newspaper" size={14}/> 피드</div>
+            <Link href="/feed" className={styles.wlink}><FaIcon name="newspaper" size={14}/><span>재테크 피드 읽기</span><span style={{marginLeft:'auto',color:'var(--t3)'}}>›</span></Link>
           </div>
           <div className={styles.widget}>
             <div className={styles.whead}><span className="tf">🔍</span> 지금 많이 찾는 키워드</div>
@@ -424,21 +425,21 @@ export default function HomeClient({ initialQuestions }: { initialQuestions: Que
           <div className={`${styles.moLogo} logo-font`}>재테크<em>한입</em></div>
           <div className={styles.moIcons}>
             <button className={styles.moIcon} onClick={() => { setShowSearch(v=>!v); setTimeout(()=>searchRef.current?.focus(),50); }}>
-              <Search size={20}/>
+              <FaIcon name="magnifying-glass" size={19}/>
             </button>
-            <button className={styles.moIcon}><Bell size={20}/></button>
+            <button className={styles.moIcon}><FaIcon name="bell" size={19}/></button>
             <button className={styles.moIcon} onClick={() => router.push(user ? `/u/${user.id}` : '/auth')}>
               {user
                 ? <span style={{fontSize:12,fontWeight:800,color:'var(--green)'}}>{userName[0]?.toUpperCase()}</span>
-                : <User size={20}/>}
+                : <FaIcon name="user" size={19}/>}
             </button>
           </div>
         </div>
         {showSearch && (
           <div style={{padding:'8px 16px',display:'flex',alignItems:'center',gap:8,borderBottom:'1px solid #F2F4F6',background:'white'}}>
-            <Search size={14} color="#8B95A1"/>
+            <FaIcon name="magnifying-glass" size={14} color="#8B95A1"/>
             <input ref={searchRef} value={searchQuery} onChange={e=>setSearchQuery(e.target.value)} placeholder="질문 검색..." style={{flex:1,border:'none',outline:'none',fontSize:14}}/>
-            {searchQuery && <button onClick={()=>setSearchQuery('')} style={{background:'none',border:'none',cursor:'pointer',padding:0,color:'#8B95A1'}}><X size={14}/></button>}
+            {searchQuery && <button onClick={()=>setSearchQuery('')} style={{background:'none',border:'none',cursor:'pointer',padding:0,color:'#8B95A1'}}><FaIcon name="xmark" size={14}/></button>}
           </div>
         )}
         <nav className={styles.moGnav}>
@@ -486,15 +487,15 @@ export default function HomeClient({ initialQuestions }: { initialQuestions: Que
         )}
       </div>
 
-      <button className={styles.fab} onClick={tryAsk}><Plus size={24} color="white"/></button>
+      <button className={styles.fab} onClick={tryAsk}><FaIcon name="plus" size={22} color="white"/></button>
 
       <nav className={styles.bottomNav}>
-        <button className={`${styles.bnav} ${styles.on}`}><HomeIcon size={22}/><span>홈</span></button>
-        <button className={styles.bnav} onClick={() => router.push('/topics/재테크-입문')}><LayoutList size={22}/><span>토픽</span></button>
+        <button className={`${styles.bnav} ${styles.on}`}><FaIcon name="house" size={21}/><span>홈</span></button>
+        <button className={styles.bnav} onClick={() => router.push('/topics/재테크-입문')}><FaIcon name="list-ul" size={21}/><span>토픽</span></button>
         <button className={styles.bnav} onClick={() => router.push('/sparring')}><Swords size={22}/><span>스파링</span></button>
-        <button className={styles.bnav}><Bell size={22}/><span>알림</span></button>
+        <button className={styles.bnav}><FaIcon name="bell" size={21}/><span>알림</span></button>
         <button className={styles.bnav} onClick={() => router.push(user ? `/u/${user.id}` : '/auth')} style={user?{color:'var(--green)'}:{}}>
-          <User size={22}/><span>{user ? userName[0]?.toUpperCase() || 'MY' : '로그인'}</span>
+          <FaIcon name="user" size={21}/><span>{user ? userName[0]?.toUpperCase() || 'MY' : '로그인'}</span>
         </button>
       </nav>
 
@@ -537,7 +538,7 @@ function MarketReadRail({ onSelect }: { onSelect: (tag: string) => void }) {
   return (
     <section className={styles.marketRail} aria-label="주식 ETF 정보">
       <div className={styles.marketRailHead}>
-        <span><BarChart3 size={14}/> 국내주식·ETF 읽기창</span>
+        <span><FaIcon name="chart-simple" size={14}/> 국내주식·ETF 읽기창</span>
         <Link href="/feed">피드 더보기</Link>
       </div>
       <div className={styles.marketRailCards}>
@@ -555,7 +556,7 @@ function MarketReadRail({ onSelect }: { onSelect: (tag: string) => void }) {
 function MarketReader({ onSelect }: { onSelect: (tag: string) => void }) {
   return (
     <div className={styles.widget}>
-      <div className={styles.whead}><BarChart3 size={14}/> 국내주식·ETF 정보창</div>
+      <div className={styles.whead}><FaIcon name="chart-simple" size={14}/> 국내주식·ETF 정보창</div>
       <div className={styles.marketReader}>
         {MARKET_READS.map(item => (
           <button key={item.label} className={styles.marketItem} onClick={() => onSelect(item.tag)}>
@@ -681,11 +682,11 @@ function FeedList({ questions, mobile, router }: { questions: Question[], mobile
                   <span style={{fontSize:12,color:'var(--t2)'}}><b>{q.ans}명</b>이 답변했어요</span>
                 </div>
                 <div style={{display:'flex',gap:2}}>
-                  <button className={styles.qbtn}><ThumbsUp size={14}/></button>
-                  <button className={styles.qbtn}><MessageCircle size={14}/></button>
+                  <button className={styles.qbtn}><FaIcon name="thumbs-up" size={14}/></button>
+                  <button className={styles.qbtn}><FaIcon name="message" size={14}/></button>
                   <button className={styles.qbtn} onClick={() => {
                     navigator.clipboard?.writeText(`${window.location.origin}/q/${questionPath}`);
-                  }}><Share2 size={14}/></button>
+                  }}><FaIcon name="share-nodes" size={14}/></button>
                 </div>
               </div>
             </div>
@@ -722,7 +723,7 @@ function AskModal({ onClose, onSubmit }: { onClose: () => void, onSubmit: (t: st
           </div>
           {cat === '국내주식·ETF' && (
             <div className={styles.askTags}>
-              <label><Tags size={13}/> 관련 태그</label>
+              <label><FaIcon name="tags" size={13}/> 관련 태그</label>
               <div>
                 {STOCK_ETF_TAGS.map(tag => (
                   <button

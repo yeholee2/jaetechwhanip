@@ -3,8 +3,8 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
-import { CheckCircle2, ChevronDown, Flame, LockKeyhole, MessageCircle, Share2, ThumbsDown, ThumbsUp } from 'lucide-react';
 import Countdown from '@/components/sparring/Countdown';
+import { FaIcon } from '@/components/FaIcon';
 import { createComment, getCurrentUserVote, getSideLabel, getSidePolarity, vote, type Sparring, type SparringComment, type SparringSide } from '@/lib/sparring';
 import { createClient, hasSupabase } from '@/lib/supabase/client';
 import styles from './SparringDetail.module.css';
@@ -153,8 +153,8 @@ export default function SparringDetailClient({
         onClick={() => handleVote(side)}
       >
         <div className={styles.choiceTop}>
-          <span>{polarity === 'positive' ? <ThumbsUp size={17} /> : <ThumbsDown size={17} />} {side === 'a' ? 'A 의견' : 'B 의견'}</span>
-          {isSelected && <CheckCircle2 size={20} />}
+          <span><FaIcon name={polarity === 'positive' ? 'thumbs-up' : 'thumbs-down'} size={16} /> {side === 'a' ? 'A 의견' : 'B 의견'}</span>
+          {isSelected && <FaIcon name="circle-check" size={19} />}
         </div>
         <strong>{getSideLabel(sparring, side)}</strong>
         <span className={styles.selectCopy}>{isSelected ? '선택 완료' : '선택'}</span>
@@ -169,8 +169,9 @@ export default function SparringDetailClient({
       <div className={styles.main}>
         <section className={styles.hero}>
           <button className={styles.share} type="button" onClick={() => navigator.share?.({ title: sparring.title, url: location.href })}>
-            <Share2 size={15} /> 공유
+            <FaIcon name="share-nodes" size={14} /> 공유
           </button>
+          <div className={styles.breadcrumb}>스파링 · {sparring.category}</div>
           <div className={styles.round}>{sparring.round_number} 라운드</div>
           <h1 className={styles.title}>{sparring.title}</h1>
           <div className={styles.choiceGrid}>
@@ -180,7 +181,7 @@ export default function SparringDetailClient({
 
           <div className={styles.statCard}>
             <div className={styles.statTop}>
-              <span><Flame size={18} /> {formatNumber(total)}명 투표 중!</span>
+              <span><FaIcon name="fire" size={17} /> {formatNumber(total)}명 투표 중</span>
               <span>{formatNumber(stats.comment_count)}개 토론</span>
             </div>
             <div className={styles.countdownLabel}>남은 투표 시간</div>
@@ -217,7 +218,7 @@ export default function SparringDetailClient({
                 type="button"
                 onClick={() => setSortMode(sortMode === 'side' ? 'latest' : 'side')}
               >
-                투표 항목별 <ChevronDown size={13} />
+                투표 항목별 <FaIcon name="chevron-down" size={12} />
               </button>
               <button
                 className={mineOnly ? styles.filterOn : ''}
@@ -232,12 +233,12 @@ export default function SparringDetailClient({
           <div className={styles.composer}>
             {!userId ? (
               <div className={styles.lock}>
-                <span><LockKeyhole size={16} /> 로그인하고 참여하면 투표와 댓글을 남길 수 있어요.</span>
+                <span><FaIcon name="lock" size={15} /> 로그인하고 참여하면 투표와 댓글을 남길 수 있어요.</span>
                 <button className={styles.loginCta} type="button" onClick={() => router.push(`/auth?next=/sparring/${sparring.slug}`)}>로그인하고 참여하기</button>
               </div>
             ) : !selectedVote ? (
               <div className={styles.lock}>
-                <span><LockKeyhole size={16} /> 투표 후 의견 작성 가능</span>
+                <span><FaIcon name="lock" size={15} /> 투표 후 의견 작성 가능</span>
                 <span>먼저 위에서 한쪽을 선택해 주세요.</span>
               </div>
             ) : (
@@ -271,13 +272,13 @@ export default function SparringDetailClient({
                       <span>{timeAgo(comment.created_at)}</span>
                     </div>
                     <span className={`${styles.badge} ${polarity === 'positive' ? styles.positive : styles.negative}`}>
-                      <CheckCircle2 size={13} /> {getSideLabel(sparring, comment.side)}
+                      <FaIcon name="circle-check" size={12} /> {getSideLabel(sparring, comment.side)}
                     </span>
                     <p>{comment.body}</p>
                     <div className={styles.commentActions}>
                       <span>좋아요 {comment.like_count}</span>
                       <span>아쉬워요 {comment.dislike_count}</span>
-                      <span><MessageCircle size={13} /> 답글</span>
+                      <span><FaIcon name="message" size={12} /> 답글</span>
                     </div>
                   </article>
                 </div>

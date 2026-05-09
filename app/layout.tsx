@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { SITE_NAME, SITE_URL } from '@/lib/seo';
+import '@fortawesome/fontawesome-free/css/all.css';
 import './globals.css';
 
 export const metadata: Metadata = {
