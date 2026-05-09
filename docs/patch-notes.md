@@ -15,7 +15,7 @@
 - [x] `npm run build` 통과
 - [x] 로컬 `/sparring` 목록 200 및 진행중/지난 스파링 렌더 확인
 - [x] 로컬 `/sparring/kospi-high-installment-buying` 200 및 라운드/투표/댓글 lock/필터 렌더 확인
-- [ ] Vercel preview 확인
+- [x] Vercel preview `/sparring` 및 `/sparring/kospi-high-installment-buying` 200 확인
 - [ ] Supabase production `docs/migration_sparring_v1.sql` 실행 필요
 
 ### 다음 작업자 TODO
