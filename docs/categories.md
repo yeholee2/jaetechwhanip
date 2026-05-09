@@ -47,7 +47,7 @@ const CATEGORY_DISPLAY = {
 
 ## 적용 범위
 - [ ] 홈 필터 칩 (`components/HomeClient.tsx`)
-- [ ] 칼럼 페이지 필터 (`app/columns/page.tsx` — 신규)
+- [ ] 피드 페이지 필터 (`app/feed/page.tsx`)
 - [ ] 질문 작성 카테고리 셀렉트 (질문하기 폼)
 - [ ] 질문 상세 카테고리 라벨 (`/q/[slug]`)
 - [ ] 토픽 페이지 (있을 경우)
