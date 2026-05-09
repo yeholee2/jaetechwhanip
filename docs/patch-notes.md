@@ -1,5 +1,42 @@
 # 패치노트
 
+## [2026-05-09] 스펙 문서 묶음 추가 — Claude
+**작업자:** Claude
+**태그:** #Docs #Specs #IA #UIPrinciples #Feed #Admin
+
+### 신규 문서
+- `docs/ia-redesign.md` — 전체 IA 재설계 (a-ha 벤치마킹, 카드 4종, 데스크탑/모바일 분기)
+- `docs/categories.md` — 6개 카테고리 SSOT (재테크입문/국내주식·ETF/해외주식·ETF/절세/보험/대출·부채)
+- `docs/feed-page-spec.md` — **칼럼 → 피드** 명칭 변경 + 외부 뉴스 RSS 자동수집 (토스증권 패턴)
+- `docs/admin-spec.md` — 관리자 페이지 v1(스파링/토픽/모더레이션) + v2(사용자/미션/통계/RSS/Ghost)
+- `docs/pages-polish-spec.md` — 마이페이지/토픽/검색 v1 + 미션/알림/에러 v2 + PWA/다크모드 v3
+
+### 갱신
+- `docs/ui-principles.md` v2 — **토스 톤 폐기, a-ha 톤으로 전환**
+  - 정보 밀도↑, 단일 컬럼 720px, 카드 shadow만 (border 금지)
+  - 카드 제목 16-18 / 본문 14-16 / 메타 12-13
+  - Primary `#03C75A` 핵심 CTA 명확 노출 강제
+  - AI 요약 박스 본문 위 박기 → ❌ 금지
+
+### Codex 작업과 충돌 / 조정 필요
+- ⚠️ **명칭:** Codex가 이미 "칼럼 → 아티클"로 마이그레이션 완료. 사용자(예호) 최종 결정은 "**피드**". → 다음 작업: `/articles` → `/feed` 추가 변경 + 외부 RSS 통합
+- ✅ **슬러그/도메인/카테고리:** Codex 구현과 사용자 결정 일치 (한글 슬러그, we.hannipmoney.com, 6개 카테고리)
+- ✅ **slug-spec.md, context.md:** Codex 버전 유지. 본 PR에서 덮어쓰지 않음.
+
+### 다음 작업자 TODO (Codex/GPT)
+- [ ] **Phase 1 (즉시):** ui-principles.md v2 반영 — `/q/[slug]`에서 AI 요약 제거, 카드 border 제거, primary CTA 색 적용
+- [ ] **Phase 2:** `/articles` → `/feed` 라우트 변경 + 301 리다이렉트 (feed-page-spec.md §7 Phase A)
+- [ ] **Phase 3:** RSS 자동수집 시스템 신설 (`lib/rss.ts`, cron, news_items 테이블)
+- [ ] **Phase 4 (병렬):** admin-spec v1 (스파링/토픽/모더레이션) + pages-polish v1 (마이/토픽/검색)
+- [ ] (예호) Supabase: `ALTER TABLE users ADD COLUMN role text DEFAULT 'user'; UPDATE users SET role='admin' WHERE email='imyeho@gmail.com';`
+
+### 향후 협업 룰 (`docs/ai-collaboration.md` v2 함께 추가)
+- main 직접 push 금지 → feature 브랜치 → PR → merge
+- 모든 결정은 docs/ 갱신 + slack 3줄 요약
+- 충돌 시 UI 라벨/사용자 향 결정은 예호님 → 그 외는 협의
+
+---
+
 ## [2026-05-09] 서비스 도메인을 we.hannipmoney.com으로 전환 준비
 **작업자:** Codex
 **태그:** #Domain #SEO #Slug #Auth
