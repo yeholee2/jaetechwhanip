@@ -15,7 +15,8 @@
 - [x] `npm_config_cache=.npm-cache npm run build` 통과
 - [x] 로컬 `/`, `/feed`, `/sparring`, `/q/sp500-etf` 200 확인
 - [x] 토큰/focus/reduced-motion 및 주요 카드 shadow CSS 검색 확인
-- [ ] Vercel preview URL 동작 확인
+- [x] Vercel preview `/feed`, `/sparring`, `/q/sp500-etf` 200 확인: `https://jaetechwhanip-git-feat-ui-v21-tokens-yeholees-projects.vercel.app`
+- [x] Vercel preview 루트(`/`)는 보호 응답으로 직접 확인 제한, 로컬 `/` 200으로 대체 확인
 
 ### 다음 작업자 TODO
 - [ ] 스파링 댓글·투표 시스템 v1 구현 시 새 토큰/카드 규칙 유지
