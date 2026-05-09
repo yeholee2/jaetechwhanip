@@ -13,11 +13,9 @@
 }
 
 :root {
-  --blue:#03C75A; --blue-bg:#EAF8F0; --blue-dk:#02A64B;
-  --green:#03C75A; --green-bg:#EAF8F0; --green-dk:#02A64B;
+  --blue:#3182F6; --blue-bg:#EBF3FF; --blue-dk:#1A6DE0;
   --t1:#191F28; --t2:#4E5968; --t3:#8B95A1;
   --line:#E5E8EB; --bg:#F9FAFB; --white:#fff;
-  --card-shadow:0 1px 3px rgba(0,0,0,0.06);
   --orange:#FF6B35;
   --sb: env(safe-area-inset-bottom, 0px);
 }
@@ -29,7 +27,6 @@ body {
   background: var(--bg);
   color: var(--t1);
   font-size: 15px;
-  line-height: 1.55;
 }
 a { text-decoration:none; color:inherit; }
 button { font-family:inherit; cursor:pointer; border:none; background:none; }

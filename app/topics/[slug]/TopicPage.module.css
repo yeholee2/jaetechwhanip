@@ -79,15 +79,14 @@
 
 .card {
   background: var(--white);
-  border: 0;
-  border-radius: 16px;
-  box-shadow: var(--card-shadow);
+  border: 1px solid var(--line);
+  border-radius: 8px;
   margin-bottom: 10px;
   transition: box-shadow .15s, transform .15s;
 }
 
 .card:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, .07);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, .06);
   transform: translateY(-1px);
 }
 
@@ -134,9 +133,8 @@
   text-align: center;
   color: var(--t3);
   background: var(--white);
-  border: 0;
-  border-radius: 16px;
-  box-shadow: var(--card-shadow);
+  border: 1px solid var(--line);
+  border-radius: 8px;
 }
 
 .empty strong {

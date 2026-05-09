@@ -31,9 +31,8 @@
 
 .card {
   background: var(--white);
-  border: 0;
-  border-radius: 16px;
-  box-shadow: var(--card-shadow);
+  border: 1px solid var(--line);
+  border-radius: 8px;
   padding: 18px;
 }
 
