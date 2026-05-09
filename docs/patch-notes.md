@@ -15,10 +15,13 @@
 - [x] `npm_config_cache=/Users/yeho/Documents/New\ project/jaetechwhanip/.npm-cache npm run build` 통과
 - [x] hosting.kr DNS `A home -> 76.76.21.21` 연결
 - [x] Vercel Production Ready 및 `http://home.hannipmoney.com` 200 확인
+- [x] Vercel 프로젝트 도메인 상태는 `verified: true` 확인
+- [x] Vercel 인증서 발급 재시도 결과: `http_pretest_domain_not_resolving_to_vercel_error`
 - [ ] `https://home.hannipmoney.com` 인증서 발급 완료 후 200 확인
 
 ### 다음 작업자 TODO
-- [ ] hosting.kr `ns1.hosting.co.kr`에서 `home.hannipmoney.com` UDP 질의가 일시적으로 NXDOMAIN을 반환함. TCP/`ns2~ns4`/1.1.1.1/8.8.8.8은 A 레코드 확인됨. Vercel SSL 발급 재시도 필요
+- [ ] hosting.kr `ns1.hosting.co.kr`에서 `home.hannipmoney.com` UDP 질의가 NXDOMAIN/빈 응답을 반환함. `ns2~ns4`/1.1.1.1/8.8.8.8은 A 레코드 확인됨. `ns1` UDP SOA serial이 12, TCP serial이 15로 갈라진 상태라 hosting.kr 네임서버 동기화가 병목
+- [ ] Vercel 공식 문서 기준 서브도메인은 CNAME(`cname.vercel-dns-0.com`)도 가능하나, 현재 Vercel inspect는 `A home.hannipmoney.com 76.76.21.21`을 권장함. hosting.kr에서 `home` 레코드를 삭제 후 재생성하거나 CNAME 전환으로 `ns1` UDP 캐시를 갱신한 뒤 cert 재시도
 - [ ] Supabase Auth / OAuth 제공자 redirect URL에 `https://home.hannipmoney.com/api/auth/callback` 계열이 필요한지 로그인 실테스트로 확인
 - [ ] Search Console 기준은 `home.hannipmoney.com`으로 등록하고 `qa.hannipmoney.com`은 레거시 이동 주소로만 유지
 
