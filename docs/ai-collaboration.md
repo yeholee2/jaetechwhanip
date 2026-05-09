@@ -114,6 +114,48 @@ main (production = we.hannipmoney.com)
 - 🔒 **잠금 선언:** `🔒 [영역/파일] 작업 시작 — 작업자, 예상 시간` — 충돌 방지
 - 📌 **정보 공유:** `📌 [정보] ...` — 작업 결과 외 참고 사항
 
+### 3-1-a. ⭐ 완료 보고 필수 양식 (혼동 방지)
+
+**모든 ✅ 완료 보고는 두 URL을 같이 적어야 한다:**
+
+```
+✅ [영역] 작업명 — 작업자
+
+작업 내용 3-5 불릿
+
+🧪 테스트 서버 (이 변경 검증용):
+https://jaetechwhanip-git-{브랜치이름}-yeholees-projects.vercel.app
+
+🌐 본서버 (현재 운영중, 비교용):
+https://we.hannipmoney.com
+
+PR 링크: https://github.com/yeholee2/jaetechwhanip/pull/new/{브랜치이름}
+```
+
+**왜:**
+- 테스트 서버 = 작업한 결과만 들어있음. 검증할 때 이 링크.
+- 본서버 = 머지 전 비교용. 차이를 눈으로 확인 가능.
+- 헷갈려서 본서버 링크만 주면 사용자는 "어? 변경 안 됐는데?" 함.
+
+**예시 (스파링 v1 작업 완료 시):**
+```
+✅ [Sparring] 댓글·투표 시스템 v1 — Codex
+
+• 라운드 번호 자동 시리얼 + 양측 투표 카드 + 카운트다운
+• 댓글: 사이드 뱃지 + 투표 항목별 필터, 투표 후 작성 lock 정책
+• /admin/sparring 작성 폼 + 색상 polarity 자동 추론
+• Supabase migration_sparring_v1.sql 실행 필요 (예호님)
+
+🧪 테스트 서버: https://jaetechwhanip-git-feat-sparring-v1-yeholees-projects.vercel.app/sparring
+🌐 본서버 (비교): https://we.hannipmoney.com/sparring
+PR: https://github.com/yeholee2/jaetechwhanip/pull/new/feat/sparring-v1
+```
+
+**브랜치 이름 슬러그화 (Vercel URL용):**
+- `feat/sparring-v1` → `feat-sparring-v1`
+- `fix/q-detail-cleanup` → `fix-q-detail-cleanup`
+- 슬래시(`/`)는 하이픈(`-`)으로, 그 외는 그대로
+
 ### 3-2. 상세는 docs, 슬랙은 알림용
 - 슬랙 메시지는 3-5분 안에 읽는 분량
 - 상세 (긴 코드, 표, 알고리즘)는 docs/*.md 에. 슬랙엔 "상세는 `docs/admin-spec.md`" 링크만.

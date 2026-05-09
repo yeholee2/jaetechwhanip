@@ -1,15 +1,21 @@
 # UI 원칙 — 재테크한입
 
+> v2.2 (2026-05-09): a-ha 정밀 분석 후 카드 모티브 결정 — **bg/border/shadow 모두 제거, 디바이더만**.
+> v2.1 (2026-05-09): a-ha 사이트 자동 추출 데이터 큐레이션 후 흡수. 노이즈 토큰 제거.
 > v2 (2026-05-09): 방향성 a-ha 톤으로 전환. 기존 "토스 감성/여백 넓게" 폐기.
 
 ## 핵심 철학
-> **a-ha처럼. 정보 밀도 높고 스캐너블, 단일 컬럼 중앙 집중, 카드는 가볍게.**
+> **a-ha처럼. 정보 밀도 높고 스캐너블, 단일 컬럼 중앙 집중, 카드는 카드가 아니다.**
 > 금융 Q&A는 한 번에 여러 질문을 훑어보는 게 핵심 — 토스의 1액션 1화면과 다른 방향.
 
 ## Do
 - ✅ 정보 밀도 적정 — 한 화면에 카드 3-5개 보이게
 - ✅ 단일 컬럼 중앙 집중 (`max-width: 720px` 데스크탑)
-- ✅ 카드: 그림자만, border 없이 (`box-shadow: 0 1px 3px rgba(0,0,0,0.06)`)
+- ✅ **카드는 카드가 아니다** (v2.2 / a-ha 모티브):
+  - bg `transparent`, border `none`, box-shadow `none`
+  - 콘텐츠 블록 사이는 `border-bottom: 1px solid #e5e8eb` (gray-200) 디바이더만
+  - 카드 자체는 `padding: 24px 0` (좌우 0, 위아래 24)
+  - 호버 시: `background: rgba(0,0,0,0.02)` 살짝 어둡게 (피드백)
 - ✅ 본문 14-16px, 카드 제목 16-18px, 메타 12-13px gray
 - ✅ 라인 높이 1.5-1.6 (스캐너블한 정도)
 - ✅ Pretendard 기본, 로고만 Cafe24 Ssurround
@@ -18,7 +24,7 @@
 
 ## Don't
 - ❌ 토스식 "한 화면 한 액션" 격자 (스캐너빌리티 떨어짐)
-- ❌ 카드 border + shadow 이중 처리 (시각 노이즈)
+- ❌ 카드에 border, shadow, 또는 background-color 사용 (a-ha 패턴: 디바이더만)
 - ❌ 메타 한 줄에 정보 4개 이상 cramped
 - ❌ 광고/배너 느낌 레이아웃 (깜빡이는 강조, 자극적 카피)
 - ❌ 금융 공포감 조성 ("지금 안 하면 손해!", "급등 예상!")
@@ -37,7 +43,7 @@
 
 ## 컴포넌트 규칙
 - **버튼**: 기본 height 44px, primary 액션 height 52px, border-radius 12px
-- **카드**: border-radius 16px, padding 16-20px, **shadow만 (border 금지)**
+- **카드**: 피드형 블록은 bg/border/shadow 없이 디바이더만. 별도 도구/모달/반복 카드만 radius 16px + 가벼운 shadow 허용
 - **칩 (카테고리)**: border-radius 999, padding 6-12px, height 28-32px
 - **간격**: 섹션 간 32px, 카드 간 12-16px, 요소 간 8-12px
 - **모달**: 중앙 정렬, 배경 딤(rgba(0,0,0,0.4)), 부드러운 트랜지션
@@ -54,6 +60,31 @@
 | bg | `#ffffff` | 페이지 배경 |
 | surface | `#ffffff` | 카드 배경 |
 | border | `#e5e7eb` | (사용 최소화 — 카드는 shadow만) |
+| text-quiet | `#b0b8c1` | 비활성/캡션 |
+| focus-ring | `rgba(30,89,218,0.5)` | focus-visible 아웃라인 (접근성) |
+
+## 폰트 스택 (a-ha와 동일, 한글 fallback 견고)
+```css
+font-family:
+  'Pretendard Variable', Pretendard,
+  -apple-system, system-ui,
+  Roboto, 'Helvetica Neue', 'Segoe UI',
+  'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic',
+  'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
+  sans-serif;
+```
+- Pretendard Variable 우선 (가변 폰트, 모든 weight 한 파일로)
+- 시스템 폰트 fallback으로 로딩 깜빡임 최소화
+
+## 모션 토큰 (a-ha 추출본 그대로 — 일관됨)
+| 토큰 | 값 | 용도 |
+|---|---|---|
+| duration-instant | 150ms | 즉각적 반응 (hover, click 피드백) |
+| duration-fast | 200ms | 짧은 트랜지션 (드롭다운, 토스트) |
+| duration-normal | 300ms | 표준 트랜지션 (모달, 패널) |
+| duration-slow | 400ms | 큰 변화 (페이지 전환) |
+
+`ease`는 `cubic-bezier(0.4, 0, 0.2, 1)` (Material standard) 권장.
 
 ## 반응형
 - 데스크탑 우선 (현재 우선순위), 모바일은 별도 트랙
@@ -61,6 +92,36 @@
 - 모바일: 풀너비 + 좌우 padding 16px, 하단 탭바 5개
 - 모바일 톤은 추후 별도 정의 (참고: 삼쩜삼 / 모니모)
 
+## 컴포넌트 필수 상태 (a-ha 룰 차용)
+모든 인터랙티브 컴포넌트(버튼·칩·카드·입력)는 7개 상태 모두 정의해야 한다:
+
+| 상태 | 정의 | 시각 |
+|---|---|---|
+| **default** | 기본 | 토큰 그대로 |
+| **hover** | 마우스 올림 | 배경 살짝 어둡게(2-4%) 또는 그림자 강조 |
+| **focus-visible** | 키보드 포커스 | 2px focus-ring 아웃라인 (접근성 필수) |
+| **active** | 누름 | 배경 더 어둡게(6-8%), scale 0.98 |
+| **disabled** | 비활성 | opacity 0.4, cursor not-allowed, hover X |
+| **loading** | 로딩 중 | 스피너 + 텍스트 가림 또는 `…` |
+| **error** | 에러 | red border + 에러 메시지 |
+
+→ `:hover` 만 정의하고 끝내면 안 됨. 키보드 사용자에 `focus-visible` 누락은 a11y 위반.
+
+## 접근성 (Accessibility)
+- 목표: **WCAG 2.2 AA**
+- 키보드 우선: Tab/Shift+Tab으로 모든 인터랙션 접근 가능해야 함
+- focus-visible: 모든 인터랙티브 요소에 명확한 포커스 인디케이터
+- 명도 대비: 본문 텍스트 4.5:1 이상, 큰 텍스트(18px+) 3:1 이상
+- 라벨: `aria-label` 또는 가시 텍스트 필수, "더보기" "여기를 클릭" 같은 모호한 라벨 X
+- 모션 감소: `prefers-reduced-motion` 미디어쿼리 존중
+
+## 작성 규칙 (코드 룰북에서 차용)
+- 비협상 가능한 룰은 **must** 사용 (예: "버튼은 focus-visible을 must 정의")
+- 권장은 **should** (예: "카드 hover에서 그림자 should 강조")
+- 시스템 일관성 > 로컬 예외. 한 페이지만 다르게 하지 말 것.
+- 의미 없는 토큰 예외 금지 — 새 값 필요하면 토큰 표 수정해서 도입
+
 ## 변경 이력
 - v1 (~2026-05-08): 토스 감성, 여백 넓게
 - v2 (2026-05-09): **a-ha 톤으로 전환.** 정보 밀도 ↑, 카드 shadow 단일, primary 색 활성화, AI 요약 박스 금지 추가
+- v2.1 (2026-05-09): a-ha 사이트 자동 추출본 큐레이션 흡수. Pretendard 폰트 스택, 모션 토큰(150/200/300/400), 컴포넌트 7종 상태, WCAG 2.2 AA, must/should 룰 추가. 노이즈 토큰(`radius.lg=16777200px`, `surface.base=#000000`, `text=#0000ee` 등)은 거름.
