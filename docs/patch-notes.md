@@ -23,11 +23,10 @@
 - [x] hosting.kr DNS `A we -> 76.76.21.21` 추가
 - [x] hosting.kr authoritative NS(`ns1~ns4.hosting.co.kr`)에서 `we.hannipmoney.com` A 응답 확인
 - [x] `http://we.hannipmoney.com`은 Vercel 200 확인(`--resolve` 기준)
-- [x] Google DNS(8.8.8.8)에서 `we.hannipmoney.com -> 76.76.21.21` 확인
-- [ ] Cloudflare/Quad9 일부 recursive DNS의 기존 NXDOMAIN 캐시 만료 후 Vercel SSL 인증서 발급 확인
+- [ ] Google/Cloudflare/Quad9 일부 recursive DNS의 기존 NXDOMAIN 캐시 만료 후 Vercel SSL 인증서 발급 확인
 
 ### 다음 작업자 TODO
-- [ ] Vercel 인증서 재시도. 직전 상태: alias는 존재하지만 cert 발급이 공개 DNS 캐시 때문에 `Response Error`로 실패. Cloudflare 1.1.1.1 purge API에 `we.hannipmoney.com` A/CNAME 캐시 갱신 요청은 넣었으나 아직 NXDOMAIN 응답. 1.1.1.1/9.9.9.9가 `we` A 레코드를 안정적으로 응답하면 `npx vercel alias set jaetechwhanip-dsmdbuh47-yeholees-projects.vercel.app we.hannipmoney.com` 재시도
+- [ ] Vercel 인증서 재시도. 직전 상태: alias는 존재하지만 cert 발급이 공개 DNS 캐시 때문에 `Response Error`로 실패. hosting.kr authoritative SOA는 serial 16으로 갱신됐지만 Google/Cloudflare/Quad9 recursive DNS는 아직 serial 15의 NXDOMAIN 캐시를 응답함. Cloudflare 1.1.1.1 purge API에 `we.hannipmoney.com` A/CNAME 캐시 갱신 요청은 넣었음. 8.8.8.8/1.1.1.1/9.9.9.9가 `we` A 레코드를 안정적으로 응답하면 `npx vercel alias set jaetechwhanip-dsmdbuh47-yeholees-projects.vercel.app we.hannipmoney.com` 재시도
 - [ ] Supabase Auth Site URL / Redirect URLs에 `https://we.hannipmoney.com/**` 추가
 - [ ] Google/Kakao OAuth Redirect URI에 `https://we.hannipmoney.com/api/auth/callback` 계열 추가
 - [ ] Google Search Console에 `we.hannipmoney.com` property 등록 후 sitemap 제출
