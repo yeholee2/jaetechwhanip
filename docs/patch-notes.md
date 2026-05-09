@@ -877,4 +877,4 @@
 - [x] 로컬 `/u/me` 200 확인
 - [x] 6개 토픽 라우트 200 확인
 - [x] 로컬 `/search?q=ETF` 4개 탭 결과 확인
-- [ ] Vercel preview 확인 필요
+- [x] Vercel preview `/u/me`, `/search?q=ETF` 200 확인
