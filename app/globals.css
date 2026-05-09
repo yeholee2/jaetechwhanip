@@ -13,9 +13,10 @@
 }
 
 :root {
-  /* === Primary brand (재테크한입 — 네이버 그린) === */
-  --primary:#03C75A; --primary-bg:#E5F8EE; --primary-dk:#02A04B;
-  /* Legacy blue accent (서브 액센트, 링크/포커스 등에서 점진 사용) */
+  /* === Primary brand (a-ha 모티브 — 파랑) === */
+  --primary:#1e59da; --primary-bg:#E8F0F9; --primary-dk:#0649db;
+  /* a-ha와 동일 값: blue-600 #1e59da (CTA bg), blue-700 #0649db (--color-primary) */
+  /* Legacy 토스 블루 (서브 액센트로만 점진 사용) */
   --blue:#3182F6; --blue-bg:#EBF3FF; --blue-dk:#1A6DE0;
   /* 텍스트 / 배경 (a-ha gray scale 매칭) */
   --t1:#191F28; --t2:#4E5968; --t3:#8B95A1;
