@@ -23,10 +23,12 @@
 - [x] hosting.kr DNS `A we -> 76.76.21.21` 추가
 - [x] hosting.kr authoritative NS(`ns1~ns4.hosting.co.kr`)에서 `we.hannipmoney.com` A 응답 확인
 - [x] `http://we.hannipmoney.com`은 Vercel 200 확인(`--resolve` 기준)
-- [ ] Google/Cloudflare/Quad9 일부 recursive DNS의 기존 NXDOMAIN 캐시 만료 후 Vercel SSL 인증서 발급 확인
+- [x] hosting.kr에서 `we` TTL을 180 -> 181로 수정 저장해 zone 재동기화 시도
+- [ ] `ns3.hosting.co.kr`의 DNSSEC/EDNS 응답 stale backend 해결 후 Vercel SSL 인증서 발급 확인
 
 ### 다음 작업자 TODO
-- [ ] Vercel 인증서 재시도. 직전 상태: alias는 존재하지만 cert 발급이 공개 DNS 캐시 때문에 `Response Error`로 실패. hosting.kr authoritative SOA는 serial 16으로 갱신됐지만 Google/Cloudflare/Quad9 recursive DNS는 아직 serial 15의 NXDOMAIN 캐시를 응답함. Cloudflare 1.1.1.1 purge API에 `we.hannipmoney.com` A/CNAME 캐시 갱신 요청은 넣었음. 8.8.8.8/1.1.1.1/9.9.9.9가 `we` A 레코드를 안정적으로 응답하면 `npx vercel alias set jaetechwhanip-dsmdbuh47-yeholees-projects.vercel.app we.hannipmoney.com` 재시도
+- [ ] Vercel 인증서 재시도. 직전 상태: alias는 존재하고 `http://we.hannipmoney.com`은 Vercel 200이지만 cert 발급은 `DNS problem: NXDOMAIN looking up A for we.hannipmoney.com`으로 실패. 핵심 원인은 `ns3.hosting.co.kr`가 일반 A 조회에는 정상 응답하지만 DNSSEC/EDNS 플래그가 붙은 일부 조회에서만 serial 15의 NXDOMAIN을 반환하는 것. Google/Quad9 등 recursive DNS와 Vercel HTTP-01 precheck가 이 stale backend를 만나면 실패함.
+- [ ] hosting.kr 조치 후보: `we` 레코드 삭제 후 재생성 또는 hosting.kr 고객센터에 "`ns3.hosting.co.kr` DNSSEC/EDNS stale serial 15 NXDOMAIN" 동기화 요청. 삭제/재생성은 서비스 DNS 레코드 삭제가 포함되므로 실행 전 예호님 확인 필요.
 - [ ] Supabase Auth Site URL / Redirect URLs에 `https://we.hannipmoney.com/**` 추가
 - [ ] Google/Kakao OAuth Redirect URI에 `https://we.hannipmoney.com/api/auth/callback` 계열 추가
 - [ ] Google Search Console에 `we.hannipmoney.com` property 등록 후 sitemap 제출
