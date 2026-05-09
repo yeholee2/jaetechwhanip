@@ -1,8 +1,13 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { AppShell } from '@/components/AppShell';
-import { CATEGORY_FILTERS } from '@/lib/ia';
-import { FEED_URL, fetchNewsItems, toFeedItems, articleUrl } from '@/lib/feed';
+import {
+  FEED_CATEGORY_FILTERS,
+  FEED_URL,
+  articleUrl,
+  fetchFeedItems,
+  newsClickUrl,
+} from '@/lib/feed';
 import type { FeedItem } from '@/lib/feed';
 import { SITE_NAME } from '@/lib/seo';
 import styles from './FeedPage.module.css';
@@ -35,13 +40,17 @@ export default async function FeedPage({
   const activeSource = SOURCE_FILTERS.some(item => item.key === searchParams?.source)
     ? searchParams?.source || 'all'
     : 'all';
-  const activeCategory = searchParams?.category || '전체';
-  const newsItems = await fetchNewsItems();
-  const items = toFeedItems(newsItems).filter(item => {
+  const activeCategory = FEED_CATEGORY_FILTERS.some(item => item.key === searchParams?.category)
+    ? searchParams?.category || '전체'
+    : '전체';
+  const allItems = await fetchFeedItems();
+  const items = allItems.filter(item => {
     const sourceMatches = activeSource === 'all' || item.type === activeSource;
     const categoryMatches = activeCategory === '전체' || item.category === activeCategory;
     return sourceMatches && categoryMatches;
   });
+  const articleCount = allItems.filter(item => item.type === 'column').length;
+  const newsCount = allItems.filter(item => item.type === 'news').length;
 
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -76,6 +85,12 @@ export default async function FeedPage({
         </div>
       </section>
 
+      <section className={styles.feedStats} aria-label="피드 현황">
+        <span>한입 칼럼 {articleCount}개</span>
+        <span>뉴스 {newsCount}개</span>
+        <span>{activeCategory === '전체' ? '전체 토픽' : activeCategory}</span>
+      </section>
+
       <section className={styles.filters} aria-label="피드 필터">
         <div className={styles.filterRow}>
           {SOURCE_FILTERS.map(filter => (
@@ -89,7 +104,7 @@ export default async function FeedPage({
           ))}
         </div>
         <div className={styles.filterRow}>
-          {CATEGORY_FILTERS.map(category => (
+          {FEED_CATEGORY_FILTERS.map(category => (
             <Link
               key={category.key}
               href={feedFilterHref(activeSource, category.key)}
@@ -126,15 +141,16 @@ function feedItemKey(item: FeedItem) {
 function FeedCard({ item }: { item: FeedItem }) {
   if (item.type === 'news') {
     return (
-      <a className={styles.card} href={item.url} target="_blank" rel="noreferrer">
+      <a className={styles.card} href={newsClickUrl(item.url)} target="_blank" rel="noreferrer">
         <div className={styles.meta}>
-          <span className={styles.newsSource}>{item.source} · {item.category}</span>
+          <span className={styles.newsSource}><span className={styles.newsBadge}>뉴스</span>{item.source} · {item.category}</span>
           <span className={styles.external}>원문 보기</span>
         </div>
         <h2>{item.title}</h2>
         <p>{item.summary}</p>
         <div className={styles.tags}>
-          <span>뉴스</span>
+          <span>{formatDate(item.publishedAt)}</span>
+          {(item.clickCount || 0) > 0 && <span>{item.clickCount}번 읽음</span>}
         </div>
       </a>
     );
@@ -143,7 +159,7 @@ function FeedCard({ item }: { item: FeedItem }) {
   return (
     <Link className={styles.card} href={articleUrl(item.slug)}>
       <div className={styles.meta}>
-        <span className={styles.source}>한입 칼럼 · {item.category}</span>
+        <span className={styles.source}><span className={styles.columnBadge}>한입</span>{item.category}</span>
         <span>{item.readingTime} 읽기</span>
       </div>
       <h2>{item.title}</h2>
@@ -155,3 +171,10 @@ function FeedCard({ item }: { item: FeedItem }) {
   );
 }
 
+function formatDate(value: string) {
+  if (!value) return '';
+  return new Intl.DateTimeFormat('ko-KR', {
+    month: 'short',
+    day: 'numeric',
+  }).format(new Date(value));
+}

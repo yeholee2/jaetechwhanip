@@ -35,13 +35,13 @@
 
 ### 2-1. 한입 칼럼 (Ghost CMS)
 - 출처: `hannipmoney.com` (Ghost)
-- 수집: Ghost Content API (revalidate 600)
+- 수집: Ghost RSS `https://www.hannipmoney.com/rss/` (v2 구현)
 - 특징: 깊이 있는 자체 작성 글, 한입 브랜드
 - 클릭: 자체 페이지(`we.hannipmoney.com/feed/[slug]`)에서 본문 렌더
 
 ### 2-2. 외부 뉴스 (RSS, 신규)
-- 출처: 매일경제, 한국경제, 머니투데이, 이데일리 등 한국 금융 RSS
-- 수집: Vercel Cron (매시간 또는 30분) → Supabase 저장
+- 출처: 매일경제, 한국경제, 이데일리, 연합뉴스 등 한국 금융 RSS
+- 수집: Vercel Cron (Hobby 플랜은 daily) → Supabase 저장
 - 특징: 속보·시황·기업 뉴스, 자체 작성 X
 - 클릭: **외부 사이트로 이동** (저작권 보호) — 자체 페이지에서 본문 렌더 X
 
@@ -55,12 +55,12 @@
 |---|---|---|
 | 매일경제 증권 | `https://www.mk.co.kr/rss/50200011/` | 증시 종합 |
 | 한국경제 증시 | `https://www.hankyung.com/feed/finance` | 증시·기업 |
-| 머니투데이 증권 | `https://rss.mt.co.kr/mt_stock.xml` | 종목 분석 |
 | 이데일리 증권 | `https://rss.edaily.co.kr/stock_news.xml` | 시황 |
 | 연합뉴스 경제 | `https://www.yna.co.kr/rss/economy.xml` | 경제 일반 |
 
 → 운영 전 각 매체 RSS 사용 약관 확인 필수. 일부 매체는 상업적 사용 제한.
 → 처음에는 2-3개 소스로 시작 → 카테고리 분포 보면서 점진 추가.
+→ 머니투데이 `https://rss.mt.co.kr/mt_stock.xml`은 2026-05-09 기준 404라 운영 소스에서 제외.
 
 ### 3-2. 데이터 모델 (Supabase)
 
@@ -113,12 +113,12 @@ function classify(title: string, summary: string): string {
 ### 3-4. 수집 워크플로우 (Vercel Cron)
 
 ```
-[Vercel Cron, 매시간 0분]
+[Vercel Cron, daily on Hobby / hourly on Pro]
        │
        ▼
 [/api/cron/fetch-news]
        │
-       ├─ 각 RSS URL fetch (rss-parser 라이브러리)
+       ├─ 각 RSS URL fetch (lib/rss.ts 내부 파서)
        ├─ 새 item만 필터 (url unique 체크)
        ├─ classify() 카테고리 매핑
        └─ Supabase news_items insert (upsert with onConflict: 'url')
@@ -128,15 +128,15 @@ function classify(title: string, summary: string): string {
 ```json
 {
   "crons": [
-    { "path": "/api/cron/fetch-news", "schedule": "0 * * * *" }
+    { "path": "/api/cron/fetch-news", "schedule": "0 0 * * *" }
   ]
 }
 ```
 
 **API route (`app/api/cron/fetch-news/route.ts`):**
 ```ts
-import Parser from 'rss-parser'
 import { createClient } from '@supabase/supabase-js'
+import { parseRss } from '@/lib/rss'
 
 export async function GET(req: Request) {
   // Cron 보안: Vercel이 보내는 요청만 허용
@@ -145,7 +145,6 @@ export async function GET(req: Request) {
     return Response.json({ ok: false }, { status: 401 })
   }
 
-  const parser = new Parser()
   const supabase = createClient(/* service role */)
 
   const SOURCES = [
@@ -155,9 +154,10 @@ export async function GET(req: Request) {
 
   let total = 0
   for (const src of SOURCES) {
-    const feed = await parser.parseURL(src.url).catch(() => null)
+    const response = await fetch(src.url)
+    const feed = response.ok ? parseRss(await response.text()) : []
     if (!feed) continue
-    for (const item of feed.items) {
+    for (const item of feed) {
       const category = classify(item.title || '', item.contentSnippet || '')
       const { error } = await supabase.from('news_items').upsert({
         source: src.name,
@@ -256,13 +256,13 @@ URL 쿼리: `/feed?source=column&category=국내주식·ETF`
 | 카드 종류 | 클릭 시 |
 |---|---|
 | ColumnFeedCard | 자체 페이지 `/feed/[slug]` 이동 |
-| NewsFeedCard | **외부 사이트 새 창** (`target="_blank" rel="noopener noreferrer"`) + click_count 증가 |
+| NewsFeedCard | `/api/feed/news-click?url=...` 경유 후 **외부 사이트 새 창** (`target="_blank" rel="noopener noreferrer"`) + click_count 증가 |
 
 ---
 
 ## 5. 자체 칼럼 상세 (`/feed/[slug]`)
 
-Ghost 본문 prose 렌더, 좋아요·저장·공유 액션, cross-link 추천 (같은 카테고리 다른 글 + 같은 카테고리 외부 뉴스 5개도 옆에 노출).
+Ghost RSS 본문 prose 렌더, 좋아요·저장·공유 액션, cross-link 추천 (같은 카테고리 다른 글 + 같은 카테고리 외부 뉴스 5개도 옆에 노출).
 
 기존 `/columns/[slug]` 인덱싱된 URL이 있다면 301 리다이렉트로 `/feed/[slug]` 이전.
 
@@ -284,25 +284,26 @@ canonical: `https://we.hannipmoney.com/feed/[slug]`
 ## 7. GPT/Codex 작업 체크리스트
 
 ### Phase A — 명칭 마이그레이션 (칼럼 → 피드)
-- [ ] 라우트 `/columns/*` → `/feed/*` 변경 + 301 리다이렉트 (기존 인덱싱 보호)
-- [ ] 네비게이션 라벨 "칼럼" → "피드"
+- [x] 라우트 `/columns/*` → `/feed/*` 변경 + 301 리다이렉트 (기존 인덱싱 보호)
+- [x] 네비게이션 라벨 "칼럼" → "피드"
 - [ ] 컴포넌트 네이밍 통일 (`ColumnCard` → `ColumnFeedCard`)
-- [ ] Ghost API 헬퍼 (`lib/ghost.ts`) 그대로 유지
+- [x] Ghost RSS fetch 연결 (`lib/feed.ts` + `lib/rss.ts`)
 
 ### Phase B — RSS 시스템 신설
-- [ ] Supabase `news_items` 테이블 마이그레이션 SQL (`docs/migration_news_items.sql`)
-- [ ] `lib/rss.ts` — RSS 소스 정의 + parser
-- [ ] `lib/classify.ts` — 키워드 기반 카테고리 자동 매핑
-- [ ] `app/api/cron/fetch-news/route.ts` — Vercel Cron 엔드포인트
-- [ ] `vercel.json` cron 설정 + `CRON_SECRET` env 추가
+- [x] Supabase `news_items` 테이블 마이그레이션 SQL (`docs/migration_news_items.sql`)
+- [x] `lib/rss.ts` — 공용 RSS parser/sanitizer
+- [x] 키워드 기반 카테고리 자동 매핑 (`lib/feed.ts`)
+- [x] `app/api/cron/fetch-news/route.ts` — Vercel Cron 엔드포인트
+- [x] `vercel.json` cron 설정 + `CRON_SECRET` env 추가
 - [ ] (예호) RSS 소스 매체별 사용 약관 확인 후 SOURCES 배열 확정
+- [ ] (예호/Codex) Supabase SQL Editor에서 `docs/migration_news_items.sql` 실행
 
 ### Phase C — 통합 피드 UI
-- [ ] `app/feed/page.tsx` — Ghost + Supabase news_items 통합 fetch, 시간순 merge
-- [ ] `<ColumnFeedCard />`, `<NewsFeedCard />` 시각 구분 컴포넌트
-- [ ] 소스 토글 + 카테고리 칩 (6개)
+- [x] `app/feed/page.tsx` — Ghost + Supabase news_items 통합 fetch, 시간순 merge
+- [x] `<ColumnFeedCard />`, `<NewsFeedCard />` 시각 구분
+- [x] 카테고리 칩 (6개)
 - [ ] 무한 스크롤
-- [ ] 외부 뉴스 클릭 시 click_count 증가 + 새 창
+- [x] 외부 뉴스 클릭 시 click_count 증가 + 새 창
 
 ### Phase D — 운영
 - [ ] RSS 수집 실패 시 슬랙 알림 (Webhook)
@@ -325,7 +326,7 @@ canonical: `https://we.hannipmoney.com/feed/[slug]`
 2. 두 카드가 시각적으로 구분됨 (출처 라벨 + 외부 아이콘)
 3. 카테고리 필터로 6개 정확히 분류됨
 4. 외부 뉴스 클릭 시 새 창 + click_count 증가
-5. Vercel Cron이 매시간 정상 동작 (Supabase에 새 레코드 쌓임)
+5. Vercel Cron이 daily 정상 동작 (Supabase에 새 레코드 쌓임, Pro 전환 시 hourly 가능)
 6. 카테고리 자동 매핑 정확도 80%↑ (운영 1주 후 측정)
 7. 기존 `/columns/...` 접근 시 `/feed/...` 로 301 리다이렉트
 
@@ -334,3 +335,4 @@ canonical: `https://we.hannipmoney.com/feed/[slug]`
 ## 작업 로그
 - 2026-05-09 v1: 칼럼 페이지 스펙 (Ghost 단일 소스)
 - 2026-05-09 v2: **피드로 명칭 변경 + 외부 뉴스 RSS 시스템 추가** (토스증권 패턴 반영)
+- 2026-05-09 v2 구현: Ghost RSS 실연동, 공용 RSS 파서, 뉴스 클릭 추적 라우트 추가. Supabase `news_items` 테이블 생성은 남음.
