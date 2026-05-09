@@ -113,7 +113,7 @@ function mapQuestion(row: any): QuestionDetail {
     id: row.id,
     title: seed?.title || row.title,
     body: seed?.body || row.body || '',
-    category: seed?.cat || row.category || '재테크 입문',
+    category: seed?.cat || row.category || '재테크입문',
     slug: row.slug || row.id,
     author_id: row.author_id || null,
     created_at: seedOptional?.createdAt || row.created_at,

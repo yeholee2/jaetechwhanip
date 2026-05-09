@@ -27,23 +27,23 @@
 }
 .iconBtn:hover { background: var(--bg); }
 .btnAsk {
-  height: 36px; padding: 0 16px; background: var(--blue);
-  border-radius: 6px; color: #fff; font-size: 14px; font-weight: 700;
-  transition: background .12s;
+  height: 36px; padding: 0 16px; background: var(--primary);
+  border-radius: 12px; color: #fff; font-size: 14px; font-weight: 700;
+  transition: background var(--duration-instant);
 }
 .btnAsk:hover { background: var(--blue-dk); }
 
 /* 유저 아바타 */
 .avatar {
   width: 32px; height: 32px; border-radius: 50%;
-  background: #00C73C; color: white;
+  background: var(--primary); color: white;
   display: flex; align-items: center; justify-content: center;
   font-weight: 700; font-size: 13px; cursor: pointer;
 }
 .dropdown {
   position: absolute; right: 0; top: 40px;
-  background: white; border: 1px solid var(--line);
-  border-radius: 10px; box-shadow: 0 4px 16px rgba(0,0,0,.1);
+  background: white; border: none;
+  border-radius: 16px; box-shadow: 0 4px 16px rgba(0,0,0,.1);
   min-width: 160px; z-index: 300;
 }
 .dropName {
@@ -87,8 +87,8 @@
 
 /* ── 질문 카드 ── */
 .qCard {
-  background: var(--white); border-radius: 12px;
-  border: 1px solid var(--line); padding: 20px;
+  background: var(--white); border-radius: 16px;
+  border: none; box-shadow: 0 1px 3px rgba(0,0,0,.06); padding: 20px;
   margin-bottom: 12px;
 }
 .qProfile {
@@ -118,25 +118,6 @@
   font-size: 14px; color: var(--t2); line-height: 1.7;
   margin-bottom: 18px; white-space: pre-wrap;
 }
-.seoSummary {
-  display: grid;
-  gap: 5px;
-  margin: -4px 0 18px;
-  padding: 12px 13px;
-  border-radius: 8px;
-  background: var(--blue-bg);
-  border: 1px solid rgba(49,130,246,.16);
-}
-.seoSummary strong {
-  color: var(--blue);
-  font-size: 12px;
-  font-weight: 800;
-}
-.seoSummary span {
-  color: var(--t2);
-  font-size: 13px;
-  line-height: 1.6;
-}
 .qActions {
   display: flex; gap: 4px; flex-wrap: wrap;
   padding-top: 14px; border-top: 1px solid var(--line);
@@ -153,8 +134,8 @@
 
 /* ── 답변 에디터 ── */
 .editorBox {
-  background: var(--white); border-radius: 12px;
-  border: 1px solid var(--line); padding: 18px;
+  background: var(--white); border-radius: 16px;
+  border: none; box-shadow: 0 1px 3px rgba(0,0,0,.06); padding: 18px;
   margin-bottom: 12px;
 }
 .editorHead {
@@ -162,7 +143,7 @@
 }
 .editorAvatar {
   width: 32px; height: 32px; border-radius: 50%;
-  background: #00C73C; color: white;
+  background: var(--primary); color: white;
   display: flex; align-items: center; justify-content: center;
   font-weight: 700; font-size: 13px; flex-shrink: 0;
 }
@@ -173,14 +154,15 @@
   transition: border-color .12s;
 }
 .editorArea:focus { border-color: var(--blue); }
+.editorArea:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 2px; }
 .editorFoot {
   display: flex; align-items: center; justify-content: space-between;
   margin-top: 10px;
 }
 .submitBtn {
-  height: 36px; padding: 0 20px; background: var(--blue);
-  border-radius: 8px; color: #fff; font-size: 14px; font-weight: 700;
-  transition: background .12s;
+  height: 36px; padding: 0 20px; background: var(--primary);
+  border-radius: 12px; color: #fff; font-size: 14px; font-weight: 700;
+  transition: background var(--duration-instant);
 }
 .submitBtn:hover:not(:disabled) { background: var(--blue-dk); }
 .submitBtn:disabled { background: var(--line); color: var(--t3); cursor: default; }
@@ -194,26 +176,19 @@
   display: flex; align-items: center; justify-content: space-between;
   margin-bottom: 12px;
 }
-.aiBtn {
-  display: flex; align-items: center; gap: 5px;
-  height: 30px; padding: 0 12px; border-radius: 20px;
-  border: 1.5px solid var(--line); font-size: 12px;
-  font-weight: 700; color: var(--t2); transition: all .12s;
-}
-.aiBtn:hover { border-color: var(--blue); color: var(--blue); }
 .emptyAnswers {
-  background: var(--white); border-radius: 12px;
-  border: 1px dashed var(--line); padding: 40px 20px;
+  background: var(--white); border-radius: 16px;
+  border: none; box-shadow: 0 1px 3px rgba(0,0,0,.06); padding: 40px 20px;
   text-align: center; color: var(--t3);
 }
 
 /* ── 답변 카드 ── */
 .answerCard {
-  background: var(--white); border-radius: 12px;
-  border: 1px solid var(--line); padding: 18px;
-  margin-bottom: 8px;
+  background: var(--white); border-radius: 16px;
+  border: none; box-shadow: 0 1px 3px rgba(0,0,0,.06); padding: 18px;
+  margin-bottom: 12px;
 }
-.adoptedCard { border-color: var(--blue); }
+.adoptedCard { box-shadow: 0 0 0 1px rgba(3,199,90,.2), 0 1px 3px rgba(0,0,0,.06); }
 .adoptedBadge {
   display: inline-flex; align-items: center; gap: 5px;
   font-size: 12px; font-weight: 700; color: var(--blue);
@@ -254,11 +229,11 @@
 .adoptBtn {
   display: flex; align-items: center; gap: 4px;
   height: 30px; padding: 0 12px; border-radius: 20px;
-  border: 1.5px solid #00C73C; background: #F0FFF4;
-  font-size: 12px; font-weight: 700; color: #00C73C;
+  border: 1.5px solid var(--primary); background: var(--primary-bg);
+  font-size: 12px; font-weight: 700; color: var(--primary);
   transition: all .12s; margin-left: auto;
 }
-.adoptBtn:hover { background: #00C73C; color: white; }
+.adoptBtn:hover { background: var(--primary); color: white; }
 
 /* ── 댓글 ── */
 .commentBox {
@@ -281,6 +256,7 @@
   font-family: inherit;
 }
 .commentInput input:focus { border-color: var(--blue); }
+.commentInput input:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 2px; }
 .commentInput button {
   width: 54px; border-radius: 9px; background: var(--blue);
   color: white; font-size: 13px; font-weight: 700;
@@ -289,9 +265,9 @@
 
 /* ── 사이드바 ── */
 .widget {
-  background: var(--white); border-radius: 12px;
-  border: 1px solid var(--line); overflow: hidden;
-  margin-bottom: 10px;
+  background: var(--white); border-radius: 16px;
+  border: none; box-shadow: 0 1px 3px rgba(0,0,0,.06); overflow: hidden;
+  margin-bottom: 12px;
 }
 .pollCard { background: var(--t1); padding: 16px; }
 .widgetHead {
@@ -326,7 +302,7 @@
   display: none; position: fixed;
   bottom: calc(64px + var(--sb) + 10px); right: 16px;
   width: 50px; height: 50px; border-radius: 50%;
-  background: var(--blue); box-shadow: 0 4px 14px rgba(49,130,246,.38);
+  background: var(--primary); box-shadow: 0 4px 14px rgba(3,199,90,.3);
   align-items: center; justify-content: center; z-index: 190;
 }
 .fab:active { transform: scale(.94); }

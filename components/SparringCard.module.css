@@ -1,0 +1,136 @@
+.card {
+  background: var(--white);
+  border: none;
+  box-shadow: 0 1px 3px rgba(0,0,0,.06);
+  border-radius: 16px;
+  padding: 18px;
+  display: grid;
+  gap: 12px;
+}
+
+.meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  color: var(--t3);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  height: 26px;
+  padding: 0 10px;
+  border-radius: 999px;
+  background: var(--primary-bg);
+  color: var(--primary);
+}
+
+.card h2 {
+  color: var(--t1);
+  font-size: 20px;
+  line-height: 1.35;
+  letter-spacing: 0;
+}
+
+.card p {
+  color: var(--t2);
+  font-size: 14px;
+  line-height: 1.65;
+}
+
+.resultLine,
+.labels,
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.resultLine {
+  color: var(--t1);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.resultLine span {
+  color: var(--primary);
+}
+
+.bar {
+  display: flex;
+  height: 10px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--bg);
+}
+
+.bar span {
+  display: block;
+  min-width: 8px;
+  transition: width var(--duration-normal);
+}
+
+.sideA {
+  background: var(--primary);
+}
+
+.sideB {
+  background: #4f8cff;
+}
+
+.labels {
+  color: var(--t3);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.footer {
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  color: var(--t3);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.footer span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  justify-self: start;
+  min-height: 40px;
+  padding: 0 14px;
+  border-radius: 12px;
+  background: var(--primary);
+  color: var(--white);
+  font-size: 13px;
+  font-weight: 850;
+  text-decoration: none;
+  transition: background var(--duration-instant), transform var(--duration-instant);
+}
+
+.cta:hover {
+  background: var(--primary-strong);
+}
+
+@media (max-width: 640px) {
+  .card {
+    padding: 16px;
+  }
+
+  .resultLine,
+  .labels {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 5px;
+  }
+}

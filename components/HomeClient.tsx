@@ -129,7 +129,7 @@ export default function HomeClient({ initialQuestions }: { initialQuestions: Que
 
       return {
         id: i + pageNum * PAGE_SIZE,
-        cat: seed?.cat || q.category || '재테크 입문',
+        cat: seed?.cat || q.category || '재테크입문',
         topic: seed?.topic || '일반',
         author: seed?.author || '익명',
         time: seed?.createdAt ? formatTime(seed.createdAt) : formatTime(q.created_at),
@@ -171,7 +171,7 @@ export default function HomeClient({ initialQuestions }: { initialQuestions: Que
         if (currentCat !== '전체' && q.category !== currentCat) return;
         if (feedTab === 'waiting' && (q.answer_count || 0) > 0) return;
         setAllQs(prev => [{
-          id: Date.now(), cat: q.category || '재테크 입문', topic: '일반',
+          id: Date.now(), cat: q.category || '재테크입문', topic: '일반',
           author: '방금 전', time: '방금 전', em: '🐯', lv: 0,
           title: q.title, body: q.body || '', ans: 0, adopted: false,
           slug: q.slug || q.id, dbId: q.id, likeCount: 0, createdAt: q.created_at,
@@ -301,7 +301,7 @@ export default function HomeClient({ initialQuestions }: { initialQuestions: Que
             {showSearch && (
               <div style={{position:'absolute',right:0,top:40,background:'white',border:'1px solid #E5E8EB',borderRadius:10,boxShadow:'0 4px 16px rgba(0,0,0,.1)',width:280,zIndex:100,display:'flex',alignItems:'center',padding:'8px 12px',gap:8}}>
                 <Search size={14} color="#8B95A1"/>
-                <input ref={searchRef} value={searchQuery} onChange={e=>setSearchQuery(e.target.value)} placeholder="질문 검색..." style={{flex:1,border:'none',outline:'none',fontSize:14}}/>
+                <input ref={searchRef} value={searchQuery} onChange={e=>setSearchQuery(e.target.value)} placeholder="질문 검색..." style={{flex:1,border:'none',fontSize:14}}/>
                 {searchQuery && <button onClick={()=>setSearchQuery('')} style={{background:'none',border:'none',cursor:'pointer',padding:0,display:'flex',color:'#8B95A1'}}><X size={14}/></button>}
               </div>
             )}
@@ -353,7 +353,7 @@ export default function HomeClient({ initialQuestions }: { initialQuestions: Que
             ))}
           </div>
           <MarketReadRail onSelect={(tag) => {
-            setCurrentCat('주식·ETF');
+            setCurrentCat('국내주식·ETF');
             setSearchQuery(tag);
             setShowSearch(true);
           }} />
@@ -361,7 +361,7 @@ export default function HomeClient({ initialQuestions }: { initialQuestions: Que
           {showSearch && (
             <div style={{padding:'8px 0',display:'flex',alignItems:'center',gap:8,borderBottom:'1px solid #F2F4F6',marginBottom:4}}>
               <Search size={14} color="#8B95A1"/>
-              <input value={searchQuery} onChange={e=>setSearchQuery(e.target.value)} placeholder="질문 검색..." style={{flex:1,border:'none',outline:'none',fontSize:14}}/>
+              <input value={searchQuery} onChange={e=>setSearchQuery(e.target.value)} placeholder="질문 검색..." style={{flex:1,border:'none',fontSize:14}}/>
               {searchQuery && <button onClick={()=>setSearchQuery('')} style={{background:'none',border:'none',cursor:'pointer',padding:0,color:'#8B95A1'}}><X size={14}/></button>}
             </div>
           )}
@@ -391,13 +391,13 @@ export default function HomeClient({ initialQuestions }: { initialQuestions: Que
             </div>
           <a href="#" className={styles.wlink}><Briefcase size={14}/><span>전문가 신청하기</span><span style={{marginLeft:'auto',color:'var(--t3)'}}>›</span></a>
             <button className={styles.wlink} onClick={() => {
-              setCurrentCat('주식·ETF');
+              setCurrentCat('국내주식·ETF');
               setSearchQuery('ETF');
               setShowSearch(true);
             }}><TrendingUp size={14}/><span>ETF 정보 보기</span><span style={{marginLeft:'auto',color:'var(--t3)'}}>›</span></button>
           </div>
           <MarketReader onSelect={(tag) => {
-            setCurrentCat('주식·ETF');
+            setCurrentCat('국내주식·ETF');
             setSearchQuery(tag);
             setShowSearch(true);
           }} />
@@ -437,7 +437,7 @@ export default function HomeClient({ initialQuestions }: { initialQuestions: Que
         {showSearch && (
           <div style={{padding:'8px 16px',display:'flex',alignItems:'center',gap:8,borderBottom:'1px solid #F2F4F6',background:'white'}}>
             <Search size={14} color="#8B95A1"/>
-            <input ref={searchRef} value={searchQuery} onChange={e=>setSearchQuery(e.target.value)} placeholder="질문 검색..." style={{flex:1,border:'none',outline:'none',fontSize:14}}/>
+            <input ref={searchRef} value={searchQuery} onChange={e=>setSearchQuery(e.target.value)} placeholder="질문 검색..." style={{flex:1,border:'none',fontSize:14}}/>
             {searchQuery && <button onClick={()=>setSearchQuery('')} style={{background:'none',border:'none',cursor:'pointer',padding:0,color:'#8B95A1'}}><X size={14}/></button>}
           </div>
         )}
@@ -467,7 +467,7 @@ export default function HomeClient({ initialQuestions }: { initialQuestions: Que
           ))}
         </div>
         <MarketReadRail onSelect={(tag) => {
-          setCurrentCat('주식·ETF');
+          setCurrentCat('국내주식·ETF');
           setSearchQuery(tag);
           setShowSearch(true);
         }} />
@@ -537,7 +537,7 @@ function MarketReadRail({ onSelect }: { onSelect: (tag: string) => void }) {
   return (
     <section className={styles.marketRail} aria-label="주식 ETF 정보">
       <div className={styles.marketRailHead}>
-        <span><BarChart3 size={14}/> 주식·ETF 읽기창</span>
+        <span><BarChart3 size={14}/> 국내주식·ETF 읽기창</span>
         <Link href="/feed">피드 더보기</Link>
       </div>
       <div className={styles.marketRailCards}>
@@ -555,7 +555,7 @@ function MarketReadRail({ onSelect }: { onSelect: (tag: string) => void }) {
 function MarketReader({ onSelect }: { onSelect: (tag: string) => void }) {
   return (
     <div className={styles.widget}>
-      <div className={styles.whead}><BarChart3 size={14}/> 주식·ETF 정보창</div>
+      <div className={styles.whead}><BarChart3 size={14}/> 국내주식·ETF 정보창</div>
       <div className={styles.marketReader}>
         {MARKET_READS.map(item => (
           <button key={item.label} className={styles.marketItem} onClick={() => onSelect(item.tag)}>
@@ -700,7 +700,7 @@ function FeedList({ questions, mobile, router }: { questions: Question[], mobile
 function AskModal({ onClose, onSubmit }: { onClose: () => void, onSubmit: (t: string, b: string, c: string, tags: string[]) => void }) {
   const [title, setTitle] = useState('');
   const [body, setBody] = useState('');
-  const [cat, setCat] = useState('재테크 입문');
+  const [cat, setCat] = useState('재테크입문');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const toggleTag = (tag: string) => {
     setSelectedTags(prev => prev.includes(tag) ? prev.filter(item => item !== tag) : [...prev, tag].slice(0, 4));
@@ -716,11 +716,11 @@ function AskModal({ onClose, onSubmit }: { onClose: () => void, onSubmit: (t: st
         <div style={{padding:'18px 22px 20px'}}>
           <div style={{marginBottom:12}}>
             <label style={{fontSize:12,fontWeight:600,color:'#4E5968',display:'block',marginBottom:6}}>카테고리</label>
-            <select value={cat} onChange={e=>setCat(e.target.value)} style={{width:'100%',padding:'10px 12px',border:'1.5px solid #E5E8EB',borderRadius:9,fontSize:14,outline:'none'}}>
-              {['재테크 입문','주식·ETF','절세','보험','대출·부채'].map(c => <option key={c}>{c}</option>)}
+            <select value={cat} onChange={e=>setCat(e.target.value)} style={{width:'100%',padding:'10px 12px',border:'1.5px solid #E5E8EB',borderRadius:9,fontSize:14}}>
+              {['재테크입문','국내주식·ETF','해외주식·ETF','절세','보험','대출·부채'].map(c => <option key={c}>{c}</option>)}
             </select>
           </div>
-          {cat === '주식·ETF' && (
+          {cat === '국내주식·ETF' && (
             <div className={styles.askTags}>
               <label><Tags size={13}/> 관련 태그</label>
               <div>
@@ -739,15 +739,15 @@ function AskModal({ onClose, onSubmit }: { onClose: () => void, onSubmit: (t: st
           )}
           <div style={{marginBottom:12}}>
             <label style={{fontSize:12,fontWeight:600,color:'#4E5968',display:'block',marginBottom:6}}>질문 제목</label>
-            <input value={title} onChange={e=>setTitle(e.target.value)} placeholder="궁금한 점을 간단히 써주세요" style={{width:'100%',padding:'11px 13px',border:'1.5px solid #E5E8EB',borderRadius:9,fontSize:14,outline:'none',boxSizing:'border-box' as const}} onFocus={e=>e.target.style.borderColor='#00C73C'} onBlur={e=>e.target.style.borderColor='#E5E8EB'}/>
+            <input value={title} onChange={e=>setTitle(e.target.value)} placeholder="궁금한 점을 간단히 써주세요" style={{width:'100%',padding:'11px 13px',border:'1.5px solid #E5E8EB',borderRadius:9,fontSize:14,boxSizing:'border-box' as const}} onFocus={e=>e.target.style.borderColor='#03C75A'} onBlur={e=>e.target.style.borderColor='#E5E8EB'}/>
           </div>
           <div style={{marginBottom:16}}>
             <label style={{fontSize:12,fontWeight:600,color:'#4E5968',display:'block',marginBottom:6}}>상세 내용 <span style={{fontWeight:400,color:'#8B95A1'}}>(선택)</span></label>
-            <textarea value={body} onChange={e=>setBody(e.target.value)} rows={4} placeholder="상황을 더 설명해주시면 더 좋은 답변을 받을 수 있어요" style={{width:'100%',padding:'11px 13px',border:'1.5px solid #E5E8EB',borderRadius:9,fontSize:14,outline:'none',resize:'none' as const,boxSizing:'border-box' as const}} onFocus={e=>e.target.style.borderColor='#00C73C'} onBlur={e=>e.target.style.borderColor='#E5E8EB'}/>
+            <textarea value={body} onChange={e=>setBody(e.target.value)} rows={4} placeholder="상황을 더 설명해주시면 더 좋은 답변을 받을 수 있어요" style={{width:'100%',padding:'11px 13px',border:'1.5px solid #E5E8EB',borderRadius:9,fontSize:14,resize:'none' as const,boxSizing:'border-box' as const}} onFocus={e=>e.target.style.borderColor='#03C75A'} onBlur={e=>e.target.style.borderColor='#E5E8EB'}/>
           </div>
           <div style={{display:'flex',justifyContent:'flex-end',gap:8}}>
             <button onClick={onClose} style={{height:38,padding:'0 18px',background:'#F9FAFB',border:'1px solid #E5E8EB',borderRadius:8,fontSize:14,cursor:'pointer'}}>취소</button>
-            <button onClick={() => { if(title.trim()) onSubmit(title.trim(), body.trim(), cat, selectedTags); }} disabled={!title.trim()} style={{height:38,padding:'0 22px',background:title.trim()?'#00C73C':'#E5E8EB',border:'none',borderRadius:8,color:title.trim()?'white':'#8B95A1',fontSize:14,fontWeight:700,cursor:title.trim()?'pointer':'default',transition:'all .2s'}}>질문 올리기</button>
+            <button onClick={() => { if(title.trim()) onSubmit(title.trim(), body.trim(), cat, selectedTags); }} disabled={!title.trim()} style={{height:38,padding:'0 22px',background:title.trim()?'#03C75A':'#E5E8EB',border:'none',borderRadius:12,color:title.trim()?'white':'#8B95A1',fontSize:14,fontWeight:700,cursor:title.trim()?'pointer':'default',transition:'all var(--duration-fast)'}}>질문 올리기</button>
           </div>
         </div>
       </div>

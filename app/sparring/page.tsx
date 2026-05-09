@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import SparringClient from './SparringClient';
+import { fetchSparrings } from '@/lib/sparrings';
 
 export const metadata: Metadata = {
   title: '머니 스파링',
@@ -15,6 +16,7 @@ export const metadata: Metadata = {
   },
 };
 
-export default function SparringPage() {
-  return <SparringClient />;
+export default async function SparringPage() {
+  const data = await fetchSparrings();
+  return <SparringClient initialSparrings={data.sparrings} />;
 }
