@@ -240,7 +240,7 @@
   justify-content: center;
   background: var(--blue);
   color: #fff;
-  box-shadow: 0 4px 14px rgba(49, 130, 246, .32);
+  box-shadow: 0 4px 14px rgba(3, 199, 90, .32);
 }
 
 .bnavAsk span:last-child {

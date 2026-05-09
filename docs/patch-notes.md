@@ -1,5 +1,28 @@
 # 패치노트
 
+## [2026-05-09] 질문 상세 UX 밀도 조정 + 카드 톤 통일
+**작업자:** Codex
+**태그:** #UI #QuestionDetail #AhaReference #DesignSystem
+
+### 변경사항
+- [질문상세] `/q/[slug]`의 `핵심 요약` 블록과 답변 헤더의 `AI 요약` 버튼 제거
+- [질문상세] 답변 입력 영역을 답변 목록 아래로 이동해 기존 답변을 먼저 읽는 흐름으로 변경
+- [질문상세] 데스크톱 사이드바 앱 알림 위젯은 숨기고 모바일에서만 노출
+- [디자인] 카드/패널류의 굵은 테두리를 제거하고 `--card-shadow: 0 1px 3px rgba(0,0,0,0.06)` 기준으로 통일
+- [디자인] 주요 CTA 색상을 네이버/금융 느낌의 초록 계열 `#03C75A`로 정렬
+- [디자인] 질문/답변 본문 타이포그래피를 15px, line-height 1.55 중심으로 낮춰 아하형 읽기 밀도에 가깝게 조정
+- [연결화면] 홈/토픽/스파링/아티클 카드 톤도 같은 그림자 기준으로 정리
+
+### 확인
+- [x] `npm_config_cache=/Users/yeho/Documents/New\ project/jaetechwhanip/.npm-cache npm run build` 통과
+
+### 다음 작업자 TODO
+- [ ] 홈 `HomeClient`를 AppShell/UnifiedFilterBar 구조로 추가 통합
+- [ ] 질문 상세 답변 영역에 채택/댓글/관련 질문 흐름을 더 자연스럽게 연결
+- [ ] AI 요약은 화면 배너가 아니라 SEO/메타·구조화 데이터 쪽에서 먼저 활용
+
+---
+
 ## [2026-05-09] 대표 앱 주소를 home 서브도메인으로 변경
 **작업자:** Codex
 **태그:** #Domain #SEO #Auth #Vercel

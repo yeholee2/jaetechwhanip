@@ -50,17 +50,18 @@
   width: 100%;
   text-align: left;
   background: var(--white);
-  border: 1px solid var(--line);
-  border-radius: 8px;
+  border: 0;
+  border-radius: 16px;
+  box-shadow: var(--card-shadow);
   padding: 14px;
   margin-bottom: 8px;
-  transition: border-color .14s, box-shadow .14s, transform .14s;
+  transition: box-shadow .14s, transform .14s, background .14s;
 }
 
 .topicCard:hover,
 .topicOn {
-  border-color: var(--blue);
-  box-shadow: 0 4px 14px rgba(49,130,246,.08);
+  background: var(--blue-bg);
+  box-shadow: 0 0 0 1px rgba(3,199,90,.18), var(--card-shadow);
 }
 
 .topicCard span {
@@ -93,8 +94,9 @@
 .checkPanel,
 .result {
   background: var(--white);
-  border: 1px solid var(--line);
-  border-radius: 8px;
+  border: 0;
+  border-radius: 16px;
+  box-shadow: var(--card-shadow);
 }
 
 .questionPanel {
