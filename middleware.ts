@@ -5,9 +5,12 @@ import { NextResponse, type NextRequest } from 'next/server';
 export async function middleware(request: NextRequest) {
   const host = request.headers.get('host')?.split(':')[0].toLowerCase();
 
-  if (host === 'column.hannipmoney.com' && request.nextUrl.pathname === '/') {
+  if (
+    (host === 'article.hannipmoney.com' || host === 'column.hannipmoney.com') &&
+    request.nextUrl.pathname === '/'
+  ) {
     const url = request.nextUrl.clone();
-    url.pathname = '/columns';
+    url.pathname = '/articles';
     return NextResponse.rewrite(url);
   }
 

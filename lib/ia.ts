@@ -25,7 +25,7 @@ export const SPARRING_TABS = [
   { key: 'closed', label: '종료' },
 ];
 
-export const COLUMN_TABS = [
+export const ARTICLE_TABS = [
   { key: 'recommended', label: '추천' },
   { key: 'latest', label: '최신' },
   { key: 'popular', label: '인기' },

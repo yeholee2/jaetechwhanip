@@ -1,7 +1,7 @@
 import type { MetadataRoute } from 'next';
+import { ARTICLE_URL } from '@/lib/articles';
 import { fetchQuestionsForSitemap, questionUrl, SITE_URL } from '@/lib/seo';
 import { TOPICS, topicUrl } from '@/lib/topics';
-import { COLUMN_URL } from '@/lib/columns';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
@@ -15,7 +15,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 1,
     },
     {
-      url: COLUMN_URL,
+      url: ARTICLE_URL,
       lastModified: now,
       changeFrequency: 'daily',
       priority: 0.85,

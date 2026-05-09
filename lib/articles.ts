@@ -1,9 +1,9 @@
-export const COLUMN_PATH = '/columns';
-export const COLUMN_URL =
-  process.env.NEXT_PUBLIC_COLUMN_URL?.replace(/\/$/, '') ||
-  'https://column.hannipmoney.com';
+export const ARTICLE_PATH = '/articles';
+export const ARTICLE_URL =
+  process.env.NEXT_PUBLIC_ARTICLE_URL?.replace(/\/$/, '') ||
+  'https://article.hannipmoney.com';
 
-export type ColumnArticle = {
+export type HanipArticle = {
   slug: string;
   title: string;
   description: string;
@@ -13,7 +13,7 @@ export type ColumnArticle = {
   tags: string[];
 };
 
-export const columnArticles: ColumnArticle[] = [
+export const hanipArticles: HanipArticle[] = [
   {
     slug: 'sp500-etf-first-rule',
     title: 'S&P500 ETF를 처음 살 때 먼저 정해야 하는 3가지',

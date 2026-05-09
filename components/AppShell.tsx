@@ -6,13 +6,13 @@ import type { ReactNode } from 'react';
 import { Bell, Home, LayoutList, Plus, Search, Swords, User } from 'lucide-react';
 import styles from './AppShell.module.css';
 
-export type AppNavKey = 'home' | 'topics' | 'sparring' | 'columns' | 'mission' | 'my';
+export type AppNavKey = 'home' | 'topics' | 'sparring' | 'articles' | 'mission' | 'my';
 
 const NAV_ITEMS: { key: AppNavKey; label: string; href: string }[] = [
   { key: 'home', label: '홈', href: '/' },
   { key: 'topics', label: '토픽', href: '/topics/finance-basics' },
   { key: 'sparring', label: '스파링', href: '/sparring' },
-  { key: 'columns', label: '칼럼', href: '/columns' },
+  { key: 'articles', label: '아티클', href: '/articles' },
   { key: 'mission', label: '미션', href: '#' },
 ];
 

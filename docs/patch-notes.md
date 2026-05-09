@@ -1,5 +1,26 @@
 # 패치노트
 
+## [2026-05-09] 칼럼 명칭을 아티클로 변경
+**작업자:** Codex
+**태그:** #Article #Naming #SEO #Subdomain
+
+### 변경사항
+- [네이밍] 서비스 메뉴/홈/SEO 명칭을 `칼럼`에서 `아티클`로 변경
+- [라우팅] 정식 목록 경로를 `/articles`로 추가하고 기존 `/columns`는 `/articles`로 영구 이동 처리
+- [도메인] `article.hannipmoney.com` 루트 접근 시 `/articles`로 rewrite되도록 middleware 추가
+- [호환] 기존 `column.hannipmoney.com` 루트도 당분간 `/articles`로 유지 연결
+- [SEO] 아티클 canonical/OG/sitemap 기준 URL을 `https://article.hannipmoney.com`으로 변경
+
+### 확인
+- [x] `npm_config_cache=/Users/yeho/Documents/New\ project/jaetechwhanip/.npm-cache npm run build` 통과
+- [x] Vercel에 `article.hannipmoney.com` 추가 및 hosting.co.kr DNS `A article -> 76.76.21.21` 연결
+
+### 다음 작업자 TODO
+- [ ] 아티클 상세 페이지 `/articles/[slug]`와 Q&A 내부링크 연결
+- [ ] 기존 Slack/문서에서 `칼럼` 표현을 운영 용어 기준으로 점진 정리
+
+---
+
 ## [2026-05-09] IA 1차 정렬 — 공통 앱 골격 도입
 **작업자:** Codex
 **태그:** #IA #AhaReference #Navigation #MobileUX #UI

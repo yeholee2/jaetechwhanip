@@ -279,7 +279,7 @@ export default function HomeClient({ initialQuestions }: { initialQuestions: Que
           <li><Link href="/" className={styles.on}>홈</Link></li>
           <li><Link href="/topics/finance-basics">토픽</Link></li>
           <li><Link href="/sparring">스파링</Link></li>
-          <li><Link href="/columns">칼럼</Link></li>
+          <li><Link href="/articles">아티클</Link></li>
           <li><a href="#">미션</a></li>
           <li><div className={styles.sep}/></li>
           <li><a href="#" style={{fontSize:13,color:'var(--t3)'}}>전문가 신청</a></li>
@@ -393,8 +393,8 @@ export default function HomeClient({ initialQuestions }: { initialQuestions: Que
             setShowSearch(true);
           }} />
           <div className={styles.widget}>
-            <div className={styles.whead}><Newspaper size={14}/> 칼럼</div>
-            <Link href="/columns" className={styles.wlink}><Newspaper size={14}/><span>재테크 칼럼 읽기</span><span style={{marginLeft:'auto',color:'var(--t3)'}}>›</span></Link>
+            <div className={styles.whead}><Newspaper size={14}/> 아티클</div>
+            <Link href="/articles" className={styles.wlink}><Newspaper size={14}/><span>재테크 아티클 읽기</span><span style={{marginLeft:'auto',color:'var(--t3)'}}>›</span></Link>
           </div>
           <div className={styles.widget}>
             <div className={styles.whead}><span className="tf">🔍</span> 지금 많이 찾는 키워드</div>
@@ -434,7 +434,7 @@ export default function HomeClient({ initialQuestions }: { initialQuestions: Que
         )}
         <nav className={styles.moGnav}>
           <Link href="/" className={styles.on}>홈</Link>
-          <Link href="/topics/finance-basics">토픽</Link><Link href="/sparring">스파링</Link><Link href="/columns">칼럼</Link><a href="#">미션</a>
+          <Link href="/topics/finance-basics">토픽</Link><Link href="/sparring">스파링</Link><Link href="/articles">아티클</Link><a href="#">미션</a>
         </nav>
       </header>
 
@@ -529,7 +529,7 @@ function MarketReadRail({ onSelect }: { onSelect: (tag: string) => void }) {
     <section className={styles.marketRail} aria-label="주식 ETF 정보">
       <div className={styles.marketRailHead}>
         <span><BarChart3 size={14}/> 주식·ETF 읽기창</span>
-        <Link href="/columns">칼럼 더보기</Link>
+        <Link href="/articles">아티클 더보기</Link>
       </div>
       <div className={styles.marketRailCards}>
         {MARKET_READS.map(item => (
