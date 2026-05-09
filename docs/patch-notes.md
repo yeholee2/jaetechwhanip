@@ -1,5 +1,32 @@
 # 패치노트
 
+## [2026-05-09] a-ha blueprint 결정 3개 spec 반영 — Claude
+**작업자:** Claude
+**태그:** #UI #Sparring #Feed #UserDecision
+
+### 사용자 결정 (예호님)
+1. **카드 모티브:** a-ha 그대로 → bg/border/shadow 모두 없음, 디바이더만
+2. **잉크/피드 카드 썸네일:** 좌측 정사각 (a-ha 패턴, 우리 spec 위 16:9 → 좌측 변경)
+3. **스파링 댓글:** 단일 피드 + 사이드 뱃지 + "투표 항목별 ▼" 필터 (두 컬럼 분리 X)
+
+### 변경
+- `docs/ui-principles.md` v2.2 — 카드 모티브 갱신 ("카드는 카드가 아니다")
+- `docs/feed-page-spec.md` — 카드 썸네일 좌측 정사각으로 변경, NEW 뱃지/카테고리 라벨 명세 추가
+- `docs/sparring-engagement-spec.md` 신규 — 스파링 v1 완성 명세
+  - DB 스키마 (sparrings + sparring_votes + sparring_comments + RLS)
+  - 색상 룰 (positive=파랑, negative=빨강, polarity 자동 추론)
+  - 라운드 번호 시스템
+  - 투표 lock + 댓글 사이드 뱃지
+  - 운영자 메모 카드
+  - 마감 카운트다운
+
+### 다음 작업자 TODO
+- [ ] (Codex/GPT — 현재 A·B 작업 끝나면 즉시) sparring-engagement-spec.md Phase 1~5 진행
+- [ ] (Codex) feed-page-spec.md 카드 새 레이아웃(좌측 정사각) 반영
+- [ ] (Codex) ui-principles v2.2 — 카드 background/border/shadow 모두 제거, 디바이더만
+
+---
+
 ## [2026-05-09] 피드 v2 실데이터화 — Codex
 **작업자:** Codex
 **태그:** #Feed #Ghost #RSS #SEO #NewsClick
