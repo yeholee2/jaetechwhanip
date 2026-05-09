@@ -14,9 +14,11 @@
 ### 확인
 - [x] `npm_config_cache=/Users/yeho/Documents/New\ project/jaetechwhanip/.npm-cache npm run build` 통과
 - [x] hosting.kr DNS `A home -> 76.76.21.21` 연결
-- [ ] Production 배포 후 `https://home.hannipmoney.com` 200 확인
+- [x] Vercel Production Ready 및 `http://home.hannipmoney.com` 200 확인
+- [ ] `https://home.hannipmoney.com` 인증서 발급 완료 후 200 확인
 
 ### 다음 작업자 TODO
+- [ ] hosting.kr `ns1.hosting.co.kr`에서 `home.hannipmoney.com` UDP 질의가 일시적으로 NXDOMAIN을 반환함. TCP/`ns2~ns4`/1.1.1.1/8.8.8.8은 A 레코드 확인됨. Vercel SSL 발급 재시도 필요
 - [ ] Supabase Auth / OAuth 제공자 redirect URL에 `https://home.hannipmoney.com/api/auth/callback` 계열이 필요한지 로그인 실테스트로 확인
 - [ ] Search Console 기준은 `home.hannipmoney.com`으로 등록하고 `qa.hannipmoney.com`은 레거시 이동 주소로만 유지
 
