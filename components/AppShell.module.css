@@ -130,6 +130,10 @@
   padding: 0 20px 56px;
 }
 
+.wideContent {
+  max-width: 1180px;
+}
+
 .moHeader,
 .bottomNav {
   display: none;

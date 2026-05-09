@@ -29,7 +29,7 @@
 - ❌ 광고/배너 느낌 레이아웃 (깜빡이는 강조, 자극적 카피)
 - ❌ 금융 공포감 조성 ("지금 안 하면 손해!", "급등 예상!")
 - ❌ AI 요약·자동 요약 박스 본문 위에 박기 (a-ha엔 없음, 사용자 결정)
-- ❌ 핵심 CTA를 회색·검정으로 (primary green 안 보임 → CTA 약화)
+- ❌ 핵심 CTA를 회색·검정으로 (primary blue 안 보임 → CTA 약화)
 
 ## 타이포 토큰
 | 역할 | 크기/굵기/높이 |
@@ -43,7 +43,7 @@
 
 ## 컴포넌트 규칙
 - **버튼**: 기본 height 44px, primary 액션 height 52px, border-radius 12px
-- **카드**: border-radius 16px, padding 16-20px, **shadow만 (border 금지)**
+- **카드**: 피드형 블록은 bg/border/shadow 없이 디바이더만. 별도 도구/모달/반복 카드만 radius 16px + 가벼운 shadow 허용
 - **칩 (카테고리)**: border-radius 999, padding 6-12px, height 28-32px
 - **간격**: 섹션 간 32px, 카드 간 12-16px, 요소 간 8-12px
 - **모달**: 중앙 정렬, 배경 딤(rgba(0,0,0,0.4)), 부드러운 트랜지션
@@ -51,16 +51,17 @@
 ## 색상 토큰
 | 토큰 | 값 | 용도 |
 |---|---|---|
-| primary | `#03C75A` | 핵심 CTA, 활성 칩, 강조 |
+| primary | `#1e59da` | 핵심 CTA, 활성 칩, 강조 |
+| primary-dk | `#0649db` | CTA hover |
+| text-1 | `#191f28` | 제목 |
+| text-2 | `#333d4b` | 본문 |
+| text-3 | `#6b7684` | 메타 |
 | kakao | `#FEE500` | 카카오 로그인 등 |
 | bg | `#ffffff` | 페이지 배경 |
 | surface | `#ffffff` | 카드 배경 |
 | border | `#e5e7eb` | (사용 최소화 — 카드는 shadow만) |
-| text-1 | `#191f28` | 제목 (a-ha 추출본 inverse) |
-| text-2 | `#333d4b` | 본문 |
-| text-3 | `#6b7684` | 메타 |
 | text-quiet | `#b0b8c1` | 비활성/캡션 |
-| focus-ring | `rgba(0,194,176,0.5)` | focus-visible 아웃라인 (접근성) |
+| focus-ring | `rgba(30,89,218,0.5)` | focus-visible 아웃라인 (접근성) |
 
 ## 폰트 스택 (a-ha와 동일, 한글 fallback 견고)
 ```css

@@ -12,7 +12,7 @@
 - 추출본: `--color-primary: #0649db` (blue-700)
 - 핵심 CTA bg: `#1e59da` (blue-600) — "나도 질문하기" 버튼 실제 값
 - aha 브랜드 블루: `--color-blue-ahaBlue: #1c34de`
-- → **우리는 #03C75A (네이버 그린) 유지가 맞음.** a-ha 그대로 따라가지 말 것. 브랜드 차별화.
+- → **최신 사용자 결정: 핵심 CTA primary는 `#1e59da`, hover는 `#0649db`로 a-ha 블루를 채택.**
 
 ### 2. **a-ha 카드는 사실 카드가 아니다**
 - Q&A 피드의 "카드"는 background, border, box-shadow 모두 **0**
@@ -70,9 +70,9 @@ font-weight: 400 (normal), 500 (medium), 600 (semibold), 700 (bold), 800 (extrab
 - 800: `#333d4b` (본문 텍스트)
 - 900: `#191f28` (제목 텍스트) ⭐ 우리 도입 권장
 
-**Blue (a-ha primary):** `#0649db` — **우리는 채택 X.** 우리는 #03C75A 유지.
+**Blue (a-ha primary):** CTA `#1e59da`, hover/primary-dark `#0649db` — 최신 사용자 결정으로 채택.
 
-**Mint-green:** 03b26c, 02a262... — 우리 토큰과 비슷한 그린 계열. 우리 #03C75A를 mint-green-500 자리에 둘 수 있음.
+**Mint-green:** 03b26c, 02a262... — 참고 색상. 현재 핵심 CTA에는 사용하지 않음.
 
 **상태 색:**
 - destructive (빨강): a-ha의 red-500 `#f04251`
@@ -298,7 +298,6 @@ font-weight: 400 (normal), 500 (medium), 600 (semibold), 700 (bold), 800 (extrab
 - ✅ 라운드 번호 시스템
 
 ### 3-2. 채택 안 할 것 (브랜드 차별화)
-- ❌ Primary 파란색 (#0649db) → 우리는 #03C75A (mint-green) 유지
 - ❌ 14개 카테고리 → 우리는 6개 (`docs/categories.md`)
 - ❌ 우측 영구 사이드바 → 우리는 단일 컬럼 720px (선택적으로 사이드바 추가 검토)
 - ❌ a-ha 일러스트 (복싱링/키보드/돈) → 우리는 자체 일러스트 또는 도형/이모지
@@ -310,16 +309,14 @@ font-weight: 400 (normal), 500 (medium), 600 (semibold), 700 (bold), 800 (extrab
 - **🟡 잉크 카드 썸네일:** a-ha는 좌측 정사각, 우리 spec은 위 풀너비 16:9
   - 옵션 A: 좌측 정사각 (a-ha 패턴, 더 컴팩트, 더 많은 카드 노출)
   - 옵션 B: 위 풀너비 16:9 (시각적 임팩트 큼, 카드 큼)
-- **🟡 스파링 댓글 두 컬럼 vs 단일 피드:**
-  - 옵션 A: a-ha처럼 단일 피드 + 사이드 뱃지 (구현 단순, 정렬 필터로 그룹핑)
-  - 옵션 B: 두 컬럼 분리 (시각 임팩트, 구현 복잡)
+- **✅ 스파링 댓글:** 사용자 결정으로 a-ha처럼 단일 피드 + 사이드 뱃지 채택. "투표 항목별"은 분리 컬럼이 아니라 그룹핑 정렬로 처리.
 
 ---
 
 ## 4. GPT/Codex 우선 작업 (이 blueprint 기반)
 
 ### 즉시 수정 (이미 진행 중인 작업과 통합)
-- [ ] `lib/categories.ts` 색상 — primary는 #03C75A 유지 (a-ha 파랑 X)
+- [ ] `globals.css` / 토큰 — primary `#1e59da`, hover `#0649db` 유지
 - [ ] `globals.css` — gray 스케일 11단계 도입 (a-ha 값 그대로 채택)
 - [ ] 카드 컴포넌트 — `box-shadow: 0 1px 3px rgba(0,0,0,0.06)` 유지하되 옵션 A(완전 borderless+디바이더) 검토
 - [ ] 카드 제목 line-height: 1 (또는 18px) 적용 — 기존 1.45가 a-ha 대비 약간 헐거움

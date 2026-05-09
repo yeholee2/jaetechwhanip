@@ -19,9 +19,11 @@ const NAV_ITEMS: { key: AppNavKey; label: string; href: string }[] = [
 export function AppShell({
   active,
   children,
+  wide = false,
 }: {
   active: AppNavKey;
   children: ReactNode;
+  wide?: boolean;
 }) {
   const router = useRouter();
   const ask = () => router.push('/auth?next=/');
@@ -66,7 +68,7 @@ export function AppShell({
       </header>
 
       <Slogan />
-      <div className={styles.content}>{children}</div>
+      <div className={`${styles.content} ${wide ? styles.wideContent : ''}`}>{children}</div>
 
       <nav className={styles.bottomNav}>
         <Link className={`${styles.bnav} ${active === 'home' ? styles.active : ''}`} href="/">

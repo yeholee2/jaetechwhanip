@@ -1,7 +1,7 @@
 export const sampleQuestions = [
   {
     id: 1,
-    cat: '재테크 입문',
+    cat: '재테크입문',
     topic: '저축·목돈',
     author: '신림동의현인',
     time: '3시간 전',
@@ -18,7 +18,7 @@ export const sampleQuestions = [
   },
   {
     id: 2,
-    cat: '주식·ETF',
+    cat: '국내주식·ETF',
     topic: 'ETF',
     author: '소현버핏',
     time: '6시간 전',
@@ -87,7 +87,7 @@ export const sampleQuestions = [
   },
   {
     id: 6,
-    cat: '재테크 입문',
+    cat: '재테크입문',
     topic: '청년통장',
     author: '봉천동복리주의자',
     time: '3일 전',
@@ -104,7 +104,7 @@ export const sampleQuestions = [
   },
   {
     id: 7,
-    cat: '주식·ETF',
+    cat: '국내주식·ETF',
     topic: '배당',
     author: '판교배당수집가',
     time: '5일 전',

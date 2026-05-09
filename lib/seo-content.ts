@@ -5,8 +5,9 @@ import type { AnswerDetail, QuestionDetail } from '@/lib/question-detail';
 type SeoInput = SeoQuestion | QuestionDetail;
 
 const CATEGORY_TERMS: Record<string, string[]> = {
-  '재테크 입문': ['사회초년생 재테크', '월급 관리', '저축 비율', '목돈 만들기'],
-  '주식·ETF': ['ETF 투자', 'S&P500', '장기 투자', '분산 투자'],
+  '재테크입문': ['사회초년생 재테크', '월급 관리', '저축 비율', '목돈 만들기'],
+  '국내주식·ETF': ['국내 ETF 투자', '코스피', '장기 투자', '분산 투자'],
+  '해외주식·ETF': ['해외 ETF 투자', 'S&P500', '미국 주식', '나스닥'],
   '절세': ['ISA', '연금저축', '세액공제', '절세계좌'],
   '보험': ['실손보험', '보험 리모델링', '보장 분석', '20대 보험'],
   '대출·부채': ['대출 상환', '부채 관리', '금리', '신용 관리'],
