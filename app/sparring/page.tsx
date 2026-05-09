@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { listSparrings } from '@/lib/sparring';
 import SparringClient from './SparringClient';
 
 export const metadata: Metadata = {
@@ -15,6 +16,7 @@ export const metadata: Metadata = {
   },
 };
 
-export default function SparringPage() {
-  return <SparringClient />;
+export default async function SparringPage() {
+  const { sparrings } = await listSparrings();
+  return <SparringClient sparrings={sparrings} />;
 }

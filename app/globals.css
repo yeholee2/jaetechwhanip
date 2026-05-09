@@ -19,7 +19,8 @@
   /* Legacy 토스 블루 (서브 액센트로만 점진 사용) */
   --blue:#3182F6; --blue-bg:#EBF3FF; --blue-dk:#1A6DE0;
   /* 텍스트 / 배경 (a-ha gray scale 매칭) */
-  --t1:#191F28; --t2:#4E5968; --t3:#8B95A1;
+  --t1:#191F28; --t2:#333D4B; --t3:#6B7684;
+  --text-1:#191F28; --text-2:#333D4B; --text-3:#6B7684;
   --line:#E5E8EB; --bg:#F9FAFB; --white:#fff; --surface:#fff;
   --orange:#FF6B35;
   --kakao:#FEE500;

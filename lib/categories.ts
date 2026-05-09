@@ -11,24 +11,34 @@ export type CategoryDefinition = {
 
 export const CATEGORY_DEFINITIONS: CategoryDefinition[] = [
   {
-    key: '재테크 입문',
-    label: '재테크 입문',
+    key: '재테크입문',
+    label: '재테크입문',
     slug: '재테크-입문',
     emoji: '💡',
-    title: '재테크 입문 질문',
+    title: '재테크입문 질문',
     description: '사회초년생 저축, 목돈 만들기, 월급 관리처럼 처음 시작하는 재테크 고민을 모았어요.',
-    keywords: ['재테크 입문', '사회초년생 재테크', '월급 관리', '저축'],
-    aliases: ['finance-basics'],
+    keywords: ['재테크입문', '사회초년생 재테크', '월급 관리', '저축'],
+    aliases: ['finance-basics', '재테크 입문'],
   },
   {
-    key: '주식·ETF',
+    key: '국내주식·ETF',
     label: '국내주식·ETF',
     slug: '국내주식-etf',
     emoji: '📈',
     title: '국내주식·ETF 질문',
     description: '국내주식, ETF, 장기투자, 고점 고민처럼 투자자가 자주 묻는 질문을 모았어요.',
-    keywords: ['국내주식', 'ETF', 'S&P500', '장기투자'],
-    aliases: ['stocks-etf', '주식-etf'],
+    keywords: ['국내주식', '국내 ETF', '코스피', '장기투자'],
+    aliases: ['stocks-etf', '주식-etf', '주식·ETF', '국내주식ETF'],
+  },
+  {
+    key: '해외주식·ETF',
+    label: '해외주식·ETF',
+    slug: '해외주식-etf',
+    emoji: '🌎',
+    title: '해외주식·ETF 질문',
+    description: '미국주식, S&P500, 나스닥 ETF처럼 해외 자산에 대한 질문을 모았어요.',
+    keywords: ['해외주식', '미국주식', 'S&P500', '나스닥 ETF'],
+    aliases: ['global-stocks-etf', '미국주식', '해외주식ETF'],
   },
   {
     key: '절세',
@@ -65,8 +75,22 @@ export const CATEGORY_DEFINITIONS: CategoryDefinition[] = [
 export const CATEGORY_LABELS = ['전체', ...CATEGORY_DEFINITIONS.map(category => category.key)];
 
 export const CATEGORY_EMOJI = Object.fromEntries(
-  CATEGORY_DEFINITIONS.map(category => [category.key, category.emoji]),
+  CATEGORY_DEFINITIONS.flatMap(category => [
+    [category.key, category.emoji],
+    [category.label, category.emoji],
+    ...(category.aliases || []).map(alias => [alias, category.emoji]),
+  ]),
 ) as Record<string, string>;
+
+export function normalizeCategory(input?: string | null) {
+  if (!input) return '재테크입문';
+  const found = CATEGORY_DEFINITIONS.find(category => (
+    category.key === input ||
+    category.label === input ||
+    category.aliases?.includes(input)
+  ));
+  return found?.key || input;
+}
 
 export function getCategoryBySlug(slug: string) {
   return CATEGORY_DEFINITIONS.find(category => (
@@ -75,5 +99,6 @@ export function getCategoryBySlug(slug: string) {
 }
 
 export function getCategoryByKey(key: string) {
-  return CATEGORY_DEFINITIONS.find(category => category.key === key) || null;
+  const normalized = normalizeCategory(key);
+  return CATEGORY_DEFINITIONS.find(category => category.key === normalized) || null;
 }

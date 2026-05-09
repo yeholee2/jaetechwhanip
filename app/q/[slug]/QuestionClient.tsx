@@ -85,7 +85,7 @@ function seedQuestionOverlay(row: any) {
   };
 }
 
-const CATS = ['재테크 입문','주식·ETF','절세','보험','대출·부채'];
+const CATS = ['재테크입문','국내주식·ETF','해외주식·ETF','절세','보험','대출·부채'];
 const EMPTY_ANSWERS: AnswerDetail[] = [];
 const EMPTY_RELATED: RelatedQuestion[] = [];
 
@@ -779,7 +779,7 @@ function AnswerCard({ answer: a, currentUserId, isMyQuestion, isAnswered, liked,
 function AskModal({ onClose, router, user, onToast }: any) {
   const [title, setTitle] = useState('');
   const [body, setBody] = useState('');
-  const [cat, setCat] = useState('재테크 입문');
+  const [cat, setCat] = useState('재테크입문');
 
   const submit = async () => {
     if (!title.trim()) return;

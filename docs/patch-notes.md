@@ -1,5 +1,30 @@
 # 패치노트
 
+## [2026-05-09] 스파링 댓글·투표 시스템 v1 — Codex/GPT
+**작업자:** Codex/GPT
+**태그:** #Sparring #Supabase #RLS #Admin #UI
+
+### 변경사항
+- [DB] `docs/migration_sparring_v1.sql` 추가: sparrings/votes/comments, 집계 view, 투표 후 댓글 작성 RLS, 마감 전 투표 정책
+- [데이터] `lib/sparring.ts` 추가: 목록/상세/투표/댓글 helper와 DB 미적용 fallback 데이터 구성
+- [UI] `/sparring`을 진행중 배너 카드 + 지난 스파링 리스트 + 6개 카테고리 칩 + 정렬 토글 구조로 개편
+- [상세] `/sparring/[slug]` 추가: 1클릭 투표, 투표 후 결과 차트, 댓글 lock/unlock, 단일 피드 + 사이드 뱃지, 투표 항목별 그룹핑
+- [Admin] `/admin/sparring` 추가: admin role 가드, 라운드 작성/편집/마감/삭제, polarity 추론, 썸네일 업로드 UI
+
+### 확인
+- [x] `npm run build` 통과
+- [x] 로컬 `/sparring` 목록 200 및 진행중/지난 스파링 렌더 확인
+- [x] 로컬 `/sparring/kospi-high-installment-buying` 200 및 라운드/투표/댓글 lock/필터 렌더 확인
+- [ ] Vercel preview 확인
+- [ ] Supabase production `docs/migration_sparring_v1.sql` 실행 필요
+
+### 다음 작업자 TODO
+- [ ] 예호님이 Supabase SQL Editor에서 `docs/migration_sparring_v1.sql` 실행
+- [ ] 예호님 본인 `public.users.role = 'admin'` 시드
+- [ ] Supabase Storage `sparring-thumbnails` public bucket 생성 여부 확인
+
+---
+
 ## [2026-05-09] 피드 v2 실데이터화 — Codex
 **작업자:** Codex
 **태그:** #Feed #Ghost #RSS #SEO #NewsClick
