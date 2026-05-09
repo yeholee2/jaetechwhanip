@@ -301,7 +301,7 @@ export default function HomeClient({ initialQuestions }: { initialQuestions: Que
             {showSearch && (
               <div style={{position:'absolute',right:0,top:40,background:'white',border:'1px solid #E5E8EB',borderRadius:10,boxShadow:'0 4px 16px rgba(0,0,0,.1)',width:280,zIndex:100,display:'flex',alignItems:'center',padding:'8px 12px',gap:8}}>
                 <Search size={14} color="#8B95A1"/>
-                <input ref={searchRef} value={searchQuery} onChange={e=>setSearchQuery(e.target.value)} placeholder="질문 검색..." style={{flex:1,border:'none',outline:'none',fontSize:14}}/>
+                <input ref={searchRef} value={searchQuery} onChange={e=>setSearchQuery(e.target.value)} placeholder="질문 검색..." style={{flex:1,border:'none',fontSize:14}}/>
                 {searchQuery && <button onClick={()=>setSearchQuery('')} style={{background:'none',border:'none',cursor:'pointer',padding:0,display:'flex',color:'#8B95A1'}}><X size={14}/></button>}
               </div>
             )}
@@ -361,7 +361,7 @@ export default function HomeClient({ initialQuestions }: { initialQuestions: Que
           {showSearch && (
             <div style={{padding:'8px 0',display:'flex',alignItems:'center',gap:8,borderBottom:'1px solid #F2F4F6',marginBottom:4}}>
               <Search size={14} color="#8B95A1"/>
-              <input value={searchQuery} onChange={e=>setSearchQuery(e.target.value)} placeholder="질문 검색..." style={{flex:1,border:'none',outline:'none',fontSize:14}}/>
+              <input value={searchQuery} onChange={e=>setSearchQuery(e.target.value)} placeholder="질문 검색..." style={{flex:1,border:'none',fontSize:14}}/>
               {searchQuery && <button onClick={()=>setSearchQuery('')} style={{background:'none',border:'none',cursor:'pointer',padding:0,color:'#8B95A1'}}><X size={14}/></button>}
             </div>
           )}
@@ -437,7 +437,7 @@ export default function HomeClient({ initialQuestions }: { initialQuestions: Que
         {showSearch && (
           <div style={{padding:'8px 16px',display:'flex',alignItems:'center',gap:8,borderBottom:'1px solid #F2F4F6',background:'white'}}>
             <Search size={14} color="#8B95A1"/>
-            <input ref={searchRef} value={searchQuery} onChange={e=>setSearchQuery(e.target.value)} placeholder="질문 검색..." style={{flex:1,border:'none',outline:'none',fontSize:14}}/>
+            <input ref={searchRef} value={searchQuery} onChange={e=>setSearchQuery(e.target.value)} placeholder="질문 검색..." style={{flex:1,border:'none',fontSize:14}}/>
             {searchQuery && <button onClick={()=>setSearchQuery('')} style={{background:'none',border:'none',cursor:'pointer',padding:0,color:'#8B95A1'}}><X size={14}/></button>}
           </div>
         )}
@@ -716,7 +716,7 @@ function AskModal({ onClose, onSubmit }: { onClose: () => void, onSubmit: (t: st
         <div style={{padding:'18px 22px 20px'}}>
           <div style={{marginBottom:12}}>
             <label style={{fontSize:12,fontWeight:600,color:'#4E5968',display:'block',marginBottom:6}}>카테고리</label>
-            <select value={cat} onChange={e=>setCat(e.target.value)} style={{width:'100%',padding:'10px 12px',border:'1.5px solid #E5E8EB',borderRadius:9,fontSize:14,outline:'none'}}>
+            <select value={cat} onChange={e=>setCat(e.target.value)} style={{width:'100%',padding:'10px 12px',border:'1.5px solid #E5E8EB',borderRadius:9,fontSize:14}}>
               {['재테크 입문','주식·ETF','절세','보험','대출·부채'].map(c => <option key={c}>{c}</option>)}
             </select>
           </div>
@@ -739,15 +739,15 @@ function AskModal({ onClose, onSubmit }: { onClose: () => void, onSubmit: (t: st
           )}
           <div style={{marginBottom:12}}>
             <label style={{fontSize:12,fontWeight:600,color:'#4E5968',display:'block',marginBottom:6}}>질문 제목</label>
-            <input value={title} onChange={e=>setTitle(e.target.value)} placeholder="궁금한 점을 간단히 써주세요" style={{width:'100%',padding:'11px 13px',border:'1.5px solid #E5E8EB',borderRadius:9,fontSize:14,outline:'none',boxSizing:'border-box' as const}} onFocus={e=>e.target.style.borderColor='#00C73C'} onBlur={e=>e.target.style.borderColor='#E5E8EB'}/>
+            <input value={title} onChange={e=>setTitle(e.target.value)} placeholder="궁금한 점을 간단히 써주세요" style={{width:'100%',padding:'11px 13px',border:'1.5px solid #E5E8EB',borderRadius:9,fontSize:14,boxSizing:'border-box' as const}} onFocus={e=>e.target.style.borderColor='#03C75A'} onBlur={e=>e.target.style.borderColor='#E5E8EB'}/>
           </div>
           <div style={{marginBottom:16}}>
             <label style={{fontSize:12,fontWeight:600,color:'#4E5968',display:'block',marginBottom:6}}>상세 내용 <span style={{fontWeight:400,color:'#8B95A1'}}>(선택)</span></label>
-            <textarea value={body} onChange={e=>setBody(e.target.value)} rows={4} placeholder="상황을 더 설명해주시면 더 좋은 답변을 받을 수 있어요" style={{width:'100%',padding:'11px 13px',border:'1.5px solid #E5E8EB',borderRadius:9,fontSize:14,outline:'none',resize:'none' as const,boxSizing:'border-box' as const}} onFocus={e=>e.target.style.borderColor='#00C73C'} onBlur={e=>e.target.style.borderColor='#E5E8EB'}/>
+            <textarea value={body} onChange={e=>setBody(e.target.value)} rows={4} placeholder="상황을 더 설명해주시면 더 좋은 답변을 받을 수 있어요" style={{width:'100%',padding:'11px 13px',border:'1.5px solid #E5E8EB',borderRadius:9,fontSize:14,resize:'none' as const,boxSizing:'border-box' as const}} onFocus={e=>e.target.style.borderColor='#03C75A'} onBlur={e=>e.target.style.borderColor='#E5E8EB'}/>
           </div>
           <div style={{display:'flex',justifyContent:'flex-end',gap:8}}>
             <button onClick={onClose} style={{height:38,padding:'0 18px',background:'#F9FAFB',border:'1px solid #E5E8EB',borderRadius:8,fontSize:14,cursor:'pointer'}}>취소</button>
-            <button onClick={() => { if(title.trim()) onSubmit(title.trim(), body.trim(), cat, selectedTags); }} disabled={!title.trim()} style={{height:38,padding:'0 22px',background:title.trim()?'#00C73C':'#E5E8EB',border:'none',borderRadius:8,color:title.trim()?'white':'#8B95A1',fontSize:14,fontWeight:700,cursor:title.trim()?'pointer':'default',transition:'all .2s'}}>질문 올리기</button>
+            <button onClick={() => { if(title.trim()) onSubmit(title.trim(), body.trim(), cat, selectedTags); }} disabled={!title.trim()} style={{height:38,padding:'0 22px',background:title.trim()?'#03C75A':'#E5E8EB',border:'none',borderRadius:12,color:title.trim()?'white':'#8B95A1',fontSize:14,fontWeight:700,cursor:title.trim()?'pointer':'default',transition:'all var(--duration-fast)'}}>질문 올리기</button>
           </div>
         </div>
       </div>

@@ -7,7 +7,7 @@ import {
   Bell, Bookmark, CheckCircle2, ChevronLeft,
   Home as HomeIcon, LayoutList, MessageCircle,
   MoreHorizontal, Plus, Search, Share2,
-  Sparkles, Swords, ThumbsUp, User, X,
+  Swords, ThumbsUp, User, X,
 } from 'lucide-react';
 import { createClient, hasSupabase } from '@/lib/supabase/client';
 import { EMOJI, getSampleAnswers, sampleQuestions } from '@/lib/sampleData';
@@ -15,7 +15,6 @@ import type { AnswerDetail, QuestionDetail, RelatedQuestion } from '@/lib/questi
 import { createQuestionSlug, ensureUniqueSlug } from '@/lib/slugs';
 import { getAuthNickname, syncFinanceNickname } from '@/lib/nicknames';
 import { useAutoTranslation } from '@/lib/useAutoTranslation';
-import { buildSeoDescription } from '@/lib/seo-content';
 import styles from './QuestionClient.module.css';
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -404,12 +403,10 @@ export default function QuestionClient({
   const answerCount = q?.answer_count ?? answers.length;
   const minLen = 20;
   const remaining = Math.max(0, minLen - answerBody.trim().length);
-  const rawSeoSummary = q ? buildSeoDescription(q, answers) : '';
   const translation = useAutoTranslation([
     ...(q ? [
       { id: 'question:title', type: 'question_title', text: q.title || '' },
       { id: 'question:body', type: 'question_body', text: q.body || '' },
-      { id: 'question:summary', type: 'seo_summary', text: rawSeoSummary },
     ] : []),
     ...answers.map(a => ({ id: `answer:${a.id}:body`, type: 'answer_body', text: a.body || '' })),
     ...Object.values(comments).flatMap(list => (list || []).map((c: any) => ({
@@ -442,7 +439,6 @@ export default function QuestionClient({
   const qTitle = translation.text('question:title', q.title);
   const qBody = translation.text('question:body', q.body || '');
   const qTranslated = translation.isTranslated('question:title') || translation.isTranslated('question:body');
-  const seoSummary = translation.text('question:summary', rawSeoSummary);
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg)' }}>
@@ -525,10 +521,6 @@ export default function QuestionClient({
 
             <h1 className={styles.qTitle}>{qTitle}</h1>
             {qBody && <p className={styles.qBody}>{qBody}</p>}
-            <div className={styles.seoSummary}>
-              <strong>핵심 요약</strong>
-              <span>{seoSummary}</span>
-            </div>
 
             <div className={styles.qActions}>
               <button
@@ -559,57 +551,12 @@ export default function QuestionClient({
             </div>
           </article>
 
-          {/* 답변 에디터 */}
-          <section className={styles.editorBox} id="answer-editor">
-            {user ? (
-              <>
-                <div className={styles.editorHead}>
-                  <div className={styles.editorAvatar}>{userName[0]?.toUpperCase() || 'U'}</div>
-                  <span style={{ fontWeight: 700, fontSize: 14 }}>{userName}</span>
-                </div>
-                <textarea
-                  className={styles.editorArea}
-                  value={answerBody}
-                  onChange={e => setAnswerBody(e.target.value)}
-                  placeholder="당신의 지식을 공유해 보세요."
-                  rows={5}
-                />
-                <div className={styles.editorFoot}>
-                  <span style={{ fontSize: 12, color: 'var(--t3)' }}>
-                    {remaining > 0 ? `${remaining}글자 더 채워주세요.` : `${answerBody.trim().length}글자`}
-                  </span>
-                  <button
-                    className={styles.submitBtn}
-                    onClick={submitAnswer}
-                    disabled={submitting || answerBody.trim().length < minLen}
-                  >
-                    {submitting ? '등록 중...' : '답변하기'}
-                  </button>
-                </div>
-              </>
-            ) : (
-              <div className={styles.guestBox}>
-                <MessageCircle size={20} color="var(--t3)" />
-                <div>
-                  <p style={{ fontWeight: 700, fontSize: 14 }}>당신의 지식을 공유해 보세요</p>
-                  <p style={{ fontSize: 13, color: 'var(--t3)', marginTop: 2 }}>로그인하면 바로 답변을 남길 수 있어요.</p>
-                </div>
-                <button className={styles.submitBtn} onClick={() => router.push(`/auth?next=/q/${slug}`)}>
-                  로그인하고 답변하기
-                </button>
-              </div>
-            )}
-          </section>
-
           {/* 답변 목록 */}
           <section>
             <div className={styles.answersHead}>
               <h2 style={{ fontSize: 16, fontWeight: 700 }}>
                 {answerCount > answers.length ? `주요 답변 ${answers.length}개` : `${answers.length}개의 답변`}
               </h2>
-              <button className={styles.aiBtn} onClick={() => showT('AI 요약은 곧 연결할게요.')}>
-                <Sparkles size={14} /> AI 요약
-              </button>
             </div>
 
             {answers.length === 0 ? (
@@ -644,6 +591,48 @@ export default function QuestionClient({
                   styles={styles}
                 />
               ))
+            )}
+          </section>
+
+          {/* 답변 에디터 */}
+          <section className={styles.editorBox} id="answer-editor">
+            {user ? (
+              <>
+                <div className={styles.editorHead}>
+                  <div className={styles.editorAvatar}>{userName[0]?.toUpperCase() || 'U'}</div>
+                  <span style={{ fontWeight: 700, fontSize: 14 }}>{userName}</span>
+                </div>
+                <textarea
+                  className={styles.editorArea}
+                  value={answerBody}
+                  onChange={e => setAnswerBody(e.target.value)}
+                  placeholder="답변을 남겨보세요."
+                  rows={5}
+                />
+                <div className={styles.editorFoot}>
+                  <span style={{ fontSize: 12, color: 'var(--t3)' }}>
+                    {remaining > 0 ? `${remaining}글자 더 채워주세요.` : `${answerBody.trim().length}글자`}
+                  </span>
+                  <button
+                    className={styles.submitBtn}
+                    onClick={submitAnswer}
+                    disabled={submitting || answerBody.trim().length < minLen}
+                  >
+                    {submitting ? '등록 중...' : '답변하기'}
+                  </button>
+                </div>
+              </>
+            ) : (
+              <div className={styles.guestBox}>
+                <MessageCircle size={20} color="var(--t3)" />
+                <div>
+                  <p style={{ fontWeight: 700, fontSize: 14 }}>답변을 남기려면 로그인해 주세요</p>
+                  <p style={{ fontSize: 13, color: 'var(--t3)', marginTop: 2 }}>답변 목록을 읽은 뒤 바로 이어서 참여할 수 있어요.</p>
+                </div>
+                <button className={styles.submitBtn} onClick={() => router.push(`/auth?next=/q/${slug}`)}>
+                  로그인하고 답변하기
+                </button>
+              </div>
             )}
           </section>
         </main>
@@ -829,21 +818,21 @@ function AskModal({ onClose, router, user, onToast }: any) {
         <div style={{ padding: '18px 22px 20px' }}>
           <div style={{ marginBottom: 12 }}>
             <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--t2)', display: 'block', marginBottom: 6 }}>카테고리</label>
-            <select value={cat} onChange={e => setCat(e.target.value)} style={{ width: '100%', padding: '10px 12px', border: '1.5px solid var(--line)', borderRadius: 9, fontSize: 14, outline: 'none' }}>
+            <select value={cat} onChange={e => setCat(e.target.value)} style={{ width: '100%', padding: '10px 12px', border: '1.5px solid var(--line)', borderRadius: 9, fontSize: 14 }}>
               {CATS.map(c => <option key={c}>{c}</option>)}
             </select>
           </div>
           <div style={{ marginBottom: 12 }}>
             <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--t2)', display: 'block', marginBottom: 6 }}>질문 제목</label>
-            <input value={title} onChange={e => setTitle(e.target.value)} placeholder="궁금한 점을 간단히 써주세요" style={{ width: '100%', padding: '11px 13px', border: '1.5px solid var(--line)', borderRadius: 9, fontSize: 14, outline: 'none', boxSizing: 'border-box' }} />
+            <input value={title} onChange={e => setTitle(e.target.value)} placeholder="궁금한 점을 간단히 써주세요" style={{ width: '100%', padding: '11px 13px', border: '1.5px solid var(--line)', borderRadius: 9, fontSize: 14, boxSizing: 'border-box' }} />
           </div>
           <div style={{ marginBottom: 16 }}>
             <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--t2)', display: 'block', marginBottom: 6 }}>상세 내용 <span style={{ fontWeight: 400, color: 'var(--t3)' }}>(선택)</span></label>
-            <textarea value={body} onChange={e => setBody(e.target.value)} rows={4} placeholder="상황을 더 설명해주시면 더 좋은 답변을 받을 수 있어요" style={{ width: '100%', padding: '11px 13px', border: '1.5px solid var(--line)', borderRadius: 9, fontSize: 14, outline: 'none', resize: 'none', boxSizing: 'border-box' }} />
+            <textarea value={body} onChange={e => setBody(e.target.value)} rows={4} placeholder="상황을 더 설명해주시면 더 좋은 답변을 받을 수 있어요" style={{ width: '100%', padding: '11px 13px', border: '1.5px solid var(--line)', borderRadius: 9, fontSize: 14, resize: 'none', boxSizing: 'border-box' }} />
           </div>
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
             <button onClick={onClose} style={{ height: 38, padding: '0 18px', background: 'var(--bg)', border: '1px solid var(--line)', borderRadius: 8, fontSize: 14 }}>취소</button>
-            <button onClick={submit} disabled={!title.trim()} style={{ height: 38, padding: '0 22px', background: title.trim() ? 'var(--blue)' : 'var(--line)', border: 'none', borderRadius: 8, color: title.trim() ? 'white' : 'var(--t3)', fontSize: 14, fontWeight: 700, cursor: title.trim() ? 'pointer' : 'default' }}>질문 올리기</button>
+            <button onClick={submit} disabled={!title.trim()} style={{ height: 38, padding: '0 22px', background: title.trim() ? 'var(--primary)' : 'var(--line)', border: 'none', borderRadius: 12, color: title.trim() ? 'white' : 'var(--t3)', fontSize: 14, fontWeight: 700, cursor: title.trim() ? 'pointer' : 'default' }}>질문 올리기</button>
           </div>
         </div>
       </div>

@@ -1,5 +1,48 @@
 # 패치노트
 
+## [2026-05-09] 전역 UI v2.1 토큰 반영 — Codex
+**작업자:** Codex
+**태그:** #UI #Tokens #Accessibility #AhaTone
+
+### 변경사항
+- [토큰] `globals.css`에 primary/text/font/motion/focus 토큰 추가 및 기존 `--blue`, `--t1~3` 별칭을 v2.1 값에 연결
+- [폰트] Pretendard Variable 우선 폰트 스택으로 교체
+- [카드] 홈/피드/스파링/토픽/질문 상세의 반복 카드·위젯·패널을 border 없이 `0 1px 3px rgba(0,0,0,.06)` shadow와 16px radius로 정리
+- [CTA] 나도 질문하기/질문 올리기/답변하기/활성 칩이 primary green 계열을 사용하도록 정리
+- [접근성] 전역 `:focus-visible` outline 및 `prefers-reduced-motion` 0ms 처리 추가
+
+### 확인
+- [x] `npm_config_cache=.npm-cache npm run build` 통과
+- [x] 로컬 `/`, `/feed`, `/sparring`, `/q/sp500-etf` 200 확인
+- [x] 토큰/focus/reduced-motion 및 주요 카드 shadow CSS 검색 확인
+- [x] Vercel preview `/feed`, `/sparring`, `/q/sp500-etf` 200 확인: `https://jaetechwhanip-git-feat-ui-v21-tokens-yeholees-projects.vercel.app`
+- [x] Vercel preview 루트(`/`)는 보호 응답으로 직접 확인 제한, 로컬 `/` 200으로 대체 확인
+
+### 다음 작업자 TODO
+- [ ] 스파링 댓글·투표 시스템 v1 구현 시 새 토큰/카드 규칙 유지
+
+---
+
+## [2026-05-09] 질문 상세 요약/CTA 정리 — Codex
+**작업자:** Codex
+**태그:** #QuestionDetail #UI #AhaTone
+
+### 변경사항
+- [질문상세] 질문 본문 직후의 핵심 요약/SEO 요약 블록 제거
+- [질문상세] 답변 목록 헤더의 AI 요약 버튼 제거
+- [답변흐름] 답변 작성/로그인 프롬프트를 답변 리스트 아래로 이동
+- [CTA] "당신의 지식을 공유해 보세요" 배너성 문구 제거
+
+### 확인
+- [x] `npm_config_cache=.npm-cache npm run build` 통과
+- [x] 금지 문구/클래스 잔여 검색 확인
+- [x] Vercel preview `/q/sp500-etf` 200 확인: `https://jaetechwhanip-git-fix-q-detail-cleanup-yeholees-projects.vercel.app/q/sp500-etf`
+
+### 다음 작업자 TODO
+- [ ] 전역 UI 토큰 정리 작업에서 질문 상세 카드/CTA 색상도 함께 재점검
+
+---
+
 ## [2026-05-09] 피드 v2 실데이터화 — Codex
 **작업자:** Codex
 **태그:** #Feed #Ghost #RSS #SEO #NewsClick

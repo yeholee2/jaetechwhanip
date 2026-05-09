@@ -1,7 +1,7 @@
 /* 토스페이스 */
 @import url('https://cdn.jsdelivr.net/gh/toss/tossface/dist/tossface.css');
 /* Pretendard */
-@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/variable/pretendardvariable.css');
 /* Cafe24 Ssurround (로고용) */
 @import url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/Cafe24Ssurround.woff') format('woff');
 
@@ -13,8 +13,20 @@
 }
 
 :root {
-  --blue:#3182F6; --blue-bg:#EBF3FF; --blue-dk:#1A6DE0;
-  --t1:#191F28; --t2:#4E5968; --t3:#8B95A1;
+  --primary:#03C75A;
+  --primary-bg:#EAFBF2;
+  --primary-strong:#02B350;
+  --text-1:#191f28;
+  --text-2:#333d4b;
+  --text-3:#6b7684;
+  --duration-instant:150ms;
+  --duration-fast:200ms;
+  --duration-normal:300ms;
+  --duration-slow:400ms;
+  --ease-standard:cubic-bezier(0.4, 0, 0.2, 1);
+  --focus-ring:#03C75A;
+  --blue:var(--primary); --blue-bg:var(--primary-bg); --blue-dk:var(--primary-strong);
+  --t1:var(--text-1); --t2:var(--text-2); --t3:var(--text-3);
   --line:#E5E8EB; --bg:#F9FAFB; --white:#fff;
   --orange:#FF6B35;
   --sb: env(safe-area-inset-bottom, 0px);
@@ -23,7 +35,13 @@
 *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
 html, body { height:100%; overflow-x:hidden; }
 body {
-  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family:
+    'Pretendard Variable', Pretendard,
+    -apple-system, system-ui,
+    Roboto, 'Helvetica Neue', 'Segoe UI',
+    'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic',
+    'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
+    sans-serif;
   background: var(--bg);
   color: var(--t1);
   font-size: 15px;
@@ -34,3 +52,22 @@ button { font-family:inherit; cursor:pointer; border:none; background:none; }
 
 /* 로고 폰트 */
 .logo-font { font-family: 'Cafe24Ssurround', 'Pretendard', sans-serif; }
+
+:where(a, button, input, textarea, select, summary, [role="button"], [tabindex]:not([tabindex="-1"])):focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+:where(button, a, input, textarea, select) {
+  transition-duration: var(--duration-instant);
+  transition-timing-function: var(--ease-standard);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    transition-duration: 0ms !important;
+    animation-duration: 0ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+  }
+}
