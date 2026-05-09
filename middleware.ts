@@ -5,6 +5,13 @@ import { NextResponse, type NextRequest } from 'next/server';
 export async function middleware(request: NextRequest) {
   const host = request.headers.get('host')?.split(':')[0].toLowerCase();
 
+  if (host === 'qa.hannipmoney.com') {
+    const url = request.nextUrl.clone();
+    url.hostname = 'home.hannipmoney.com';
+    url.protocol = 'https:';
+    return NextResponse.redirect(url, 308);
+  }
+
   if (
     (host === 'article.hannipmoney.com' || host === 'column.hannipmoney.com') &&
     request.nextUrl.pathname === '/'

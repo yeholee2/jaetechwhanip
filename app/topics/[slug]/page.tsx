@@ -4,7 +4,7 @@ import { notFound } from 'next/navigation';
 import { MessageCircle, Search } from 'lucide-react';
 import { AppShell, UnifiedFilterBar } from '@/components/AppShell';
 import { CATEGORY_FILTERS, TOPIC_TABS } from '@/lib/ia';
-import { questionPath, SITE_NAME, truncateDescription } from '@/lib/seo';
+import { questionPath, SITE_NAME, SITE_URL, truncateDescription } from '@/lib/seo';
 import { fetchTopicQuestions, getTopicBySlug, TOPICS, topicPath, topicUrl } from '@/lib/topics';
 import styles from './TopicPage.module.css';
 
@@ -53,14 +53,14 @@ function collectionJsonLd(topic: NonNullable<ReturnType<typeof getTopicBySlug>>,
     isPartOf: {
       '@type': 'WebSite',
       name: SITE_NAME,
-      url: 'https://jaetechwhanip.vercel.app',
+      url: SITE_URL,
     },
     mainEntity: {
       '@type': 'ItemList',
       itemListElement: questions.slice(0, 20).map((question, index) => ({
         '@type': 'ListItem',
         position: index + 1,
-        url: `https://jaetechwhanip.vercel.app${questionPath(question.slug)}`,
+        url: `${SITE_URL}${questionPath(question.slug)}`,
         name: question.title,
       })),
     },

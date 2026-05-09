@@ -1,5 +1,27 @@
 # 패치노트
 
+## [2026-05-09] 대표 앱 주소를 home 서브도메인으로 변경
+**작업자:** Codex
+**태그:** #Domain #SEO #Auth #Vercel
+
+### 변경사항
+- [도메인] 대표 Q&A 앱 주소 기준을 `qa.hannipmoney.com`에서 `home.hannipmoney.com`으로 변경
+- [호환] 기존 `qa.hannipmoney.com` 유입은 같은 경로의 `home.hannipmoney.com`으로 308 이동 처리
+- [SEO] `SITE_URL` 기본값과 sitemap/canonical/JSON-LD 생성 기준을 `https://home.hannipmoney.com`으로 정렬
+- [Auth] `/api/auth/callback`의 fallback origin도 `https://home.hannipmoney.com`으로 변경
+- [Vercel] `NEXT_PUBLIC_SITE_URL` production 값을 `https://home.hannipmoney.com`으로 갱신
+
+### 확인
+- [x] `npm_config_cache=/Users/yeho/Documents/New\ project/jaetechwhanip/.npm-cache npm run build` 통과
+- [x] hosting.kr DNS `A home -> 76.76.21.21` 연결
+- [ ] Production 배포 후 `https://home.hannipmoney.com` 200 확인
+
+### 다음 작업자 TODO
+- [ ] Supabase Auth / OAuth 제공자 redirect URL에 `https://home.hannipmoney.com/api/auth/callback` 계열이 필요한지 로그인 실테스트로 확인
+- [ ] Search Console 기준은 `home.hannipmoney.com`으로 등록하고 `qa.hannipmoney.com`은 레거시 이동 주소로만 유지
+
+---
+
 ## [2026-05-09] 칼럼 명칭을 아티클로 변경
 **작업자:** Codex
 **태그:** #Article #Naming #SEO #Subdomain
