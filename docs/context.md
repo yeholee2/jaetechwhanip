@@ -17,7 +17,9 @@
 | 항목 | 값 |
 |---|---|
 | GitHub | `yeholee2/jaetechwhanip` |
-| 라이브 | https://jaetechwhanip.vercel.app |
+| 라이브 (확정 도메인) | https://we.hannipmoney.com |
+| 라이브 (Vercel 기본) | https://jaetechwhanip.vercel.app (도메인 연결 후에도 유지) |
+| 블로그 (별개) | https://hannipmoney.com (Ghost, 건드리지 않음) |
 | Supabase Project ID | `fqoeacfkzptlzohdzhgd` |
 | Vercel 계정 | `yeholees-projects` (imyeho@gmail.com) |
 
