@@ -1,0 +1,709 @@
+.page {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 24px 20px 72px;
+}
+
+.header {
+  margin-bottom: 14px;
+}
+
+.header > span,
+.optionHead > span,
+.searchBlock > span,
+.briefLead > span,
+.compareHead span,
+.questionPanel > span,
+.featuredTop span,
+.briefCard span {
+  color: var(--blue);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.header h1 {
+  margin-top: 6px;
+  color: var(--t1);
+  font-size: 32px;
+  line-height: 1.25;
+  font-weight: 900;
+  letter-spacing: 0;
+}
+
+.header p {
+  max-width: 640px;
+  margin-top: 7px;
+  color: var(--t2);
+  font-size: 14px;
+  line-height: 1.55;
+  font-weight: 650;
+}
+
+.optionNav {
+  position: sticky;
+  top: 56px;
+  z-index: 30;
+  display: flex;
+  gap: 8px;
+  padding: 8px 0 14px;
+  background: var(--bg);
+}
+
+.optionNav a {
+  height: 34px;
+  padding: 0 13px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--white);
+  color: var(--t2);
+  display: inline-flex;
+  align-items: center;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.option {
+  margin-top: 14px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: var(--white);
+  overflow: hidden;
+}
+
+.optionHead {
+  padding: 20px 22px 0;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.optionHead > span {
+  height: 28px;
+  padding: 0 10px;
+  border-radius: 999px;
+  background: var(--blue-bg);
+  display: inline-flex;
+  align-items: center;
+  flex: 0 0 auto;
+}
+
+.optionHead h2 {
+  color: var(--t1);
+  font-size: 22px;
+  line-height: 1.35;
+  font-weight: 900;
+  letter-spacing: 0;
+}
+
+.optionHead p {
+  margin-top: 4px;
+  color: var(--t3);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.finderShell,
+.briefGrid,
+.communityGrid {
+  padding: 18px 22px 22px;
+}
+
+.finderHero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) 360px;
+  gap: 14px;
+}
+
+.searchBlock {
+  min-height: 280px;
+  padding: 24px;
+  border-radius: 16px;
+  background: linear-gradient(180deg, #f7fbff 0%, #fff 100%);
+  border: 1px solid #dceaff;
+}
+
+.searchBlock h2 {
+  max-width: 430px;
+  margin-top: 8px;
+  color: var(--t1);
+  font-size: 28px;
+  line-height: 1.25;
+  font-weight: 900;
+  letter-spacing: 0;
+}
+
+.searchBox {
+  height: 54px;
+  margin-top: 22px;
+  padding: 0 8px 0 16px;
+  border: 1.5px solid var(--blue);
+  border-radius: 14px;
+  background: var(--white);
+  color: var(--blue);
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) 40px;
+  align-items: center;
+  gap: 10px;
+}
+
+.searchBox b {
+  min-width: 0;
+  color: var(--t2);
+  font-size: 15px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.searchBox button,
+.compareHead button,
+.sparringBox button {
+  border: 0;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.searchBox button {
+  width: 40px;
+  height: 40px;
+  border-radius: 11px;
+  background: var(--blue);
+  color: #fff;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-top: 16px;
+}
+
+.chips span {
+  height: 32px;
+  padding: 0 13px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--t2);
+  display: inline-flex;
+  align-items: center;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.featuredCard,
+.rowCard,
+.briefCard,
+.questionPanel article {
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--white);
+}
+
+.featuredCard {
+  min-height: 280px;
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 12px 28px rgba(25, 31, 40, .07);
+}
+
+.featuredTop,
+.featuredPrice,
+.featuredMeta,
+.rowCard,
+.briefFoot,
+.compareHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.featuredTop em {
+  color: var(--t3);
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 800;
+}
+
+.featuredCard h3 {
+  margin-top: 18px;
+  color: var(--t1);
+  font-size: 23px;
+  line-height: 1.28;
+  font-weight: 900;
+  letter-spacing: 0;
+}
+
+.featuredCard p {
+  margin-top: 8px;
+  color: var(--t2);
+  font-size: 14px;
+  line-height: 1.55;
+  font-weight: 700;
+}
+
+.featuredPrice {
+  margin-top: auto;
+  align-items: baseline;
+}
+
+.featuredPrice strong {
+  color: var(--t1);
+  font-size: 30px;
+  font-weight: 900;
+}
+
+.featuredPrice b,
+.rowCard em,
+.briefFoot em,
+.compareTable b {
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 900;
+}
+
+.featuredMeta {
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  margin-top: 15px;
+}
+
+.featuredMeta span {
+  height: 28px;
+  padding: 0 10px;
+  border-radius: 999px;
+  background: var(--bg);
+  color: var(--t2);
+  display: inline-flex;
+  align-items: center;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.finderList {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.rowCard {
+  min-height: 112px;
+  padding: 16px;
+}
+
+.rowCard > span {
+  width: 28px;
+  height: 28px;
+  border-radius: 10px;
+  background: var(--blue-bg);
+  color: var(--blue-dk);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  font-size: 14px;
+  font-weight: 900;
+}
+
+.rowCard div:nth-child(2) {
+  min-width: 0;
+}
+
+.rowCard strong,
+.briefCard strong,
+.questionPanel article strong {
+  color: var(--t1);
+  font-size: 15px;
+  line-height: 1.35;
+  font-weight: 900;
+}
+
+.rowCard p {
+  margin-top: 4px;
+  color: var(--t3);
+  font-size: 12px;
+  line-height: 1.4;
+  font-weight: 700;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.rowCard div:last-child {
+  flex: 0 0 auto;
+  text-align: right;
+}
+
+.rowCard b {
+  display: block;
+  color: var(--t1);
+  font-size: 15px;
+  font-weight: 900;
+}
+
+.briefGrid {
+  display: grid;
+  grid-template-columns: minmax(0, .92fr) minmax(0, 1.08fr);
+  gap: 14px;
+}
+
+.briefLead {
+  padding: 24px;
+  border-radius: 16px;
+  background: #141b25;
+  color: #fff;
+}
+
+.briefLead h2 {
+  margin-top: 8px;
+  color: #fff;
+  font-size: 27px;
+  line-height: 1.28;
+  font-weight: 900;
+  letter-spacing: 0;
+}
+
+.briefLead p {
+  margin-top: 12px;
+  color: rgba(255, 255, 255, .74);
+  font-size: 14px;
+  line-height: 1.6;
+  font-weight: 700;
+}
+
+.briefStats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 28px;
+}
+
+.briefStats span {
+  min-height: 68px;
+  padding: 12px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, .1);
+  color: rgba(255, 255, 255, .72);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.briefStats b {
+  margin-bottom: 4px;
+  color: #fff;
+  font-size: 18px;
+  font-weight: 900;
+}
+
+.briefCards {
+  display: grid;
+  gap: 10px;
+}
+
+.briefCard {
+  min-height: 132px;
+  padding: 18px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 110px;
+  gap: 14px;
+}
+
+.briefCard p {
+  margin-top: 7px;
+  color: var(--t3);
+  font-size: 13px;
+  line-height: 1.48;
+  font-weight: 700;
+}
+
+.briefFoot {
+  align-items: flex-end;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.briefFoot b {
+  color: var(--t1);
+  font-size: 18px;
+  font-weight: 900;
+}
+
+.communityGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: 14px;
+}
+
+.comparePanel {
+  min-width: 0;
+  padding: 20px;
+  border-radius: 16px;
+  background: linear-gradient(180deg, #fff 0%, #fbfcff 100%);
+  border: 1px solid var(--line);
+}
+
+.compareHead h2,
+.questionPanel h2 {
+  margin-top: 6px;
+  color: var(--t1);
+  font-size: 22px;
+  line-height: 1.35;
+  font-weight: 900;
+}
+
+.compareHead button {
+  height: 34px;
+  padding: 0 13px;
+  border-radius: 10px;
+  background: var(--blue);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 850;
+}
+
+.compareTable {
+  margin-top: 16px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.compareTable a {
+  min-height: 62px;
+  padding: 0 15px;
+  border-top: 1px solid var(--line);
+  display: grid;
+  grid-template-columns: minmax(170px, 1.3fr) .55fr .6fr .6fr .55fr;
+  align-items: center;
+  gap: 10px;
+  color: var(--t2);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.compareTable a:first-child {
+  border-top: 0;
+}
+
+.compareTable strong {
+  color: var(--t1);
+  font-size: 14px;
+  line-height: 1.35;
+  font-weight: 900;
+}
+
+.questionPanel {
+  padding: 20px;
+  border-radius: 16px;
+  background: var(--white);
+  border: 1px solid var(--line);
+}
+
+.questionPanel article {
+  padding: 14px;
+  margin-top: 10px;
+}
+
+.questionPanel article em {
+  color: var(--blue);
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 900;
+}
+
+.questionPanel article strong {
+  display: block;
+  margin-top: 5px;
+}
+
+.questionPanel article p {
+  margin-top: 5px;
+  color: var(--t3);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.sparringBox {
+  margin-top: 12px;
+  padding: 16px;
+  border-radius: 16px;
+  background: #141b25;
+}
+
+.sparringBox span {
+  color: #80b6ff;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.sparringBox strong {
+  display: block;
+  margin-top: 6px;
+  color: #fff;
+  font-size: 16px;
+  line-height: 1.4;
+  font-weight: 900;
+}
+
+.sparringBox button {
+  height: 34px;
+  margin-top: 14px;
+  padding: 0 12px;
+  border-radius: 10px;
+  background: #fff;
+  color: var(--t1);
+  font-size: 13px;
+  font-weight: 850;
+}
+
+.up {
+  color: #f04452;
+}
+
+.down {
+  color: #1a6de0;
+}
+
+.featuredCard:hover,
+.rowCard:hover,
+.briefCard:hover,
+.compareTable a:hover,
+.questionPanel article:hover {
+  box-shadow: 0 3px 16px rgba(0, 0, 0, .07);
+}
+
+@media (max-width: 920px) {
+  .finderHero,
+  .briefGrid,
+  .communityGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .finderList {
+    grid-template-columns: 1fr;
+  }
+
+  .communityGrid {
+    gap: 10px;
+  }
+}
+
+@media (max-width: 768px) {
+  .page {
+    padding: 16px 16px 72px;
+  }
+
+  .header h1 {
+    font-size: 25px;
+  }
+
+  .header p {
+    font-size: 13px;
+  }
+
+  .optionNav {
+    top: 92px;
+    overflow-x: auto;
+    padding-bottom: 10px;
+  }
+
+  .optionNav::-webkit-scrollbar {
+    display: none;
+  }
+
+  .optionNav a {
+    flex: 0 0 auto;
+  }
+
+  .option {
+    border-radius: 16px;
+  }
+
+  .optionHead {
+    padding: 16px 16px 0;
+    display: block;
+  }
+
+  .optionHead > span {
+    margin-bottom: 10px;
+  }
+
+  .optionHead h2,
+  .compareHead h2,
+  .questionPanel h2 {
+    font-size: 19px;
+  }
+
+  .finderShell,
+  .briefGrid,
+  .communityGrid {
+    padding: 14px 16px 16px;
+  }
+
+  .searchBlock,
+  .featuredCard,
+  .briefLead,
+  .comparePanel,
+  .questionPanel {
+    padding: 16px;
+    border-radius: 14px;
+  }
+
+  .searchBlock {
+    min-height: 0;
+  }
+
+  .searchBlock h2,
+  .briefLead h2 {
+    font-size: 22px;
+  }
+
+  .searchBox {
+    height: 48px;
+    margin-top: 16px;
+  }
+
+  .featuredCard {
+    min-height: 238px;
+  }
+
+  .featuredCard h3 {
+    font-size: 20px;
+  }
+
+  .featuredPrice strong {
+    font-size: 25px;
+  }
+
+  .briefStats,
+  .briefCard {
+    grid-template-columns: 1fr;
+  }
+
+  .briefFoot {
+    align-items: flex-start;
+  }
+
+  .compareHead {
+    display: block;
+  }
+
+  .compareHead button {
+    margin-top: 12px;
+  }
+
+  .compareTable {
+    overflow-x: auto;
+  }
+
+  .compareTable a {
+    min-width: 620px;
+  }
+}
