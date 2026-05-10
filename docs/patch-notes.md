@@ -1,5 +1,22 @@
 # 패치노트
 
+## [2026-05-10] ETF v2 목업 3안 추가 — Codex
+**작업자:** Codex
+**태그:** #ETF #Mockup #UIDesign
+
+### 변경사항
+- [ETF] 라이브 `/etf`는 건드리지 않고 비교용 임시 라우트 `/temp-etf-v2` 추가
+- [Mockup] A안: 검색 중심 ETF Finder — 검색, 추천 ETF, 대표 ETF 카드 중심
+- [Mockup] B안: 토스식 한입 브리프 — 판단 기준 요약과 ETF 카드 중심
+- [Mockup] C안: 비교표 + 질문 연결 — ETF 비교표와 관련 질문/스파링 연결 중심
+- [Design] ETF 대표 카드에 ETF명, 코드, 한 줄 설명, 현재가, 등락률, 보수, 분배금, 질문 수를 포함해 이후 실제 `/etf` 기준 카드 후보로 볼 수 있게 구성
+
+### 확인
+- [x] `npm run build`
+- [x] 로컬 `/temp-etf-v2` 모바일 화면 확인
+
+---
+
 ## [2026-05-10] ETF 화면 비례감·상단 UI 폴리싱 — Codex
 **작업자:** Codex
 **태그:** #ETF #UIDesign #Mobile
