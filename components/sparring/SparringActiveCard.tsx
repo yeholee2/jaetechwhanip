@@ -20,16 +20,9 @@ function formatNumber(value: number) {
   return value.toLocaleString('ko-KR');
 }
 
-function percent(part: number, total: number) {
-  if (!total) return 0;
-  return Math.round((part / total) * 100);
-}
-
 export default function SparringActiveCard({ sparring }: { sparring: Sparring }) {
   const thumb = sparring.thumbnail_url ? `url("${sparring.thumbnail_url}")` : 'none';
   const total = sparring.stats.votes_total || sparring.stats.votes_a + sparring.stats.votes_b;
-  const percentA = percent(sparring.stats.votes_a, total);
-  const percentB = Math.max(0, 100 - percentA);
 
   return (
     <article
@@ -49,18 +42,10 @@ export default function SparringActiveCard({ sparring }: { sparring: Sparring })
           </div>
           <h2 className={styles.activeTitle}>{sparring.title}</h2>
         </div>
-        <div className={styles.sidePreview} aria-label="투표 선택지">
-          <div>
-            <span>{sparring.side_a_label}</span>
-            <strong>{percentA}%</strong>
-          </div>
-          <div className={styles.sideTrack}>
-            <i style={{ width: `${percentA}%` }} />
-          </div>
-          <div>
-            <span>{sparring.side_b_label}</span>
-            <strong>{percentB}%</strong>
-          </div>
+        <div className={styles.choiceTeaser} aria-label="투표 선택지">
+          <span>{sparring.side_a_label}</span>
+          <b>VS</b>
+          <span>{sparring.side_b_label}</span>
         </div>
         <div className={styles.activeFoot}>
           <span><FaIcon name="clock" size={15} /> <Countdown deadlineAt={sparring.deadline_at} compact /></span>
