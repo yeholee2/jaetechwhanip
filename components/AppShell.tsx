@@ -37,10 +37,12 @@ export function AppShell({
   active,
   children,
   wide = false,
+  hideSlogan = false,
 }: {
   active: AppNavKey;
   children: ReactNode;
   wide?: boolean;
+  hideSlogan?: boolean;
 }) {
   const router = useRouter();
   const [user, setUser] = useState<any>(null);
@@ -188,7 +190,7 @@ export function AppShell({
         </nav>
       </header>
 
-      <Slogan />
+      {!hideSlogan && <Slogan />}
       <div className={`${styles.content} ${wide ? styles.wideContent : ''}`}>{children}</div>
 
       <nav className={styles.bottomNav}>

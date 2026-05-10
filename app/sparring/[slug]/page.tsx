@@ -117,7 +117,7 @@ export default async function SparringDetailPage({ params }: { params: { slug: s
   if (!sparring) notFound();
 
   return (
-    <AppShell active="sparring" wide>
+    <AppShell active="sparring" wide hideSlogan>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
