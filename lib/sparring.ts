@@ -56,6 +56,18 @@ export type SparringDetailResult = {
   usingFallback: boolean;
 };
 
+export function decodeSparringSlug(slug: string) {
+  try {
+    return decodeURIComponent(slug);
+  } catch {
+    return slug;
+  }
+}
+
+export function sparringPath(slug: string) {
+  return `/sparring/${encodeURIComponent(decodeSparringSlug(slug))}`;
+}
+
 const now = Date.now();
 
 const fallbackSparrings: Sparring[] = [
@@ -352,7 +364,12 @@ export async function listSparrings(): Promise<SparringListResult> {
 export async function getSparringBySlug(slug: string): Promise<SparringDetailResult> {
   const list = await fetchAllSparrings();
   const sparrings = list || fallbackSparrings.map(withComputedStatus);
-  const sparring = sparrings.find(item => item.slug === slug) || null;
+  const decodedSlug = decodeSparringSlug(slug);
+  const sparring = sparrings.find(item => (
+    item.slug === slug ||
+    item.slug === decodedSlug ||
+    encodeURIComponent(item.slug) === slug
+  )) || null;
 
   if (!sparring) {
     return { sparring: null, comments: [], otherActive: sparrings.filter(item => item.status === 'active'), usingFallback: !list };

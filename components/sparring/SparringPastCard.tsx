@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { FaIcon } from '@/components/FaIcon';
 import { getCategoryLabel } from '@/lib/categories';
-import { getSideLabel, getSidePolarity, type Sparring } from '@/lib/sparring';
+import { getSideLabel, getSidePolarity, sparringPath, type Sparring } from '@/lib/sparring';
 import styles from './SparringCards.module.css';
 
 function formatNumber(value: number) {
@@ -17,7 +17,7 @@ export default function SparringPastCard({ sparring }: { sparring: Sparring }) {
   const resultTone = polarity === 'positive' ? styles.blue : styles.red;
 
   return (
-    <Link href={`/sparring/${sparring.slug}`} className={styles.pastCard}>
+    <Link href={sparringPath(sparring.slug)} className={styles.pastCard}>
       <div className={styles.pastTop}>
         <div className={styles.pastHeading}>
           <div className={styles.tagRow}>

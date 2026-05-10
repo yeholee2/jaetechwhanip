@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 import Countdown from '@/components/sparring/Countdown';
 import { FaIcon } from '@/components/FaIcon';
-import { createComment, getCurrentUserVote, getSideLabel, getSidePolarity, vote, type Sparring, type SparringComment, type SparringSide } from '@/lib/sparring';
+import { createComment, getCurrentUserVote, getSideLabel, getSidePolarity, sparringPath, vote, type Sparring, type SparringComment, type SparringSide } from '@/lib/sparring';
 import { createClient, hasSupabase } from '@/lib/supabase/client';
 import styles from './SparringDetail.module.css';
 
@@ -58,6 +58,7 @@ export default function SparringDetailClient({
   const [mineOnly, setMineOnly] = useState(false);
   const [body, setBody] = useState('');
   const [pending, setPending] = useState(false);
+  const detailPath = sparringPath(sparring.slug);
 
   useEffect(() => {
     if (!supabaseReady) return;
@@ -94,7 +95,7 @@ export default function SparringDetailClient({
 
   const handleVote = async (side: SparringSide) => {
     if (!userId) {
-      router.push(`/auth?next=/sparring/${sparring.slug}`);
+      router.push(`/auth?next=${encodeURIComponent(detailPath)}`);
       return;
     }
     if (selectedVote || sparring.status !== 'active') return;
@@ -234,7 +235,7 @@ export default function SparringDetailClient({
             {!userId ? (
               <div className={styles.lock}>
                 <span><FaIcon name="lock" size={15} /> 로그인하고 참여하면 투표와 댓글을 남길 수 있어요.</span>
-                <button className={styles.loginCta} type="button" onClick={() => router.push(`/auth?next=/sparring/${sparring.slug}`)}>로그인하고 참여하기</button>
+                <button className={styles.loginCta} type="button" onClick={() => router.push(`/auth?next=${encodeURIComponent(detailPath)}`)}>로그인하고 참여하기</button>
               </div>
             ) : !selectedVote ? (
               <div className={styles.lock}>
@@ -291,7 +292,7 @@ export default function SparringDetailClient({
       <aside className={styles.sidebar} aria-label="다른 스파링">
         <Link href="/sparring" className={styles.homeLink}>스파링 홈 &gt;</Link>
         {otherActive.map(item => (
-          <Link key={item.id} href={`/sparring/${item.slug}`} className={styles.sideCard}>
+          <Link key={item.id} href={sparringPath(item.slug)} className={styles.sideCard}>
             <span>{item.round_number} 라운드</span>
             <strong>{item.title}</strong>
             <em>{formatNumber(item.stats.votes_total)}명 투표 중</em>
