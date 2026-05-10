@@ -9,13 +9,13 @@ import { createClient, hasSupabase } from '@/lib/supabase/client';
 import { FaIcon } from './FaIcon';
 import styles from './AppShell.module.css';
 
-export type AppNavKey = 'home' | 'topics' | 'sparring' | 'feed' | 'mission' | 'my';
+export type AppNavKey = 'home' | 'etf' | 'topics' | 'sparring' | 'feed' | 'mission' | 'my';
 
 const NAV_ITEMS: { key: AppNavKey; label: string; href: string }[] = [
   { key: 'home', label: '홈', href: '/' },
-  { key: 'topics', label: '토픽', href: '/topics/재테크' },
+  { key: 'etf', label: 'ETF', href: '/etf' },
   { key: 'sparring', label: '스파링', href: '/sparring' },
-  { key: 'feed', label: '피드', href: '/feed' },
+  { key: 'feed', label: '아티클', href: '/feed' },
   { key: 'mission', label: '미션', href: '#' },
 ];
 
@@ -193,8 +193,8 @@ export function AppShell({
         <Link className={`${styles.bnav} ${active === 'home' ? styles.active : ''}`} href="/">
           <FaIcon name="house" size={21} /><span>홈</span>
         </Link>
-        <Link className={`${styles.bnav} ${active === 'topics' ? styles.active : ''}`} href="/topics/재테크">
-          <FaIcon name="list-ul" size={21} /><span>토픽</span>
+        <Link className={`${styles.bnav} ${active === 'etf' ? styles.active : ''}`} href="/etf">
+          <FaIcon name="chart-line" size={21} /><span>ETF</span>
         </Link>
         <button className={`${styles.bnav} ${styles.bnavAsk}`} onClick={ask}>
           <span className={styles.bnavAskIcon}><FaIcon name="plus" size={22} /></span>

@@ -459,7 +459,7 @@ export default function QuestionClient({
         </div>
         <ul className={styles.navMenu}>
           <li><button onClick={() => router.push('/')}>홈</button></li>
-          <li><button onClick={() => router.push('/topics/재테크')}>토픽</button></li>
+          <li><button onClick={() => router.push('/etf')}>ETF</button></li>
           <li><button onClick={() => router.push('/sparring')}>스파링</button></li>
           <li><button onClick={() => router.push('/feed')}>피드</button></li>
           <li><button>미션</button></li>
@@ -673,7 +673,7 @@ export default function QuestionClient({
       {/* ── 모바일 하단 네비 ── */}
       <nav className={styles.bottomNav}>
         <button className={styles.bnav} onClick={() => router.push('/')}><FaIcon name="house" size={21} /><span>홈</span></button>
-        <button className={styles.bnav} onClick={() => router.push('/topics/재테크')}><FaIcon name="list-ul" size={21} /><span>토픽</span></button>
+        <button className={styles.bnav} onClick={() => router.push('/etf')}><FaIcon name="chart-line" size={21} /><span>ETF</span></button>
         <button className={styles.bnav} onClick={() => router.push('/sparring')}><Swords size={22} /><span>스파링</span></button>
         <button className={styles.bnav}><FaIcon name="bell" size={21} /><span>알림</span></button>
         <button className={styles.bnav} onClick={() => router.push(user ? `/u/${user.id}` : '/auth')} style={user ? { color: 'var(--blue)' } : {}}>

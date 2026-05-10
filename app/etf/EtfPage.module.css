@@ -1,0 +1,527 @@
+.page {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 24px 4px 56px;
+}
+
+.hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: 16px;
+  align-items: stretch;
+  margin-bottom: 12px;
+}
+
+.heroCopy,
+.featureCard,
+.section,
+.sideCard,
+.sparringCard {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--white);
+}
+
+.heroCopy {
+  padding: 22px;
+  background: linear-gradient(180deg, #f7fbff 0%, #fff 100%);
+}
+
+.eyebrow {
+  display: inline-flex;
+  height: 24px;
+  align-items: center;
+  color: var(--blue);
+  font-size: 13px;
+  font-weight: 850;
+  margin-bottom: 8px;
+}
+
+.hero h1 {
+  color: var(--t1);
+  font-size: 30px;
+  line-height: 1.3;
+  font-weight: 850;
+  letter-spacing: 0;
+}
+
+.hero p {
+  margin-top: 8px;
+  max-width: 620px;
+  color: var(--t2);
+  font-size: 14px;
+  line-height: 1.6;
+  font-weight: 650;
+}
+
+.searchBox {
+  height: 46px;
+  max-width: 420px;
+  margin-top: 18px;
+  padding: 0 14px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--white);
+  color: var(--t3);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  font-weight: 750;
+}
+
+.searchBox span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 14px;
+}
+
+.chips span {
+  height: 30px;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--white);
+  color: var(--t2);
+  display: inline-flex;
+  align-items: center;
+  font-size: 12px;
+  font-weight: 750;
+}
+
+.chips .chipOn {
+  border-color: var(--blue);
+  background: var(--blue-bg);
+  color: var(--blue-dk);
+  font-weight: 850;
+}
+
+.featureCard {
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  color: inherit;
+  transition: box-shadow .14s, transform .14s;
+}
+
+.featureCard:hover,
+.etfRow:hover,
+.resultList a:hover,
+.holdingList a:hover,
+.compareRow:hover {
+  box-shadow: 0 2px 12px rgba(0, 0, 0, .06);
+}
+
+.featureCard span {
+  color: var(--blue);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.featureCard strong {
+  display: block;
+  margin-top: 10px;
+  color: var(--t1);
+  font-size: 22px;
+  line-height: 1.32;
+}
+
+.featureCard p {
+  margin-top: 8px;
+  color: var(--t2);
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.featureCard div {
+  margin-top: 18px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.featureCard b {
+  color: var(--t1);
+  font-size: 20px;
+}
+
+.up {
+  color: #f04452;
+  font-style: normal;
+  font-weight: 900;
+}
+
+.down {
+  color: #1a6de0;
+  font-style: normal;
+  font-weight: 900;
+}
+
+.statGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin-bottom: 18px;
+}
+
+.statGrid div {
+  min-height: 74px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--white);
+}
+
+.statGrid span,
+.sectionHead span {
+  color: var(--t3);
+  font-size: 12px;
+  font-weight: 750;
+}
+
+.statGrid strong {
+  display: block;
+  margin-top: 7px;
+  color: var(--blue-dk);
+  font-size: 19px;
+  line-height: 1.25;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 280px;
+  gap: 16px;
+}
+
+.mainColumn {
+  min-width: 0;
+  display: grid;
+  gap: 12px;
+}
+
+.sideColumn {
+  min-width: 0;
+  display: grid;
+  align-content: start;
+  gap: 12px;
+  position: sticky;
+  top: 76px;
+}
+
+.section {
+  padding: 18px;
+}
+
+.sectionHead {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.sectionHead h2,
+.sideCard h2 {
+  color: var(--t1);
+  font-size: 20px;
+  line-height: 1.35;
+  font-weight: 850;
+  letter-spacing: 0;
+}
+
+.sectionHead p {
+  margin-top: 4px;
+  color: var(--t3);
+  font-size: 13px;
+  line-height: 1.55;
+  font-weight: 650;
+}
+
+.etfList,
+.resultList,
+.holdingList {
+  display: grid;
+  gap: 8px;
+}
+
+.etfRow,
+.resultList a,
+.holdingList a {
+  min-height: 74px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--white);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  transition: box-shadow .14s;
+}
+
+.etfRow strong,
+.resultList strong,
+.holdingList strong {
+  color: var(--t1);
+  font-size: 15px;
+  line-height: 1.45;
+}
+
+.etfRow p,
+.resultList p,
+.holdingList p {
+  margin-top: 4px;
+  color: var(--t3);
+  font-size: 12px;
+  line-height: 1.55;
+  font-weight: 650;
+}
+
+.etfRow > div:last-child,
+.holdingList a > div:last-child {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.etfRow b,
+.holdingList b {
+  display: block;
+  color: var(--t1);
+  font-size: 14px;
+}
+
+.filterGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.filterGrid div {
+  min-height: 66px;
+  padding: 13px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--bg);
+}
+
+.filterGrid span {
+  color: var(--t3);
+  font-size: 12px;
+  font-weight: 750;
+}
+
+.filterGrid b {
+  display: block;
+  margin-top: 7px;
+  color: var(--t1);
+  font-size: 14px;
+  line-height: 1.35;
+}
+
+.resultList a > span {
+  height: 28px;
+  padding: 0 10px;
+  border-radius: 999px;
+  background: var(--blue-bg);
+  color: var(--blue-dk);
+  display: inline-flex;
+  align-items: center;
+  font-size: 12px;
+  font-weight: 850;
+  white-space: nowrap;
+}
+
+.holdingList span {
+  color: var(--t3);
+  font-size: 12px;
+  line-height: 1.4;
+  font-weight: 650;
+}
+
+.holdingList b {
+  color: var(--blue-dk);
+  font-size: 18px;
+}
+
+.compareTable {
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--white);
+}
+
+.compareHeader,
+.compareRow {
+  display: grid;
+  grid-template-columns: 1.35fr .7fr .7fr .7fr 1fr;
+  gap: 8px;
+  align-items: center;
+}
+
+.compareHeader {
+  min-height: 42px;
+  padding: 0 12px;
+  background: var(--bg);
+  color: var(--t3);
+  font-size: 12px;
+  font-weight: 850;
+}
+
+.compareRow {
+  min-height: 58px;
+  padding: 0 12px;
+  border-top: 1px solid var(--line);
+  color: var(--t1);
+  font-size: 12px;
+  font-weight: 750;
+}
+
+.compareRow span:first-child {
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.sideCard,
+.sparringCard {
+  padding: 16px;
+}
+
+.sideCard ul {
+  margin-top: 12px;
+  display: grid;
+  gap: 9px;
+  list-style: none;
+}
+
+.sideCard li {
+  color: var(--t2);
+  font-size: 13px;
+  line-height: 1.55;
+  font-weight: 650;
+}
+
+.questionCard {
+  margin-top: 10px;
+  padding: 13px 0 0;
+  border-top: 1px solid var(--line);
+}
+
+.questionCard:first-of-type {
+  border-top: 0;
+}
+
+.questionCard span,
+.sparringCard span {
+  color: var(--blue);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.questionCard strong,
+.sparringCard strong {
+  display: block;
+  margin-top: 5px;
+  color: var(--t1);
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.questionCard p,
+.sparringCard p {
+  margin-top: 5px;
+  color: var(--t3);
+  font-size: 12px;
+  line-height: 1.5;
+  font-weight: 650;
+}
+
+.sparringCard {
+  background: #141b25;
+  color: #fff;
+}
+
+.sparringCard strong {
+  color: #fff;
+  font-size: 18px;
+}
+
+.sparringCard p {
+  color: rgba(255, 255, 255, .72);
+}
+
+.sparringCard a {
+  height: 34px;
+  margin-top: 14px;
+  padding: 0 12px;
+  border-radius: 8px;
+  background: var(--white);
+  color: var(--t1);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 850;
+}
+
+@media (max-width: 920px) {
+  .hero,
+  .layout {
+    grid-template-columns: 1fr;
+  }
+
+  .sideColumn {
+    position: static;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .page {
+    padding: 18px 0 48px;
+  }
+
+  .hero h1 {
+    font-size: 26px;
+  }
+
+  .heroCopy,
+  .featureCard,
+  .section {
+    padding: 16px;
+  }
+
+  .statGrid,
+  .filterGrid,
+  .sideColumn {
+    grid-template-columns: 1fr;
+  }
+
+  .sectionHead {
+    display: block;
+  }
+
+  .sectionHead h2,
+  .sideCard h2 {
+    font-size: 18px;
+  }
+
+  .compareTable {
+    overflow-x: auto;
+  }
+
+  .compareHeader,
+  .compareRow {
+    min-width: 620px;
+  }
+}
