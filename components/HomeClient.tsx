@@ -290,9 +290,9 @@ export default function HomeClient({
         <div className={`${styles.pcLogo} logo-font`}>재테크<em>한입</em></div>
         <ul className={styles.pcMenu}>
           <li><Link href="/" className={styles.on}>홈</Link></li>
-          <li><Link href="/topics/재테크">토픽</Link></li>
+          <li><Link href="/etf">ETF</Link></li>
           <li><Link href="/sparring">스파링</Link></li>
-          <li><Link href="/feed">피드</Link></li>
+          <li><Link href="/feed">아티클</Link></li>
           <li><a href="#">미션</a></li>
           <li><div className={styles.sep}/></li>
           <li><a href="#" style={{fontSize:13,color:'var(--t3)'}}>전문가 신청</a></li>
@@ -410,7 +410,7 @@ export default function HomeClient({
         )}
         <nav className={styles.moGnav}>
           <Link href="/" className={styles.on}>홈</Link>
-          <Link href="/topics/재테크">토픽</Link><Link href="/sparring">스파링</Link><Link href="/feed">피드</Link><a href="#">미션</a>
+          <Link href="/etf">ETF</Link><Link href="/sparring">스파링</Link><Link href="/feed">아티클</Link><a href="#">미션</a>
         </nav>
       </header>
 
@@ -452,7 +452,7 @@ export default function HomeClient({
 
       <nav className={styles.bottomNav}>
         <button className={`${styles.bnav} ${styles.on}`}><FaIcon name="house" size={21}/><span>홈</span></button>
-        <button className={styles.bnav} onClick={() => router.push('/topics/재테크')}><FaIcon name="list-ul" size={21}/><span>토픽</span></button>
+        <button className={styles.bnav} onClick={() => router.push('/etf')}><FaIcon name="chart-line" size={21}/><span>ETF</span></button>
         <button className={styles.bnav} onClick={() => router.push('/sparring')}><Swords size={22}/><span>스파링</span></button>
         <button className={styles.bnav}><FaIcon name="bell" size={21}/><span>알림</span></button>
         <button className={styles.bnav} onClick={() => router.push(user ? `/u/${user.id}` : '/auth')} style={user?{color:'var(--green)'}:{}}>

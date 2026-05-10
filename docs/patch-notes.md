@@ -1,5 +1,22 @@
 # 패치노트
 
+## [2026-05-10] ETF 정보창 정식 라우트 추가 — Codex
+**작업자:** Codex
+**태그:** #ETF #InformationArchitecture #SEO #UI
+
+### 변경사항
+- [ETF] `/etf` 정식 페이지 추가: 검색, 많이 본 ETF, 상품 필터, 구성종목 검색, S&P500 비교, 관련 질문/스파링 영역 구성
+- [ETF] `/etf/[slug]` 상세 페이지 추가: 현재가, 등락률, 순자산, 총보수, 분배금, 환헤지, 거래량, 구성종목, 비슷한 ETF 노출
+- [Data] `lib/etfs.ts`에 API 연결 전 더미 ETF 정보값을 통합해 이후 Supabase/API로 교체하기 쉽게 분리
+- [Nav] 공통 네비와 홈/질문 상세 네비의 `토픽` 진입을 `ETF`로 교체하고 피드 라벨을 `아티클`로 정리
+- [SEO] `/etf`와 ETF 상세 URL을 sitemap에 포함
+
+### 확인
+- [x] `npm run build`
+- [x] 로컬 `/etf`, `/etf/tiger-미국sp500` 화면 확인
+
+---
+
 ## [2026-05-10] 스파링 홈 UI 톤 동기화 — Codex
 **작업자:** Codex
 **태그:** #Sparring #HomeUI #UIDesign
