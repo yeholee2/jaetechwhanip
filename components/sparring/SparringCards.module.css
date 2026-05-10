@@ -1,11 +1,11 @@
 .activeCard {
   position: relative;
-  min-height: 388px;
+  min-height: 350px;
   overflow: hidden;
-  border-radius: 22px;
+  border-radius: 20px;
   background: var(--fallback-bg, linear-gradient(135deg, #1e59da, #071b5f));
   color: #fff;
-  box-shadow: 0 12px 30px rgba(25, 31, 40, .14);
+  box-shadow: none;
   isolation: isolate;
 }
 
@@ -26,39 +26,29 @@
 
 .activeCard::after {
   background:
-    linear-gradient(180deg, rgba(0, 0, 0, .04), rgba(0, 0, 0, .72));
+    linear-gradient(180deg, rgba(0, 0, 0, .44) 0%, rgba(0, 0, 0, .14) 46%, rgba(0, 0, 0, .04) 62%, rgba(0, 0, 0, .62) 100%);
 }
 
 .activeLink {
   display: flex;
-  min-height: 388px;
-  padding: 26px;
+  min-height: 350px;
   flex-direction: column;
   justify-content: space-between;
 }
 
-.activeCategory {
-  display: inline-flex;
-  width: fit-content;
-  height: 26px;
-  align-items: center;
-  padding: 0 10px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, .18);
-  color: rgba(255, 255, 255, .94);
-  font-size: 12px;
-  font-weight: 850;
+.activeCopy {
+  padding: 30px 28px 20px;
 }
 
 .activeMeta {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
   gap: 12px;
-  margin-top: 16px;
-  color: rgba(255, 255, 255, .86);
-  font-size: 14px;
-  font-weight: 800;
+  color: rgba(255, 255, 255, .92);
+  font-size: 21px;
+  line-height: 1.25;
+  font-weight: 850;
 }
 
 .activeMeta span,
@@ -70,55 +60,12 @@
 }
 
 .activeTitle {
-  max-width: 92%;
-  margin-top: 14px;
-  font-size: 25px;
-  line-height: 1.25;
-  font-weight: 850;
+  max-width: 94%;
+  margin-top: 22px;
+  font-size: 33px;
+  line-height: 1.28;
+  font-weight: 900;
   letter-spacing: 0;
-}
-
-.choiceTeaser {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
-  align-items: center;
-  gap: 10px;
-  margin: 24px 0 auto;
-  padding: 12px;
-  border-radius: 16px;
-  background: rgba(255, 255, 255, .14);
-  backdrop-filter: blur(12px);
-}
-
-.choiceTeaser span {
-  min-width: 0;
-  height: 42px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0 12px;
-  border-radius: 12px;
-  background: rgba(255, 255, 255, .16);
-  color: rgba(255, 255, 255, .92);
-  font-size: 14px;
-  font-weight: 850;
-  overflow: hidden;
-  text-align: center;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.choiceTeaser b {
-  width: 34px;
-  height: 34px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  background: #fff;
-  color: var(--primary);
-  font-size: 12px;
-  font-weight: 950;
 }
 
 .activeFoot {
@@ -126,9 +73,14 @@
   align-items: center;
   justify-content: space-between;
   gap: 16px;
+  min-height: 64px;
+  padding: 0 28px;
+  background: rgba(19, 24, 25, .58);
+  backdrop-filter: blur(14px);
   color: rgba(255, 255, 255, .92);
-  font-size: 14px;
-  font-weight: 750;
+  font-size: 17px;
+  line-height: 1;
+  font-weight: 850;
 }
 
 .pastCard {
@@ -261,12 +213,22 @@
     min-height: 330px;
   }
 
-  .activeLink {
-    padding: 22px;
+  .activeCopy {
+    padding: 26px 22px 18px;
   }
 
   .activeTitle {
-    font-size: 22px;
+    font-size: 27px;
+  }
+
+  .activeMeta {
+    font-size: 17px;
+  }
+
+  .activeFoot {
+    min-height: 58px;
+    padding: 0 22px;
+    font-size: 15px;
   }
 
   .pastCard {

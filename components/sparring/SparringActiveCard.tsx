@@ -34,18 +34,11 @@ export default function SparringActiveCard({ sparring }: { sparring: Sparring })
       } as CSSProperties}
     >
       <Link href={`/sparring/${sparring.slug}`} className={styles.activeLink}>
-        <div>
-          <span className={styles.activeCategory}>{sparring.category}</span>
+        <div className={styles.activeCopy}>
           <div className={styles.activeMeta}>
             <span><FaIcon name="users" size={15} /> {formatNumber(total)}명 투표 중</span>
-            <span>{sparring.round_number} 라운드</span>
           </div>
           <h2 className={styles.activeTitle}>{sparring.title}</h2>
-        </div>
-        <div className={styles.choiceTeaser} aria-label="투표 선택지">
-          <span>{sparring.side_a_label}</span>
-          <b>VS</b>
-          <span>{sparring.side_b_label}</span>
         </div>
         <div className={styles.activeFoot}>
           <span><FaIcon name="clock" size={15} /> <Countdown deadlineAt={sparring.deadline_at} compact /></span>
