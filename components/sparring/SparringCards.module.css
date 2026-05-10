@@ -78,43 +78,47 @@
   letter-spacing: 0;
 }
 
-.sidePreview {
+.choiceTeaser {
   display: grid;
-  gap: 8px;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
   margin: 24px 0 auto;
-  padding: 14px;
+  padding: 12px;
   border-radius: 16px;
   background: rgba(255, 255, 255, .14);
   backdrop-filter: blur(12px);
 }
 
-.sidePreview > div:not(.sideTrack) {
-  display: flex;
+.choiceTeaser span {
+  min-width: 0;
+  height: 42px;
+  display: inline-flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 12px;
+  justify-content: center;
+  padding: 0 12px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, .16);
   color: rgba(255, 255, 255, .92);
-  font-size: 13px;
-  font-weight: 850;
-}
-
-.sidePreview strong {
   font-size: 14px;
-}
-
-.sideTrack {
-  position: relative;
-  height: 8px;
+  font-weight: 850;
   overflow: hidden;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, .22);
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.sideTrack i {
-  display: block;
-  height: 100%;
-  border-radius: inherit;
+.choiceTeaser b {
+  width: 34px;
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
   background: #fff;
+  color: var(--primary);
+  font-size: 12px;
+  font-weight: 950;
 }
 
 .activeFoot {
