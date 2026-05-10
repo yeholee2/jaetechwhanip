@@ -110,6 +110,78 @@
   transform: scale(.98);
 }
 
+.profileWrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.profileButton,
+.moAvatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  font-size: 13px;
+  font-weight: 800;
+  box-shadow: 0 0 0 1px rgba(30, 89, 218, .08);
+}
+
+.profileButton img,
+.moAvatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.profileMenu {
+  position: absolute;
+  right: 0;
+  top: 42px;
+  z-index: 320;
+  min-width: 168px;
+  padding: 6px 0;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--white);
+  box-shadow: 0 10px 30px rgba(2, 32, 71, .13);
+}
+
+.profileName {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--line);
+  color: var(--t2);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.profileMenu a,
+.profileMenu button {
+  width: 100%;
+  min-height: 38px;
+  padding: 0 14px;
+  display: flex;
+  align-items: center;
+  color: var(--t1);
+  font-size: 13px;
+  font-weight: 650;
+  text-align: left;
+}
+
+.profileMenu a:hover,
+.profileMenu button:hover {
+  background: var(--bg);
+}
+
+.profileMenu .signOut {
+  color: #e5484d;
+}
+
 .slogan {
   max-width: 720px;
   margin: 0 auto;
@@ -171,6 +243,12 @@
   align-items: center;
   justify-content: center;
   color: var(--t2);
+}
+
+.moAvatar {
+  width: 32px;
+  height: 32px;
+  align-self: center;
 }
 
 .moGnav {

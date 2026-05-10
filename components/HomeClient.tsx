@@ -98,6 +98,21 @@ export default function HomeClient({ initialQuestions }: { initialQuestions: Que
     return () => sub.subscription.unsubscribe();
   }, []);
 
+  useEffect(() => {
+    if (authLoading || typeof window === 'undefined') return;
+
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('ask') !== '1') return;
+
+    if (user) {
+      setShowModal(true);
+      window.history.replaceState(null, '', window.location.pathname);
+      return;
+    }
+
+    router.replace('/auth?next=/?ask=1');
+  }, [authLoading, router, user]);
+
   // 질문 로드 — DB에서 페이지네이션
   const loadQuestions = useCallback(async (cat: string, tab: FeedTab, pageNum: number, replace = false) => {
     if (!hasSupabase()) return;

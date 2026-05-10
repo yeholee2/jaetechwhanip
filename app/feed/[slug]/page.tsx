@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { AppShell } from '@/components/AppShell';
 import { FEED_URL, fetchGhostArticleBySlug, hanipArticles } from '@/lib/feed';
 import { SITE_NAME } from '@/lib/seo';
+import { buildFeedSeoDescription, buildFeedSeoKeywords, buildFeedSeoTitle } from '@/lib/seo-content';
 import styles from '../FeedPage.module.css';
 
 export function generateStaticParams() {
@@ -11,21 +12,38 @@ export function generateStaticParams() {
 
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
   const article = await fetchGhostArticleBySlug(params.slug);
-  if (!article) return {};
+  if (!article) {
+    return {
+      title: '피드를 찾을 수 없어요',
+      robots: { index: false, follow: true },
+    };
+  }
 
   const url = `${FEED_URL}/${encodeURIComponent(article.slug)}`;
+  const title = buildFeedSeoTitle(article);
+  const description = buildFeedSeoDescription(article);
+  const keywords = buildFeedSeoKeywords(article);
 
   return {
-    title: article.title,
-    description: article.description,
+    title,
+    description,
+    keywords,
     alternates: { canonical: url },
     openGraph: {
-      title: `${article.title} | ${SITE_NAME}`,
-      description: article.description,
+      title: `${title} | ${SITE_NAME}`,
+      description,
       url,
       type: 'article',
       publishedTime: article.publishedAt,
+      section: article.category,
       tags: article.tags,
+      images: article.thumbnailUrl ? [{ url: article.thumbnailUrl, alt: article.title }] : undefined,
+    },
+    twitter: {
+      card: article.thumbnailUrl ? 'summary_large_image' : 'summary',
+      title,
+      description,
+      images: article.thumbnailUrl ? [article.thumbnailUrl] : undefined,
     },
   };
 }

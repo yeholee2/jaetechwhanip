@@ -1,5 +1,24 @@
 # 패치노트
 
+## [2026-05-10] SEO 자동 문장 생성·공용 프로필 진입 복구 — Codex
+**작업자:** Codex
+**태그:** #SEO #Auth #Profile #Feed #Sparring
+
+### 변경사항
+- [SEO] 피드/스파링 상세 및 피드 필터 페이지의 title, description, keywords, OG/Twitter 메타를 콘텐츠 기반 자동 생성으로 변경
+- [SEO] 스파링 상세에 `DiscussionForumPosting` + `BreadcrumbList` JSON-LD 추가, 투표/토론 수를 구조화 데이터로 노출
+- [Auth] 공용 AppShell이 Supabase 로그인 상태를 읽도록 변경, 피드/스파링/토픽에서도 아바타와 `내 정보 보기` 드롭다운 노출
+- [Profile] 모바일 하단 `마이`가 로그인 상태면 `/u/{userId}`로 이동하도록 수정
+- [Brand] 프로필 화면에 남아 있던 네이버 초록 계열을 재테크한입 파란 브랜드 컬러로 교체
+- [Ask] 공용 네비의 `나도 질문하기`는 로그인 상태면 홈의 질문 모달을 바로 열도록 `?ask=1` 흐름 연결
+
+### 확인
+- [x] `npm run build`
+- [x] 로컬 `/feed?source=news&category=해외주식·ETF` 메타 title/description/canonical 확인
+- [x] 로컬 `/sparring/kospi-high-installment-buying` 메타 + JSON-LD + 모바일 화면 확인
+
+---
+
 ## [2026-05-10] 피드 페이지 a-ha 컬럼형 톤 정리 — Codex
 **작업자:** Codex
 **태그:** #Feed #UI #AhaReference #Digest

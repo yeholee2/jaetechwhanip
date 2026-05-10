@@ -12,6 +12,7 @@ import {
 } from '@/lib/feed';
 import type { FeedItem } from '@/lib/feed';
 import { SITE_NAME } from '@/lib/seo';
+import { buildFeedListSeoDescription, buildFeedListSeoTitle } from '@/lib/seo-content';
 import styles from './FeedPage.module.css';
 
 const SOURCE_FILTERS = [
@@ -20,31 +21,44 @@ const SOURCE_FILTERS = [
   { key: 'news', label: '뉴스' },
 ];
 
-export const metadata: Metadata = {
-  title: '재테크 피드',
-  description: '한입 자체 칼럼과 금융 뉴스 RSS를 한 흐름에서 읽는 재테크한입 피드입니다.',
-  alternates: {
-    canonical: FEED_URL,
-  },
-  openGraph: {
-    title: `재테크 피드 | ${SITE_NAME}`,
-    description: '질문 전에 읽으면 좋은 재테크 칼럼과 시장 소식을 모았습니다.',
-    url: FEED_URL,
-    type: 'website',
-  },
-};
+type FeedSearchParams = { source?: string; category?: string };
+
+export function generateMetadata({ searchParams }: { searchParams?: FeedSearchParams }): Metadata {
+  const { activeSource, activeCategory } = getActiveFeedFilters(searchParams);
+  const sourceLabel = SOURCE_FILTERS.find(item => item.key === activeSource)?.label || '전체';
+  const categoryLabel = FEED_CATEGORY_FILTERS.find(item => item.key === activeCategory)?.label || '전체';
+  const title = buildFeedListSeoTitle(sourceLabel, categoryLabel);
+  const description = buildFeedListSeoDescription(sourceLabel, categoryLabel);
+  const canonical = feedFilterCanonical(activeSource, activeCategory);
+
+  return {
+    title,
+    description,
+    keywords: [categoryLabel, sourceLabel, '재테크 피드', '금융 뉴스', '투자 칼럼', SITE_NAME]
+      .filter(keyword => keyword !== '전체'),
+    alternates: {
+      canonical,
+    },
+    openGraph: {
+      title: `${title} | ${SITE_NAME}`,
+      description,
+      url: canonical,
+      type: 'website',
+    },
+    twitter: {
+      card: 'summary',
+      title,
+      description,
+    },
+  };
+}
 
 export default async function FeedPage({
   searchParams,
 }: {
-  searchParams?: { source?: string; category?: string };
+  searchParams?: FeedSearchParams;
 }) {
-  const activeSource = SOURCE_FILTERS.some(item => item.key === searchParams?.source)
-    ? searchParams?.source || 'all'
-    : 'all';
-  const activeCategory = FEED_CATEGORY_FILTERS.some(item => item.key === searchParams?.category)
-    ? searchParams?.category || '전체'
-    : '전체';
+  const { activeSource, activeCategory } = getActiveFeedFilters(searchParams);
   const allItems = await fetchFeedItems();
   const items = allItems.filter(item => {
     const sourceMatches = activeSource === 'all' || item.type === activeSource;
@@ -131,6 +145,22 @@ function feedFilterHref(source: string, category: string) {
   if (category !== '전체') params.set('category', category);
   const query = params.toString();
   return query ? `/feed?${query}` : '/feed';
+}
+
+function feedFilterCanonical(source: string, category: string) {
+  const href = feedFilterHref(source, category);
+  return href === '/feed' ? FEED_URL : `${FEED_URL}${href.replace('/feed', '')}`;
+}
+
+function getActiveFeedFilters(searchParams?: FeedSearchParams) {
+  const activeSource = SOURCE_FILTERS.some(item => item.key === searchParams?.source)
+    ? searchParams?.source || 'all'
+    : 'all';
+  const activeCategory = FEED_CATEGORY_FILTERS.some(item => item.key === searchParams?.category)
+    ? searchParams?.category || '전체'
+    : '전체';
+
+  return { activeSource, activeCategory };
 }
 
 function feedItemKey(item: FeedItem) {
