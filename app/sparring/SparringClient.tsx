@@ -5,7 +5,7 @@ import { AppShell } from '@/components/AppShell';
 import { FaIcon } from '@/components/FaIcon';
 import SparringActiveCard from '@/components/sparring/SparringActiveCard';
 import SparringPastCard from '@/components/sparring/SparringPastCard';
-import { CATEGORY_DEFINITIONS } from '@/lib/categories';
+import { CATEGORY_DEFINITIONS, getCategoryLabel } from '@/lib/categories';
 import type { Sparring } from '@/lib/sparring';
 import styles from './SparringPage.module.css';
 
@@ -93,7 +93,7 @@ export default function SparringClient({ sparrings }: { sparrings: Sparring[] })
                 type="button"
                 onClick={() => setCategory(item)}
               >
-                {item}
+                {item === '전체' ? item : getCategoryLabel(item)}
               </button>
             ))}
           </div>

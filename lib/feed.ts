@@ -9,7 +9,7 @@ export const GHOST_RSS_URL = 'https://www.hannipmoney.com/rss/';
 
 export const FEED_CATEGORY_FILTERS = [
   { key: '전체', label: '전체' },
-  { key: '재테크입문', label: '💡 재테크입문' },
+  { key: '재테크입문', label: '💡 재테크' },
   { key: '국내주식·ETF', label: '📈 국내주식·ETF' },
   { key: '해외주식·ETF', label: '🌎 해외주식·ETF' },
   { key: '절세', label: '🏦 절세' },
@@ -232,6 +232,7 @@ export function normalizeFeedCategory(category = '', title = '', summary = '', t
   const direct = category.replace(/\s+/g, '').trim();
   const directMap: Record<string, string> = {
     재테크입문: '재테크입문',
+    재테크: '재테크입문',
     '국내주식·ETF': '국내주식·ETF',
     '국내주식ETF': '국내주식·ETF',
     '주식·ETF': '국내주식·ETF',

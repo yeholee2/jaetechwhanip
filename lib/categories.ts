@@ -12,13 +12,13 @@ export type CategoryDefinition = {
 export const CATEGORY_DEFINITIONS: CategoryDefinition[] = [
   {
     key: '재테크입문',
-    label: '재테크입문',
-    slug: '재테크-입문',
+    label: '재테크',
+    slug: '재테크',
     emoji: '💡',
-    title: '재테크입문 질문',
-    description: '사회초년생 저축, 목돈 만들기, 월급 관리처럼 처음 시작하는 재테크 고민을 모았어요.',
-    keywords: ['재테크입문', '사회초년생 재테크', '월급 관리', '저축'],
-    aliases: ['finance-basics', '재테크 입문'],
+    title: '재테크 질문',
+    description: '저축, 투자, 월급 관리, 목돈 만들기처럼 돈을 굴리기 전에 자주 부딪히는 고민을 모았어요.',
+    keywords: ['재테크', '사회초년생 재테크', '월급 관리', '저축'],
+    aliases: ['finance-basics', '재테크 입문', '재테크입문', '재테크-입문'],
   },
   {
     key: '국내주식·ETF',
@@ -81,6 +81,19 @@ export const CATEGORY_EMOJI = Object.fromEntries(
     ...(category.aliases || []).map(alias => [alias, category.emoji]),
   ]),
 ) as Record<string, string>;
+
+export const CATEGORY_DISPLAY_LABEL = Object.fromEntries(
+  CATEGORY_DEFINITIONS.flatMap(category => [
+    [category.key, category.label],
+    [category.label, category.label],
+    ...(category.aliases || []).map(alias => [alias, category.label]),
+  ]),
+) as Record<string, string>;
+
+export function getCategoryLabel(input?: string | null) {
+  if (!input) return '재테크';
+  return CATEGORY_DISPLAY_LABEL[input] || input;
+}
 
 export function normalizeCategory(input?: string | null) {
   if (!input) return '재테크입문';

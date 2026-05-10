@@ -9,6 +9,7 @@ import {
   Sparkles, Swords, ThumbsUp, X,
 } from 'lucide-react';
 import { createClient, hasSupabase } from '@/lib/supabase/client';
+import { CATEGORY_DEFINITIONS, getCategoryLabel } from '@/lib/categories';
 import { EMOJI, getSampleAnswers, sampleQuestions } from '@/lib/sampleData';
 import type { AnswerDetail, QuestionDetail, RelatedQuestion } from '@/lib/question-detail';
 import { createQuestionSlug, ensureUniqueSlug } from '@/lib/slugs';
@@ -85,7 +86,7 @@ function seedQuestionOverlay(row: any) {
   };
 }
 
-const CATS = ['재테크입문','국내주식·ETF','해외주식·ETF','절세','보험','대출·부채'];
+const CATS = CATEGORY_DEFINITIONS.map(category => category.key);
 const EMPTY_ANSWERS: AnswerDetail[] = [];
 const EMPTY_RELATED: RelatedQuestion[] = [];
 
@@ -454,7 +455,7 @@ export default function QuestionClient({
         </div>
         <ul className={styles.navMenu}>
           <li><button onClick={() => router.push('/')}>홈</button></li>
-          <li><button onClick={() => router.push('/topics/재테크-입문')}>토픽</button></li>
+          <li><button onClick={() => router.push('/topics/재테크')}>토픽</button></li>
           <li><button onClick={() => router.push('/sparring')}>스파링</button></li>
           <li><button onClick={() => router.push('/feed')}>피드</button></li>
           <li><button>미션</button></li>
@@ -501,7 +502,7 @@ export default function QuestionClient({
 
           {/* 브레드크럼 */}
           <div className={styles.breadcrumb}>
-            <button onClick={() => router.push('/')} className={styles.catChip}>{q.category || '재테크'}</button>
+            <button onClick={() => router.push('/')} className={styles.catChip}>{getCategoryLabel(q.category || '재테크')}</button>
           </div>
 
           {/* 질문 카드 */}
@@ -678,7 +679,7 @@ export default function QuestionClient({
       {/* ── 모바일 하단 네비 ── */}
       <nav className={styles.bottomNav}>
         <button className={styles.bnav} onClick={() => router.push('/')}><FaIcon name="house" size={21} /><span>홈</span></button>
-        <button className={styles.bnav} onClick={() => router.push('/topics/재테크-입문')}><FaIcon name="list-ul" size={21} /><span>토픽</span></button>
+        <button className={styles.bnav} onClick={() => router.push('/topics/재테크')}><FaIcon name="list-ul" size={21} /><span>토픽</span></button>
         <button className={styles.bnav} onClick={() => router.push('/sparring')}><Swords size={22} /><span>스파링</span></button>
         <button className={styles.bnav}><FaIcon name="bell" size={21} /><span>알림</span></button>
         <button className={styles.bnav} onClick={() => router.push(user ? `/u/${user.id}` : '/auth')} style={user ? { color: 'var(--blue)' } : {}}>
@@ -821,7 +822,7 @@ function AskModal({ onClose, router, user, onToast }: any) {
           <div style={{ marginBottom: 12 }}>
             <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--t2)', display: 'block', marginBottom: 6 }}>카테고리</label>
             <select value={cat} onChange={e => setCat(e.target.value)} style={{ width: '100%', padding: '10px 12px', border: '1.5px solid var(--line)', borderRadius: 9, fontSize: 14, outline: 'none' }}>
-              {CATS.map(c => <option key={c}>{c}</option>)}
+              {CATS.map(c => <option key={c} value={c}>{getCategoryLabel(c)}</option>)}
             </select>
           </div>
           <div style={{ marginBottom: 12 }}>

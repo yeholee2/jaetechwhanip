@@ -84,18 +84,30 @@
 }
 
 .pastCard {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: 24px;
-  align-items: end;
-  padding: 24px 0;
-  border-bottom: 1px solid var(--line);
-  background: transparent;
-  transition: background var(--duration-instant) var(--ease-in-out);
+  display: block;
+  padding: 28px 30px;
+  border-radius: 24px;
+  background: #f7f9fb;
+  color: inherit;
+  transition:
+    background var(--duration-instant) var(--ease-in-out),
+    transform var(--duration-instant) var(--ease-in-out);
 }
 
 .pastCard:hover {
-  background: rgba(25, 31, 40, .025);
+  background: #f3f6fa;
+  transform: translateY(-1px);
+}
+
+.pastTop {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 18px;
+  align-items: start;
+}
+
+.pastHeading {
+  min-width: 0;
 }
 
 .tagRow {
@@ -111,18 +123,26 @@
   height: 24px;
   padding: 0 10px;
   border-radius: 999px;
-  background: var(--primary-bg);
-  color: var(--primary-dk);
+  background: #fff;
+  color: var(--t2);
   font-size: 12px;
+  font-weight: 850;
+}
+
+.round {
+  color: var(--t3);
+  font-size: 15px;
+  line-height: 1.4;
   font-weight: 800;
+  white-space: nowrap;
 }
 
 .pastTitle {
-  max-width: 650px;
+  max-width: 820px;
   color: var(--t1);
-  font-size: 21px;
-  line-height: 1.38;
-  font-weight: 800;
+  font-size: 27px;
+  line-height: 1.34;
+  font-weight: 900;
   letter-spacing: 0;
 }
 
@@ -140,45 +160,82 @@
 
 .pastDivider {
   height: 1px;
-  margin: 18px 0 0;
+  margin: 28px 0 26px;
   background: var(--line);
 }
 
-.pastStats {
+.pastResult {
   display: grid;
-  justify-items: end;
-  gap: 6px;
-  color: var(--t3);
-  font-size: 13px;
-  white-space: nowrap;
+  grid-template-columns: minmax(220px, 310px) minmax(180px, 1fr) auto auto auto;
+  align-items: center;
+  gap: 26px;
 }
 
-.pastStats strong {
-  color: var(--t1);
-  font-size: 17px;
-}
-
-.pastStats span {
+.resultCopy {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
+  gap: 9px;
+  min-width: 0;
+  color: var(--t2);
+  font-size: 16px;
+  line-height: 1.45;
+  font-weight: 800;
+}
+
+.resultCopy span {
+  font-family: 'Tossface', sans-serif;
+  font-size: 20px;
+  line-height: 1;
+}
+
+.metric {
+  display: grid;
+  gap: 4px;
+  min-width: 110px;
+  padding-left: 24px;
+  border-left: 1px solid var(--line);
+}
+
+.metric span {
+  color: var(--t3);
+  font-size: 14px;
+  line-height: 1.2;
+  font-weight: 800;
+}
+
+.metric strong {
+  color: var(--t1);
+  font-size: 19px;
+  line-height: 1.25;
+  font-weight: 900;
+}
+
+.arrow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 999px;
+  background: #fff;
+  color: #bac2cf;
 }
 
 .dominant {
   display: inline-grid;
   grid-template-columns: auto auto;
   align-items: center;
-  gap: 12px;
-  width: fit-content;
+  gap: 14px;
+  width: 100%;
   max-width: 100%;
-  margin-top: 18px;
-  padding: 12px 15px;
-  border: 1.5px solid var(--dominant-border);
-  border-radius: 16px;
+  min-height: 56px;
+  padding: 0 18px;
+  border: 1.5px solid var(--dominant-color);
+  border-radius: 10px;
   background: var(--dominant-bg);
   color: var(--dominant-color);
-  font-size: 15px;
-  font-weight: 850;
+  font-size: 17px;
+  font-weight: 900;
 }
 
 .dominant span {
@@ -189,21 +246,22 @@
 }
 
 .dominant em {
-  padding-left: 12px;
+  padding-left: 14px;
   border-left: 1px solid var(--dominant-border);
   font-style: normal;
   font-weight: 900;
+  text-align: right;
 }
 
 .blue {
   --dominant-color: #1e59da;
-  --dominant-border: #a6c4f4;
+  --dominant-border: rgba(30, 89, 218, .2);
   --dominant-bg: #f5fafe;
 }
 
 .red {
   --dominant-color: #e52a39;
-  --dominant-border: #fb8990;
+  --dominant-border: rgba(229, 42, 57, .2);
   --dominant-bg: #fff0f0;
 }
 
@@ -232,12 +290,40 @@
   }
 
   .pastCard {
-    grid-template-columns: 1fr;
-    gap: 16px;
-    padding: 22px 0;
+    padding: 22px 18px;
+    border-radius: 20px;
   }
 
-  .pastStats {
-    justify-items: start;
+  .pastTop {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .round {
+    font-size: 13px;
+  }
+
+  .pastTitle {
+    font-size: 22px;
+  }
+
+  .pastDivider {
+    margin: 20px 0 18px;
+  }
+
+  .pastResult {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .metric {
+    padding: 0;
+    border-left: 0;
+    grid-template-columns: auto 1fr;
+    align-items: baseline;
+  }
+
+  .arrow {
+    display: none;
   }
 }

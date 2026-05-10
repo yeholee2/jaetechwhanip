@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { Swords } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { createClient, hasSupabase } from '@/lib/supabase/client';
-import { CATEGORY_EMOJI, CATEGORY_LABELS } from '@/lib/categories';
+import { CATEGORY_DEFINITIONS, CATEGORY_EMOJI, CATEGORY_LABELS, getCategoryLabel } from '@/lib/categories';
 import type { Question } from '@/lib/sampleData';
 import { LEVELS, EMOJI, sampleQuestions } from '@/lib/sampleData';
 import { createQuestionSlug, ensureUniqueSlug } from '@/lib/slugs';
@@ -287,7 +287,7 @@ export default function HomeClient({ initialQuestions }: { initialQuestions: Que
         <div className={`${styles.pcLogo} logo-font`}>재테크<em>한입</em></div>
         <ul className={styles.pcMenu}>
           <li><Link href="/" className={styles.on}>홈</Link></li>
-          <li><Link href="/topics/재테크-입문">토픽</Link></li>
+          <li><Link href="/topics/재테크">토픽</Link></li>
           <li><Link href="/sparring">스파링</Link></li>
           <li><Link href="/feed">피드</Link></li>
           <li><a href="#">미션</a></li>
@@ -349,7 +349,7 @@ export default function HomeClient({ initialQuestions }: { initialQuestions: Que
           <div className={styles.catRow}>
             {CATS.map(c => (
               <button key={c} className={`${styles.ctag} ${currentCat===c?styles.on:''}`} onClick={() => setCurrentCat(c)}>
-                {CAT_EMOJI[c] && <span className="tf">{CAT_EMOJI[c]}</span>} {c}
+                {CAT_EMOJI[c] && <span className="tf">{CAT_EMOJI[c]}</span>} {c === '전체' ? c : getCategoryLabel(c)}
               </button>
             ))}
           </div>
@@ -444,7 +444,7 @@ export default function HomeClient({ initialQuestions }: { initialQuestions: Que
         )}
         <nav className={styles.moGnav}>
           <Link href="/" className={styles.on}>홈</Link>
-          <Link href="/topics/재테크-입문">토픽</Link><Link href="/sparring">스파링</Link><Link href="/feed">피드</Link><a href="#">미션</a>
+          <Link href="/topics/재테크">토픽</Link><Link href="/sparring">스파링</Link><Link href="/feed">피드</Link><a href="#">미션</a>
         </nav>
       </header>
 
@@ -463,7 +463,7 @@ export default function HomeClient({ initialQuestions }: { initialQuestions: Que
         <div className={styles.moCat}>
           {CATS.map(c => (
             <button key={c} className={`${styles.ctag} ${currentCat===c?styles.on:''}`} onClick={() => setCurrentCat(c)}>
-              {CAT_EMOJI[c] && <span className="tf">{CAT_EMOJI[c]}</span>} {c}
+              {CAT_EMOJI[c] && <span className="tf">{CAT_EMOJI[c]}</span>} {c === '전체' ? c : getCategoryLabel(c)}
             </button>
           ))}
         </div>
@@ -491,7 +491,7 @@ export default function HomeClient({ initialQuestions }: { initialQuestions: Que
 
       <nav className={styles.bottomNav}>
         <button className={`${styles.bnav} ${styles.on}`}><FaIcon name="house" size={21}/><span>홈</span></button>
-        <button className={styles.bnav} onClick={() => router.push('/topics/재테크-입문')}><FaIcon name="list-ul" size={21}/><span>토픽</span></button>
+        <button className={styles.bnav} onClick={() => router.push('/topics/재테크')}><FaIcon name="list-ul" size={21}/><span>토픽</span></button>
         <button className={styles.bnav} onClick={() => router.push('/sparring')}><Swords size={22}/><span>스파링</span></button>
         <button className={styles.bnav}><FaIcon name="bell" size={21}/><span>알림</span></button>
         <button className={styles.bnav} onClick={() => router.push(user ? `/u/${user.id}` : '/auth')} style={user?{color:'var(--green)'}:{}}>
@@ -587,7 +587,7 @@ function FeedSummary({
     <div className={styles.feedSummary}>
       <div>
         <strong>{activeTabLabel}</strong>
-        <span>{currentCat === '전체' ? '전체 토픽' : currentCat} · {count}개 질문</span>
+        <span>{currentCat === '전체' ? '전체 토픽' : getCategoryLabel(currentCat)} · {count}개 질문</span>
       </div>
       {searchQuery && (
         <button onClick={onClearSearch}>
@@ -656,7 +656,7 @@ function FeedList({ questions, mobile, router }: { questions: Question[], mobile
             </div>
             <div className={styles.qinfo}>
               <div className={styles.qmeta}>
-                <span style={{fontSize:12,fontWeight:700}}>{q.cat}</span>
+                <span style={{fontSize:12,fontWeight:700}}>{getCategoryLabel(q.cat)}</span>
                 {q.topic && <span className={styles.topicBadge}>{q.topic}</span>}
                 <span style={{fontSize:10,color:'var(--t3)'}}>·</span>
                 <span style={{fontSize:12,color:'var(--t3)'}}>{q.time}</span>
@@ -718,7 +718,7 @@ function AskModal({ onClose, onSubmit }: { onClose: () => void, onSubmit: (t: st
           <div style={{marginBottom:12}}>
             <label style={{fontSize:12,fontWeight:600,color:'#4E5968',display:'block',marginBottom:6}}>카테고리</label>
             <select value={cat} onChange={e=>setCat(e.target.value)} style={{width:'100%',padding:'10px 12px',border:'1.5px solid #E5E8EB',borderRadius:9,fontSize:14,outline:'none'}}>
-              {['재테크입문','국내주식·ETF','해외주식·ETF','절세','보험','대출·부채'].map(c => <option key={c}>{c}</option>)}
+              {CATEGORY_DEFINITIONS.map(c => <option key={c.key} value={c.key}>{c.label}</option>)}
             </select>
           </div>
           {cat === '국내주식·ETF' && (
