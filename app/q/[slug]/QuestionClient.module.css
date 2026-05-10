@@ -293,7 +293,6 @@
   border: 1px solid var(--line); overflow: hidden;
   margin-bottom: 10px;
 }
-.pollCard { background: var(--t1); padding: 16px; }
 .widgetHead {
   padding: 13px 15px 10px; font-size: 13px; font-weight: 700;
   border-bottom: 1px solid var(--line);

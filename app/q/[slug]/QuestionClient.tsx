@@ -12,11 +12,13 @@ import { createClient, hasSupabase } from '@/lib/supabase/client';
 import { CATEGORY_DEFINITIONS, getCategoryLabel } from '@/lib/categories';
 import { EMOJI, getSampleAnswers, sampleQuestions } from '@/lib/sampleData';
 import type { AnswerDetail, QuestionDetail, RelatedQuestion } from '@/lib/question-detail';
+import type { Sparring } from '@/lib/sparring';
 import { createQuestionSlug, ensureUniqueSlug } from '@/lib/slugs';
 import { getAuthNickname, syncFinanceNickname } from '@/lib/nicknames';
 import { useAutoTranslation } from '@/lib/useAutoTranslation';
 import { buildSeoDescription } from '@/lib/seo-content';
 import { FaIcon } from '@/components/FaIcon';
+import SparringMiniCard from '@/components/sparring/SparringMiniCard';
 import styles from './QuestionClient.module.css';
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -95,11 +97,13 @@ export default function QuestionClient({
   initialQuestion = null,
   initialAnswers = EMPTY_ANSWERS,
   initialRelated = EMPTY_RELATED,
+  featuredSparring = null,
 }: {
   slug: string;
   initialQuestion?: QuestionDetail | null;
   initialAnswers?: AnswerDetail[];
   initialRelated?: RelatedQuestion[];
+  featuredSparring?: Sparring | null;
 }) {
   const router = useRouter();
   const dropRef = useRef<HTMLDivElement>(null);
@@ -642,17 +646,7 @@ export default function QuestionClient({
 
         {/* 사이드바 */}
         <aside className={styles.sidebar}>
-          {/* 투표 위젯 */}
-          <div className={styles.widget}>
-            <div className={styles.pollCard}>
-              <div style={{ fontSize: 11, color: 'rgba(255,255,255,.5)', marginBottom: 4 }}>🔥 지금 투표 중</div>
-              <div style={{ fontSize: 15, fontWeight: 700, color: '#fff', lineHeight: 1.4, marginBottom: 12 }}>지금 S&P500<br />들어가도 될까요?</div>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <span style={{ fontSize: 11, color: 'rgba(255,255,255,.5)' }}>⏱ 4일 남았어요</span>
-                <button onClick={() => router.push('/sparring')} style={{ height: 26, padding: '0 12px', background: '#fff', borderRadius: 5, fontSize: 12, fontWeight: 700, color: 'var(--t1)' }}>참여하기</button>
-              </div>
-            </div>
-          </div>
+          <SparringMiniCard sparring={featuredSparring} />
 
           {/* 유사 질문 */}
           <div className={styles.widget}>

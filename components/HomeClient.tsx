@@ -8,10 +8,12 @@ import { createClient, hasSupabase } from '@/lib/supabase/client';
 import { CATEGORY_DEFINITIONS, CATEGORY_EMOJI, CATEGORY_LABELS, getCategoryLabel } from '@/lib/categories';
 import type { Question } from '@/lib/sampleData';
 import { LEVELS, EMOJI, sampleQuestions } from '@/lib/sampleData';
+import type { Sparring } from '@/lib/sparring';
 import { createQuestionSlug, ensureUniqueSlug } from '@/lib/slugs';
 import { getAuthNickname, syncFinanceNickname } from '@/lib/nicknames';
 import { useAutoTranslation } from '@/lib/useAutoTranslation';
 import { FaIcon } from './FaIcon';
+import SparringMiniCard from './sparring/SparringMiniCard';
 import styles from './HomeClient.module.css';
 
 const CATS = CATEGORY_LABELS;
@@ -25,33 +27,19 @@ const FEED_TABS = [
 type FeedTab = typeof FEED_TABS[number]['key'];
 
 const STOCK_ETF_TAGS = ['S&P500', '나스닥100', '미국 ETF', '국내 ETF', '배당 ETF', '월배당', '환헤지', '분할매수'];
-const MARKET_READS = [
-  {
-    label: 'S&P500 ETF',
-    title: 'VOO·IVV·SPY는 수수료보다 기간과 환율을 먼저 봐요',
-    note: '첫 매수라면 한 번에 사기보다 월별 규칙을 정하는 질문이 좋아요.',
-    tag: 'S&P500',
-  },
-  {
-    label: '국내 상장 ETF',
-    title: 'TIGER·ACE·SOL은 세금과 환전 편의성이 판단 포인트예요',
-    note: '미국 직투와 국내 상장 ETF를 비교해서 물어보면 답변 밀도가 올라가요.',
-    tag: '국내 ETF',
-  },
-  {
-    label: '배당 ETF',
-    title: '월배당은 현금흐름과 총수익률을 같이 봐야 해요',
-    note: '분배금, 세금, 장기 성장을 함께 태그해두면 답변자가 맥락을 빨리 잡아요.',
-    tag: '배당 ETF',
-  },
-] as const;
 
 function getUserName(user: any): string {
   if (!user) return '';
   return getAuthNickname(user) || 'ME';
 }
 
-export default function HomeClient({ initialQuestions }: { initialQuestions: Question[] }) {
+export default function HomeClient({
+  initialQuestions,
+  featuredSparring,
+}: {
+  initialQuestions: Question[];
+  featuredSparring?: Sparring | null;
+}) {
   const router = useRouter();
   const [user, setUser] = useState<any>(null);
   const [allQs, setAllQs] = useState<Question[]>(initialQuestions);
@@ -368,11 +356,6 @@ export default function HomeClient({ initialQuestions }: { initialQuestions: Que
               </button>
             ))}
           </div>
-          <MarketReadRail onSelect={(tag) => {
-            setCurrentCat('국내주식·ETF');
-            setSearchQuery(tag);
-            setShowSearch(true);
-          }} />
           {/* 검색창 (모바일 인라인) */}
           {showSearch && (
             <div style={{padding:'8px 0',display:'flex',alignItems:'center',gap:8,borderBottom:'1px solid #F2F4F6',marginBottom:4}}>
@@ -396,41 +379,7 @@ export default function HomeClient({ initialQuestions }: { initialQuestions: Que
           )}
         </div>
         <aside className={styles.pcSide}>
-          <div className={styles.widget}>
-            <div className={styles.sparW}>
-              <div className={styles.sparTag}><span className="tf">🔥</span> 지금 투표 중</div>
-              <div className={styles.sparTitle}>지금 S&P500<br/>들어가도 될까요?</div>
-              <div className={styles.sparFoot}>
-                <span style={{fontSize:11,color:'rgba(255,255,255,.5)'}}>⏱ 3일 남았어요</span>
-                <button className={styles.sparJoin} onClick={() => router.push('/sparring')}>참여하기</button>
-              </div>
-            </div>
-          <a href="#" className={styles.wlink}><FaIcon name="briefcase" size={14}/><span>전문가 신청하기</span><span style={{marginLeft:'auto',color:'var(--t3)'}}>›</span></a>
-            <button className={styles.wlink} onClick={() => {
-              setCurrentCat('국내주식·ETF');
-              setSearchQuery('ETF');
-              setShowSearch(true);
-            }}><FaIcon name="chart-line" size={14}/><span>ETF 정보 보기</span><span style={{marginLeft:'auto',color:'var(--t3)'}}>›</span></button>
-          </div>
-          <MarketReader onSelect={(tag) => {
-            setCurrentCat('국내주식·ETF');
-            setSearchQuery(tag);
-            setShowSearch(true);
-          }} />
-          <div className={styles.widget}>
-            <div className={styles.whead}><FaIcon name="newspaper" size={14}/> 피드</div>
-            <Link href="/feed" className={styles.wlink}><FaIcon name="newspaper" size={14}/><span>재테크 피드 읽기</span><span style={{marginLeft:'auto',color:'var(--t3)'}}>›</span></Link>
-          </div>
-          <div className={styles.widget}>
-            <div className={styles.whead}><span className="tf">🔍</span> 지금 많이 찾는 키워드</div>
-            <div style={{padding:'11px 15px',display:'flex',flexWrap:'wrap',gap:5}}>
-              {['S&P500','ISA계좌','연금저축','실손보험','학자금대출','ETF추천','청년적금','절세계좌'].map((k,i) => (
-                <div key={k} className={styles.kw} onClick={()=>{setSearchQuery(k);setShowSearch(true);}} style={{cursor:'pointer'}}>
-                  <span className={styles.kwn}>{i+1}</span>{k}
-                </div>
-              ))}
-            </div>
-          </div>
+          <SparringMiniCard sparring={featuredSparring} />
         </aside>
       </div>
 
@@ -482,11 +431,6 @@ export default function HomeClient({ initialQuestions }: { initialQuestions: Que
             </button>
           ))}
         </div>
-        <MarketReadRail onSelect={(tag) => {
-          setCurrentCat('국내주식·ETF');
-          setSearchQuery(tag);
-          setShowSearch(true);
-        }} />
         <FeedSummary
           activeTabLabel={activeTabLabel}
           currentCat={currentCat}
@@ -547,42 +491,6 @@ function mergeQuestions(primary: Question[], fallback: Question[]) {
     seen.add(key);
     return true;
   });
-}
-
-function MarketReadRail({ onSelect }: { onSelect: (tag: string) => void }) {
-  return (
-    <section className={styles.marketRail} aria-label="주식 ETF 정보">
-      <div className={styles.marketRailHead}>
-        <span><FaIcon name="chart-simple" size={14}/> 국내주식·ETF 읽기창</span>
-        <Link href="/feed">피드 더보기</Link>
-      </div>
-      <div className={styles.marketRailCards}>
-        {MARKET_READS.map(item => (
-          <button key={item.label} className={styles.marketRailCard} onClick={() => onSelect(item.tag)}>
-            <strong>{item.label}</strong>
-            <span>{item.title}</span>
-          </button>
-        ))}
-      </div>
-    </section>
-  );
-}
-
-function MarketReader({ onSelect }: { onSelect: (tag: string) => void }) {
-  return (
-    <div className={styles.widget}>
-      <div className={styles.whead}><FaIcon name="chart-simple" size={14}/> 국내주식·ETF 정보창</div>
-      <div className={styles.marketReader}>
-        {MARKET_READS.map(item => (
-          <button key={item.label} className={styles.marketItem} onClick={() => onSelect(item.tag)}>
-            <span>{item.label}</span>
-            <strong>{item.title}</strong>
-            <em>{item.note}</em>
-          </button>
-        ))}
-      </div>
-    </div>
-  );
 }
 
 function FeedSummary({

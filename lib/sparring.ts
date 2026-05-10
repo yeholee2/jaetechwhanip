@@ -361,6 +361,10 @@ export async function listSparrings(): Promise<SparringListResult> {
   return { sparrings: rows, usingFallback: false };
 }
 
+export function getFeaturedActiveSparring(sparrings: Sparring[]) {
+  return sparrings.find(item => item.status === 'active') || null;
+}
+
 export async function getSparringBySlug(slug: string): Promise<SparringDetailResult> {
   const list = await fetchAllSparrings();
   const sparrings = list || fallbackSparrings.map(withComputedStatus);

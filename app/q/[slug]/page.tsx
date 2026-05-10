@@ -22,6 +22,7 @@ import {
   getQuestionTopicPath,
 } from '@/lib/seo-content';
 import { fetchQuestionPageData, type AnswerDetail, type QuestionDetail } from '@/lib/question-detail';
+import { getFeaturedActiveSparring, listSparrings } from '@/lib/sparring';
 import QuestionClient from './QuestionClient';
 
 type Props = { params: { slug: string } };
@@ -152,7 +153,10 @@ function jsonLdForQuestion(question: SeoQuestion | QuestionDetail, answers: Answ
 }
 
 export default async function QuestionPage({ params }: Props) {
-  const pageData = await fetchQuestionPageData(params.slug);
+  const [pageData, sparringData] = await Promise.all([
+    fetchQuestionPageData(params.slug),
+    listSparrings(),
+  ]);
   const question = pageData.question;
   if (question?.slug && UUID_RE.test(params.slug) && question.slug !== params.slug) {
     permanentRedirect(questionPath(question.slug));
@@ -174,6 +178,7 @@ export default async function QuestionPage({ params }: Props) {
         initialQuestion={pageData.question}
         initialAnswers={pageData.answers}
         initialRelated={pageData.related}
+        featuredSparring={getFeaturedActiveSparring(sparringData.sparrings)}
       />
     </>
   );
