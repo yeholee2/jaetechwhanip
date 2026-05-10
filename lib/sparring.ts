@@ -320,6 +320,12 @@ function withComputedStatus(item: Sparring): Sparring {
   return item;
 }
 
+function isPlaceholderSparring(item: Sparring) {
+  const title = item.title.trim().toLowerCase().replace(/\s+/g, '');
+  const isEmptyActive = item.status === 'active' && item.stats.votes_total === 0 && item.stats.comment_count === 0;
+  return isEmptyActive && (title === '스파링' || title === '테스트' || title === 'test');
+}
+
 function withSamplePastSparrings(rows: Sparring[]): Sparring[] {
   const existingSlugs = new Set(rows.map(item => item.slug));
   const closedCount = rows.filter(item => withComputedStatus(item).status !== 'active').length;
@@ -350,7 +356,11 @@ async function fetchAllSparrings(): Promise<Sparring[] | null> {
     }]),
   );
 
-  return withSamplePastSparrings(rows.map(row => withComputedStatus(normalizeSparring(row, statsMap.get(row.id)))));
+  return withSamplePastSparrings(
+    rows
+      .map(row => withComputedStatus(normalizeSparring(row, statsMap.get(row.id))))
+      .filter(item => !isPlaceholderSparring(item)),
+  );
 }
 
 export async function listSparrings(): Promise<SparringListResult> {
