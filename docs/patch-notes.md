@@ -1,5 +1,22 @@
 # 패치노트
 
+## [2026-05-10] ETF FunETF형 표 UI·공식 API 연결 준비 — Codex
+**작업자:** Codex
+**태그:** #ETF #Data #UI #FunETFReference
+
+### 변경사항
+- [ETF] `/etf` 첫 화면을 카드형 허브에서 FunETF에 가까운 검색/도구탭/필터/시세표 중심 UI로 재구성
+- [ETF] 많이 본 ETF 표에 현재가, 등락률, 거래량, 순자산, 총보수, 분배방식 컬럼 노출
+- [Data] `lib/etf-live-data.ts` 추가: `DATA_GO_KR_SERVICE_KEY`가 있으면 금융위원회 증권상품시세정보 API로 시세/거래량/순자산/NAV/기준일을 덮어씀
+- [Data] API 키가 없거나 응답 실패 시 기존 ETF 예시 데이터로 안전하게 fallback
+- [Env] `.env.example`에 `DATA_GO_KR_SERVICE_KEY` 추가
+
+### 확인
+- [x] `npm run build`
+- [x] 로컬 `/etf`, `/etf/tiger-미국sp500` 화면 확인
+
+---
+
 ## [2026-05-10] ETF 정보창 정식 라우트 추가 — Codex
 **작업자:** Codex
 **태그:** #ETF #InformationArchitecture #SEO #UI
