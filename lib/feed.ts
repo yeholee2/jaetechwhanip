@@ -31,21 +31,7 @@ export type HanipArticle = {
   sourceName?: string;
 };
 
-export type NewsItem = {
-  id?: string;
-  source: string;
-  title: string;
-  summary: string;
-  url: string;
-  thumbnailUrl?: string | null;
-  category: string;
-  publishedAt: string;
-  clickCount?: number;
-};
-
-export type FeedItem =
-  | ({ type: 'column' } & HanipArticle)
-  | ({ type: 'news' } & NewsItem);
+export type FeedItem = { type: 'column' } & HanipArticle;
 
 export const hanipArticles: HanipArticle[] = [
   {
@@ -80,66 +66,6 @@ export const hanipArticles: HanipArticle[] = [
   },
 ];
 
-export const sampleNewsItems: NewsItem[] = [
-  {
-    source: '연합뉴스',
-    title: '기준금리 전망에 채권형 ETF 관심 확대',
-    summary: '금리 인하 기대와 변동성 장세가 겹치며 채권형 ETF로 자금이 유입되고 있습니다.',
-    url: 'https://www.yna.co.kr/rss/economy.xml',
-    category: '국내주식·ETF',
-    publishedAt: '2026-05-09T09:10:00+09:00',
-    thumbnailUrl: 'https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?auto=format&fit=crop&w=420&q=80',
-  },
-  {
-    source: '매일경제',
-    title: 'ISA 만기 앞둔 투자자, 연금계좌 이전 전략 주목',
-    summary: '세액공제와 과세이연 효과를 함께 고려하는 계좌 이전 전략이 관심을 받고 있습니다.',
-    url: 'https://www.mk.co.kr/rss/50200011/',
-    category: '절세',
-    publishedAt: '2026-05-08T16:40:00+09:00',
-    thumbnailUrl: 'https://images.unsplash.com/photo-1565514020179-026b92b2d70b?auto=format&fit=crop&w=420&q=80',
-  },
-];
-
-export const NEWS_SOURCES = [
-  { name: '매일경제', url: 'https://www.mk.co.kr/rss/50200011/' },
-  { name: '한국경제', url: 'https://www.hankyung.com/feed/finance' },
-  { name: '이데일리', url: 'https://rss.edaily.co.kr/stock_news.xml' },
-  { name: '연합뉴스', url: 'https://www.yna.co.kr/rss/economy.xml' },
-] as const;
-
-const NEWS_CATEGORY_RULES: Array<{ keywords: string[]; category: string }> = [
-  {
-    keywords: ['QQQ', 'VOO', 'SPY', '나스닥', 'S&P', '미국주식', '해외주식', '엔비디아', '테슬라', '애플', 'LUNR'],
-    category: '해외주식·ETF',
-  },
-  {
-    keywords: ['ETF', 'KODEX', 'TIGER', '코스피', '코스닥', '국내주식', '증시', '배당'],
-    category: '국내주식·ETF',
-  },
-  {
-    keywords: ['절세', '세금', '연말정산', '양도세', 'ISA', '연금저축', 'IRP'],
-    category: '절세',
-  },
-  {
-    keywords: ['보험', '실손', '연금보험', '종신', '암보험'],
-    category: '보험',
-  },
-  {
-    keywords: ['대출', '부채', '금리', '주담대', '신용대출', '전세대출'],
-    category: '대출·부채',
-  },
-];
-
-export function classifyNewsCategory(title = '', summary = '') {
-  const text = `${title} ${summary}`;
-  const matched = NEWS_CATEGORY_RULES.find(rule => (
-    rule.keywords.some(keyword => text.includes(keyword))
-  ));
-
-  return matched?.category || '재테크입문';
-}
-
 export function articleUrl(slug: string) {
   return `${FEED_PATH}/${encodeURIComponent(slug)}`;
 }
@@ -148,25 +74,15 @@ export function feedUrl() {
   return FEED_URL;
 }
 
-export function toFeedItems(
-  articles: HanipArticle[] = hanipArticles,
-  newsItems: NewsItem[] = sampleNewsItems,
-): FeedItem[] {
-  return [
-    ...articles.map(article => ({ ...article, type: 'column' as const })),
-    ...newsItems.map(item => ({ ...item, type: 'news' as const })),
-  ].sort((a, b) => (
+export function toFeedItems(articles: HanipArticle[] = hanipArticles): FeedItem[] {
+  return articles.map(article => ({ ...article, type: 'column' as const })).sort((a, b) => (
     new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
   ));
 }
 
 export async function fetchFeedItems() {
-  const [articles, newsItems] = await Promise.all([
-    fetchGhostArticles(),
-    fetchNewsItems(),
-  ]);
-
-  return toFeedItems(articles, newsItems);
+  const articles = await fetchGhostArticles();
+  return toFeedItems(articles);
 }
 
 export async function fetchGhostArticles(): Promise<HanipArticle[]> {
@@ -197,43 +113,6 @@ export async function fetchGhostArticleBySlug(slug: string) {
     || null;
 }
 
-export async function fetchNewsItems(): Promise<NewsItem[]> {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-  if (!supabaseUrl || !supabaseKey) return sampleNewsItems;
-
-  try {
-    const res = await fetch(
-      `${supabaseUrl}/rest/v1/news_items?select=id,source,title,summary,url,thumbnail_url,category,published_at,click_count&order=published_at.desc&limit=40`,
-      {
-        headers: { apikey: supabaseKey, Authorization: `Bearer ${supabaseKey}` },
-        next: { revalidate: 600 },
-      },
-    );
-
-    if (!res.ok) return sampleNewsItems;
-    const data = await res.json();
-    if (!Array.isArray(data) || data.length === 0) return sampleNewsItems;
-
-    return data
-      .filter(item => item.title && item.url)
-      .map(item => ({
-        id: item.id,
-        source: item.source || '뉴스',
-        title: item.title,
-        summary: item.summary || '',
-        url: item.url,
-        thumbnailUrl: item.thumbnail_url,
-        category: normalizeFeedCategory(item.category, item.title, item.summary),
-        publishedAt: item.published_at || new Date().toISOString(),
-        clickCount: item.click_count ?? 0,
-      }));
-  } catch {
-    return sampleNewsItems;
-  }
-}
-
 export function normalizeFeedCategory(category = '', title = '', summary = '', tags: string[] = []) {
   const direct = category.replace(/\s+/g, '').trim();
   const directMap: Record<string, string> = {
@@ -257,22 +136,16 @@ export function normalizeFeedCategory(category = '', title = '', summary = '', t
   };
 
   if (directMap[direct]) return directMap[direct];
-  return classifyNewsCategory(`${title} ${tags.join(' ')}`, summary);
+  return normalizeFeedCategoryFromText(`${title} ${summary} ${tags.join(' ')}`);
 }
 
-export function newsClickUrl(url: string) {
-  return `/api/feed/news-click?url=${encodeURIComponent(url)}`;
-}
-
-export function isAllowedNewsUrl(url: string) {
-  try {
-    const target = new URL(url);
-    const allowedHosts = NEWS_SOURCES.map(source => new URL(source.url).hostname.replace(/^www\./, ''));
-    const host = target.hostname.replace(/^www\./, '');
-    return allowedHosts.some(allowed => host === allowed || host.endsWith(`.${allowed}`));
-  } catch {
-    return false;
-  }
+function normalizeFeedCategoryFromText(text: string) {
+  if (/(QQQ|VOO|SPY|나스닥|S&P|미국주식|해외주식)/i.test(text)) return '해외주식·ETF';
+  if (/(ETF|KODEX|TIGER|코스피|코스닥|국내주식|배당)/.test(text)) return '국내주식·ETF';
+  if (/(절세|세금|연말정산|양도세|ISA|연금저축|IRP)/i.test(text)) return '절세';
+  if (/(보험|실손|연금보험|종신|암보험)/.test(text)) return '보험';
+  if (/(대출|부채|금리|주담대|신용대출|전세대출)/.test(text)) return '대출·부채';
+  return '재테크입문';
 }
 
 function ghostEntryToArticle(entry: RssEntry): HanipArticle | null {

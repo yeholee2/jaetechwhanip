@@ -1,17 +1,27 @@
-# 피드 페이지 스펙 (한입 칼럼 + 외부 뉴스 RSS 통합)
+# 피드 페이지 스펙 (한입 칼럼 전용)
 
 작성: 2026-05-09
 이전 명: `columns-page-spec.md` (칼럼 → 피드로 명칭 변경)
 대상: GPT/Codex
-참고: a-ha 잉크 (UX), hannipmoney.com (자체 칼럼), 토스증권 (외부 뉴스 자동 수집)
+참고: a-ha 잉크 (UX), hannipmoney.com (자체 칼럼), 토스증권식 요약 밀도
 
 ---
 
+## 2026-05-10 결정
+
+외부 뉴스 RSS는 당분간 중단한다. 피드는 `hannipmoney.com` Ghost RSS에서 들어오는 한입 자체 글만 노출한다.
+
+- 제거: 외부 뉴스 탭, 외부 뉴스 카드, `news_items` 테이블 의존, `/api/cron/fetch-news`, `/api/feed/news-click`, Vercel Cron
+- 유지: `/feed`, `/feed/[slug]`, 카테고리 필터, 한입 포인트 요약, Ghost RSS fallback
+- 이유: 초기 서비스 톤을 자체 콘텐츠 중심으로 잡고, 과도한 외부 뉴스 유입으로 피드가 산만해지는 문제를 줄이기 위함
+
+아래 v2 외부 뉴스 설계 메모는 보관용이며, 현재 구현 기준은 이 결정이 우선한다.
+
 ## 0. 한 줄 요약
 
-**피드 = 한입 자체 칼럼(Ghost) + 외부 금융 뉴스(RSS)** 를 하나의 흐름으로 보여주는 통합 콘텐츠 페이지.
-- 자체 칼럼은 깊이 있는 글, 외부 뉴스는 속보·정보성
-- 모두 6개 카테고리(`docs/categories.md`)로 분류
+**피드 = 한입 자체 칼럼(Ghost)** 을 재테크 판단 기준으로 정리해 보여주는 콘텐츠 페이지.
+- 자체 칼럼을 6개 카테고리(`docs/categories.md`)로 분류
+- 외부 뉴스 RSS는 현재 미사용
 
 라우트: `we.hannipmoney.com/feed`
 
