@@ -1,5 +1,20 @@
 # 패치노트
 
+## [2026-05-10] 아하 실화면 기준 스파링 목록 미세 조정 — Codex
+**작업자:** Codex
+**태그:** #Sparring #UI #Reference
+
+### 변경사항
+- [Sparring] 아하 실화면 기준으로 지난 스파링 카테고리 칩을 회색 톤/8px radius로 조정
+- [Sparring] 정렬 버튼의 테두리형 버튼 느낌 제거, 텍스트형 컨트롤로 변경
+- [Sparring] 지난 스파링 카드 간격과 내부 좌우 여백을 넓혀 레퍼런스의 넓은 결과 카드 밀도에 맞춤
+
+### 확인
+- [x] `npm run build`
+- [x] Chrome에서 열린 a-ha `/discussions` 실화면 확인
+
+---
+
 ## [2026-05-10] 지난 스파링 결과 카드·테스트 라운드 보강 — Codex
 **작업자:** Codex
 **태그:** #Sparring #UI #Data #Category
