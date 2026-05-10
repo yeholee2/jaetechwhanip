@@ -127,6 +127,108 @@ const fallbackSparrings: Sparring[] = [
     created_at: new Date(now - 22 * 24 * 60 * 60 * 1000).toISOString(),
     stats: { votes_a: 1204, votes_b: 802, votes_total: 2006, comment_count: 48 },
   },
+  {
+    id: 'demo-past-snp500',
+    round_number: 212,
+    category: '해외주식·ETF',
+    title: 'S&P500 ETF, 신고가여도 첫 매수를 시작해도 될까요?',
+    body: '고점 공포와 장기 적립식 투자 사이에서 어떤 기준으로 첫 매수 시점을 잡아야 할지 토론했습니다.',
+    slug: 'sp500-etf-first-buy-at-high',
+    side_a_label: '분할 매수 시작',
+    side_b_label: '조정 기다리기',
+    side_a_polarity: 'positive',
+    side_b_polarity: 'negative',
+    thumbnail_url: null,
+    deadline_at: new Date(now - 18 * 24 * 60 * 60 * 1000).toISOString(),
+    status: 'closed',
+    created_at: new Date(now - 28 * 24 * 60 * 60 * 1000).toISOString(),
+    stats: { votes_a: 2341, votes_b: 1310, votes_total: 3651, comment_count: 128 },
+  },
+  {
+    id: 'demo-past-cash',
+    round_number: 211,
+    category: '재테크입문',
+    title: '월급 300만원이면 비상금부터 1,000만원까지 모아야 할까요?',
+    body: '투자를 빨리 시작하는 것과 비상금 체력을 먼저 만드는 것 중 어떤 선택이 더 안정적인지 의견을 모았습니다.',
+    slug: 'salary-300-emergency-fund-first',
+    side_a_label: '비상금 먼저',
+    side_b_label: '투자 병행',
+    side_a_polarity: 'positive',
+    side_b_polarity: 'positive',
+    thumbnail_url: null,
+    deadline_at: new Date(now - 24 * 24 * 60 * 60 * 1000).toISOString(),
+    status: 'closed',
+    created_at: new Date(now - 34 * 24 * 60 * 60 * 1000).toISOString(),
+    stats: { votes_a: 3615, votes_b: 327, votes_total: 3942, comment_count: 92 },
+  },
+  {
+    id: 'demo-past-loan-invest',
+    round_number: 210,
+    category: '대출·부채',
+    title: '연 5% 신용대출이 남아도 ETF 투자를 계속해도 될까요?',
+    body: '대출 이자 확정 손실과 투자 기대수익을 비교할 때 어느 쪽을 우선해야 하는지 토론했습니다.',
+    slug: 'loan-5-percent-or-etf-investing',
+    side_a_label: '대출 상환 우선',
+    side_b_label: '투자 계속',
+    side_a_polarity: 'negative',
+    side_b_polarity: 'positive',
+    thumbnail_url: null,
+    deadline_at: new Date(now - 31 * 24 * 60 * 60 * 1000).toISOString(),
+    status: 'closed',
+    created_at: new Date(now - 41 * 24 * 60 * 60 * 1000).toISOString(),
+    stats: { votes_a: 2862, votes_b: 740, votes_total: 3602, comment_count: 156 },
+  },
+  {
+    id: 'demo-past-monthly-dividend',
+    round_number: 209,
+    category: '국내주식·ETF',
+    title: '월배당 ETF, 현금흐름용으로 모아도 괜찮을까요?',
+    body: '분배금의 안정감과 총수익률 손해 가능성을 같이 놓고 의견을 나눴습니다.',
+    slug: 'monthly-dividend-etf-cashflow',
+    side_a_label: '현금흐름용 적합',
+    side_b_label: '총수익률 먼저',
+    side_a_polarity: 'positive',
+    side_b_polarity: 'positive',
+    thumbnail_url: null,
+    deadline_at: new Date(now - 39 * 24 * 60 * 60 * 1000).toISOString(),
+    status: 'closed',
+    created_at: new Date(now - 49 * 24 * 60 * 60 * 1000).toISOString(),
+    stats: { votes_a: 1544, votes_b: 1197, votes_total: 2741, comment_count: 74 },
+  },
+  {
+    id: 'demo-past-subscription',
+    round_number: 208,
+    category: '재테크입문',
+    title: '주택청약통장, 당장 집 살 계획이 없어도 유지해야 할까요?',
+    body: '낮은 금리의 청약통장을 계속 들고 갈지, 비상금과 투자금으로 돌릴지 토론했습니다.',
+    slug: 'housing-subscription-account-keep',
+    side_a_label: '유지한다',
+    side_b_label: '해지한다',
+    side_a_polarity: 'positive',
+    side_b_polarity: 'negative',
+    thumbnail_url: null,
+    deadline_at: new Date(now - 46 * 24 * 60 * 60 * 1000).toISOString(),
+    status: 'closed',
+    created_at: new Date(now - 56 * 24 * 60 * 60 * 1000).toISOString(),
+    stats: { votes_a: 1981, votes_b: 519, votes_total: 2500, comment_count: 63 },
+  },
+  {
+    id: 'demo-past-tax-refund',
+    round_number: 207,
+    category: '절세',
+    title: '연말정산 환급금, 바로 투자보다 소비 통제에 먼저 써야 할까요?',
+    body: '일회성 돈이 들어왔을 때 투자, 부채 상환, 소비 예산 중 어떤 순서가 나은지 의견을 모았습니다.',
+    slug: 'tax-refund-invest-or-budget',
+    side_a_label: '소비 예산 정리',
+    side_b_label: '바로 투자',
+    side_a_polarity: 'positive',
+    side_b_polarity: 'positive',
+    thumbnail_url: null,
+    deadline_at: new Date(now - 54 * 24 * 60 * 60 * 1000).toISOString(),
+    status: 'closed',
+    created_at: new Date(now - 64 * 24 * 60 * 60 * 1000).toISOString(),
+    stats: { votes_a: 1498, votes_b: 803, votes_total: 2301, comment_count: 51 },
+  },
 ];
 
 const fallbackComments: SparringComment[] = [
@@ -206,6 +308,20 @@ function withComputedStatus(item: Sparring): Sparring {
   return item;
 }
 
+function withSamplePastSparrings(rows: Sparring[]): Sparring[] {
+  const existingSlugs = new Set(rows.map(item => item.slug));
+  const closedCount = rows.filter(item => withComputedStatus(item).status !== 'active').length;
+  const needed = Math.max(0, 8 - closedCount);
+  if (needed === 0) return rows;
+
+  const samples = fallbackSparrings
+    .map(withComputedStatus)
+    .filter(item => item.status !== 'active' && !existingSlugs.has(item.slug))
+    .slice(0, needed);
+
+  return [...rows, ...samples];
+}
+
 async function fetchAllSparrings(): Promise<Sparring[] | null> {
   const [rows, statsRows] = await Promise.all([
     supabaseGet<Array<Omit<Sparring, 'stats'>>>('sparrings?select=*&deleted_at=is.null&order=status.asc,deadline_at.desc'),
@@ -222,7 +338,7 @@ async function fetchAllSparrings(): Promise<Sparring[] | null> {
     }]),
   );
 
-  return rows.map(row => withComputedStatus(normalizeSparring(row, statsMap.get(row.id))));
+  return withSamplePastSparrings(rows.map(row => withComputedStatus(normalizeSparring(row, statsMap.get(row.id)))));
 }
 
 export async function listSparrings(): Promise<SparringListResult> {

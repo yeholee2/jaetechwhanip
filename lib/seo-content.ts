@@ -40,7 +40,7 @@ export function getQuestionCategory(question: SeoInput) {
 
 export function getQuestionTopicPath(question: SeoInput) {
   const category = getCategoryByKey(getQuestionCategory(question));
-  return `/topics/${encodeURIComponent(category?.slug || '재테크-입문')}`;
+  return `/topics/${encodeURIComponent(category?.slug || '재테크')}`;
 }
 
 export function getAnswerCount(question: SeoInput) {

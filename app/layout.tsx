@@ -12,7 +12,7 @@ export const metadata: Metadata = {
     template: '%s | 재테크한입',
   },
   description: '진지하게 재테크 공부하고 싶은 20-30대를 위한 금융 특화 Q&A 커뮤니티. 주식·ETF, 절세, 보험, 대출까지 전문가가 답해드려요.',
-  keywords: ['재테크', '주식', 'ETF', 'ISA', '연금저축', '실손보험', '학자금대출', 'S&P500', '재테크입문'],
+  keywords: ['재테크', '주식', 'ETF', 'ISA', '연금저축', '실손보험', '학자금대출', 'S&P500'],
   alternates: {
     canonical: '/',
   },
