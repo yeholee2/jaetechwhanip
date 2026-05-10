@@ -27,9 +27,7 @@ export const SPARRING_TABS = [
 ];
 
 export const FEED_TABS = [
-  { key: 'all', label: '전체' },
   { key: 'column', label: '한입 칼럼' },
-  { key: 'news', label: '뉴스' },
 ];
 
 export const ARTICLE_TABS = FEED_TABS;

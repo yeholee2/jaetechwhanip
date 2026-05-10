@@ -210,7 +210,7 @@ export function buildFeedSeoDescription(article: FeedSeoInput) {
   }
 
   return truncateDescription(
-    `${title} 내용을 ${category} 관점에서 한입 크기로 정리했습니다. 뉴스와 칼럼을 그대로 옮기지 않고 판단 기준 중심으로 읽어보세요.${tagLine}`,
+    `${title} 내용을 ${category} 관점에서 한입 크기로 정리했습니다. 원문을 그대로 옮기기보다 판단 기준 중심으로 읽어보세요.${tagLine}`,
     155,
   );
 }
@@ -222,30 +222,24 @@ export function buildFeedSeoKeywords(article: FeedSeoInput) {
     category,
     ...tags,
     '재테크 피드',
-    '금융 뉴스 정리',
+    '재테크 칼럼 정리',
     '투자 칼럼',
     SITE_NAME,
   ])).slice(0, 10);
 }
 
 export function buildFeedListSeoTitle(sourceLabel = '전체', categoryLabel = '전체') {
-  const source = sourceLabel === '전체' ? '피드' : sourceLabel;
   const category = categoryLabel === '전체' ? '재테크' : getSeoCategory(categoryLabel);
 
-  if (sourceLabel === '전체' && categoryLabel === '전체') return '재테크 피드';
-  return truncateDescription(`${category} ${source} 모음`, 48);
+  if (categoryLabel === '전체') return '재테크 피드';
+  return truncateDescription(`${category} 한입 칼럼 모음`, 48);
 }
 
 export function buildFeedListSeoDescription(sourceLabel = '전체', categoryLabel = '전체') {
   const category = categoryLabel === '전체' ? '재테크' : getSeoCategory(categoryLabel);
-  const sourceText = sourceLabel === '뉴스'
-    ? '금융 뉴스를'
-    : sourceLabel === '칼럼'
-      ? '한입 자체 칼럼을'
-      : '한입 칼럼과 금융 뉴스를';
 
   return truncateDescription(
-    `${category} 흐름을 보기 좋게 읽을 수 있도록 ${sourceText} 판단 기준 중심으로 정리한 피드입니다. 질문하기 전에 시장 맥락과 체크포인트를 빠르게 확인하세요.`,
+    `${category} 흐름을 보기 좋게 읽을 수 있도록 한입 자체 칼럼을 판단 기준 중심으로 정리한 피드입니다. 질문하기 전에 맥락과 체크포인트를 빠르게 확인하세요.`,
     155,
   );
 }

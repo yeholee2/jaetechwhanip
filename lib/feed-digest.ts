@@ -31,7 +31,7 @@ const CATEGORY_GUIDES: Record<string, { why: string; nextQuestion: string }> = {
     nextQuestion: '내 보험에서 줄여도 되는 부분과 꼭 남길 부분은 뭘까?',
   },
   '대출·부채': {
-    why: '대출과 금리 뉴스는 월 상환액, 갈아타기, 비상금 계획에 바로 연결돼요.',
+    why: '대출과 금리 글은 월 상환액, 갈아타기, 비상금 계획에 바로 연결돼요.',
     nextQuestion: '내 대출 조건에서는 고정금리와 변동금리 중 뭐가 더 안전할까?',
   },
 };
@@ -70,16 +70,14 @@ const KEYWORD_GUIDES: Array<{ keywords: string[]; why: string; nextQuestion: str
 ];
 
 export function createFeedDigest(item: FeedItem): FeedDigest {
-  const sourceText = item.type === 'column' ? item.description : item.summary;
+  const sourceText = item.description;
   const cleanText = normalizeText(sourceText || item.title);
   const guide = findGuide(item.title, cleanText, item.category);
   const firstPoint = truncateText(cleanText, 82);
-  const secondPoint = item.type === 'news'
-    ? `${item.source} 원문에서 발표 주체와 수치를 한 번 더 확인해볼 만해요.`
-    : `${item.readingTime} 안에 질문 전에 필요한 판단 기준을 먼저 잡기 좋아요.`;
+  const secondPoint = `${item.readingTime} 안에 질문 전에 필요한 판단 기준을 먼저 잡기 좋아요.`;
 
   return {
-    kicker: item.type === 'column' ? '한입 칼럼 정리' : '뉴스 한입 정리',
+    kicker: '한입 칼럼 정리',
     oneLine: firstPoint || '핵심만 먼저 보고, 자세한 내용은 원문에서 이어서 확인해요.',
     why: guide.why,
     points: [

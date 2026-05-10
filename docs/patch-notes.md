@@ -1,5 +1,22 @@
 # 패치노트
 
+## [2026-05-10] 피드 외부 뉴스 제거·한입 칼럼 전용화 — Codex
+**작업자:** Codex
+**태그:** #Feed #RSS #ContentStrategy
+
+### 변경사항
+- [Feed] `/feed`에서 외부 뉴스 탭/뉴스 카드/뉴스 통계를 제거하고 한입 칼럼 전용 피드로 변경
+- [Data] `fetchFeedItems()`가 Ghost RSS(`hannipmoney.com/rss`)와 fallback 한입 글만 반환하도록 단순화
+- [RSS] 외부 뉴스 수집 cron(`/api/cron/fetch-news`)과 뉴스 클릭 라우트(`/api/feed/news-click`) 제거
+- [Vercel] 외부 뉴스 수집용 `vercel.json` cron 제거
+- [Docs] `docs/feed-page-spec.md`에 2026-05-10 기준 “외부 뉴스 RSS 중단, 한입 칼럼 전용” 결정을 명시
+
+### 확인
+- [x] `npm run build`
+- [x] 로컬 `/feed`에서 뉴스 탭/외부 뉴스 카드 미노출 확인
+
+---
+
 ## [2026-05-10] SEO 자동 문장 생성·공용 프로필 진입 복구 — Codex
 **작업자:** Codex
 **태그:** #SEO #Auth #Profile #Feed #Sparring

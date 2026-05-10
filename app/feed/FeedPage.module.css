@@ -56,44 +56,26 @@
   border-bottom: 1px solid var(--line);
 }
 
-.sourceTabs,
 .categoryChips {
   display: flex;
   overflow-x: auto;
   scrollbar-width: none;
 }
 
-.sourceTabs::-webkit-scrollbar,
 .categoryChips::-webkit-scrollbar {
   display: none;
-}
-
-.sourceTabs {
-  gap: 18px;
 }
 
 .categoryChips {
   gap: 8px;
 }
 
-.sourceTabs a,
 .categoryChips a {
   flex: 0 0 auto;
   display: inline-flex;
   align-items: center;
   text-decoration: none;
   white-space: nowrap;
-}
-
-.sourceTabs a {
-  height: 32px;
-  color: var(--t3);
-  font-size: 15px;
-  font-weight: 850;
-}
-
-.sourceTabs a.on {
-  color: var(--t1);
 }
 
 .categoryChips a {
@@ -143,11 +125,6 @@
 .columnCard .avatar {
   background: #eef4ff;
   color: var(--primary);
-}
-
-.newsCard .avatar {
-  background: #f4f6f8;
-  color: var(--t2);
 }
 
 .thumb {
