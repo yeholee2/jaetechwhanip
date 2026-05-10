@@ -1,6 +1,7 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import type { CSSProperties } from 'react';
 import { CATEGORY_DEFINITIONS } from '@/lib/categories';
 import { inferPolarity, slugifySparringTitle, type Sparring, type SparringPolarity } from '@/lib/sparring';
 import { createClient } from '@/lib/supabase/client';
@@ -18,6 +19,7 @@ type FormState = {
   sideBPolarity: SparringPolarity;
   deadlineAt: string;
   thumbnailUrl: string;
+  previewVotes: number;
 };
 
 const emptyForm: FormState = {
@@ -32,6 +34,7 @@ const emptyForm: FormState = {
   sideBPolarity: 'negative',
   deadlineAt: '',
   thumbnailUrl: '',
+  previewVotes: 0,
 };
 
 function toDatetimeLocal(value?: string | null) {
@@ -53,20 +56,61 @@ function fromSparring(item: Sparring): FormState {
     sideBPolarity: item.side_b_polarity,
     deadlineAt: toDatetimeLocal(item.deadline_at),
     thumbnailUrl: item.thumbnail_url || '',
+    previewVotes: item.stats.votes_total || 0,
   };
+}
+
+function formatNumber(value: number) {
+  return value.toLocaleString('ko-KR');
+}
+
+function deadlineCopy(value: string) {
+  if (!value) return '마감일 설정';
+
+  const diff = new Date(value).getTime() - Date.now();
+  if (Number.isNaN(diff)) return '마감일 확인';
+  if (diff <= 0) return '마감됨';
+
+  const minutes = Math.floor(diff / 60000);
+  if (minutes < 60) return `${Math.max(1, minutes)}분 남았어요`;
+
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) {
+    const restMinutes = String(minutes % 60).padStart(2, '0');
+    return `${hours} : ${restMinutes} 남음`;
+  }
+
+  return `${Math.ceil(hours / 24)}일 남았어요`;
 }
 
 export default function AdminSparringClient({ initialSparrings }: { initialSparrings: Sparring[] }) {
   const [sparrings, setSparrings] = useState(initialSparrings);
   const [form, setForm] = useState<FormState>(emptyForm);
   const [file, setFile] = useState<File | null>(null);
+  const [filePreviewUrl, setFilePreviewUrl] = useState('');
   const [pending, setPending] = useState(false);
   const [message, setMessage] = useState('');
   const supabase = useMemo(() => createClient(), []);
 
+  useEffect(() => {
+    if (!file) {
+      setFilePreviewUrl('');
+      return;
+    }
+
+    const objectUrl = URL.createObjectURL(file);
+    setFilePreviewUrl(objectUrl);
+
+    return () => URL.revokeObjectURL(objectUrl);
+  }, [file]);
+
   const setField = <K extends keyof FormState>(key: K, value: FormState[K]) => {
     setForm(prev => ({ ...prev, [key]: value }));
   };
+
+  const previewImage = filePreviewUrl || form.thumbnailUrl;
+  const previewTitle = form.title.trim() || '스파링 제목을 입력하면 여기에 보여요';
+  const previewVotes = form.previewVotes || 0;
 
   const uploadThumbnail = async () => {
     if (!file) return form.thumbnailUrl || null;
@@ -85,16 +129,30 @@ export default function AdminSparringClient({ initialSparrings }: { initialSparr
   };
 
   const refresh = async () => {
-    const { data } = await supabase
-      .from('sparrings')
-      .select('*')
-      .is('deleted_at', null)
-      .order('round_number', { ascending: false });
+    const [{ data }, { data: statsRows }] = await Promise.all([
+      supabase
+        .from('sparrings')
+        .select('*')
+        .is('deleted_at', null)
+        .order('round_number', { ascending: false }),
+      supabase
+        .from('sparring_stats')
+        .select('sparring_id,votes_a,votes_b,votes_total,comment_count'),
+    ]);
 
     if (data) {
+      const statsMap = new Map(
+        (statsRows || []).map(row => [row.sparring_id, {
+          votes_a: Number(row.votes_a || 0),
+          votes_b: Number(row.votes_b || 0),
+          votes_total: Number(row.votes_total || 0),
+          comment_count: Number(row.comment_count || 0),
+        }]),
+      );
+
       setSparrings(data.map(row => ({
         ...row,
-        stats: { votes_a: 0, votes_b: 0, votes_total: 0, comment_count: 0 },
+        stats: statsMap.get(row.id) || { votes_a: 0, votes_b: 0, votes_total: 0, comment_count: 0 },
       })) as Sparring[]);
     }
   };
@@ -104,32 +162,42 @@ export default function AdminSparringClient({ initialSparrings }: { initialSparr
     setMessage('');
 
     try {
-      const thumbnailUrl = await uploadThumbnail();
-      const payload = {
-        category: form.category,
-        title: form.title.trim(),
-        body: form.body.trim() || null,
-        slug: (form.slug || slugifySparringTitle(form.title)).trim(),
-        side_a_label: form.sideA.trim(),
-        side_b_label: form.sideB.trim(),
-        side_a_polarity: form.sideAPolarity || inferPolarity(form.sideA),
-        side_b_polarity: form.sideBPolarity || inferPolarity(form.sideB),
-        thumbnail_url: thumbnailUrl,
-        deadline_at: new Date(form.deadlineAt).toISOString(),
-        status: 'active',
-      };
+      const title = form.title.trim();
+      const slug = (form.slug || slugifySparringTitle(form.title)).trim();
+      const sideALabel = form.sideA.trim();
+      const sideBLabel = form.sideB.trim();
 
-      if (!payload.title || !payload.slug || !payload.side_a_label || !payload.side_b_label || !form.deadlineAt) {
+      if (!title || !slug || !sideALabel || !sideBLabel || !form.deadlineAt) {
         setMessage('제목, slug, 양측 라벨, 마감일을 확인해 주세요.');
         return;
       }
+
+      const deadline = new Date(form.deadlineAt);
+      if (Number.isNaN(deadline.getTime())) {
+        setMessage('마감일 형식을 확인해 주세요.');
+        return;
+      }
+
+      const thumbnailUrl = await uploadThumbnail();
+      const payload = {
+        category: form.category,
+        title,
+        body: form.body.trim() || null,
+        slug,
+        side_a_label: sideALabel,
+        side_b_label: sideBLabel,
+        side_a_polarity: form.sideAPolarity || inferPolarity(form.sideA),
+        side_b_polarity: form.sideBPolarity || inferPolarity(form.sideB),
+        thumbnail_url: thumbnailUrl,
+        deadline_at: deadline.toISOString(),
+      };
 
       if (form.id) {
         const { error } = await supabase.from('sparrings').update(payload).eq('id', form.id);
         if (error) throw error;
         setMessage('라운드를 수정했어요.');
       } else {
-        const { error } = await supabase.from('sparrings').insert(payload);
+        const { error } = await supabase.from('sparrings').insert({ ...payload, status: 'active' });
         if (error) throw error;
         setMessage('새 라운드를 만들었어요.');
       }
@@ -198,7 +266,11 @@ export default function AdminSparringClient({ initialSparrings }: { initialSparr
             </div>
             <label className={styles.field}>
               <span>운영자 메모</span>
-              <textarea value={form.body} onChange={event => setField('body', event.target.value)} />
+              <textarea
+                value={form.body}
+                placeholder="상세 페이지에서 '이유 보기'로 열릴 설명을 적어요. 목록 카드에는 노출되지 않아요."
+                onChange={event => setField('body', event.target.value)}
+              />
             </label>
             <div className={styles.row}>
               <label className={styles.field}>
@@ -239,13 +311,21 @@ export default function AdminSparringClient({ initialSparrings }: { initialSparr
               </label>
               <label className={styles.field}>
                 <span>썸네일 URL</span>
-                <input value={form.thumbnailUrl} onChange={event => setField('thumbnailUrl', event.target.value)} />
+                <input
+                  value={form.thumbnailUrl}
+                  placeholder="https://... 이미지 주소"
+                  onChange={event => setField('thumbnailUrl', event.target.value)}
+                />
               </label>
             </div>
             <label className={styles.field}>
               <span>썸네일 업로드</span>
-              <input type="file" accept="image/*" onChange={event => setFile(event.target.files?.[0] || null)} />
+              <input type="file" accept="image/png,image/jpeg,image/webp" onChange={event => setFile(event.target.files?.[0] || null)} />
             </label>
+            <div className={styles.designNote}>
+              <strong>카드 디자인 메모</strong>
+              <p>대표 이미지는 카드 전체 배경으로 깔려요. 위쪽 왼쪽에는 투표 수와 제목, 아래쪽에는 남은 시간과 참여하기가 올라오니 핵심 피사체는 중앙~하단에 두는 게 좋아요.</p>
+            </div>
             <div className={styles.actions}>
               {form.id && <button className={styles.secondary} type="button" onClick={() => setForm(emptyForm)}>새 작성</button>}
               <button className={styles.primary} type="button" disabled={pending} onClick={submit}>
@@ -255,24 +335,50 @@ export default function AdminSparringClient({ initialSparrings }: { initialSparr
           </div>
         </section>
 
-        <aside className={styles.panel}>
-          <h2>라운드 목록</h2>
-          <div className={styles.list}>
-            {sparrings.map(item => (
-              <article key={item.id} className={styles.item}>
-                <div className={styles.itemMeta}>
-                  <span>{item.round_number} 라운드 · {item.category}</span>
-                  <span>{item.status}</span>
-                </div>
-                <strong>{item.title}</strong>
-                <div className={styles.itemActions}>
-                  <button type="button" onClick={() => setForm(fromSparring(item))}>편집</button>
-                  <button type="button" disabled={pending || item.status !== 'active'} onClick={() => closeRound(item.id)}>마감</button>
-                  <button type="button" disabled={pending} onClick={() => deleteRound(item.id)}>삭제</button>
-                </div>
-              </article>
-            ))}
-          </div>
+        <aside className={styles.sideStack}>
+          <section className={styles.panel}>
+            <h2>상단 카드 미리보기</h2>
+            <article
+              className={styles.previewCard}
+              style={{
+                '--preview-thumb': previewImage ? `url("${previewImage}")` : 'none',
+                '--preview-opacity': previewImage ? '1' : '0',
+              } as CSSProperties}
+            >
+              <div className={styles.previewCopy}>
+                <span>{formatNumber(previewVotes)}명 투표 중</span>
+                <strong>{previewTitle}</strong>
+              </div>
+              <div className={styles.previewFoot}>
+                <span>{deadlineCopy(form.deadlineAt)}</span>
+                <b>참여하기</b>
+              </div>
+            </article>
+            <p className={styles.previewHint}>이 모습이 `/sparring` 진행중 카드에 가깝게 노출돼요.</p>
+          </section>
+
+          <section className={styles.panel}>
+            <h2>라운드 목록</h2>
+            <div className={styles.list}>
+              {sparrings.map(item => (
+                <article key={item.id} className={styles.item}>
+                  <div className={styles.itemMeta}>
+                    <span>{item.round_number} 라운드 · {item.category}</span>
+                    <span>{item.status}</span>
+                  </div>
+                  <strong>{item.title}</strong>
+                  <div className={styles.itemStats}>
+                    {formatNumber(item.stats.votes_total)}표 · 토론 {formatNumber(item.stats.comment_count)}개
+                  </div>
+                  <div className={styles.itemActions}>
+                    <button type="button" onClick={() => setForm(fromSparring(item))}>편집</button>
+                    <button type="button" disabled={pending || item.status !== 'active'} onClick={() => closeRound(item.id)}>마감</button>
+                    <button type="button" disabled={pending} onClick={() => deleteRound(item.id)}>삭제</button>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </section>
         </aside>
       </div>
     </main>
