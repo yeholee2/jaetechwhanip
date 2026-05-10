@@ -46,7 +46,6 @@ export function AppShell({
 }) {
   const router = useRouter();
   const [user, setUser] = useState<any>(null);
-  const [authLoading, setAuthLoading] = useState(true);
   const [showProfile, setShowProfile] = useState(false);
   const profileRef = useRef<HTMLDivElement>(null);
   const userName = getUserName(user);
@@ -56,7 +55,6 @@ export function AppShell({
 
   useEffect(() => {
     if (!hasSupabase()) {
-      setAuthLoading(false);
       return undefined;
     }
 
@@ -64,14 +62,12 @@ export function AppShell({
     const { data: authSub } = supabase.auth.onAuthStateChange((_event, session) => {
       const nextUser = session?.user ?? null;
       setUser(nextUser);
-      setAuthLoading(false);
       if (nextUser) void syncFinanceNickname(supabase, nextUser);
     });
 
     supabase.auth.getSession().then(({ data }) => {
       const nextUser = data.session?.user ?? null;
       setUser(nextUser);
-      setAuthLoading(false);
       if (nextUser) void syncFinanceNickname(supabase, nextUser);
     });
 
@@ -120,8 +116,7 @@ export function AppShell({
         <div className={styles.pcRight}>
           <button className={styles.iconBtn} aria-label="검색"><FaIcon name="magnifying-glass" size={18} /></button>
           <button className={styles.iconBtn} aria-label="알림"><FaIcon name="bell" size={18} /></button>
-          <button className={styles.askBtn} onClick={ask}>나도 질문하기</button>
-          {!authLoading && (user ? (
+          {user ? (
             <div className={styles.profileWrap} ref={profileRef}>
               <button
                 className={styles.profileButton}
@@ -152,10 +147,11 @@ export function AppShell({
               )}
             </div>
           ) : (
-            <Link className={styles.iconBtn} href="/auth" aria-label="내 정보">
+            <Link className={styles.iconBtn} href="/auth" aria-label="내 정보" title="내 정보">
               <FaIcon name="user" size={18} />
             </Link>
-          ))}
+          )}
+          <button className={styles.askBtn} onClick={ask}>나도 질문하기</button>
         </div>
       </nav>
 
@@ -165,7 +161,7 @@ export function AppShell({
           <div className={styles.moIcons}>
             <button className={styles.moIcon} aria-label="검색"><FaIcon name="magnifying-glass" size={19} /></button>
             <button className={styles.moIcon} aria-label="알림"><FaIcon name="bell" size={19} /></button>
-            {!authLoading && (user ? (
+            {user ? (
               <Link className={styles.moAvatar} href={profileHref} aria-label="내 정보">
                 {userAvatar ? (
                   // eslint-disable-next-line @next/next/no-img-element
@@ -175,10 +171,10 @@ export function AppShell({
                 )}
               </Link>
             ) : (
-              <Link className={styles.moIcon} href="/auth" aria-label="내 정보">
+              <Link className={styles.moIcon} href="/auth" aria-label="내 정보" title="내 정보">
                 <FaIcon name="user" size={18} />
               </Link>
-            ))}
+            )}
           </div>
         </div>
         <nav className={styles.moGnav}>

@@ -310,16 +310,18 @@ export default function HomeClient({
               </div>
             )}
           </div>
-          <button className={styles.iconBtn}><FaIcon name="bell" size={18}/></button>
-          {!authLoading && (user ? (
+          <button className={styles.iconBtn} aria-label="알림" type="button"><FaIcon name="bell" size={18}/></button>
+          {user ? (
             <div style={{position:'relative'}} ref={dropRef}>
-              <div
-                style={{width:32,height:32,borderRadius:'50%',background:'var(--green)',color:'white',display:'flex',alignItems:'center',justifyContent:'center',fontWeight:700,fontSize:13,cursor:'pointer'}}
+              <button
+                type="button"
+                style={{width:32,height:32,borderRadius:'50%',border:'none',padding:0,background:'var(--blue)',color:'white',display:'flex',alignItems:'center',justifyContent:'center',fontWeight:700,fontSize:13,cursor:'pointer'}}
                 onClick={() => setShowDropdown(v=>!v)}
+                aria-label="내 정보"
                 title={userName}
               >
                 {userName[0]?.toUpperCase() || 'U'}
-              </div>
+              </button>
               {showDropdown && (
                 <div style={{position:'absolute',right:0,top:40,background:'white',border:'1px solid #E5E8EB',borderRadius:10,boxShadow:'0 4px 16px rgba(0,0,0,.1)',minWidth:160,zIndex:100}}>
                   <div style={{padding:'12px 14px',fontSize:13,color:'#4E5968',borderBottom:'1px solid #F2F4F6',fontWeight:600}}>{userName}</div>
@@ -329,8 +331,8 @@ export default function HomeClient({
               )}
             </div>
           ) : (
-            <button className={styles.iconBtn} onClick={() => router.push('/auth')}><FaIcon name="user" size={18}/></button>
-          ))}
+            <button className={styles.iconBtn} onClick={() => router.push('/auth')} aria-label="내 정보" title="내 정보" type="button"><FaIcon name="user" size={18}/></button>
+          )}
           <button className={styles.btnAsk} onClick={tryAsk}>나도 질문하기</button>
         </div>
       </nav>
