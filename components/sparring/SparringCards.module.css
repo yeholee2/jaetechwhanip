@@ -1,8 +1,9 @@
 .activeCard {
   position: relative;
-  min-height: 350px;
+  min-height: 248px;
   overflow: hidden;
-  border-radius: 24px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
   background: var(--fallback-bg, linear-gradient(135deg, #1e59da, #071b5f));
   color: #fff;
   box-shadow: none;
@@ -26,27 +27,27 @@
 
 .activeCard::after {
   background:
-    linear-gradient(180deg, rgba(0, 0, 0, .44) 0%, rgba(0, 0, 0, .14) 46%, rgba(0, 0, 0, .04) 62%, rgba(0, 0, 0, .62) 100%);
+    linear-gradient(180deg, rgba(0, 0, 0, .42) 0%, rgba(0, 0, 0, .12) 48%, rgba(0, 0, 0, .04) 62%, rgba(0, 0, 0, .66) 100%);
 }
 
 .activeLink {
   display: flex;
-  min-height: 350px;
+  min-height: 248px;
   flex-direction: column;
   justify-content: space-between;
 }
 
 .activeCopy {
-  padding: 30px 28px 20px;
+  padding: 20px 18px 14px;
 }
 
 .activeMeta {
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  gap: 12px;
+  gap: 8px;
   color: rgba(255, 255, 255, .92);
-  font-size: 21px;
+  font-size: 13px;
   line-height: 1.25;
   font-weight: 850;
 }
@@ -61,9 +62,9 @@
 
 .activeTitle {
   max-width: 94%;
-  margin-top: 22px;
-  font-size: 33px;
-  line-height: 1.28;
+  margin-top: 12px;
+  font-size: 23px;
+  line-height: 1.34;
   font-weight: 900;
   letter-spacing: 0;
 }
@@ -72,37 +73,38 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
-  min-height: 64px;
-  padding: 0 28px;
+  gap: 12px;
+  min-height: 50px;
+  padding: 0 16px;
   background: rgba(19, 24, 25, .58);
   backdrop-filter: blur(14px);
   color: rgba(255, 255, 255, .92);
-  font-size: 17px;
+  font-size: 13px;
   line-height: 1;
   font-weight: 850;
 }
 
 .pastCard {
   display: block;
-  padding: 30px 38px;
-  border-radius: 24px;
-  background: #f8f9fb;
+  padding: 18px 20px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--white);
   color: inherit;
   transition:
-    background var(--duration-instant) var(--ease-in-out),
-    transform var(--duration-instant) var(--ease-in-out);
+    box-shadow var(--duration-instant) var(--ease-in-out),
+    border-color var(--duration-instant) var(--ease-in-out);
 }
 
 .pastCard:hover {
-  background: #f3f6fa;
-  transform: translateY(-1px);
+  border-color: rgba(30, 89, 218, .22);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, .05);
 }
 
 .pastTop {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
-  gap: 18px;
+  gap: 12px;
   align-items: start;
 }
 
@@ -113,36 +115,36 @@
 .tagRow {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
-  margin-bottom: 14px;
+  gap: 5px;
+  margin-bottom: 8px;
 }
 
 .tag {
   display: inline-flex;
   align-items: center;
-  height: 24px;
-  padding: 0 10px;
+  height: 22px;
+  padding: 0 8px;
   border-radius: 999px;
-  background: #fff;
-  color: #6b7684;
-  font-size: 12px;
-  font-weight: 850;
+  background: var(--bg);
+  color: var(--t2);
+  font-size: 11px;
+  font-weight: 700;
 }
 
 .round {
   color: var(--t3);
-  font-size: 16px;
+  font-size: 12px;
   line-height: 1.4;
-  font-weight: 800;
+  font-weight: 700;
   white-space: nowrap;
 }
 
 .pastTitle {
   max-width: 820px;
   color: var(--t1);
-  font-size: 28px;
-  line-height: 1.34;
-  font-weight: 900;
+  font-size: 17px;
+  line-height: 1.42;
+  font-weight: 850;
   letter-spacing: 0;
 }
 
@@ -160,15 +162,15 @@
 
 .pastDivider {
   height: 1px;
-  margin: 28px 0 24px;
+  margin: 15px 0 13px;
   background: var(--line);
 }
 
 .pastResult {
   display: grid;
-  grid-template-columns: minmax(220px, 310px) minmax(180px, 1fr) auto auto auto;
+  grid-template-columns: minmax(170px, 240px) minmax(150px, 1fr) auto auto auto;
   align-items: center;
-  gap: 28px;
+  gap: 16px;
 }
 
 .resultCopy {
@@ -177,47 +179,47 @@
   gap: 9px;
   min-width: 0;
   color: var(--t2);
-  font-size: 16px;
+  font-size: 13px;
   line-height: 1.45;
-  font-weight: 800;
+  font-weight: 700;
 }
 
 .resultCopy span {
   font-family: 'Tossface', sans-serif;
-  font-size: 20px;
+  font-size: 16px;
   line-height: 1;
 }
 
 .metric {
   display: grid;
-  gap: 4px;
-  min-width: 110px;
-  padding-left: 28px;
+  gap: 3px;
+  min-width: 76px;
+  padding-left: 16px;
   border-left: 1px solid var(--line);
 }
 
 .metric span {
   color: var(--t3);
-  font-size: 14px;
+  font-size: 11px;
   line-height: 1.2;
-  font-weight: 800;
+  font-weight: 700;
 }
 
 .metric strong {
   color: var(--t1);
-  font-size: 19px;
+  font-size: 15px;
   line-height: 1.25;
-  font-weight: 900;
+  font-weight: 850;
 }
 
 .arrow {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 48px;
-  height: 48px;
+  width: 36px;
+  height: 36px;
   border-radius: 999px;
-  background: #fff;
+  background: var(--bg);
   color: #b8c0cc;
 }
 
@@ -225,16 +227,16 @@
   display: inline-grid;
   grid-template-columns: auto auto;
   align-items: center;
-  gap: 14px;
+  gap: 10px;
   width: 100%;
   max-width: 100%;
-  min-height: 56px;
-  padding: 0 18px;
+  min-height: 40px;
+  padding: 0 12px;
   border: 1.5px solid var(--dominant-color);
-  border-radius: 10px;
+  border-radius: 8px;
   background: var(--dominant-bg);
   color: var(--dominant-color);
-  font-size: 17px;
+  font-size: 14px;
   font-weight: 900;
 }
 
@@ -246,7 +248,7 @@
 }
 
 .dominant em {
-  padding-left: 14px;
+  padding-left: 10px;
   border-left: 1px solid var(--dominant-border);
   font-style: normal;
   font-weight: 900;
@@ -268,35 +270,35 @@
 @media (max-width: 768px) {
   .activeCard,
   .activeLink {
-    min-height: 330px;
+    min-height: 258px;
   }
 
   .activeCard {
-    flex: 0 0 min(88vw, 320px);
+    flex: 0 0 min(84vw, 300px);
     scroll-snap-align: start;
   }
 
   .activeCopy {
-    padding: 26px 22px 18px;
+    padding: 20px 18px 14px;
   }
 
   .activeTitle {
-    font-size: 27px;
+    font-size: 22px;
   }
 
   .activeMeta {
-    font-size: 17px;
+    font-size: 13px;
   }
 
   .activeFoot {
-    min-height: 58px;
-    padding: 0 22px;
-    font-size: 15px;
+    min-height: 50px;
+    padding: 0 16px;
+    font-size: 13px;
   }
 
   .pastCard {
-    padding: 22px 18px;
-    border-radius: 20px;
+    padding: 17px 16px;
+    border-radius: 12px;
   }
 
   .pastTop {
@@ -309,11 +311,11 @@
   }
 
   .pastTitle {
-    font-size: 22px;
+    font-size: 16px;
   }
 
   .pastDivider {
-    margin: 20px 0 18px;
+    margin: 14px 0 12px;
   }
 
   .pastResult {

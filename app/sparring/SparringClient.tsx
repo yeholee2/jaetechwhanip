@@ -34,10 +34,15 @@ export default function SparringClient({ sparrings }: { sparrings: Sparring[] })
     <AppShell active="sparring" wide hideSlogan>
       <main className={styles.page}>
         <header className={styles.header}>
+          <span className={styles.eyebrow}>머니 스파링</span>
           <h1>스파링</h1>
-          <p>뜨거운 돈 논쟁에 대해 투표하고 토론하기</p>
+          <p>재테크 결정, 바로 고르기 전에 찬반 의견으로 먼저 검증해요.</p>
         </header>
 
+        <div className={styles.sectionHead}>
+          <h2>진행중 스파링</h2>
+          <span>{activeSparrings.length}개 진행중</span>
+        </div>
         <section className={styles.activeGrid} aria-label="진행중 스파링">
           {activeSparrings.map(sparring => (
             <SparringActiveCard key={sparring.id} sparring={sparring} />
@@ -46,28 +51,31 @@ export default function SparringClient({ sparrings }: { sparrings: Sparring[] })
 
         <section className={styles.pastSection}>
           <div className={styles.pastHead}>
-            <h2>지난 스파링 {pastSparrings.length}</h2>
+            <h2>지난 스파링</h2>
+            <span>{pastSparrings.length}개</span>
           </div>
 
-          <div className={styles.chips} aria-label="카테고리">
-            {['전체', ...CATEGORY_DEFINITIONS.map(item => item.key)].map(item => (
-              <button
-                key={item}
-                className={category === item ? styles.chipOn : ''}
-                type="button"
-                onClick={() => setCategory(item)}
-              >
-                {item === '전체' ? item : getCategoryLabel(item)}
-              </button>
-            ))}
+          <div className={styles.filterRow}>
+            <div className={styles.chips} aria-label="카테고리">
+              {['전체', ...CATEGORY_DEFINITIONS.map(item => item.key)].map(item => (
+                <button
+                  key={item}
+                  className={category === item ? styles.chipOn : ''}
+                  type="button"
+                  onClick={() => setCategory(item)}
+                >
+                  {item === '전체' ? item : getCategoryLabel(item)}
+                </button>
+              ))}
+            </div>
+            <button
+              className={styles.sortButton}
+              type="button"
+              onClick={() => setSortMode(sortMode === 'default' ? 'comments' : 'default')}
+            >
+              {sortMode === 'default' ? '기본순' : '토론 수'} ↑↓
+            </button>
           </div>
-          <button
-            className={styles.sortButton}
-            type="button"
-            onClick={() => setSortMode(sortMode === 'default' ? 'comments' : 'default')}
-          >
-            {sortMode === 'default' ? '기본순' : '토론 수'} ↑↓
-          </button>
 
           <div className={styles.pastList}>
             {pastSparrings.map(sparring => (
