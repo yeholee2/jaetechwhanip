@@ -4,10 +4,9 @@ import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
-  Bell, Bookmark, CheckCircle2, ChevronLeft,
-  Home as HomeIcon, LayoutList, MessageCircle,
-  MoreHorizontal, Plus, Search, Share2,
-  Sparkles, Swords, ThumbsUp, User, X,
+  Bookmark, CheckCircle2, ChevronLeft,
+  MessageCircle, Share2,
+  Sparkles, Swords, ThumbsUp, X,
 } from 'lucide-react';
 import { createClient, hasSupabase } from '@/lib/supabase/client';
 import { EMOJI, getSampleAnswers, sampleQuestions } from '@/lib/sampleData';
@@ -16,6 +15,7 @@ import { createQuestionSlug, ensureUniqueSlug } from '@/lib/slugs';
 import { getAuthNickname, syncFinanceNickname } from '@/lib/nicknames';
 import { useAutoTranslation } from '@/lib/useAutoTranslation';
 import { buildSeoDescription } from '@/lib/seo-content';
+import { FaIcon } from '@/components/FaIcon';
 import styles from './QuestionClient.module.css';
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -462,8 +462,8 @@ export default function QuestionClient({
           <li><button style={{ fontSize: 13, color: 'var(--t3)' }}>전문가 신청</button></li>
         </ul>
         <div className={styles.navRight}>
-          <button className={styles.iconBtn} aria-label="검색"><Search size={18} /></button>
-          <button className={styles.iconBtn} aria-label="알림"><Bell size={18} /></button>
+          <button className={styles.iconBtn} aria-label="검색"><FaIcon name="magnifying-glass" size={18} /></button>
+          <button className={styles.iconBtn} aria-label="알림"><FaIcon name="bell" size={18} /></button>
           {!authLoading && (user ? (
             <div style={{ position: 'relative' }} ref={dropRef}>
               <div className={styles.avatar} onClick={() => setShowDropdown(v => !v)} title={userName}>
@@ -478,7 +478,7 @@ export default function QuestionClient({
               )}
             </div>
           ) : (
-            <button className={styles.iconBtn} onClick={() => router.push('/auth')}><User size={18} /></button>
+            <button className={styles.iconBtn} onClick={() => router.push('/auth')}><FaIcon name="user" size={18} /></button>
           ))}
           <button className={styles.btnAsk} onClick={() => user ? setShowAskModal(true) : router.push('/auth?next=/')}>나도 질문하기</button>
         </div>
@@ -520,7 +520,7 @@ export default function QuestionClient({
                   {ft(q.created_at)} · 조회 {q.view_count || 0}
                 </div>
               </div>
-              <button className={styles.iconBtn} aria-label="더보기"><MoreHorizontal size={18} /></button>
+              <button className={styles.iconBtn} aria-label="더보기"><FaIcon name="ellipsis" size={18} /></button>
             </div>
 
             <h1 className={styles.qTitle}>{qTitle}</h1>
@@ -677,16 +677,16 @@ export default function QuestionClient({
 
       {/* ── 모바일 하단 네비 ── */}
       <nav className={styles.bottomNav}>
-        <button className={styles.bnav} onClick={() => router.push('/')}><HomeIcon size={22} /><span>홈</span></button>
-        <button className={styles.bnav} onClick={() => router.push('/topics/재테크-입문')}><LayoutList size={22} /><span>토픽</span></button>
+        <button className={styles.bnav} onClick={() => router.push('/')}><FaIcon name="house" size={21} /><span>홈</span></button>
+        <button className={styles.bnav} onClick={() => router.push('/topics/재테크-입문')}><FaIcon name="list-ul" size={21} /><span>토픽</span></button>
         <button className={styles.bnav} onClick={() => router.push('/sparring')}><Swords size={22} /><span>스파링</span></button>
-        <button className={styles.bnav}><Bell size={22} /><span>알림</span></button>
+        <button className={styles.bnav}><FaIcon name="bell" size={21} /><span>알림</span></button>
         <button className={styles.bnav} onClick={() => router.push(user ? `/u/${user.id}` : '/auth')} style={user ? { color: 'var(--blue)' } : {}}>
-          <User size={22} /><span>{user ? userName[0]?.toUpperCase() || 'MY' : '로그인'}</span>
+          <FaIcon name="user" size={21} /><span>{user ? userName[0]?.toUpperCase() || 'MY' : '로그인'}</span>
         </button>
       </nav>
       <button className={styles.fab} onClick={() => user ? setShowAskModal(true) : router.push('/auth?next=/')}>
-        <Plus size={24} color="white" />
+        <FaIcon name="plus" size={22} color="white" />
       </button>
 
       {/* 질문하기 모달 */}

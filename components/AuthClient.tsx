@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { createClient, hasSupabase } from '@/lib/supabase/client';
+import { FaIcon } from './FaIcon';
 import styles from './AuthClient.module.css';
 
 type OAuthProvider = 'google' | 'kakao';
@@ -67,7 +68,7 @@ export default function AuthClient() {
           disabled={!!loadingProvider}
         >
           {loadingProvider === 'kakao' ? <span className={styles.spinDark}/> : (
-            <span className={styles.kakaoIcon} aria-hidden="true">톡</span>
+            <FaIcon name="kakao-talk" variant="brands" className={styles.brandIcon} />
           )}
           카카오로 시작하기
         </button>

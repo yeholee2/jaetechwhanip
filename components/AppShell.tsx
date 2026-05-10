@@ -3,7 +3,8 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import type { ReactNode } from 'react';
-import { Bell, Home, LayoutList, Plus, Search, Swords, User } from 'lucide-react';
+import { Swords } from 'lucide-react';
+import { FaIcon } from './FaIcon';
 import styles from './AppShell.module.css';
 
 export type AppNavKey = 'home' | 'topics' | 'sparring' | 'feed' | 'mission' | 'my';
@@ -44,8 +45,8 @@ export function AppShell({
           <li><a href="#" style={{ fontSize: 13, color: 'var(--t3)' }}>전문가 신청</a></li>
         </ul>
         <div className={styles.pcRight}>
-          <button className={styles.iconBtn} aria-label="검색"><Search size={18} /></button>
-          <button className={styles.iconBtn} aria-label="알림"><Bell size={18} /></button>
+          <button className={styles.iconBtn} aria-label="검색"><FaIcon name="magnifying-glass" size={18} /></button>
+          <button className={styles.iconBtn} aria-label="알림"><FaIcon name="bell" size={18} /></button>
           <button className={styles.askBtn} onClick={ask}>나도 질문하기</button>
         </div>
       </nav>
@@ -54,8 +55,8 @@ export function AppShell({
         <div className={styles.moTop}>
           <Link className={`${styles.moLogo} logo-font`} href="/">재테크<em>한입</em></Link>
           <div className={styles.moIcons}>
-            <button className={styles.moIcon} aria-label="검색"><Search size={20} /></button>
-            <button className={styles.moIcon} aria-label="알림"><Bell size={20} /></button>
+            <button className={styles.moIcon} aria-label="검색"><FaIcon name="magnifying-glass" size={19} /></button>
+            <button className={styles.moIcon} aria-label="알림"><FaIcon name="bell" size={19} /></button>
           </div>
         </div>
         <nav className={styles.moGnav}>
@@ -72,20 +73,20 @@ export function AppShell({
 
       <nav className={styles.bottomNav}>
         <Link className={`${styles.bnav} ${active === 'home' ? styles.active : ''}`} href="/">
-          <Home size={22} /><span>홈</span>
+          <FaIcon name="house" size={21} /><span>홈</span>
         </Link>
         <Link className={`${styles.bnav} ${active === 'topics' ? styles.active : ''}`} href="/topics/재테크-입문">
-          <LayoutList size={22} /><span>토픽</span>
+          <FaIcon name="list-ul" size={21} /><span>토픽</span>
         </Link>
         <button className={`${styles.bnav} ${styles.bnavAsk}`} onClick={ask}>
-          <span className={styles.bnavAskIcon}><Plus size={24} /></span>
+          <span className={styles.bnavAskIcon}><FaIcon name="plus" size={22} /></span>
           <span>질문</span>
         </button>
         <Link className={`${styles.bnav} ${active === 'sparring' ? styles.active : ''}`} href="/sparring">
           <Swords size={22} /><span>스파링</span>
         </Link>
         <Link className={`${styles.bnav} ${active === 'my' ? styles.active : ''}`} href="/auth">
-          <User size={22} /><span>마이</span>
+          <FaIcon name="user" size={21} /><span>마이</span>
         </Link>
       </nav>
     </div>

@@ -1,5 +1,31 @@
 # 패치노트
 
+## [2026-05-10] 아이콘 CSS·스파링·피드 업그레이드 — Codex
+**작업자:** Codex
+**태그:** #UI #Icons #Sparring #Feed
+
+### 변경사항
+- [기준] `origin/main` 최신 스파링 v1 기준 새 브랜치에서 작업
+- [아이콘] `@fortawesome/fontawesome-free`와 `components/FaIcon.tsx` 추가, 검색/알림/마이/질문/FAB/카카오 등 주요 UI 아이콘을 Font Awesome CSS 기반으로 교체
+- [유지] Tossface 이모지/특수문자 표시는 기존 `.tf` 클래스를 그대로 유지
+- [스파링] a-ha 분석본 기준으로 `/sparring` 헤더 현황 칩, 진행중 섹션 설명, 진행 카드 선택지 미리보기, 지난 스파링 디바이더형 리스트를 보강
+- [스파링 상세] 공유/투표/댓글 lock/필터 아이콘을 CSS 기반으로 정리하고 카테고리 브레드크럼 추가
+- [피드] 홈 톤앤매너에 맞춰 좌측 정사각 썸네일 + 디바이더형 리스트로 변경
+- [피드 정리] `lib/feed-digest.ts` 추가: RSS/칼럼을 그대로 나열하지 않고 `한입 정리`, `왜 중요해요`, `이렇게 물어보면 좋아요` 구조로 보여주는 규칙 기반 v1 적용
+
+### 확인
+- [x] `npm run build` 통과
+- [x] 로컬 `/`, `/auth`, `/sparring`, `/feed` 200 및 서버 에러 없음
+- [x] 홈 Font Awesome 아이콘 렌더링 확인
+- [x] 홈 Tossface `.tf` 렌더링 유지 확인
+- [x] `/feed` 한입 정리/다음 질문 문구 렌더링 확인
+
+### 다음 작업자 TODO
+- [ ] 피드 정리 v2: 규칙 기반 digest를 DB 저장형 AI 요약/분류 파이프라인으로 승격
+- [ ] 스파링 썸네일/일러스트 운영 가이드 확정
+
+---
+
 ## [2026-05-09] 스파링 댓글·투표 시스템 v1 — Codex/GPT
 **작업자:** Codex/GPT
 **태그:** #Sparring #Supabase #RLS #Admin #UI
