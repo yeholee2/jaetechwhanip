@@ -1,11 +1,11 @@
 .page {
   max-width: 1040px;
   margin: 0 auto;
-  padding: 24px 4px 56px;
+  padding: 22px 4px 56px;
 }
 
 .header {
-  margin-bottom: 16px;
+  margin-bottom: 14px;
 }
 
 .eyebrow,
@@ -20,14 +20,14 @@
 
 .header h1 {
   color: var(--t1);
-  font-size: 30px;
+  font-size: 32px;
   line-height: 1.3;
   font-weight: 850;
   letter-spacing: 0;
 }
 
 .header p {
-  max-width: 620px;
+  max-width: 560px;
   margin-top: 6px;
   color: var(--t2);
   font-size: 14px;
@@ -37,9 +37,9 @@
 
 .topGrid {
   display: grid;
-  grid-template-columns: minmax(0, 1.45fr) minmax(280px, .75fr);
+  grid-template-columns: minmax(0, 1fr) 320px;
   gap: 12px;
-  margin-bottom: 12px;
+  margin-bottom: 14px;
 }
 
 .searchPanel,
@@ -61,12 +61,44 @@
   padding: 18px;
 }
 
+.searchHead,
+.watchTop {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
 .searchPanel h2 {
   margin-top: 6px;
   color: var(--t1);
-  font-size: 22px;
+  font-size: 21px;
   line-height: 1.35;
   font-weight: 850;
+}
+
+.sourceBadge {
+  flex: 0 0 auto;
+  min-width: 104px;
+  padding: 9px 10px;
+  border-radius: 10px;
+  background: var(--bg);
+  text-align: right;
+}
+
+.sourceBadge span {
+  display: block;
+  color: var(--t3);
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.sourceBadge strong {
+  display: block;
+  margin-top: 3px;
+  color: var(--t1);
+  font-size: 12px;
+  font-weight: 900;
 }
 
 .searchForm {
@@ -74,12 +106,12 @@
   grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
   gap: 10px;
-  height: 48px;
+  height: 50px;
   margin-top: 14px;
-  padding: 0 7px 0 14px;
-  border: 1.5px solid var(--blue);
-  border-radius: 10px;
-  background: #fff;
+  padding: 0 6px 0 14px;
+  border: 1px solid #d8e6ff;
+  border-radius: 12px;
+  background: #fbfdff;
   color: var(--blue);
 }
 
@@ -98,11 +130,14 @@
 }
 
 .searchForm button {
-  height: 34px;
-  padding: 0 14px;
-  border-radius: 8px;
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
   background: var(--blue);
   color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   font-size: 13px;
   font-weight: 850;
 }
@@ -120,7 +155,7 @@
 
 .quickSearches a,
 .filterBar a {
-  height: 30px;
+  height: 29px;
   padding: 0 12px;
   border: 1px solid var(--line);
   border-radius: 999px;
@@ -149,36 +184,56 @@
 .watchPanel {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
+  background: linear-gradient(180deg, #ffffff 0%, #f7fbff 100%);
+}
+
+.watchTop span {
+  color: var(--blue);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.watchTop strong {
+  color: var(--t1);
+  font-size: 13px;
+  font-weight: 900;
 }
 
 .watchTabs {
   display: flex;
-  gap: 14px;
-  border-bottom: 1px solid var(--line);
+  gap: 6px;
+  padding: 4px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, .72);
 }
 
 .watchTabs span {
-  padding-bottom: 9px;
-  border-bottom: 2px solid transparent;
+  height: 28px;
+  padding: 0 9px;
+  border-radius: 8px;
   color: var(--t3);
-  font-size: 13px;
+  display: inline-flex;
+  align-items: center;
+  font-size: 12px;
   font-weight: 800;
   white-space: nowrap;
 }
 
 .watchTabs .activeWatchTab {
-  color: var(--t1);
-  border-bottom-color: var(--blue);
+  background: #fff;
+  color: var(--blue-dk);
+  box-shadow: 0 1px 5px rgba(0, 0, 0, .05);
 }
 
 .watchItem {
   display: flex;
   justify-content: space-between;
   gap: 12px;
-  padding: 14px;
-  border-radius: 10px;
-  background: var(--bg);
+  padding: 14px 15px;
+  border: 1px solid #e3edff;
+  border-radius: 12px;
+  background: #fff;
 }
 
 .watchItem strong,
@@ -209,38 +264,31 @@
   font-weight: 900;
 }
 
-.watchPanel p {
-  color: var(--t3);
-  font-size: 12px;
-  line-height: 1.55;
-  font-weight: 650;
-}
-
-.metricGrid {
+.miniStats {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 8px;
-  margin-bottom: 12px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
 }
 
-.metricGrid article {
-  padding: 14px 16px;
-}
-
-.metricGrid span {
-  display: block;
+.miniStats span {
+  min-width: 0;
+  height: 42px;
+  padding: 8px 7px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, .72);
   color: var(--t3);
-  font-size: 12px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  font-size: 11px;
   font-weight: 750;
+  text-align: center;
 }
 
-.metricGrid strong {
-  display: block;
-  margin-top: 5px;
+.miniStats b {
   color: var(--t1);
-  font-size: 16px;
-  line-height: 1.35;
-  font-weight: 850;
+  font-size: 14px;
+  font-weight: 900;
 }
 
 .layout {
@@ -265,7 +313,7 @@
 .rankSection,
 .filterSection,
 .section {
-  padding: 18px 20px;
+  padding: 18px;
   margin-bottom: 10px;
 }
 
@@ -319,12 +367,12 @@
 
 .rankBoard {
   display: grid;
-  grid-template-columns: minmax(220px, .82fr) minmax(0, 1.18fr);
+  grid-template-columns: minmax(210px, .76fr) minmax(0, 1.24fr);
   gap: 12px;
 }
 
 .chartCard {
-  min-height: 248px;
+  min-height: 230px;
   padding: 18px;
   border: 1px solid #d7e6ff;
   border-radius: 12px;
@@ -356,7 +404,7 @@
 }
 
 .chartCard > strong {
-  margin-top: 16px;
+  margin-top: 14px;
   color: var(--t1);
   font-size: 18px;
   line-height: 1.35;
@@ -380,8 +428,8 @@
 }
 
 .sparkline {
-  height: 82px;
-  margin: auto 0 14px;
+  height: 74px;
+  margin: auto 0 12px;
   display: flex;
   align-items: flex-end;
   gap: 7px;
@@ -407,7 +455,7 @@
 }
 
 .rankingList a {
-  min-height: 50px;
+  min-height: 46px;
   padding: 12px 14px;
   border-top: 1px solid var(--line);
   display: grid;
@@ -463,6 +511,7 @@
   overflow: hidden;
   border: 1px solid var(--line);
   border-radius: 12px;
+  background: #fff;
 }
 
 .etfTable {
@@ -471,7 +520,7 @@
 }
 
 .etfTable th {
-  height: 42px;
+  height: 40px;
   padding: 0 12px;
   background: var(--bg);
   color: var(--t3);
@@ -487,7 +536,7 @@
 
 .etfTable td {
   min-height: 66px;
-  padding: 13px 12px;
+  padding: 12px;
   border-top: 1px solid var(--line);
   color: var(--t2);
   font-size: 13px;
@@ -815,30 +864,29 @@
 
 @media (max-width: 768px) {
   .page {
-    padding: 18px 0 48px;
+    padding: 16px 0 48px;
   }
 
   .header {
     padding: 0 16px;
+    margin-bottom: 12px;
   }
 
   .header h1 {
-    font-size: 26px;
+    font-size: 25px;
+  }
+
+  .header p {
+    font-size: 13px;
   }
 
   .topGrid,
-  .metricGrid,
   .layout {
     gap: 8px;
   }
 
-  .topGrid,
-  .metricGrid {
+  .topGrid {
     padding: 0 16px;
-  }
-
-  .metricGrid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .searchPanel,
@@ -846,24 +894,40 @@
   .rankSection,
   .filterSection,
   .section {
-    padding: 16px;
+    padding: 15px;
+  }
+
+  .searchHead {
+    display: grid;
+    gap: 10px;
+  }
+
+  .sourceBadge {
+    min-width: 0;
+    padding: 8px 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    text-align: left;
   }
 
   .searchPanel h2 {
-    font-size: 20px;
+    font-size: 19px;
   }
 
   .searchForm {
-    height: auto;
+    height: 46px;
     min-height: 46px;
-    grid-template-columns: auto minmax(0, 1fr);
-    padding: 0 12px;
+    grid-template-columns: auto minmax(0, 1fr) 36px;
+    padding: 0 5px 0 12px;
+    border-radius: 11px;
   }
 
   .searchForm button {
-    grid-column: 1 / -1;
-    width: 100%;
-    margin-bottom: 10px;
+    width: 36px;
+    height: 36px;
+    margin-bottom: 0;
   }
 
   .quickSearches,
@@ -883,6 +947,26 @@
     flex: 0 0 auto;
   }
 
+  .watchPanel {
+    gap: 9px;
+  }
+
+  .watchItem {
+    padding: 13px;
+  }
+
+  .watchTabs {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 4px;
+  }
+
+  .watchTabs span {
+    justify-content: center;
+    padding: 0 4px;
+    font-size: 11px;
+  }
+
   .sectionHead {
     display: block;
   }
@@ -900,7 +984,7 @@
   }
 
   .chartCard {
-    min-height: 220px;
+    min-height: 204px;
   }
 
   .rankingList a {
