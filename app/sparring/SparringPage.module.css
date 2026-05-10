@@ -93,7 +93,7 @@
 }
 
 .pastSection {
-  margin-top: 44px;
+  margin-top: 50px;
 }
 
 .pastHead {
@@ -115,22 +115,22 @@
 .sortButton {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  height: 36px;
-  padding: 0 12px;
-  border-radius: 12px;
+  gap: 4px;
+  height: 28px;
+  padding: 0;
+  border-radius: 0;
   background: transparent;
-  color: var(--t2);
-  border: 1px solid var(--line);
+  color: var(--t3);
+  border: 0;
   font-size: 13px;
-  font-weight: 800;
+  font-weight: 850;
 }
 
 .chips {
   display: flex;
   gap: 8px;
   overflow-x: auto;
-  padding: 2px 0 14px;
+  padding: 2px 0 18px;
 }
 
 .chips::-webkit-scrollbar {
@@ -140,25 +140,25 @@
 .chips button {
   flex: 0 0 auto;
   height: 32px;
-  padding: 0 13px;
-  border-radius: 999px;
-  background: var(--white);
+  padding: 0 14px;
+  border-radius: 8px;
+  background: #f7f8fa;
   color: var(--t2);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, .06);
+  box-shadow: none;
   font-size: 13px;
-  font-weight: 750;
+  font-weight: 800;
   transition: background var(--duration-instant), color var(--duration-instant);
 }
 
 .chips .chipOn,
 .chips button:hover {
-  background: var(--primary);
+  background: #6b7684;
   color: #fff;
 }
 
 .pastList {
   display: grid;
-  gap: 14px;
+  gap: 22px;
 }
 
 @media (max-width: 768px) {
