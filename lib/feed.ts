@@ -9,12 +9,12 @@ export const GHOST_RSS_URL = 'https://www.hannipmoney.com/rss/';
 
 export const FEED_CATEGORY_FILTERS = [
   { key: '전체', label: '전체' },
-  { key: '재테크입문', label: '💡 재테크' },
-  { key: '국내주식·ETF', label: '📈 국내주식·ETF' },
-  { key: '해외주식·ETF', label: '🌎 해외주식·ETF' },
-  { key: '절세', label: '🏦 절세' },
-  { key: '보험', label: '🛡️ 보험' },
-  { key: '대출·부채', label: '💳 대출·부채' },
+  { key: '재테크입문', label: '재테크' },
+  { key: '국내주식·ETF', label: '국내주식·ETF' },
+  { key: '해외주식·ETF', label: '해외주식·ETF' },
+  { key: '절세', label: '절세' },
+  { key: '보험', label: '보험' },
+  { key: '대출·부채', label: '대출·부채' },
 ];
 
 export type HanipArticle = {
@@ -25,6 +25,7 @@ export type HanipArticle = {
   readingTime: string;
   publishedAt: string;
   tags: string[];
+  thumbnailUrl?: string | null;
   originalUrl?: string;
   contentHtml?: string;
   sourceName?: string;
@@ -55,6 +56,7 @@ export const hanipArticles: HanipArticle[] = [
     readingTime: '4분',
     publishedAt: '2026-05-09T10:10:00+09:00',
     tags: ['S&P500', 'ETF', '분할매수'],
+    thumbnailUrl: 'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?auto=format&fit=crop&w=420&q=80',
   },
   {
     slug: 'isa-pension-order',
@@ -64,6 +66,7 @@ export const hanipArticles: HanipArticle[] = [
     readingTime: '5분',
     publishedAt: '2026-05-08T19:20:00+09:00',
     tags: ['ISA', '연금저축', '절세계좌'],
+    thumbnailUrl: 'https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&w=420&q=80',
   },
   {
     slug: 'dividend-etf-tax',
@@ -73,6 +76,7 @@ export const hanipArticles: HanipArticle[] = [
     readingTime: '3분',
     publishedAt: '2026-05-07T08:30:00+09:00',
     tags: ['월배당', '배당ETF', '세금'],
+    thumbnailUrl: 'https://images.unsplash.com/photo-1604594849809-dfedbc827105?auto=format&fit=crop&w=420&q=80',
   },
 ];
 
@@ -84,6 +88,7 @@ export const sampleNewsItems: NewsItem[] = [
     url: 'https://www.yna.co.kr/rss/economy.xml',
     category: '국내주식·ETF',
     publishedAt: '2026-05-09T09:10:00+09:00',
+    thumbnailUrl: 'https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?auto=format&fit=crop&w=420&q=80',
   },
   {
     source: '매일경제',
@@ -92,6 +97,7 @@ export const sampleNewsItems: NewsItem[] = [
     url: 'https://www.mk.co.kr/rss/50200011/',
     category: '절세',
     publishedAt: '2026-05-08T16:40:00+09:00',
+    thumbnailUrl: 'https://images.unsplash.com/photo-1565514020179-026b92b2d70b?auto=format&fit=crop&w=420&q=80',
   },
 ];
 
@@ -284,6 +290,7 @@ function ghostEntryToArticle(entry: RssEntry): HanipArticle | null {
     readingTime: estimateReadingTime(cleanText || entry.description),
     publishedAt: entry.publishedAt,
     tags: tags.length > 0 ? tags : ['한입 칼럼'],
+    thumbnailUrl: entry.thumbnailUrl,
     originalUrl: entry.link,
     contentHtml: entry.contentHtml,
     sourceName: '한입머니',

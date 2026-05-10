@@ -1,5 +1,22 @@
 # 패치노트
 
+## [2026-05-10] 피드 페이지 a-ha 컬럼형 톤 정리 — Codex
+**작업자:** Codex
+**태그:** #Feed #UI #AhaReference #Digest
+
+### 변경사항
+- [Feed] `/feed`를 a-ha `/experts/columns` 분석 기준에 맞춰 제목/부제/카테고리 칩/좌측 정사각 썸네일 리스트 흐름으로 재정리
+- [Feed] 기존 큰 `한입 정리` 박스와 `이렇게 물어보면 좋아요` 박스를 제거하고, 토스증권식 맥락 정리는 카드 내부 `한입 포인트` 한 줄로 축소
+- [Feed] 카드 하단을 작성자/시간/좋아요/댓글/조회수 메타로 바꿔 서비스형 리스트 밀도 보강
+- [Data] 자체 칼럼·fallback 뉴스에 썸네일 URL을 보강하고, Ghost RSS 썸네일도 피드 카드에 사용
+
+### 확인
+- [x] `npm run build`
+- [x] 로컬 `/feed` 200 및 모바일 미리보기 확인
+- [x] 로컬 `/feed/sp500-etf-first-rule` 200 확인
+
+---
+
 ## [2026-05-10] 스파링 한글 slug 상세 진입 오류 수정 — Codex
 **작업자:** Codex
 **태그:** #Sparring #BugFix #Admin #SEO
