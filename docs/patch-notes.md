@@ -1,20 +1,16 @@
 # 패치노트
 
-## [2026-05-10] ETF v2 Lazyweb 레퍼런스 반영 — Codex
+## [2026-05-11] ETF v2 Lazyweb 시안 롤백 — Codex
 **작업자:** Codex
-**태그:** #ETF #Lazyweb #UIDesign #Mockup
+**태그:** #ETF #Rollback #Mockup
 
 ### 변경사항
-- [Lazyweb] Robinhood/E*TRADE/Fidelity/CNBC/Yahoo Finance/Fidelity ETF 레퍼런스의 검색·관심목록·ETF 테이블·관련 콘텐츠 패턴 확인
-- [Mockup] `/temp-etf-v2` A안을 ETF Finder형으로 재정리: 통합검색, 인기 조건, 대표 ETF 카드, 많이 보는 ETF 리스트 구성
-- [Mockup] B안을 한입 브리프형으로 정리: 초보자가 먼저 볼 판단 기준과 추천 ETF 후보를 분리
-- [Mockup] C안을 비교표+질문 연결형으로 정리: S&P500 후보 비교표와 관련 질문/스파링을 한 화면에서 연결
-- [주의] 정식 `/etf`는 아직 변경하지 않았고, 검토용 `/temp-etf-v2`만 수정
+- [Rollback] `/temp-etf-v2`의 Lazyweb 반영 시안을 취소하고 이전 3안 목업 상태로 되돌림
+- [Scope] 정식 `/etf` 변경 없음
+- [Memo] 금융앱 요소를 그대로 섞는 방식은 재테크한입 톤과 맞지 않아 폐기
 
 ### 확인
-- [x] `npm run build`
-- [x] 로컬 `/temp-etf-v2` 데스크톱/모바일 화면 확인
-- [x] 브라우저 콘솔 에러 없음
+- [x] 문제 커밋 `41f503c` revert
 
 ---
 
