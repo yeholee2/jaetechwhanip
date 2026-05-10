@@ -1,5 +1,20 @@
 # 패치노트
 
+## [2026-05-10] 어드민 접근 가드 개선·예호 계정 자동 시드 — Codex
+**작업자:** Codex
+**태그:** #Admin #Auth #Supabase
+
+### 변경사항
+- [Admin] `/admin/sparring` 미로그인 접근 시 홈 대신 `/auth?next=/admin/sparring`으로 이동
+- [Admin] 로그인했지만 role이 없을 때 홈으로 튕기지 않고 권한 안내 화면 표시
+- [Admin] `ADMIN_EMAILS` allowlist 기본값 `imyeho@gmail.com` 추가, 해당 이메일 로그인 시 서버에서 `public.users.role = admin` 자동 시드
+- [Supabase] service role 서버 전용 클라이언트 `lib/supabase/admin.ts` 추가
+
+### 확인
+- [x] `npm run build`
+
+---
+
 ## [2026-05-10] 스파링 어드민 카드 미리보기·업로드 운영 보강 — Codex
 **작업자:** Codex
 **태그:** #Admin #Sparring #UI #Storage
