@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { AppShell } from '@/components/AppShell';
 import { FaIcon } from '@/components/FaIcon';
+import { getEtfsWithMarketData } from '@/lib/etf-live-data';
 import { ETF_HOME_PATH, etfPath, etfUrl, etfs, getEtfBySlug, getRelatedEtfs } from '@/lib/etfs';
 import { SITE_NAME, truncateDescription } from '@/lib/seo';
 import styles from './EtfDetailPage.module.css';
@@ -42,10 +43,16 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-export default function EtfDetailPage({ params }: Props) {
-  const etf = getEtfBySlug(params.slug);
+export default async function EtfDetailPage({ params }: Props) {
+  const marketEtfs = await getEtfsWithMarketData();
+  const staticEtf = getEtfBySlug(params.slug);
+  const etf = marketEtfs.find(item => item.slug === decodeURIComponent(params.slug)) || (staticEtf
+    ? { ...staticEtf, dataNotice: '공식 API 키 등록 전 예시 데이터' }
+    : null);
   if (!etf) notFound();
 
+  const etfNav = 'nav' in etf ? etf.nav : undefined;
+  const etfBaseDate = 'baseDate' in etf ? etf.baseDate : undefined;
   const relatedEtfs = getRelatedEtfs(etf.slug, 3);
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -91,23 +98,24 @@ export default function EtfDetailPage({ params }: Props) {
           <div className={styles.mainColumn}>
             <section className={styles.priceCard}>
               <div className={styles.priceHead}>
-                <div>
-                  <span>현재가</span>
-                  <strong>{etf.price}</strong>
-                  <em className={etf.changeTone === 'down' ? styles.down : styles.up}>{etf.change}</em>
-                </div>
-                <p>{etf.issuer} · {etf.category}</p>
+              <div>
+                <span>현재가</span>
+                <strong>{etf.price}</strong>
+                <em className={etf.changeTone === 'down' ? styles.down : styles.up}>{etf.change}</em>
               </div>
+              <p>{etf.issuer} · {etf.category}<br />{etf.dataNotice}</p>
+            </div>
               <div className={styles.chartMock} aria-hidden="true"><i /></div>
             </section>
 
             <section className={styles.factGrid} aria-label="ETF 핵심 정보">
               <div><span>순자산</span><strong>{etf.aum}</strong><p>{etf.theme}</p></div>
+              {etfNav && <div><span>NAV</span><strong>{etfNav}</strong><p>공식 API 기준</p></div>}
               <div><span>총보수</span><strong>{etf.fee}</strong><p>장기 보유 비용</p></div>
               <div><span>분배금</span><strong>{etf.distribution}</strong><p>현금흐름 방식</p></div>
               <div><span>환헤지</span><strong>{etf.hedge}</strong><p>환율 노출</p></div>
               <div><span>거래량</span><strong>{etf.volume}</strong><p>유동성 참고</p></div>
-              <div><span>상장일</span><strong>{etf.listedAt}</strong><p>운용 기간</p></div>
+              <div><span>{etfBaseDate ? '기준일' : '상장일'}</span><strong>{etfBaseDate || etf.listedAt}</strong><p>{etfBaseDate ? '시세 기준' : '운용 기간'}</p></div>
             </section>
 
             <section className={styles.summaryBox}>
