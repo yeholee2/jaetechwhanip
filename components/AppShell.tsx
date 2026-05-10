@@ -2,8 +2,10 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import type { ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { Swords } from 'lucide-react';
+import { getAuthNickname, syncFinanceNickname } from '@/lib/nicknames';
+import { createClient, hasSupabase } from '@/lib/supabase/client';
 import { FaIcon } from './FaIcon';
 import styles from './AppShell.module.css';
 
@@ -17,6 +19,20 @@ const NAV_ITEMS: { key: AppNavKey; label: string; href: string }[] = [
   { key: 'mission', label: '미션', href: '#' },
 ];
 
+function getUserName(user: any) {
+  if (!user) return '';
+  return getAuthNickname(user) || 'ME';
+}
+
+function getUserAvatar(user: any) {
+  return (
+    user?.user_metadata?.avatar_url ||
+    user?.user_metadata?.picture ||
+    user?.user_metadata?.profile_image ||
+    ''
+  );
+}
+
 export function AppShell({
   active,
   children,
@@ -27,7 +43,62 @@ export function AppShell({
   wide?: boolean;
 }) {
   const router = useRouter();
-  const ask = () => router.push('/auth?next=/');
+  const [user, setUser] = useState<any>(null);
+  const [authLoading, setAuthLoading] = useState(true);
+  const [showProfile, setShowProfile] = useState(false);
+  const profileRef = useRef<HTMLDivElement>(null);
+  const userName = getUserName(user);
+  const userAvatar = getUserAvatar(user);
+  const profileHref = user ? `/u/${user.id}` : '/auth';
+  const ask = () => router.push(user ? '/?ask=1' : '/auth?next=/?ask=1');
+
+  useEffect(() => {
+    if (!hasSupabase()) {
+      setAuthLoading(false);
+      return undefined;
+    }
+
+    const supabase = createClient();
+    const { data: authSub } = supabase.auth.onAuthStateChange((_event, session) => {
+      const nextUser = session?.user ?? null;
+      setUser(nextUser);
+      setAuthLoading(false);
+      if (nextUser) void syncFinanceNickname(supabase, nextUser);
+    });
+
+    supabase.auth.getSession().then(({ data }) => {
+      const nextUser = data.session?.user ?? null;
+      setUser(nextUser);
+      setAuthLoading(false);
+      if (nextUser) void syncFinanceNickname(supabase, nextUser);
+    });
+
+    return () => authSub.subscription.unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    const close = (event: MouseEvent) => {
+      if (profileRef.current && !profileRef.current.contains(event.target as Node)) {
+        setShowProfile(false);
+      }
+    };
+
+    document.addEventListener('mousedown', close);
+    return () => document.removeEventListener('mousedown', close);
+  }, []);
+
+  const handleSignOut = async () => {
+    if (hasSupabase()) {
+      await createClient().auth.signOut();
+    }
+    setUser(null);
+    setShowProfile(false);
+    if (active === 'my') {
+      router.push('/auth');
+      return;
+    }
+    router.refresh();
+  };
 
   return (
     <div className={styles.shell}>
@@ -48,6 +119,41 @@ export function AppShell({
           <button className={styles.iconBtn} aria-label="검색"><FaIcon name="magnifying-glass" size={18} /></button>
           <button className={styles.iconBtn} aria-label="알림"><FaIcon name="bell" size={18} /></button>
           <button className={styles.askBtn} onClick={ask}>나도 질문하기</button>
+          {!authLoading && (user ? (
+            <div className={styles.profileWrap} ref={profileRef}>
+              <button
+                className={styles.profileButton}
+                aria-label="내 정보"
+                aria-haspopup="menu"
+                aria-expanded={showProfile}
+                onClick={() => setShowProfile(value => !value)}
+                title={userName}
+                type="button"
+              >
+                {userAvatar ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={userAvatar} alt="" />
+                ) : (
+                  userName[0]?.toUpperCase() || 'U'
+                )}
+              </button>
+              {showProfile && (
+                <div className={styles.profileMenu} role="menu">
+                  <div className={styles.profileName}>{userName}</div>
+                  <Link href={profileHref} onClick={() => setShowProfile(false)} role="menuitem">
+                    내 정보 보기
+                  </Link>
+                  <button className={styles.signOut} onClick={handleSignOut} role="menuitem" type="button">
+                    로그아웃
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <Link className={styles.iconBtn} href="/auth" aria-label="내 정보">
+              <FaIcon name="user" size={18} />
+            </Link>
+          ))}
         </div>
       </nav>
 
@@ -57,6 +163,20 @@ export function AppShell({
           <div className={styles.moIcons}>
             <button className={styles.moIcon} aria-label="검색"><FaIcon name="magnifying-glass" size={19} /></button>
             <button className={styles.moIcon} aria-label="알림"><FaIcon name="bell" size={19} /></button>
+            {!authLoading && (user ? (
+              <Link className={styles.moAvatar} href={profileHref} aria-label="내 정보">
+                {userAvatar ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={userAvatar} alt="" />
+                ) : (
+                  userName[0]?.toUpperCase() || 'U'
+                )}
+              </Link>
+            ) : (
+              <Link className={styles.moIcon} href="/auth" aria-label="내 정보">
+                <FaIcon name="user" size={18} />
+              </Link>
+            ))}
           </div>
         </div>
         <nav className={styles.moGnav}>
@@ -85,7 +205,7 @@ export function AppShell({
         <Link className={`${styles.bnav} ${active === 'sparring' ? styles.active : ''}`} href="/sparring">
           <Swords size={22} /><span>스파링</span>
         </Link>
-        <Link className={`${styles.bnav} ${active === 'my' ? styles.active : ''}`} href="/auth">
+        <Link className={`${styles.bnav} ${active === 'my' ? styles.active : ''}`} href={profileHref}>
           <FaIcon name="user" size={21} /><span>마이</span>
         </Link>
       </nav>

@@ -57,7 +57,7 @@ export default function ProfileClient({ userId }: { userId: string }) {
 
   if (loading) return (
     <div style={{display:'flex',alignItems:'center',justifyContent:'center',height:'100vh',color:'#8B95A1'}}>
-      <div style={{width:32,height:32,border:'3px solid #E5E8EB',borderTopColor:'#00C73C',borderRadius:'50%',animation:'spin .8s linear infinite'}}/>
+      <div style={{width:32,height:32,border:'3px solid #E5E8EB',borderTopColor:'var(--primary)',borderRadius:'50%',animation:'spin .8s linear infinite'}}/>
       <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
     </div>
   );
@@ -72,14 +72,14 @@ export default function ProfileClient({ userId }: { userId: string }) {
           <ChevronLeft size={22}/>
         </button>
         <span className="logo-font" style={{fontSize:16,flex:1,cursor:'pointer'}} onClick={() => router.push('/')}>
-          재테크<em style={{fontStyle:'normal',color:'#00C73C'}}>한입</em>
+          재테크<em style={{fontStyle:'normal',color:'var(--primary)'}}>한입</em>
         </span>
       </header>
 
       {/* 프로필 헤더 */}
       <div style={{padding:'28px 20px 20px',borderBottom:'6px solid #F9FAFB'}}>
         <div style={{display:'flex',alignItems:'center',gap:16,marginBottom:16}}>
-          <div style={{width:64,height:64,borderRadius:'50%',background:'#00C73C',color:'white',display:'flex',alignItems:'center',justifyContent:'center',fontSize:24,fontWeight:800,flexShrink:0}}>
+          <div style={{width:64,height:64,borderRadius:'50%',background:'var(--primary)',color:'white',display:'flex',alignItems:'center',justifyContent:'center',fontSize:24,fontWeight:800,flexShrink:0}}>
             {profile?.avatar_url
               ? <img src={profile.avatar_url} style={{width:'100%',height:'100%',borderRadius:'50%',objectFit:'cover'}} alt={name}/>
               : initial}
@@ -106,8 +106,8 @@ export default function ProfileClient({ userId }: { userId: string }) {
           <button key={t} onClick={() => setTab(t)} style={{
             flex:1,padding:'14px 0',border:'none',background:'none',
             fontSize:14,fontWeight: tab===t ? 700 : 400,
-            color: tab===t ? '#00C73C' : '#8B95A1',
-            borderBottom: tab===t ? '2px solid #00C73C' : '2px solid transparent',
+            color: tab===t ? 'var(--primary)' : '#8B95A1',
+            borderBottom: tab===t ? '2px solid var(--primary)' : '2px solid transparent',
             cursor:'pointer',transition:'all .15s'
           }}>
             {t === 'questions' ? `질문 ${questions.length}` : `답변 ${answers.length}`}
@@ -124,7 +124,7 @@ export default function ProfileClient({ userId }: { userId: string }) {
               <Link key={q.id} href={`/q/${q.slug || q.id}`} style={{display:'block',padding:'16px 20px',borderBottom:'1px solid #F9FAFB',cursor:'pointer',transition:'background .15s',textDecoration:'none'}} onMouseEnter={e=>e.currentTarget.style.background='#FAFAFA'} onMouseLeave={e=>e.currentTarget.style.background='white'}>
                 <div style={{display:'flex',gap:6,marginBottom:8,alignItems:'center'}}>
                   <span style={{fontSize:11,fontWeight:700,background:'#F2F4F6',color:'#4E5968',padding:'3px 8px',borderRadius:20}}>{q.category}</span>
-                  {q.is_answered && <span style={{fontSize:11,fontWeight:700,background:'#E8F9EE',color:'#00C73C',padding:'3px 8px',borderRadius:20}}>✅ 채택됨</span>}
+                  {q.is_answered && <span style={{fontSize:11,fontWeight:700,background:'var(--blue-bg)',color:'var(--primary)',padding:'3px 8px',borderRadius:20}}>✅ 채택됨</span>}
                 </div>
                 <p style={{fontSize:15,fontWeight:600,color:'#191F28',marginBottom:6,lineHeight:1.4}}>{q.title}</p>
                 <div style={{display:'flex',alignItems:'center',gap:8,fontSize:12,color:'#8B95A1'}}>
@@ -142,7 +142,7 @@ export default function ProfileClient({ userId }: { userId: string }) {
 
               return (
               <Link key={a.id} href={`/q/${questionPath}`} style={{display:'block',padding:'16px 20px',borderBottom:'1px solid #F9FAFB',cursor:'pointer',transition:'background .15s',textDecoration:'none'}} onMouseEnter={e=>e.currentTarget.style.background='#FAFAFA'} onMouseLeave={e=>e.currentTarget.style.background='white'}>
-                {a.is_adopted && <div style={{fontSize:11,fontWeight:700,color:'#00C73C',marginBottom:6}}>✅ 채택된 답변</div>}
+                {a.is_adopted && <div style={{fontSize:11,fontWeight:700,color:'var(--primary)',marginBottom:6}}>✅ 채택된 답변</div>}
                 <p style={{fontSize:13,color:'#8B95A1',marginBottom:6,fontWeight:500}}>→ {a.questions?.title || '질문'}</p>
                 <p style={{fontSize:14,color:'#191F28',lineHeight:1.6,marginBottom:8,display:'-webkit-box',WebkitLineClamp:2,WebkitBoxOrient:'vertical',overflow:'hidden'}}>{a.body}</p>
                 <div style={{display:'flex',alignItems:'center',gap:8,fontSize:12,color:'#8B95A1'}}>
