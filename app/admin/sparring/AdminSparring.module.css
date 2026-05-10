@@ -23,6 +23,37 @@
   line-height: 1.6;
 }
 
+.gate {
+  max-width: 620px;
+  border-radius: 18px;
+  background: var(--white);
+  padding: 28px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .06);
+}
+
+.gate span {
+  color: var(--primary);
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.gate h1 {
+  margin-top: 10px;
+  color: var(--t1);
+  font-size: 28px;
+  line-height: 1.32;
+  font-weight: 900;
+  letter-spacing: 0;
+}
+
+.gate p {
+  margin-top: 12px;
+  color: var(--t2);
+  font-size: 15px;
+  line-height: 1.65;
+  font-weight: 650;
+}
+
 .layout {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 390px;

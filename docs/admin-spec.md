@@ -30,6 +30,7 @@ if (user.role !== 'admin') redirect('/')
 
 **초기 admin 지정:**
 - 예호님 계정(imyeho@gmail.com)을 직접 `UPDATE users SET role='admin' WHERE email='imyeho@gmail.com';` 로 시드
+- 현재 구현은 `ADMIN_EMAILS` 환경변수에 등록된 이메일(기본 `imyeho@gmail.com`)로 로그인하면 `/admin/sparring` 진입 시 서버에서 1회 admin role을 자동 시드한다.
 
 ---
 
