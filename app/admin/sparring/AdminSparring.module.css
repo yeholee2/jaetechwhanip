@@ -25,9 +25,14 @@
 
 .layout {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 360px;
+  grid-template-columns: minmax(0, 1fr) 390px;
   gap: 18px;
   align-items: start;
+}
+
+.sideStack {
+  display: grid;
+  gap: 18px;
 }
 
 .panel {
@@ -134,6 +139,111 @@
   font-weight: 750;
 }
 
+.designNote {
+  border-radius: 14px;
+  background: #f5fafe;
+  padding: 14px;
+}
+
+.designNote strong {
+  display: block;
+  color: var(--primary);
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.designNote p {
+  margin-top: 6px;
+  color: var(--t2);
+  font-size: 13px;
+  line-height: 1.55;
+  font-weight: 650;
+}
+
+.previewCard {
+  position: relative;
+  min-height: 350px;
+  overflow: hidden;
+  border-radius: 20px;
+  background: linear-gradient(135deg, #123b8d 0%, #1e59da 56%, #61a5ff 100%);
+  color: #fff;
+  isolation: isolate;
+}
+
+.previewCard::before,
+.previewCard::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+}
+
+.previewCard::before {
+  background-image: var(--preview-thumb);
+  background-position: center;
+  background-size: cover;
+  opacity: var(--preview-opacity, 0);
+}
+
+.previewCard::after {
+  background:
+    linear-gradient(180deg, rgba(0, 0, 0, .44) 0%, rgba(0, 0, 0, .14) 46%, rgba(0, 0, 0, .04) 62%, rgba(0, 0, 0, .62) 100%);
+}
+
+.previewCopy {
+  padding: 30px 28px 20px;
+}
+
+.previewCopy span {
+  display: block;
+  color: rgba(255, 255, 255, .92);
+  font-size: 21px;
+  line-height: 1.25;
+  font-weight: 850;
+}
+
+.previewCopy strong {
+  display: block;
+  max-width: 94%;
+  margin-top: 22px;
+  color: #fff;
+  font-size: 32px;
+  line-height: 1.28;
+  font-weight: 900;
+  letter-spacing: 0;
+}
+
+.previewFoot {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  min-height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 0 28px;
+  background: rgba(19, 24, 25, .58);
+  backdrop-filter: blur(14px);
+  color: rgba(255, 255, 255, .92);
+  font-size: 17px;
+  line-height: 1;
+  font-weight: 850;
+}
+
+.previewFoot b {
+  font: inherit;
+}
+
+.previewHint {
+  margin-top: 10px;
+  color: var(--t3);
+  font-size: 13px;
+  line-height: 1.45;
+  font-weight: 750;
+}
+
 .list {
   display: grid;
   gap: 10px;
@@ -161,6 +271,13 @@
   color: var(--t1);
   font-size: 15px;
   line-height: 1.45;
+}
+
+.itemStats {
+  margin-top: 8px;
+  color: var(--t3);
+  font-size: 12px;
+  font-weight: 800;
 }
 
 .itemActions {

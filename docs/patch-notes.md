@@ -1,5 +1,22 @@
 # 패치노트
 
+## [2026-05-10] 스파링 어드민 카드 미리보기·업로드 운영 보강 — Codex
+**작업자:** Codex
+**태그:** #Admin #Sparring #UI #Storage
+
+### 변경사항
+- [Admin] `/admin/sparring` 작성 폼에 아하형 진행중 카드 미리보기 추가
+- [Admin] 제목/썸네일 URL/업로드 파일/마감일 변경 시 상단 카드 노출 형태를 즉시 확인 가능
+- [Admin] 새 스파링 저장 전 validation 순서를 정리해 마감일 누락 시 친절한 안내가 나오도록 수정
+- [Storage] `docs/migration_sparring_storage.sql` 추가: `sparring-thumbnails` public bucket + admin 업로드 정책
+- [운영] 썸네일 디자인 메모 추가: 상단 텍스트/하단 CTA 영역을 피해 중앙~하단 피사체 권장
+
+### 확인
+- [x] `npm run build`
+- [x] `/admin/sparring` route build output 확인
+
+---
+
 ## [2026-05-10] 진행중 스파링 카드 a-ha 이미지형 정렬 — Codex
 **작업자:** Codex
 **태그:** #Sparring #UI #AhaReference
