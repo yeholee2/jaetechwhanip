@@ -87,25 +87,35 @@ export default async function EtfPage({ searchParams }: EtfPageProps) {
       <main className={styles.page}>
         <header className={styles.header}>
           <span className={styles.eyebrow}>ETF</span>
-          <h1>ETF를 찾고, 비교하고, 질문까지 이어봐요</h1>
-          <p>상품명·코드·구성종목으로 찾고 가격, 등락률, 순자산, 보수, 분배금 기준을 한 화면에서 비교해요.</p>
+          <h1>ETF를 한입에 비교해요</h1>
+          <p>상품명·코드·구성종목으로 찾고, 보수·분배금·순자산·관련 질문까지 이어서 봐요.</p>
         </header>
 
         <section className={styles.topGrid} aria-label="ETF 검색과 요약">
           <div className={styles.searchPanel}>
-            <span className={styles.panelLabel}>ETF 통합검색</span>
-            <h2>상품명, 코드, 구성종목으로 바로 찾아요</h2>
+            <div className={styles.searchHead}>
+              <div>
+                <span className={styles.panelLabel}>ETF 통합검색</span>
+                <h2>ETF 바로 찾기</h2>
+              </div>
+              <div className={styles.sourceBadge}>
+                <span>{sourceLabel}</span>
+                <strong>{baseDate}</strong>
+              </div>
+            </div>
             <form className={styles.searchForm} action={ETF_HOME_PATH}>
               <FaIcon name="magnifying-glass" size={15} />
               <input
                 aria-label="ETF 검색어"
                 defaultValue={query}
                 name="q"
-                placeholder="예: S&P500, 360750, 엔비디아"
+                placeholder="S&P500, 360750, 엔비디아"
                 type="search"
               />
               {activeTheme !== '전체' ? <input name="theme" type="hidden" value={activeTheme} /> : null}
-              <button type="submit">검색</button>
+              <button type="submit" aria-label="ETF 검색">
+                <FaIcon name="arrow-right" size={14} />
+              </button>
             </form>
             <div className={styles.quickSearches} aria-label="추천 검색어">
               {QUICK_SEARCHES.map(term => (
@@ -115,10 +125,9 @@ export default async function EtfPage({ searchParams }: EtfPageProps) {
           </div>
 
           <div className={styles.watchPanel}>
-            <div className={styles.watchTabs}>
-              {DASHBOARD_TABS.map((tab, index) => (
-                <span className={index === 0 ? styles.activeWatchTab : ''} key={tab}>{tab}</span>
-              ))}
+            <div className={styles.watchTop}>
+              <span>오늘의 ETF</span>
+              <strong>{featured.theme}</strong>
             </div>
             <Link className={styles.watchItem} href={etfPath(featured.slug)}>
               <div>
@@ -130,27 +139,17 @@ export default async function EtfPage({ searchParams }: EtfPageProps) {
                 <em className={featured.changeTone === 'down' ? styles.down : styles.up}>{featured.change}</em>
               </div>
             </Link>
-            <p>관심 ETF를 담고 시세, 분배금, 관련 질문을 한 번에 확인하는 공간으로 확장할 수 있어요.</p>
+            <div className={styles.watchTabs}>
+              {DASHBOARD_TABS.map((tab, index) => (
+                <span className={index === 0 ? styles.activeWatchTab : ''} key={tab}>{tab}</span>
+              ))}
+            </div>
+            <div className={styles.miniStats}>
+              <span><b>{marketEtfs.length}</b> ETF</span>
+              <span><b>{totalThemes}</b> 테마</span>
+              <span><b>{filteredEtfs.length}</b> 결과</span>
+            </div>
           </div>
-        </section>
-
-        <section className={styles.metricGrid} aria-label="ETF 데이터 요약">
-          <article>
-            <span>{sourceLabel}</span>
-            <strong>{baseDate}</strong>
-          </article>
-          <article>
-            <span>등록 ETF</span>
-            <strong>{marketEtfs.length}개</strong>
-          </article>
-          <article>
-            <span>테마</span>
-            <strong>{totalThemes}개</strong>
-          </article>
-          <article>
-            <span>검색 결과</span>
-            <strong>{filteredEtfs.length}개</strong>
-          </article>
         </section>
 
         <div className={styles.layout}>
@@ -159,8 +158,8 @@ export default async function EtfPage({ searchParams }: EtfPageProps) {
               <div className={styles.sectionHead}>
                 <div>
                   <span className={styles.selectPill}>{SORT_LABEL}</span>
-                  <h2>상품은?</h2>
-                  <p>FunETF처럼 먼저 랭킹과 움직임을 보여주고, 아래에서 조건으로 좁혀요.</p>
+                  <h2>많이 보는 ETF</h2>
+                  <p>먼저 가격과 흐름을 보고, 아래 필터표에서 조건을 좁혀요.</p>
                 </div>
                 <span>{marketEtfs[0]?.dataNotice}</span>
               </div>
@@ -206,8 +205,8 @@ export default async function EtfPage({ searchParams }: EtfPageProps) {
             <section className={styles.filterSection}>
               <div className={styles.sectionHead}>
                 <div>
-                  <h2>ETF 상품 검색 필터</h2>
-                  <p>테마, 보수, 분배금, 환헤지, 순자산을 표로 비교해요.</p>
+                  <h2>상품 검색 필터</h2>
+                  <p>{query || activeTheme !== '전체' ? `${filteredEtfs.length}개 ETF가 조건에 맞아요.` : '테마, 보수, 분배금, 환헤지, 순자산을 표로 비교해요.'}</p>
                 </div>
               </div>
 
