@@ -1,99 +1,35 @@
 .page {
-  padding: 18px 0 64px;
+  padding: 56px 0 64px;
 }
 
 .header {
-  margin-bottom: 28px;
-}
-
-.eyebrow {
-  display: block;
-  margin-bottom: 8px;
-  color: var(--primary);
-  font-size: 13px;
-  font-weight: 850;
+  margin-bottom: 42px;
 }
 
 .header h1 {
   color: var(--t1);
-  font-size: 32px;
+  font-size: 44px;
   line-height: 1.25;
   font-weight: 850;
   letter-spacing: 0;
 }
 
 .header p {
-  margin-top: 8px;
+  margin-top: 14px;
   color: var(--t2);
-  font-size: 16px;
+  font-size: 20px;
   line-height: 1.55;
-}
-
-.statLine {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 18px;
-}
-
-.statLine span {
-  height: 32px;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 0 12px;
-  border-radius: 999px;
-  background: var(--white);
-  color: var(--t2);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, .05);
-  font-size: 13px;
-  font-weight: 750;
-}
-
-.statLine strong {
-  color: var(--primary);
-  font-weight: 900;
-}
-
-.sectionHead {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 18px;
-  margin-bottom: 14px;
-}
-
-.sectionHead span {
-  color: var(--primary);
-  font-size: 13px;
-  font-weight: 850;
-}
-
-.sectionHead h2 {
-  margin-top: 4px;
-  color: var(--t1);
-  font-size: 22px;
-  line-height: 1.35;
-  font-weight: 850;
-  letter-spacing: 0;
-}
-
-.sectionHead p {
-  max-width: 300px;
-  color: var(--t3);
-  font-size: 13px;
-  line-height: 1.5;
-  text-align: right;
+  font-weight: 800;
 }
 
 .activeGrid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 16px;
+  gap: 20px;
 }
 
 .pastSection {
-  margin-top: 50px;
+  margin-top: 82px;
 }
 
 .pastHead {
@@ -101,12 +37,12 @@
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  margin-bottom: 14px;
+  margin-bottom: 26px;
 }
 
 .pastHead h2 {
   color: var(--t1);
-  font-size: 24px;
+  font-size: 38px;
   line-height: 1.35;
   font-weight: 850;
   letter-spacing: 0;
@@ -116,21 +52,22 @@
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  height: 28px;
+  height: 32px;
   padding: 0;
+  margin-top: 22px;
   border-radius: 0;
   background: transparent;
   color: var(--t3);
   border: 0;
-  font-size: 13px;
+  font-size: 16px;
   font-weight: 850;
 }
 
 .chips {
   display: flex;
-  gap: 8px;
+  gap: 12px;
   overflow-x: auto;
-  padding: 2px 0 18px;
+  padding: 2px 0 4px;
 }
 
 .chips::-webkit-scrollbar {
@@ -139,13 +76,13 @@
 
 .chips button {
   flex: 0 0 auto;
-  height: 32px;
-  padding: 0 14px;
+  height: 42px;
+  padding: 0 18px;
   border-radius: 8px;
   background: #f7f8fa;
   color: var(--t2);
   box-shadow: none;
-  font-size: 13px;
+  font-size: 16px;
   font-weight: 800;
   transition: background var(--duration-instant), color var(--duration-instant);
 }
@@ -158,35 +95,48 @@
 
 .pastList {
   display: grid;
-  gap: 22px;
+  gap: 28px;
+  margin-top: 20px;
 }
 
 @media (max-width: 768px) {
   .page {
-    padding-top: 14px;
+    padding: 34px 0 48px;
   }
 
   .header h1 {
-    font-size: 28px;
+    font-size: 34px;
   }
 
-  .sectionHead {
-    align-items: flex-start;
-    flex-direction: column;
-  }
-
-  .sectionHead p {
-    max-width: none;
-    text-align: left;
+  .header p {
+    font-size: 17px;
   }
 
   .activeGrid {
-    grid-template-columns: 1fr;
+    display: flex;
+    gap: 14px;
+    overflow-x: auto;
+    margin-right: -16px;
+    padding-right: 16px;
+    scroll-snap-type: x mandatory;
   }
 
-  .pastHead {
-    align-items: flex-start;
-    flex-direction: column;
+  .activeGrid::-webkit-scrollbar {
+    display: none;
+  }
+
+  .pastSection {
+    margin-top: 64px;
+  }
+
+  .pastHead h2 {
+    font-size: 30px;
+  }
+
+  .chips button {
+    height: 36px;
+    padding: 0 14px;
+    font-size: 14px;
   }
 }
 

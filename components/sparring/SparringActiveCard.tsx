@@ -36,7 +36,7 @@ export default function SparringActiveCard({ sparring }: { sparring: Sparring })
       <Link href={sparringPath(sparring.slug)} className={styles.activeLink}>
         <div className={styles.activeCopy}>
           <div className={styles.activeMeta}>
-            <span><FaIcon name="users" size={15} /> {formatNumber(total)}명 투표 중</span>
+            <span>{formatNumber(total)}명 투표 중</span>
           </div>
           <h2 className={styles.activeTitle}>{sparring.title}</h2>
         </div>
