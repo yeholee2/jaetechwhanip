@@ -1,5 +1,20 @@
 # 패치노트
 
+## [2026-05-10] 스파링 한글 slug 상세 진입 오류 수정 — Codex
+**작업자:** Codex
+**태그:** #Sparring #BugFix #Admin #SEO
+
+### 변경사항
+- [Sparring] 상세 페이지 진입 시 URL 인코딩된 한글 slug를 DB slug와 비교할 수 있도록 decode 처리 추가
+- [Sparring] 카드/사이드바/canonical/로그인 복귀 경로를 `sparringPath()` 공통 헬퍼로 통일
+- [Admin] `/admin/sparring` 라운드 목록에 `보기` 링크 추가, 새로 만든 라운드를 바로 확인 가능하게 개선
+
+### 확인
+- [x] `npm run build`
+- [x] 로컬 기존 스파링 상세 URL 200 확인
+
+---
+
 ## [2026-05-10] 아하 실화면 기준 스파링 목록 미세 조정 — Codex
 **작업자:** Codex
 **태그:** #Sparring #UI #Reference

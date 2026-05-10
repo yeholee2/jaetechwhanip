@@ -1,9 +1,10 @@
 'use client';
 
+import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 import type { CSSProperties } from 'react';
 import { CATEGORY_DEFINITIONS } from '@/lib/categories';
-import { inferPolarity, slugifySparringTitle, type Sparring, type SparringPolarity } from '@/lib/sparring';
+import { inferPolarity, slugifySparringTitle, sparringPath, type Sparring, type SparringPolarity } from '@/lib/sparring';
 import { createClient } from '@/lib/supabase/client';
 import styles from './AdminSparring.module.css';
 
@@ -371,6 +372,7 @@ export default function AdminSparringClient({ initialSparrings }: { initialSparr
                     {formatNumber(item.stats.votes_total)}표 · 토론 {formatNumber(item.stats.comment_count)}개
                   </div>
                   <div className={styles.itemActions}>
+                    <Link href={sparringPath(item.slug)}>보기</Link>
                     <button type="button" onClick={() => setForm(fromSparring(item))}>편집</button>
                     <button type="button" disabled={pending || item.status !== 'active'} onClick={() => closeRound(item.id)}>마감</button>
                     <button type="button" disabled={pending} onClick={() => deleteRound(item.id)}>삭제</button>

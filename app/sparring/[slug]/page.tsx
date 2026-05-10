@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { AppShell } from '@/components/AppShell';
-import { getSparringBySlug } from '@/lib/sparring';
+import { getSparringBySlug, sparringPath } from '@/lib/sparring';
 import SparringDetailClient from './SparringDetailClient';
 
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
@@ -18,7 +18,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
     title: `${sparring.title} | 스파링`,
     description: sparring.body || '재테크 결정을 투표와 댓글로 검증해요.',
     alternates: {
-      canonical: `/sparring/${sparring.slug}`,
+      canonical: sparringPath(sparring.slug),
     },
   };
 }

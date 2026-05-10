@@ -4,7 +4,7 @@ import Link from 'next/link';
 import type { CSSProperties } from 'react';
 import Countdown from '@/components/sparring/Countdown';
 import { FaIcon } from '@/components/FaIcon';
-import type { Sparring } from '@/lib/sparring';
+import { sparringPath, type Sparring } from '@/lib/sparring';
 import styles from './SparringCards.module.css';
 
 const gradients: Record<string, string> = {
@@ -33,7 +33,7 @@ export default function SparringActiveCard({ sparring }: { sparring: Sparring })
         '--fallback-bg': gradients[sparring.category] || gradients.재테크입문,
       } as CSSProperties}
     >
-      <Link href={`/sparring/${sparring.slug}`} className={styles.activeLink}>
+      <Link href={sparringPath(sparring.slug)} className={styles.activeLink}>
         <div className={styles.activeCopy}>
           <div className={styles.activeMeta}>
             <span><FaIcon name="users" size={15} /> {formatNumber(total)}명 투표 중</span>

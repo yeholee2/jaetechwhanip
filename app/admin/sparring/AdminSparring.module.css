@@ -318,8 +318,11 @@
   margin-top: 12px;
 }
 
+.itemActions a,
 .itemActions button {
   height: 32px;
+  display: inline-flex;
+  align-items: center;
   padding: 0 10px;
   border-radius: 10px;
   background: var(--white);
