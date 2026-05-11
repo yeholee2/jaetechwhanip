@@ -16,6 +16,7 @@ import { FaIcon } from './FaIcon';
 import { AppShell } from './AppShell';
 import { Chip, Badge } from '@/components/ui';
 import SparringMiniCard from './sparring/SparringMiniCard';
+import { HomeWatchWidget } from './HomeWatchWidget';
 import { etfs, etfPath } from '@/lib/etfs';
 import styles from './HomeClient.module.css';
 
@@ -353,7 +354,10 @@ export default function HomeClient({
           {/* 1. 핫 스파링 (기존) */}
           <SparringMiniCard sparring={featuredSparring} />
 
-          {/* 2. 오늘의 ETF */}
+          {/* 2. 내 관심 ETF */}
+          <HomeWatchWidget />
+
+          {/* 3. 오늘의 ETF */}
           {etfs[0] && (
             <Link href={etfPath(etfs[0].slug)} className={styles.sideWidget}>
               <div className={styles.sideHead}>오늘의 ETF</div>
