@@ -14,7 +14,7 @@
   position: relative;
   padding: 28px;
   border-radius: 24px;
-  background: #f3f5f6;
+  background: var(--rw-card-muted);
   box-shadow: 0 1px 3px rgba(0, 0, 0, .06);
 }
 
@@ -126,13 +126,13 @@
 }
 
 .positive {
-  --choice-color: #1e59da;
-  --choice-bg: #f5fafe;
+  --choice-color: var(--rw-blue70);
+  --choice-bg: var(--rw-blue5);
 }
 
 .negative {
-  --choice-color: #e52a39;
-  --choice-bg: #fff0f0;
+  --choice-color: var(--rw-red60);
+  --choice-bg: #fff0f0 /* TODO 토큰: rw-red5 */;
 }
 
 .selected {
@@ -190,15 +190,15 @@
   height: 12px;
   overflow: hidden;
   border-radius: 999px;
-  background: #eef1f4;
+  background: var(--rw-gray15);
 }
 
 .barA {
-  background: #1e59da;
+  background: var(--rw-blue70);
 }
 
 .barB {
-  background: #f04251;
+  background: var(--rw-red50);
 }
 
 .barLabels {
@@ -287,7 +287,7 @@
   min-height: 78px;
   padding: 0 14px;
   border-radius: 14px;
-  background: #f3f5f6;
+  background: var(--rw-card-muted);
   color: var(--t2);
   font-size: 14px;
   font-weight: 750;
@@ -309,7 +309,7 @@
   resize: vertical;
   border: 0;
   border-radius: 14px;
-  background: #f8fafc;
+  background: var(--rw-gray5);
   padding: 14px;
   color: var(--t1);
   font: inherit;
@@ -341,7 +341,7 @@
 }
 
 .composerActions button:disabled {
-  background: #c9d0d8;
+  background: var(--rw-gray30);
   cursor: default;
 }
 

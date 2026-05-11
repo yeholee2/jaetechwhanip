@@ -20,6 +20,7 @@ import { buildSeoDescription } from '@/lib/seo-content';
 import { FaIcon } from '@/components/FaIcon';
 import SparringMiniCard from '@/components/sparring/SparringMiniCard';
 import { RelatedContent } from '@/components/RelatedContent';
+import { Chip, Badge, Button } from '@/components/ui';
 import styles from './QuestionClient.module.css';
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -487,7 +488,9 @@ export default function QuestionClient({
           ) : (
             <button className={styles.iconBtn} onClick={() => router.push('/auth')}><FaIcon name="user" size={18} /></button>
           ))}
-          <button className={styles.btnAsk} onClick={() => user ? setShowAskModal(true) : router.push('/auth?next=/')}>나도 질문하기</button>
+          <Button size="sm" variant="primary" onClick={() => user ? setShowAskModal(true) : router.push('/auth?next=/')}>
+            나도 질문하기
+          </Button>
         </div>
       </nav>
 
@@ -508,7 +511,9 @@ export default function QuestionClient({
 
           {/* 브레드크럼 */}
           <div className={styles.breadcrumb}>
-            <button onClick={() => router.push('/')} className={styles.catChip}>{getCategoryLabel(q.category || '재테크')}</button>
+            <Chip onClick={() => router.push('/')} size="sm">
+              {getCategoryLabel(q.category || '재테크')}
+            </Chip>
           </div>
 
           {/* 질문 카드 */}
@@ -520,8 +525,8 @@ export default function QuestionClient({
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 2 }}>
                   <span style={{ fontSize: 14, fontWeight: 700 }}>{authorName}</span>
-                  {q.is_answered && <span className={styles.adoptedChip}>✅ 채택됨</span>}
-                  {qTranslated && <span className={styles.translatedBadge}>Translated</span>}
+                  {q.is_answered && <Badge tone="success">✅ 채택됨</Badge>}
+                  {qTranslated && <Badge tone="primary">Translated</Badge>}
                 </div>
                 <div style={{ fontSize: 12, color: 'var(--t3)' }}>
                   {ft(q.created_at)} · 조회 {q.view_count || 0}
@@ -717,7 +722,7 @@ function AnswerCard({ answer: a, currentUserId, isMyQuestion, isAnswered, liked,
         <div style={{ flex: 1 }}>
           <div style={{ fontWeight: 700, fontSize: 14 }}>{name}</div>
           <div style={{ fontSize: 12, color: 'var(--t3)' }}>{a.created_at ? ft(a.created_at) : ''}</div>
-          {isTranslated(answerBodyId) && <span className={styles.translatedBadge}>Translated</span>}
+          {isTranslated(answerBodyId) && <Badge tone="primary">Translated</Badge>}
         </div>
         {isMyAnswer && (
           <button className={styles.deleteBtn} onClick={onDelete}>삭제</button>
