@@ -296,6 +296,34 @@
   padding: 24px;
 }
 
+.articleDetail .meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
+  font-size: var(--text-sm);
+  color: var(--rw-text-muted);
+  font-weight: var(--weight-bold);
+}
+
+.articleDetail h1 {
+  font-size: var(--text-2xl);
+  line-height: var(--leading-tight);
+  font-weight: var(--weight-black);
+  letter-spacing: -0.2px;
+  color: var(--rw-text-strong);
+  margin-bottom: var(--space-3);
+}
+
+.articleDetail .tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-top: var(--space-4);
+  margin-bottom: var(--space-4);
+}
+
 .articleDetail > p {
   color: var(--t2);
   font-size: 15px;

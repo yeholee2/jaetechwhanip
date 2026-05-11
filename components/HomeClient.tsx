@@ -13,6 +13,7 @@ import { createQuestionSlug, ensureUniqueSlug } from '@/lib/slugs';
 import { getAuthNickname, syncFinanceNickname } from '@/lib/nicknames';
 import { useAutoTranslation } from '@/lib/useAutoTranslation';
 import { FaIcon } from './FaIcon';
+import { Chip } from '@/components/ui';
 import SparringMiniCard from './sparring/SparringMiniCard';
 import { etfs, etfPath } from '@/lib/etfs';
 import styles from './HomeClient.module.css';
@@ -361,9 +362,10 @@ export default function HomeClient({
           </div>
           <div className={styles.catRow}>
             {CATS.map(c => (
-              <button key={c} className={`${styles.ctag} ${currentCat===c?styles.on:''}`} onClick={() => setCurrentCat(c)}>
-                {CAT_EMOJI[c] && <span className="tf">{CAT_EMOJI[c]}</span>} {c === '전체' ? c : getCategoryLabel(c)}
-              </button>
+              <Chip key={c} active={currentCat === c} size="sm" onClick={() => setCurrentCat(c)}>
+                {CAT_EMOJI[c] && <span className="tf">{CAT_EMOJI[c]}</span>}
+                {c === '전체' ? c : getCategoryLabel(c)}
+              </Chip>
             ))}
           </div>
           {/* 검색창 (모바일 인라인) */}
@@ -479,9 +481,10 @@ export default function HomeClient({
         </div>
         <div className={styles.moCat}>
           {CATS.map(c => (
-            <button key={c} className={`${styles.ctag} ${currentCat===c?styles.on:''}`} onClick={() => setCurrentCat(c)}>
-              {CAT_EMOJI[c] && <span className="tf">{CAT_EMOJI[c]}</span>} {c === '전체' ? c : getCategoryLabel(c)}
-            </button>
+            <Chip key={c} active={currentCat === c} size="sm" onClick={() => setCurrentCat(c)}>
+              {CAT_EMOJI[c] && <span className="tf">{CAT_EMOJI[c]}</span>}
+              {c === '전체' ? c : getCategoryLabel(c)}
+            </Chip>
           ))}
         </div>
         <FeedSummary

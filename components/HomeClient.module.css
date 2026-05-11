@@ -44,10 +44,8 @@
 .feedSummary button:hover { background:var(--line); }
 
 /* 카테고리 */
-.catRow { display:flex; gap:5px; flex-wrap:wrap; margin-bottom:14px; }
-.ctag { height:30px; padding:0 13px; border-radius:20px; border:1.5px solid var(--line); background:var(--white); font-size:12px; font-weight:500; color:var(--t2); white-space:nowrap; transition:all .12s; }
-.ctag:hover { border-color:var(--blue); color:var(--blue); }
-.ctag.on { border-color:var(--blue); background:var(--blue-bg); color:var(--blue-dk); font-weight:700; }
+.catRow { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:14px; }
+.catRow > * { flex: 0 0 auto; }
 
 /* 레퍼럴 */
 .refBanner { background:linear-gradient(135deg,#5C6BC0,#7E57C2); border-radius:12px; padding:13px 16px; margin-bottom:12px; display:flex; align-items:center; justify-content:space-between; }
@@ -103,7 +101,7 @@
   .moMain .feedSummary { padding:2px 16px 10px; }
   .moCat { display:flex; overflow-x:auto; padding:8px 16px; gap:5px; }
 .moCat::-webkit-scrollbar { display:none; }
-.moCat .ctag { flex-shrink:0; }
+.moCat > * { flex-shrink:0; }
 .bottomNav { position:fixed; bottom:0; left:0; right:0; background:var(--white); border-top:1px solid var(--line); padding:6px 0 calc(6px + var(--sb)); z-index:200; }
 .bnav { flex:1; display:flex; flex-direction:column; align-items:center; gap:3px; padding:4px 0; color:var(--t3); }
 .bnav.on { color:var(--blue); }
