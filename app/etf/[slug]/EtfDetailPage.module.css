@@ -268,7 +268,6 @@
   gap: 8px;
 }
 
-.holdingList > div,
 .relatedList a {
   min-height: 70px;
   padding: 14px;
@@ -279,6 +278,68 @@
   align-items: center;
   justify-content: space-between;
   gap: 12px;
+}
+
+.holdingRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(80px, 140px) 60px;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--line);
+  border-radius: var(--rw-radius-md);
+  background: var(--rw-card);
+}
+
+.holdingInfo {
+  min-width: 0;
+}
+
+.holdingInfo strong {
+  display: block;
+  font-size: var(--text-base);
+  font-weight: var(--weight-heavy);
+  color: var(--rw-text-strong);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.holdingInfo p {
+  font-size: var(--text-sm);
+  color: var(--rw-text-muted);
+  font-weight: var(--weight-semibold);
+  margin-top: 2px;
+}
+
+.holdingBar {
+  height: 8px;
+  background: var(--rw-card-muted);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.holdingBar span {
+  display: block;
+  height: 100%;
+  background: var(--rw-primary);
+  border-radius: 999px;
+}
+
+.holdingPct {
+  text-align: right;
+  font-size: var(--text-base);
+  font-weight: var(--weight-heavy);
+  color: var(--rw-text-strong);
+}
+
+@media (max-width: 600px) {
+  .holdingRow {
+    grid-template-columns: 1fr 60px;
+  }
+  .holdingBar {
+    display: none;
+  }
 }
 
 .holdingList strong,

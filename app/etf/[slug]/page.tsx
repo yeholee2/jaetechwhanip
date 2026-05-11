@@ -160,15 +160,26 @@ export default async function EtfDetailPage({ params }: Props) {
                 <span>예시 비중</span>
               </div>
               <div className={styles.holdingList}>
-                {etf.holdings.map(holding => (
-                  <div key={holding.name}>
-                    <div>
-                      <strong>{holding.name}</strong>
-                      <p>{holding.note}</p>
+                {(() => {
+                  // 비중을 숫자로 파싱해서 정렬 + 바 너비 계산용 max 추출
+                  const parsed = etf.holdings.map(h => ({
+                    ...h,
+                    pct: parseFloat(String(h.weight).replace(/[^\d.]/g, '')) || 0,
+                  })).sort((a, b) => b.pct - a.pct);
+                  const max = Math.max(...parsed.map(p => p.pct), 1);
+                  return parsed.map(holding => (
+                    <div key={holding.name} className={styles.holdingRow}>
+                      <div className={styles.holdingInfo}>
+                        <strong>{holding.name}</strong>
+                        <p>{holding.note}</p>
+                      </div>
+                      <div className={styles.holdingBar} aria-hidden="true">
+                        <span style={{ width: `${(holding.pct / max) * 100}%` }} />
+                      </div>
+                      <b className={styles.holdingPct}>{holding.weight}</b>
                     </div>
-                    <b>{holding.weight}</b>
-                  </div>
-                ))}
+                  ));
+                })()}
               </div>
             </section>
 
