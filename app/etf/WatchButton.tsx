@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui';
-import { isEtfWatched, toggleEtfWatch, subscribeWatchChanges } from '@/lib/etfWatch';
+import { isEtfWatched, toggleEtfWatch, subscribeWatchChanges, syncEtfWatchFromServer } from '@/lib/etfWatch';
 
 export function WatchButton({ code, shortName }: { code: string; shortName: string }) {
   const [watched, setWatched] = useState(false);
@@ -11,6 +11,7 @@ export function WatchButton({ code, shortName }: { code: string; shortName: stri
   useEffect(() => {
     setMounted(true);
     setWatched(isEtfWatched(code));
+    void syncEtfWatchFromServer(); // 로그인 시 서버 머지
     return subscribeWatchChanges(codes => setWatched(codes.includes(code)));
   }, [code]);
 

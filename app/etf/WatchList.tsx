@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { etfPath, etfs, getEtfByCode } from '@/lib/etfs';
-import { listWatchedEtfCodes, subscribeWatchChanges, removeEtfWatch } from '@/lib/etfWatch';
+import { listWatchedEtfCodes, subscribeWatchChanges, removeEtfWatch, syncEtfWatchFromServer } from '@/lib/etfWatch';
 import { EtfLogo } from './EtfLogo';
 import { Card, Button, Badge } from '@/components/ui';
 import styles from './WatchList.module.css';
@@ -15,6 +15,7 @@ export function WatchList() {
   useEffect(() => {
     setMounted(true);
     setCodes(listWatchedEtfCodes());
+    void syncEtfWatchFromServer(); // 서버에서 머지 후 자동 이벤트 발행
     return subscribeWatchChanges(setCodes);
   }, []);
 
