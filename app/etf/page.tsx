@@ -14,10 +14,9 @@ import {
 } from '@/lib/etfs';
 import { SITE_NAME } from '@/lib/seo';
 import styles from './EtfPage.module.css';
-import { EtfTabs, parseEtfTab } from './EtfTabs';
-import { PortfolioTab } from './PortfolioTab';
-import { AlertsTab } from './AlertsTab';
-import { AiTab } from './AiTab';
+import { MyEtfSection } from './MyEtfSection';
+import { ExploreHero } from './ExploreHero';
+import { HotThemes } from './HotThemes';
 
 export const revalidate = 300;
 
@@ -50,26 +49,6 @@ type EtfPageProps = {
 };
 
 export default async function EtfPage({ searchParams }: EtfPageProps) {
-  const tab = parseEtfTab(searchParams);
-
-  if (tab !== 'browse') {
-    return (
-      <AppShell active="etf" wide hideSlogan>
-        <main className={styles.page}>
-          <header className={styles.header}>
-            <span className={styles.eyebrow}>ETF</span>
-            <h1>ETF를 한입에 관리해요</h1>
-            <p>둘러보고, 보유 ETF를 모으고, 알림·AI 인사이트까지 이어서 봐요.</p>
-          </header>
-          <EtfTabs active={tab} />
-          {tab === 'portfolio' && <PortfolioTab />}
-          {tab === 'alerts' && <AlertsTab />}
-          {tab === 'ai' && <AiTab />}
-        </main>
-      </AppShell>
-    );
-  }
-
   const marketEtfs = await getEtfsWithMarketData();
   const query = getParam(searchParams, 'q');
   const activeTheme = getParam(searchParams, 'theme') || '전체';
@@ -112,10 +91,15 @@ export default async function EtfPage({ searchParams }: EtfPageProps) {
         <header className={styles.header}>
           <span className={styles.eyebrow}>ETF</span>
           <h1>ETF를 한입에 관리해요</h1>
-          <p>둘러보고, 보유 ETF를 모으고, 알림·AI 인사이트까지 이어서 봐요.</p>
+          <p>내 보유부터 시장 흐름까지, 도미노식 자산 화면과 ETFCheck식 둘러보기를 한 페이지에서.</p>
         </header>
 
-        <EtfTabs active="browse" />
+        {/* 도미노 자산 홈 영역 — 비로그인/0개일 때 CTA, 보유 있을 때 풀 화면 */}
+        <MyEtfSection />
+
+        {/* ETFCheck 둘러보기 영역 — 인기 키워드 + HOT 테마 */}
+        <ExploreHero />
+        <HotThemes />
 
         <section className={styles.topGrid} aria-label="ETF 검색과 요약">
           <div className={styles.searchPanel}>
