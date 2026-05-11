@@ -8,6 +8,7 @@
 import { etfs, type EtfInfo } from '@/lib/etfs';
 import type { Sparring } from '@/lib/sparring';
 import type { HanipArticle } from '@/lib/feed';
+import type { ReportItem } from '@/lib/reports';
 
 export type RelatedQuestion = {
   slug: string;
@@ -107,6 +108,29 @@ export function findRelatedSparringsForEtf(etf: EtfInfo, sparrings: Sparring[], 
     .filter(x => x.score > 0)
     .sort((a, b) => b.score - a.score);
   return scored.slice(0, limit).map(x => x.s);
+}
+
+/**
+ * 특정 ETF와 연관된 리포트 찾기.
+ * 1순위: reports.related_etf_codes 에 ETF 코드가 명시된 것 (어드민이 직접 태깅)
+ * 2순위: 제목/요약 키워드 매칭
+ */
+export function findRelatedReportsForEtf(etf: EtfInfo, reports: ReportItem[], limit = 3): ReportItem[] {
+  const explicit = reports.filter(r => r.relatedEtfCodes?.includes(etf.code));
+  if (explicit.length >= limit) return explicit.slice(0, limit);
+
+  const explicitIds = new Set(explicit.map(r => r.id));
+  const remainder = reports
+    .filter(r => !explicitIds.has(r.id))
+    .map(r => {
+      const text = [r.title, r.summary, r.source, r.category].join(' ');
+      return { r, score: scoreEtfForText(etf, text) };
+    })
+    .filter(x => x.score > 0)
+    .sort((a, b) => b.score - a.score)
+    .map(x => x.r);
+
+  return [...explicit, ...remainder].slice(0, limit);
 }
 
 /**

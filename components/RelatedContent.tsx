@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { etfPath, type EtfInfo } from '@/lib/etfs';
 import { sparringPath, type Sparring } from '@/lib/sparring';
 import { articleUrl, type HanipArticle } from '@/lib/feed';
+import type { ReportItem } from '@/lib/reports';
 import styles from './RelatedContent.module.css';
 
 type RelatedQuestionItem = {
@@ -21,6 +22,8 @@ type Props = {
   sparrings?: Sparring[];
   /** 관련 한입 칼럼 */
   articles?: HanipArticle[];
+  /** 관련 리포트 */
+  reports?: ReportItem[];
 };
 
 export function RelatedContent({
@@ -29,12 +32,14 @@ export function RelatedContent({
   questions,
   sparrings,
   articles,
+  reports,
 }: Props) {
   const hasAny =
     (etfs && etfs.length > 0) ||
     (questions && questions.length > 0) ||
     (sparrings && sparrings.length > 0) ||
-    (articles && articles.length > 0);
+    (articles && articles.length > 0) ||
+    (reports && reports.length > 0);
 
   if (!hasAny) return null;
 
@@ -97,6 +102,22 @@ export function RelatedContent({
                   <span className={styles.title}>{a.title}</span>
                   <span className={styles.meta}>{a.readingTime}</span>
                 </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {reports && reports.length > 0 && (
+        <div className={styles.group}>
+          <div className={styles.groupHead}>리포트</div>
+          <ul className={styles.list}>
+            {reports.map(r => (
+              <li key={r.id}>
+                <a href={r.url} target="_blank" rel="noopener noreferrer" className={styles.item}>
+                  <span className={styles.title}>{r.title}</span>
+                  <span className={styles.meta}>{r.source}</span>
+                </a>
               </li>
             ))}
           </ul>

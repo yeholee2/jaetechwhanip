@@ -9,10 +9,12 @@ import { SITE_NAME, truncateDescription } from '@/lib/seo';
 import { sampleQuestions } from '@/lib/sampleData';
 import { listSparrings } from '@/lib/sparring';
 import { fetchGhostArticles } from '@/lib/feed';
+import { fetchRecentReportsWithFallback } from '@/lib/reports';
 import {
   findRelatedQuestionsForEtf,
   findRelatedSparringsForEtf,
   findRelatedArticlesForEtf,
+  findRelatedReportsForEtf,
 } from '@/lib/relatedContent';
 import { RelatedContent } from '@/components/RelatedContent';
 import styles from './EtfDetailPage.module.css';
@@ -64,15 +66,17 @@ export default async function EtfDetailPage({ params }: Props) {
   const etfBaseDate = 'baseDate' in etf ? etf.baseDate : undefined;
   const relatedEtfs = getRelatedEtfs(etf.slug, 3);
 
-  // 분절 해소: ETF 키워드로 4페이지 연결
+  // 분절 해소: ETF 키워드로 4페이지 + 리포트 연결
   const baseEtf = staticEtf || etf;
-  const [sparringRes, articles] = await Promise.all([
+  const [sparringRes, articles, reports] = await Promise.all([
     listSparrings(),
     fetchGhostArticles(),
+    fetchRecentReportsWithFallback(),
   ]);
   const relatedQs = findRelatedQuestionsForEtf(baseEtf as any, sampleQuestions as any, 3);
   const relatedSparrings = findRelatedSparringsForEtf(baseEtf as any, sparringRes.sparrings, 2);
   const relatedArticles = findRelatedArticlesForEtf(baseEtf as any, articles, 3);
+  const relatedReports = findRelatedReportsForEtf(baseEtf as any, reports, 3);
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'WebPage',
@@ -185,9 +189,10 @@ export default async function EtfDetailPage({ params }: Props) {
               questions={relatedQs.map(q => ({ slug: q.slug, title: q.title, ans: q.ans }))}
               sparrings={relatedSparrings}
               articles={relatedArticles}
+              reports={relatedReports}
             />
 
-            {relatedQs.length === 0 && relatedSparrings.length === 0 && relatedArticles.length === 0 && (
+            {relatedQs.length === 0 && relatedSparrings.length === 0 && relatedArticles.length === 0 && relatedReports.length === 0 && (
               <section className={styles.sideCard}>
                 <h2>관련 질문</h2>
                 {etf.relatedQuestions.map(question => (
