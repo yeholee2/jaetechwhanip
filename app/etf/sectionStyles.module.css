@@ -1,0 +1,58 @@
+/**
+ * ETF 페이지 섹션 공용 스타일.
+ * 모든 섹션이 같은 카드 박스, 같은 좌우 padding, 같은 header 정렬을 갖도록.
+ */
+
+.card {
+  margin: 0 0 var(--space-3);
+  padding: var(--space-5);
+  background: var(--rw-card);
+  border: 1px solid var(--rw-hairline);
+  border-radius: var(--rw-radius-md);
+}
+
+.head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+}
+
+.title {
+  font-size: var(--text-lg);
+  font-weight: var(--weight-heavy);
+  color: var(--rw-text-strong);
+  letter-spacing: -0.1px;
+  margin: 0;
+}
+
+.meta {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  color: var(--rw-text-muted);
+}
+
+.metaLink {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+  color: var(--rw-blue70);
+  text-decoration: none;
+}
+.metaLink:hover { text-decoration: underline; }
+
+/* 가로 스크롤 섹션이 카드 끝까지 bleed해야 할 때:
+ * .card 의 좌우 패딩만큼 -margin + +padding 으로 상쇄. */
+.bleedScroller {
+  display: flex;
+  gap: var(--space-3);
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  margin: 0 calc(-1 * var(--space-5));
+  padding: var(--space-1) var(--space-5);
+}
+.bleedScroller::-webkit-scrollbar { display: none; }
+
+/* 칩/토글이 가로 스크롤로 들어갈 때 자식 flex 보호 */
+.bleedScroller > * { flex-shrink: 0; }

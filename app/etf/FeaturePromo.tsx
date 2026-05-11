@@ -6,8 +6,8 @@ import styles from './FeaturePromo.module.css';
 
 export function FeaturePromo() {
   return (
-    <Link className={styles.card} href="/articles?topic=재테크입문">
-      <span className={styles.illustration} aria-hidden="true">💼</span>
+    <Link className={styles.card} href="/feed?category=재테크입문">
+      <span className={`${styles.illustration} tf`} aria-hidden="true">💼</span>
       <div className={styles.body}>
         <strong>월급 모으는 ETF, 처음부터 끝까지</strong>
         <span>적립식 투자가 처음이라면 이 글부터 읽어보세요</span>

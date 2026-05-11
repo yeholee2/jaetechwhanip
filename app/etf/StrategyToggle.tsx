@@ -8,6 +8,7 @@ import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import { etfPath, etfs } from '@/lib/etfs';
 import { EtfLogo } from './EtfLogo';
+import sec from './sectionStyles.module.css';
 import styles from './StrategyToggle.module.css';
 
 type StrategyKey = 'big' | 'dividend' | 'safe';
@@ -35,10 +36,10 @@ export function StrategyToggle() {
   }, [active]);
 
   return (
-    <section className={styles.section} aria-label="따라하면 돈 버는 ETF 전략">
-      <div className={styles.head}>
-        <h3 className={styles.title}>따라하면 돈 버는 ETF 전략</h3>
-        <Link href="#" className={styles.more}>더 보기 →</Link>
+    <section className={sec.card} aria-label="따라하면 돈 버는 ETF 전략">
+      <div className={sec.head}>
+        <h3 className={sec.title}>돈 버는 ETF 전략</h3>
+        <Link href="/etf/all" className={sec.metaLink}>더 보기 →</Link>
       </div>
 
       <div className={styles.toggleRow} role="tablist">

@@ -4,6 +4,7 @@
  */
 import Link from 'next/link';
 import { etfPath, etfs } from '@/lib/etfs';
+import sec from './sectionStyles.module.css';
 import styles from './InsightCarousel.module.css';
 
 type Insight = {
@@ -59,9 +60,12 @@ function InsightCard({ insight }: { insight: Insight }) {
 
 export function InsightCarousel() {
   return (
-    <section className={styles.section} aria-label="ETF 큐레이션">
-      <h3 className={styles.title}>이번 주 ETF 큐레이션</h3>
-      <div className={styles.scroller}>
+    <section className={sec.card} aria-label="ETF 큐레이션">
+      <div className={sec.head}>
+        <h3 className={sec.title}>이번 주 ETF 큐레이션</h3>
+        <span className={sec.meta}>{INSIGHTS.length}개 묶음</span>
+      </div>
+      <div className={`${sec.bleedScroller} ${styles.scroller}`}>
         {INSIGHTS.map(i => (
           <InsightCard key={i.title} insight={i} />
         ))}

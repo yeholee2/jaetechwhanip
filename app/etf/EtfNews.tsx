@@ -1,8 +1,9 @@
 /**
  * ETFCheck식 주요 뉴스 리스트.
- * Phase B 현재: 정적 시드. Phase F에서 RSS 자동수집 검토 (저작권 안전선 준수).
+ * Phase B 현재: 정적 시드. Phase F에서 RSS 자동수집 검토.
  */
 import Link from 'next/link';
+import sec from './sectionStyles.module.css';
 import styles from './EtfNews.module.css';
 
 type NewsItem = {
@@ -22,12 +23,10 @@ const NEWS_SEED: NewsItem[] = [
 
 export function EtfNews() {
   return (
-    <section className={styles.section} aria-label="주요 뉴스">
-      <div className={styles.head}>
-        <h3 className={styles.title}>주요 뉴스</h3>
-        <Link href="#" className={styles.more}>
-          더보기 →
-        </Link>
+    <section className={sec.card} aria-label="주요 뉴스">
+      <div className={sec.head}>
+        <h3 className={sec.title}>주요 뉴스</h3>
+        <Link href="/feed?tab=news" className={sec.metaLink}>더보기 →</Link>
       </div>
 
       <ul className={styles.list}>

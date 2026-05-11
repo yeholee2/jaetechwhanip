@@ -1,85 +1,72 @@
-.section {
-  margin: 0 0 16px;
-}
-.title {
-  font-size: 17px;
-  font-weight: 700;
-  color: var(--rw-text-strong);
-  margin-bottom: 12px;
-  padding: 0 4px;
-}
+/* InsightCarousel 내부 — 섹션 카드/헤더는 sectionStyles 공용 */
+
 .scroller {
-  display: flex;
-  gap: 10px;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
-  padding: 0 4px 4px;
+  /* sec.bleedScroller 가 좌우 -margin/+padding 처리. 여기선 추가 없음. */
 }
-.scroller::-webkit-scrollbar {
-  display: none;
-}
+
 .card {
   flex-shrink: 0;
   width: 240px;
-  background: var(--rw-card);
+  background: var(--rw-card-muted);
   border-radius: var(--rw-radius-md);
-  padding: 18px;
+  padding: var(--space-4);
   display: flex;
   flex-direction: column;
 }
+
 .cardTitle {
-  font-size: 16px;
-  font-weight: 700;
+  font-size: var(--text-md);
+  font-weight: var(--weight-bold);
   color: var(--rw-text-strong);
   line-height: 1.4;
-  margin-bottom: 14px;
+  margin-bottom: var(--space-3);
   min-height: 44px;
 }
+
 .cardList {
   list-style: none;
   margin: 0;
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  margin-bottom: 12px;
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
 }
+
 .cardItem {
   display: flex;
   align-items: center;
-  padding: 8px 10px;
-  background: var(--rw-gray10);
-  border-radius: 8px;
+  padding: var(--space-2) var(--space-3);
+  background: var(--rw-card);
+  border-radius: var(--rw-radius-sm);
   text-decoration: none;
-  transition: background var(--duration-instant, .15s) var(--ease-in-out, ease);
+  transition: background var(--duration-instant) var(--ease-in-out);
 }
-.cardItem:hover {
-  background: var(--rw-blue5);
-}
+.cardItem:hover { background: var(--rw-blue5); }
+
 .cardEtf {
   font-size: 13px;
-  font-weight: 600;
+  font-weight: var(--weight-semibold);
   color: var(--rw-text-strong);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
 .cardEmpty {
-  padding: 8px 10px;
+  padding: var(--space-2) var(--space-3);
   font-size: 13px;
   color: var(--rw-text-muted);
   text-align: center;
 }
+
 .cardMore {
   font-size: 13px;
-  font-weight: 700;
+  font-weight: var(--weight-bold);
   color: var(--rw-text-muted);
   text-decoration: none;
   text-align: center;
-  padding: 8px 0;
+  padding: var(--space-2) 0;
   border-top: 1px solid var(--rw-hairline);
 }
-.cardMore:hover {
-  color: var(--rw-primary);
-}
+.cardMore:hover { color: var(--rw-primary); }

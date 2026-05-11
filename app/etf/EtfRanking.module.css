@@ -1,75 +1,38 @@
-/* RW 랭킹 카드 컨테이너 */
-.section {
-  margin: 0 0 16px;
-  background: var(--rw-card);
-  border-radius: var(--rw-radius-md);
-  padding: 20px 0 4px;
-}
-.head {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  padding: 0 20px 14px;
-}
-.title {
-  font-size: 17px;
-  font-weight: 700;
-  color: var(--rw-text-strong);
-}
-.range {
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--rw-text-muted);
-}
+/* EtfRanking 내부 — 섹션 카드/헤더는 sectionStyles 공용 */
 
-.sortRow,
-.catRow {
-  display: flex;
-  gap: 6px;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
-  padding: 0 20px 8px;
-}
-.sortRow::-webkit-scrollbar,
-.catRow::-webkit-scrollbar { display: none; }
-
-.sortRow > *,
-.catRow > * { flex-shrink: 0; }
-
-.catRow {
-  padding-bottom: 12px;
+.chipRow {
+  margin-bottom: var(--space-2);
 }
 
 .list {
   list-style: none;
-  margin: 0;
+  margin: 0 calc(-1 * var(--space-5));
   padding: 0;
 }
+
 .item {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 14px 20px;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-5);
   text-decoration: none;
   color: inherit;
   border-top: 1px solid var(--rw-hairline);
-  transition: background var(--duration-instant, .15s) var(--ease-in-out, ease);
+  transition: background var(--duration-instant) var(--ease-in-out);
 }
-.item:hover {
-  background: var(--rw-gray2);
-}
+.item:hover { background: var(--rw-gray2); }
+
 .rank {
-  font-size: 14px;
-  font-weight: 700;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
   color: var(--rw-primary);
   width: 16px;
   flex-shrink: 0;
   text-align: center;
 }
-.logo {
-  flex-shrink: 0;
-}
+
+.logo { flex-shrink: 0; }
+
 .info {
   flex: 1;
   min-width: 0;
@@ -77,14 +40,16 @@
   flex-direction: column;
   gap: 2px;
 }
+
 .info strong {
-  font-size: 14px;
-  font-weight: 600;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
   color: var(--rw-text-strong);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
 .info span {
   font-size: 12px;
   color: var(--rw-text-muted);
@@ -92,18 +57,10 @@
   gap: 6px;
   align-items: baseline;
 }
-.up {
-  color: var(--rw-up);
-  font-size: 12px;
-  font-weight: 700;
-  font-style: normal;
-}
-.down {
-  color: var(--rw-down);
-  font-size: 12px;
-  font-weight: 700;
-  font-style: normal;
-}
+
+.up { color: var(--rw-up); font-size: 12px; font-weight: 700; font-style: normal; }
+.down { color: var(--rw-down); font-size: 12px; font-weight: 700; font-style: normal; }
+
 .bookmark {
   flex-shrink: 0;
   width: 28px;
@@ -115,20 +72,18 @@
   font-size: 22px;
   line-height: 1;
 }
-.bookmark:hover {
-  color: var(--rw-orange40);
-}
+.bookmark:hover { color: var(--rw-orange40); }
 
 .more {
   display: block;
   text-align: center;
-  font-size: 14px;
-  font-weight: 500;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
   color: var(--rw-text-muted);
   text-decoration: none;
-  padding: 14px 0;
+  padding: var(--space-3) 0 0;
+  margin: var(--space-2) calc(-1 * var(--space-5)) calc(-1 * var(--space-2));
+  padding: var(--space-3) var(--space-5);
   border-top: 1px solid var(--rw-hairline);
 }
-.more:hover {
-  color: var(--rw-primary);
-}
+.more:hover { color: var(--rw-primary); }

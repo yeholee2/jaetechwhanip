@@ -9,6 +9,7 @@ import Link from 'next/link';
 import { etfPath, etfs } from '@/lib/etfs';
 import { EtfLogo } from './EtfLogo';
 import { Chip } from '@/components/ui';
+import sec from './sectionStyles.module.css';
 import styles from './ThemeToggle.module.css';
 
 const THEMES = ['반도체', 'AI', '배당', '월배당', 'S&P500', '리츠', '원자재'] as const;
@@ -37,10 +38,13 @@ export function ThemeToggle() {
   }, [activeTheme]);
 
   return (
-    <section className={styles.section} aria-label="요즘 뜨는 ETF 테마">
-      <h3 className={styles.title}>요즘 뜨는 테마</h3>
+    <section className={sec.card} aria-label="요즘 뜨는 ETF 테마">
+      <div className={sec.head}>
+        <h3 className={sec.title}>요즘 뜨는 테마</h3>
+        <span className={sec.meta}>{THEMES.length}개</span>
+      </div>
 
-      <div className={styles.toggleRow}>
+      <div className={`${sec.bleedScroller} ${styles.toggleRow}`}>
         {THEMES.map(theme => (
           <Chip
             key={theme}

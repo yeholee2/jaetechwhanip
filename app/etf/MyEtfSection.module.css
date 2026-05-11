@@ -2,18 +2,19 @@
 .row {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 18px 20px;
+  gap: var(--space-3);
+  padding: var(--space-5);
   background: var(--rw-card);
+  border: 1px solid var(--rw-hairline);
   border-radius: var(--rw-radius-md);
   text-decoration: none;
   color: inherit;
-  margin: 12px 0 16px;
+  margin: 0 0 var(--space-3);
   width: 100%;
   text-align: left;
-  border: none;
   cursor: pointer;
-  transition: background var(--duration-instant, .15s) var(--ease-in-out, ease);
+  transition: background var(--duration-instant) var(--ease-in-out),
+              border-color var(--duration-instant) var(--ease-in-out);
 }
 .row:hover {
   background: var(--rw-gray2);
@@ -75,10 +76,11 @@
 
 /* ===== 로그인 + 보유: 도미노 풀 화면 ===== */
 .dash {
-  margin: 12px 0 16px;
+  margin: 0 0 var(--space-3);
   background: var(--rw-card);
+  border: 1px solid var(--rw-hairline);
   border-radius: var(--rw-radius-md);
-  padding: 24px 20px 4px;
+  padding: var(--space-5);
 }
 .head {
   display: flex;

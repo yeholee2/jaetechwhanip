@@ -1,14 +1,14 @@
 'use client';
 
 /**
- * ETFCheck식 랭킹 TOP 10.
- * 정렬·카테고리 칩 클릭으로 활성 상태 전환 (실제 정렬 로직은 Phase F).
+ * ETFCheck식 랭킹 TOP 10. 정렬·카테고리 칩 클릭으로 활성 상태 전환.
  */
 import { useState } from 'react';
 import Link from 'next/link';
 import { etfPath, etfs } from '@/lib/etfs';
 import { EtfLogo } from './EtfLogo';
 import { Chip } from '@/components/ui';
+import sec from './sectionStyles.module.css';
 import styles from './EtfRanking.module.css';
 
 const SORT_OPTIONS = ['수익률', '거래량', '자금유입', '순자산총액', '투자자'] as const;
@@ -24,13 +24,13 @@ export function EtfRanking() {
   const ranked = etfs.slice(0, 5);
 
   return (
-    <section className={styles.section} aria-label="ETF 랭킹 TOP 10">
-      <div className={styles.head}>
-        <h3 className={styles.title}>랭킹 TOP 10</h3>
-        <span className={styles.range}>당일 · 전일</span>
+    <section className={sec.card} aria-label="ETF 랭킹 TOP 10">
+      <div className={sec.head}>
+        <h3 className={sec.title}>랭킹 TOP 10</h3>
+        <span className={sec.meta}>당일 · 전일</span>
       </div>
 
-      <div className={styles.sortRow}>
+      <div className={`${sec.bleedScroller} ${styles.chipRow}`}>
         {SORT_OPTIONS.map(opt => (
           <Chip
             key={opt}
@@ -43,7 +43,7 @@ export function EtfRanking() {
         ))}
       </div>
 
-      <div className={styles.catRow}>
+      <div className={`${sec.bleedScroller} ${styles.chipRow}`}>
         {CATEGORY_OPTIONS.map(cat => (
           <Chip
             key={cat}
@@ -73,7 +73,7 @@ export function EtfRanking() {
         ))}
       </ol>
 
-      <Link className={styles.more} href={`${'/etf'}?view=ranking`}>
+      <Link className={styles.more} href="/etf/all?sort=ranking">
         TOP 10 더보기 →
       </Link>
     </section>

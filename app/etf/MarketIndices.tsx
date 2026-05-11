@@ -2,6 +2,7 @@
  * 시장 지수 가로 스크롤 — RiskWeather 상단 패턴.
  * Phase B: 정적 시드. Phase F에서 data.go.kr API 연결.
  */
+import sec from './sectionStyles.module.css';
 import styles from './MarketIndices.module.css';
 
 type Index = { name: string; price: string; change: string; tone: 'up' | 'down'; warn?: boolean };
@@ -17,13 +18,17 @@ const INDICES: Index[] = [
 
 export function MarketIndices() {
   return (
-    <section className={styles.section} aria-label="시장 지수">
-      <div className={styles.scroller}>
+    <section className={sec.card} aria-label="시장 지수">
+      <div className={sec.head}>
+        <h3 className={sec.title}>시장 지수</h3>
+        <span className={sec.meta}>실시간</span>
+      </div>
+      <div className={sec.bleedScroller}>
         {INDICES.map(idx => (
           <div key={idx.name} className={styles.item}>
             <div className={styles.head}>
               <span className={styles.name}>{idx.name}</span>
-              {idx.warn && <span className={styles.warn} aria-hidden="true">⚠️</span>}
+              {idx.warn && <span className={`${styles.warn} tf`} aria-hidden="true">⚠️</span>}
             </div>
             <div className={styles.price}>{idx.price}</div>
             <div className={idx.tone === 'down' ? styles.down : styles.up}>{idx.change}</div>
