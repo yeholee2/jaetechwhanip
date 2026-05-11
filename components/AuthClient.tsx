@@ -44,7 +44,7 @@ export default function AuthClient() {
     <div className={styles.page}>
       <div className={styles.card}>
         <div className={`${styles.wordmark} logo-font`}>ETF<em>한입</em></div>
-        <div className={styles.tagline}>궁금할 땐,<br/><em>재테크한입</em></div>
+        <div className={styles.tagline}>ETF가 헷갈릴 땐,<br/><em>ETF한입</em></div>
 
         <button
           className={`${styles.sbtn} ${styles.google}`}
