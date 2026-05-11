@@ -186,32 +186,7 @@
   margin-bottom: 7px;
 }
 
-.adopted {
-  font-size: 10px;
-  font-weight: 700;
-  color: #E65100;
-  background: #FFF3E0;
-  padding: 1px 5px;
-  border-radius: 3px;
-}
-
-.translatedBadge {
-  font-size: 10px;
-  font-weight: 700;
-  color: var(--rw-primary);
-  background: var(--rw-primary-bg);
-  padding: 1px 6px;
-  border-radius: 4px;
-}
-
-.topicBadge {
-  font-size: 10px;
-  font-weight: 700;
-  color: #176B3A;
-  background: #EAF8F0;
-  padding: 1px 6px;
-  border-radius: 4px;
-}
+/* adopted, translatedBadge, topicBadge → Badge 컴포넌트로 대체 (deprecated) */
 
 .qtags {
   display: flex;

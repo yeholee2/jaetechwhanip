@@ -14,7 +14,7 @@ import { getAuthNickname, syncFinanceNickname } from '@/lib/nicknames';
 import { useAutoTranslation } from '@/lib/useAutoTranslation';
 import { FaIcon } from './FaIcon';
 import { AppShell } from './AppShell';
-import { Chip } from '@/components/ui';
+import { Chip, Badge } from '@/components/ui';
 import SparringMiniCard from './sparring/SparringMiniCard';
 import { etfs, etfPath } from '@/lib/etfs';
 import styles from './HomeClient.module.css';
@@ -553,16 +553,15 @@ function FeedList({ questions, mobile, router }: { questions: Question[], mobile
             </div>
             <div className={styles.qinfo}>
               <div className={styles.qmeta}>
-                <span style={{fontSize:12,fontWeight:700}}>{getCategoryLabel(q.cat)}</span>
-                {q.topic && <span className={styles.topicBadge}>{q.topic}</span>}
-                <span style={{fontSize:10,color:'var(--t3)'}}>·</span>
-                <span style={{fontSize:12,color:'var(--t3)'}}>{q.time}</span>
-                {q.adopted && <span className={styles.adopted}>✅ 채택됨</span>}
-                {translated && <span className={styles.translatedBadge}>Translated</span>}
+                <Badge tone="neutral">{getCategoryLabel(q.cat)}</Badge>
+                {q.topic && <Badge tone="success">{q.topic}</Badge>}
+                <span style={{fontSize:12,color:'var(--rw-text-muted)'}}>{q.time}</span>
+                {q.adopted && <Badge tone="warning">✅ 채택됨</Badge>}
+                {translated && <Badge tone="primary">Translated</Badge>}
               </div>
               {q.tags && q.tags.length > 0 && (
                 <div className={styles.qtags}>
-                  {q.tags.slice(0, 3).map(tag => <span key={tag}>{tag}</span>)}
+                  {q.tags.slice(0, 3).map(tag => <span key={tag}>#{tag}</span>)}
                 </div>
               )}
               <h3 className={styles.qtitle}>
