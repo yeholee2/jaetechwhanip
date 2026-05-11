@@ -6,6 +6,42 @@
   min-height: 100vh;
 }
 
+/* "준비 중" 탭 카드 */
+.comingSoonCard {
+  margin-top: var(--space-6);
+  text-align: center;
+}
+
+.comingSoonInner {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: var(--space-6) 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.comingSoonTitle {
+  font-size: var(--text-xl);
+  font-weight: var(--weight-heavy);
+  color: var(--rw-text-strong);
+  letter-spacing: -0.1px;
+  margin: 0;
+}
+
+.comingSoonBody {
+  font-size: var(--text-base);
+  font-weight: var(--weight-medium);
+  color: var(--rw-text-body);
+  line-height: var(--leading-relaxed);
+  margin: 0;
+}
+
+.comingSoonCta {
+  margin-top: var(--space-2);
+}
+
 .header {
   margin-bottom: 12px;
   padding: 0 4px;

@@ -2,9 +2,9 @@ import type { Metadata } from 'next';
 import { AppShell } from '@/components/AppShell';
 import { ETF_HOME_PATH, ETF_HOME_URL, etfs } from '@/lib/etfs';
 import { SITE_NAME } from '@/lib/seo';
-import { PageHero, Badge } from '@/components/ui';
+import { PageHero, Badge, Card, Button } from '@/components/ui';
 import styles from './EtfPage.module.css';
-import { EtfPageTabs } from './EtfPageTabs';
+import { EtfPageTabs, type EtfPageTab } from './EtfPageTabs';
 import { MyEtfSection } from './MyEtfSection';
 import { MarketIndices } from './MarketIndices';
 import { EtfNews } from './EtfNews';
@@ -35,7 +35,20 @@ export const metadata: Metadata = {
   },
 };
 
-export default async function EtfPage() {
+const VALID_TABS: EtfPageTab[] = ['discover', 'watch', 'diagnostic', 'feed'];
+
+function getActiveTab(raw?: string): EtfPageTab {
+  if (raw && (VALID_TABS as string[]).includes(raw)) return raw as EtfPageTab;
+  return 'discover';
+}
+
+export default async function EtfPage({
+  searchParams,
+}: {
+  searchParams?: { tab?: string };
+}) {
+  const active = getActiveTab(searchParams?.tab);
+
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'CollectionPage',
@@ -72,37 +85,111 @@ export default async function EtfPage() {
           aside={<Badge tone="primary">{etfs.length}개 ETF</Badge>}
         />
 
+        <EtfPageTabs active={active} />
 
-        {/* RW 상단 탭 — 발견/관심/진단/피드 */}
-        <EtfPageTabs active="discover" />
-
-        {/* 1. 내 ETF (RW엔 CTA에 진단으로 들어가나, 우리는 도미노 풀화면 가능해 상단에) */}
-        <MyEtfSection />
-
-        {/* 2. 시장 지수 가로 스크롤 */}
-        <MarketIndices />
-
-        {/* 3. 최신 ETF 뉴스 */}
-        <EtfNews />
-
-        {/* 4. 투자 매력도 높은 ETF (RW: 투자 매력도 높은 주식) */}
-        <EtfRanking />
-
-        {/* 5. CTA 카드 2개 (RW: 큰 돈 / 내 주식 진단) */}
-        <CtaCards />
-
-        {/* 6. 따라하면 돈 버는 ETF 전략 (RW: 따라하면 돈 버는 투자 전략) */}
-        <StrategyToggle />
-
-        {/* 7. 요즘 뜨는 ETF 테마 (RW: 요즘 뜨는 산업) */}
-        <ThemeToggle />
-
-        {/* 8. ETF 큐레이션 가로 카드 (RW: 트럼프 리스크 / AI 전기 / K-푸드) */}
-        <InsightCarousel />
-
-        {/* 9. 단일 진입 카드 (RW: 세계가 주목하는 K-뷰티) */}
-        <FeaturePromo />
+        {active === 'discover' && <DiscoverTab />}
+        {active === 'watch' && <WatchTabPlaceholder />}
+        {active === 'diagnostic' && <DiagnosticTabPlaceholder />}
+        {active === 'feed' && <FeedTabPlaceholder />}
       </main>
     </AppShell>
+  );
+}
+
+function DiscoverTab() {
+  return (
+    <>
+      {/* 1. 내 ETF (로그인 시 도미노 풀화면, 비로그인 시 가입 CTA) */}
+      <MyEtfSection />
+
+      {/* 2. 시장 지수 */}
+      <MarketIndices />
+
+      {/* 3. 최신 ETF 뉴스 */}
+      <EtfNews />
+
+      {/* 4. 투자 매력도 높은 ETF */}
+      <EtfRanking />
+
+      {/* 5. CTA 카드 2개 */}
+      <CtaCards />
+
+      {/* 6. 따라하면 돈 버는 ETF 전략 */}
+      <StrategyToggle />
+
+      {/* 7. 요즘 뜨는 ETF 테마 */}
+      <ThemeToggle />
+
+      {/* 8. 큐레이션 캐러셀 */}
+      <InsightCarousel />
+
+      {/* 9. 단일 피처 카드 */}
+      <FeaturePromo />
+    </>
+  );
+}
+
+function ComingSoonCard({
+  eyebrow,
+  title,
+  body,
+  ctaLabel,
+  ctaHref,
+}: {
+  eyebrow: string;
+  title: string;
+  body: string;
+  ctaLabel?: string;
+  ctaHref?: string;
+}) {
+  return (
+    <Card pad="lg" className={styles.comingSoonCard}>
+      <div className={styles.comingSoonInner}>
+        <Badge tone="purple">{eyebrow}</Badge>
+        <h2 className={styles.comingSoonTitle}>{title}</h2>
+        <p className={styles.comingSoonBody}>{body}</p>
+        {ctaLabel && ctaHref && (
+          <Button href={ctaHref} variant="primary" size="md" className={styles.comingSoonCta}>
+            {ctaLabel}
+          </Button>
+        )}
+      </div>
+    </Card>
+  );
+}
+
+function WatchTabPlaceholder() {
+  return (
+    <ComingSoonCard
+      eyebrow="준비 중"
+      title="관심 ETF 모음이 곧 열려요"
+      body="좋아하는 ETF를 모아두면 시세·뉴스·분배금 알림을 한눈에 받을 수 있어요. ETF 상세 페이지에서 ♡ 관심 등록을 먼저 해 두세요."
+      ctaLabel="발견 탭으로 돌아가기"
+      ctaHref="/etf"
+    />
+  );
+}
+
+function DiagnosticTabPlaceholder() {
+  return (
+    <ComingSoonCard
+      eyebrow="준비 중"
+      title="내 포트폴리오 진단 (β)"
+      body="보유 ETF의 자산 배분·중복·비용 구조를 한입이 자동 분석해드릴 예정이에요. 우선 내 ETF부터 등록해 두면 출시되자마자 분석을 받을 수 있어요."
+      ctaLabel="내 ETF 등록하기"
+      ctaHref="/etf"
+    />
+  );
+}
+
+function FeedTabPlaceholder() {
+  return (
+    <ComingSoonCard
+      eyebrow="ETF 피드"
+      title="ETF 관련 글만 모아 보기"
+      body="질문·뉴스·리포트·칼럼 중 ETF 카테고리만 필터링해 보여드릴 예정이에요. 그동안은 전체 피드에서 카테고리 칩으로 좁혀 보세요."
+      ctaLabel="피드로 가기"
+      ctaHref="/feed?category=국내주식·ETF"
+    />
   );
 }
