@@ -46,11 +46,41 @@ export function AppShell({
   const router = useRouter();
   const [user, setUser] = useState<any>(null);
   const [showProfile, setShowProfile] = useState(false);
+  const [showSearch, setShowSearch] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const profileRef = useRef<HTMLDivElement>(null);
+  const searchRef = useRef<HTMLDivElement>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
   const userName = getUserName(user);
   const userAvatar = getUserAvatar(user);
   const profileHref = user ? `/u/${user.id}` : '/auth';
   const ask = () => router.push(user ? '/?ask=1' : '/auth?next=/?ask=1');
+
+  // 검색 popup 외부 클릭 닫기
+  useEffect(() => {
+    if (!showSearch) return undefined;
+    const handler = (event: MouseEvent) => {
+      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
+        setShowSearch(false);
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [showSearch]);
+
+  const submitSearch = (event: React.FormEvent) => {
+    event.preventDefault();
+    const q = searchQuery.trim();
+    if (!q) return;
+    // 홈으로 검색 결과 전달 (홈에서 question filter 처리)
+    router.push(`/?q=${encodeURIComponent(q)}`);
+    setShowSearch(false);
+  };
+
+  const openSearch = () => {
+    setShowSearch(true);
+    setTimeout(() => searchInputRef.current?.focus(), 50);
+  };
 
   useEffect(() => {
     if (!hasSupabase()) {
@@ -113,7 +143,40 @@ export function AppShell({
           <li><a href="#" style={{ fontSize: 13, color: 'var(--t3)' }}>전문가 신청</a></li>
         </ul>
         <div className={styles.pcRight}>
-          <button className={styles.iconBtn} aria-label="검색"><FaIcon name="magnifying-glass" size={18} /></button>
+          <div className={styles.searchWrap} ref={searchRef}>
+            <button
+              className={styles.iconBtn}
+              aria-label="검색"
+              aria-expanded={showSearch}
+              type="button"
+              onClick={() => showSearch ? setShowSearch(false) : openSearch()}
+            >
+              <FaIcon name="magnifying-glass" size={18} />
+            </button>
+            {showSearch && (
+              <form className={styles.searchPopup} onSubmit={submitSearch} role="search">
+                <FaIcon name="magnifying-glass" size={14} />
+                <input
+                  ref={searchInputRef}
+                  type="search"
+                  value={searchQuery}
+                  onChange={event => setSearchQuery(event.target.value)}
+                  placeholder="질문·ETF·키워드 검색"
+                  aria-label="검색어"
+                />
+                {searchQuery && (
+                  <button
+                    type="button"
+                    className={styles.searchClear}
+                    onClick={() => setSearchQuery('')}
+                    aria-label="검색어 지우기"
+                  >
+                    <FaIcon name="xmark" size={12} />
+                  </button>
+                )}
+              </form>
+            )}
+          </div>
           <button className={styles.iconBtn} aria-label="알림"><FaIcon name="bell" size={18} /></button>
           {user ? (
             <div className={styles.profileWrap} ref={profileRef}>
@@ -158,7 +221,14 @@ export function AppShell({
         <div className={styles.moTop}>
           <Link className={`${styles.moLogo} logo-font`} href="/">ETF<em>한입</em></Link>
           <div className={styles.moIcons}>
-            <button className={styles.moIcon} aria-label="검색"><FaIcon name="magnifying-glass" size={19} /></button>
+            <button
+              className={styles.moIcon}
+              aria-label="검색"
+              type="button"
+              onClick={() => showSearch ? setShowSearch(false) : openSearch()}
+            >
+              <FaIcon name="magnifying-glass" size={19} />
+            </button>
             <button className={styles.moIcon} aria-label="알림"><FaIcon name="bell" size={19} /></button>
             {user ? (
               <Link className={styles.moAvatar} href={profileHref} aria-label="내 정보">
@@ -176,6 +246,29 @@ export function AppShell({
             )}
           </div>
         </div>
+        {showSearch && (
+          <form className={styles.moSearchBar} onSubmit={submitSearch} role="search">
+            <FaIcon name="magnifying-glass" size={14} />
+            <input
+              type="search"
+              value={searchQuery}
+              onChange={event => setSearchQuery(event.target.value)}
+              placeholder="질문·ETF·키워드 검색"
+              aria-label="검색어"
+              autoFocus
+            />
+            {searchQuery && (
+              <button
+                type="button"
+                className={styles.searchClear}
+                onClick={() => setSearchQuery('')}
+                aria-label="검색어 지우기"
+              >
+                <FaIcon name="xmark" size={12} />
+              </button>
+            )}
+          </form>
+        )}
         <nav className={styles.moGnav}>
           {NAV_ITEMS.map(item => (
             <Link key={item.key} href={item.href} className={active === item.key ? styles.active : ''}>

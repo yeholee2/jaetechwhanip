@@ -88,7 +88,91 @@
 }
 
 .iconBtn:hover {
-  background: var(--bg);
+  background: var(--rw-card-muted);
+}
+
+/* ─────────────────────────────────────────────────────────
+ * 검색 popup (PC)
+ * ───────────────────────────────────────────────────────── */
+.searchWrap {
+  position: relative;
+}
+
+.searchPopup {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 8px);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  width: 320px;
+  padding: 0 var(--space-3);
+  height: 44px;
+  background: var(--rw-card);
+  border: 1px solid var(--rw-hairline);
+  border-radius: var(--rw-radius-md);
+  box-shadow: var(--rw-shadow-3);
+  z-index: var(--z-dropdown);
+  color: var(--rw-text-muted);
+}
+
+.searchPopup input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  font: inherit;
+  font-size: var(--text-sm);
+  color: var(--rw-text-strong);
+}
+
+.searchPopup input::placeholder {
+  color: var(--rw-text-muted);
+}
+
+.searchClear {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--rw-card-muted);
+  color: var(--rw-text-muted);
+  flex: 0 0 auto;
+}
+
+.searchClear:hover {
+  background: var(--rw-gray15);
+  color: var(--rw-text-body);
+}
+
+/* ─────────────────────────────────────────────────────────
+ * 검색 바 (모바일)
+ * ───────────────────────────────────────────────────────── */
+.moSearchBar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 0 var(--space-4);
+  height: 44px;
+  background: var(--rw-card);
+  border-bottom: 1px solid var(--rw-hairline);
+  color: var(--rw-text-muted);
+}
+
+.moSearchBar input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  font: inherit;
+  font-size: var(--text-sm);
+  color: var(--rw-text-strong);
+}
+
+.moSearchBar input::placeholder {
+  color: var(--rw-text-muted);
 }
 
 .askBtn {
