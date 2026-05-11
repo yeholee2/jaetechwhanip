@@ -7,7 +7,8 @@ import Countdown from '@/components/sparring/Countdown';
 import { FaIcon } from '@/components/FaIcon';
 import { createComment, getCurrentUserVote, getSideLabel, getSidePolarity, sparringPath, vote, type Sparring, type SparringComment, type SparringSide } from '@/lib/sparring';
 import { RelatedContent } from '@/components/RelatedContent';
-import type { EtfInfo } from '@/lib/etfs';
+import { EtfCompareCard } from '@/components/sparring/EtfCompareCard';
+import { getEtfByCode, type EtfInfo } from '@/lib/etfs';
 import { createClient, hasSupabase } from '@/lib/supabase/client';
 import styles from './SparringDetail.module.css';
 
@@ -213,6 +214,15 @@ export default function SparringDetailClient({
             {memoOpen && <p className={styles.memoBody}>{sparring.body || '이번 라운드는 댓글을 통해 실제 판단 근거를 모으기 위해 열렸어요.'}</p>}
           </div>
         </section>
+
+        {(sparring.etf_a_code || sparring.etf_b_code) && (
+          <EtfCompareCard
+            etfA={getEtfByCode(sparring.etf_a_code || undefined)}
+            etfB={getEtfByCode(sparring.etf_b_code || undefined)}
+            sideALabel={sparring.side_a_label}
+            sideBLabel={sparring.side_b_label}
+          />
+        )}
 
         <section aria-label="토론">
           <div className={styles.commentsHead}>

@@ -269,6 +269,12 @@ export function getEtfBySlug(slug: string) {
   return etfs.find(etf => etf.slug === decodeURIComponent(slug));
 }
 
+/** ETF 종목 코드(6자리)로 ETF 찾기. */
+export function getEtfByCode(code: string | null | undefined) {
+  if (!code) return undefined;
+  return etfs.find(etf => etf.code === code);
+}
+
 export function getRelatedEtfs(currentSlug: string, limit = 3) {
   const current = getEtfBySlug(currentSlug);
   if (!current) return etfs.slice(0, limit);

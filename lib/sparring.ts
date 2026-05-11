@@ -28,6 +28,10 @@ export type Sparring = {
   created_at: string;
   closed_at?: string | null;
   deleted_at?: string | null;
+  /** ETF 비교 모드: A측 ETF 종목 코드 (6자리). null이면 일반 스파링. */
+  etf_a_code?: string | null;
+  /** ETF 비교 모드: B측 ETF 종목 코드 (6자리). */
+  etf_b_code?: string | null;
   stats: SparringStats;
 };
 
@@ -309,6 +313,8 @@ function normalizeSparring(row: Omit<Sparring, 'stats'> & { stats?: SparringStat
     side_b_polarity: row.side_b_polarity || 'negative',
     thumbnail_url: row.thumbnail_url ?? null,
     status: row.status || 'active',
+    etf_a_code: (row as any).etf_a_code ?? null,
+    etf_b_code: (row as any).etf_b_code ?? null,
     stats: stats || row.stats || { votes_a: 0, votes_b: 0, votes_total: 0, comment_count: 0 },
   };
 }
@@ -369,6 +375,11 @@ export async function listSparrings(): Promise<SparringListResult> {
     return { sparrings: fallbackSparrings.map(withComputedStatus), usingFallback: true };
   }
   return { sparrings: rows, usingFallback: false };
+}
+
+/** 스파링이 ETF 비교 모드인지 확인 (A/B 둘 다 코드가 있을 때). */
+export function isEtfCompareSparring(sparring: Pick<Sparring, 'etf_a_code' | 'etf_b_code'>) {
+  return Boolean(sparring.etf_a_code && sparring.etf_b_code);
 }
 
 export function getFeaturedActiveSparring(sparrings: Sparring[]) {

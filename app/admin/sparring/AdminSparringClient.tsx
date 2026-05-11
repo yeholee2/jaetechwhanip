@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from 'react';
 import type { CSSProperties } from 'react';
 import { CATEGORY_DEFINITIONS } from '@/lib/categories';
 import { inferPolarity, slugifySparringTitle, sparringPath, type Sparring, type SparringPolarity } from '@/lib/sparring';
+import { etfs, getEtfByCode } from '@/lib/etfs';
 import { createClient } from '@/lib/supabase/client';
 import styles from './AdminSparring.module.css';
 
@@ -21,6 +22,8 @@ type FormState = {
   deadlineAt: string;
   thumbnailUrl: string;
   previewVotes: number;
+  etfACode: string;
+  etfBCode: string;
 };
 
 const emptyForm: FormState = {
@@ -36,6 +39,8 @@ const emptyForm: FormState = {
   deadlineAt: '',
   thumbnailUrl: '',
   previewVotes: 0,
+  etfACode: '',
+  etfBCode: '',
 };
 
 function toDatetimeLocal(value?: string | null) {
@@ -58,6 +63,8 @@ function fromSparring(item: Sparring): FormState {
     deadlineAt: toDatetimeLocal(item.deadline_at),
     thumbnailUrl: item.thumbnail_url || '',
     previewVotes: item.stats.votes_total || 0,
+    etfACode: item.etf_a_code || '',
+    etfBCode: item.etf_b_code || '',
   };
 }
 
@@ -179,6 +186,18 @@ export default function AdminSparringClient({ initialSparrings }: { initialSparr
         return;
       }
 
+      const etfACode = form.etfACode.trim() || null;
+      const etfBCode = form.etfBCode.trim() || null;
+      const codeRe = /^[0-9]{6}$/;
+      if (etfACode && !codeRe.test(etfACode)) {
+        setMessage('A ETF 코드는 6자리 숫자여야 해요.');
+        return;
+      }
+      if (etfBCode && !codeRe.test(etfBCode)) {
+        setMessage('B ETF 코드는 6자리 숫자여야 해요.');
+        return;
+      }
+
       const thumbnailUrl = await uploadThumbnail();
       const payload = {
         category: form.category,
@@ -191,6 +210,8 @@ export default function AdminSparringClient({ initialSparrings }: { initialSparr
         side_b_polarity: form.sideBPolarity || inferPolarity(form.sideB),
         thumbnail_url: thumbnailUrl,
         deadline_at: deadline.toISOString(),
+        etf_a_code: etfACode,
+        etf_b_code: etfBCode,
       };
 
       if (form.id) {
@@ -323,6 +344,46 @@ export default function AdminSparringClient({ initialSparrings }: { initialSparr
               <span>썸네일 업로드</span>
               <input type="file" accept="image/png,image/jpeg,image/webp" onChange={event => setFile(event.target.files?.[0] || null)} />
             </label>
+
+            <div className={styles.designNote}>
+              <strong>ETF 비교 모드 (선택)</strong>
+              <p>두 ETF 종목 코드를 모두 채우면 상세 페이지에 ETF 비교 카드가 노출돼요. 비워두면 일반 스파링과 동일하게 작동합니다.</p>
+            </div>
+            <div className={styles.row}>
+              <label className={styles.field}>
+                <span>A ETF 코드</span>
+                <input
+                  list="admin-etf-codes"
+                  placeholder="예: 360750"
+                  value={form.etfACode}
+                  onChange={event => setField('etfACode', event.target.value.trim())}
+                />
+                {form.etfACode && (
+                  <small style={{ color: getEtfByCode(form.etfACode) ? 'var(--t3)' : '#e42939' }}>
+                    {getEtfByCode(form.etfACode)?.name || '⚠ 알 수 없는 코드 (라이브러리에 없는 ETF도 저장은 가능)'}
+                  </small>
+                )}
+              </label>
+              <label className={styles.field}>
+                <span>B ETF 코드</span>
+                <input
+                  list="admin-etf-codes"
+                  placeholder="예: 379800"
+                  value={form.etfBCode}
+                  onChange={event => setField('etfBCode', event.target.value.trim())}
+                />
+                {form.etfBCode && (
+                  <small style={{ color: getEtfByCode(form.etfBCode) ? 'var(--t3)' : '#e42939' }}>
+                    {getEtfByCode(form.etfBCode)?.name || '⚠ 알 수 없는 코드'}
+                  </small>
+                )}
+              </label>
+            </div>
+            <datalist id="admin-etf-codes">
+              {etfs.map(e => (
+                <option key={e.code} value={e.code}>{e.name}</option>
+              ))}
+            </datalist>
             <div className={styles.designNote}>
               <strong>카드 디자인 메모</strong>
               <p>대표 이미지는 카드 전체 배경으로 깔려요. 위쪽 왼쪽에는 투표 수와 제목, 아래쪽에는 남은 시간과 참여하기가 올라오니 핵심 피사체는 중앙~하단에 두는 게 좋아요.</p>
