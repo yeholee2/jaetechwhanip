@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { AppShell } from '@/components/AppShell';
 import { ETF_HOME_PATH, ETF_HOME_URL, etfs } from '@/lib/etfs';
 import { SITE_NAME } from '@/lib/seo';
+import { PageHero, Badge } from '@/components/ui';
 import styles from './EtfPage.module.css';
 import { EtfPageTabs } from './EtfPageTabs';
 import { MyEtfSection } from './MyEtfSection';
@@ -64,10 +65,13 @@ export default async function EtfPage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <main className={styles.page}>
-        <header className={styles.header}>
-          <h1>ETF</h1>
-          <p>시장 흐름부터 내 포트폴리오까지 한 화면에서.</p>
-        </header>
+        <PageHero
+          eyebrow="ETF"
+          title="시장과 내 자산을 한 화면에"
+          lead="지수·뉴스·랭킹·전략·테마를 한 페이지에서 보고, 내 포트폴리오로 바로 이어가요."
+          aside={<Badge tone="primary">{etfs.length}개 ETF</Badge>}
+        />
+
 
         {/* RW 상단 탭 — 발견/관심/진단/피드 */}
         <EtfPageTabs active="discover" />
