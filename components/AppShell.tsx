@@ -7,6 +7,7 @@ import { Swords } from 'lucide-react';
 import { getAuthNickname, syncFinanceNickname } from '@/lib/nicknames';
 import { createClient, hasSupabase } from '@/lib/supabase/client';
 import { FaIcon } from './FaIcon';
+import { Footer } from './Footer';
 import styles from './AppShell.module.css';
 
 export type AppNavKey = 'home' | 'etf' | 'topics' | 'sparring' | 'feed' | 'mission' | 'my';
@@ -280,6 +281,8 @@ export function AppShell({
 
       {!hideSlogan && <Slogan />}
       <div className={`${styles.content} ${wide ? styles.wideContent : ''}`}>{children}</div>
+
+      <Footer />
 
       <button
         className={styles.moAskFab}
