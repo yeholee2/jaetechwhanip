@@ -160,11 +160,11 @@
 }
 
 .up {
-  color: #f04452;
+  color: var(--rw-red60);
 }
 
 .down {
-  color: #1a6de0;
+  color: var(--rw-blue70);
 }
 
 .chartMock {
@@ -173,7 +173,7 @@
   border-radius: 10px;
   background:
     linear-gradient(180deg, rgba(49, 130, 246, .16), rgba(49, 130, 246, 0)),
-    repeating-linear-gradient(0deg, transparent 0 32px, #eef1f4 32px 33px);
+    repeating-linear-gradient(0deg, transparent 0 32px, var(--rw-gray15) 32px 33px);
   position: relative;
   overflow: hidden;
 }

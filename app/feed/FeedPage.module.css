@@ -42,7 +42,7 @@
   align-items: center;
   padding: 0 9px;
   border-radius: 7px;
-  background: #f5f6f8;
+  background: var(--rw-screen);
   color: var(--t2);
   font-size: 12px;
   font-weight: 800;
@@ -104,7 +104,7 @@
 }
 
 .columnCard .avatar {
-  background: #eef4ff;
+  background: var(--rw-blue5);
   color: var(--primary);
 }
 
