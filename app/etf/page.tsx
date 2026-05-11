@@ -4,16 +4,17 @@ import { ETF_HOME_PATH, ETF_HOME_URL, etfs } from '@/lib/etfs';
 import { SITE_NAME } from '@/lib/seo';
 import styles from './EtfPage.module.css';
 import { MyEtfSection } from './MyEtfSection';
-import { ExploreHero } from './ExploreHero';
-import { HotThemes } from './HotThemes';
-import { EtfRanking } from './EtfRanking';
+import { MarketIndices } from './MarketIndices';
 import { EtfNews } from './EtfNews';
+import { EtfRanking } from './EtfRanking';
+import { CtaCards } from './CtaCards';
+import { ThemeToggle } from './ThemeToggle';
 
 export const revalidate = 300;
 
 export const metadata: Metadata = {
   title: 'ETF',
-  description: 'ETF 자산을 한입에 관리하세요. 보유 ETF·HOT 테마·랭킹·증시 일정·AI 인사이트까지 한 페이지에서.',
+  description: 'ETF 자산을 한입에 관리하세요. 시장 지수·최신 뉴스·랭킹·테마·포트폴리오 진단까지 한 페이지에서.',
   keywords: ['ETF', '포트폴리오', 'S&P500 ETF', '나스닥100 ETF', '월배당 ETF', 'ISA ETF', SITE_NAME],
   alternates: { canonical: ETF_HOME_PATH },
   openGraph: {
@@ -53,27 +54,28 @@ export default async function EtfPage() {
   };
 
   return (
-    <AppShell active="etf" wide hideSlogan>
+    <AppShell active="etf" hideSlogan>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <main className={styles.page}>
         <header className={styles.header}>
-          <span className={styles.eyebrow}>ETF</span>
-          <h1>ETF를 한입에 관리해요</h1>
-          <p>내 보유부터 시장 흐름까지, 도미노식 자산 화면과 ETFCheck식 둘러보기를 한 페이지에서.</p>
+          <h1>ETF</h1>
+          <p>시장 흐름부터 내 포트폴리오까지 한 화면에서.</p>
         </header>
 
         <MyEtfSection />
 
-        <ExploreHero />
+        <MarketIndices />
 
-        <HotThemes />
+        <EtfNews />
 
         <EtfRanking />
 
-        <EtfNews />
+        <CtaCards />
+
+        <ThemeToggle />
       </main>
     </AppShell>
   );

@@ -1,0 +1,55 @@
+.section {
+  margin: 0 0 28px;
+  padding: 18px 4px;
+  background: var(--white);
+  border-radius: 14px;
+  border: 1px solid var(--line);
+}
+.scroller {
+  display: flex;
+  gap: 28px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  padding: 0 18px;
+}
+.scroller::-webkit-scrollbar {
+  display: none;
+}
+.item {
+  flex-shrink: 0;
+  min-width: 100px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.head {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.name {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--t3);
+}
+.warn {
+  font-size: 11px;
+  line-height: 1;
+}
+.price {
+  font-size: 17px;
+  font-weight: 800;
+  color: var(--t1);
+  letter-spacing: -0.3px;
+}
+.up {
+  font-size: 12px;
+  font-weight: 800;
+  color: #e52a39;
+}
+.down {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--primary-dk);
+}
