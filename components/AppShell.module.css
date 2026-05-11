@@ -175,6 +175,33 @@
   color: var(--rw-text-muted);
 }
 
+/* ─────────────────────────────────────────────────────────
+ * 모바일 질문하기 FAB
+ * ───────────────────────────────────────────────────────── */
+.moAskFab {
+  display: none;
+  position: fixed;
+  right: var(--space-4);
+  bottom: calc(64px + var(--sb) + var(--space-3));
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--rw-primary);
+  color: #fff;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 16px rgba(49, 130, 246, .4);
+  z-index: var(--z-sticky);
+  transition: transform var(--duration-instant) var(--ease-in-out);
+}
+
+.moAskFab:hover { background: var(--rw-primary-hover); }
+.moAskFab:active { transform: scale(.94); }
+
+@media (max-width: 768px) {
+  .moAskFab { display: inline-flex; }
+}
+
 .askBtn {
   height: 36px;
   padding: 0 16px;

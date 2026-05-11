@@ -281,6 +281,15 @@ export function AppShell({
       {!hideSlogan && <Slogan />}
       <div className={`${styles.content} ${wide ? styles.wideContent : ''}`}>{children}</div>
 
+      <button
+        className={styles.moAskFab}
+        onClick={ask}
+        type="button"
+        aria-label="질문하기"
+      >
+        <FaIcon name="pen" size={20} color="#fff" />
+      </button>
+
       <nav className={styles.bottomNav}>
         <Link className={`${styles.bnav} ${active === 'home' ? styles.active : ''}`} href="/">
           <FaIcon name="house" size={21} /><span>홈</span>
