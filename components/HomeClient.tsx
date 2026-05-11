@@ -13,6 +13,7 @@ import { createQuestionSlug, ensureUniqueSlug } from '@/lib/slugs';
 import { getAuthNickname, syncFinanceNickname } from '@/lib/nicknames';
 import { useAutoTranslation } from '@/lib/useAutoTranslation';
 import { FaIcon } from './FaIcon';
+import { AppShell } from './AppShell';
 import { Chip } from '@/components/ui';
 import SparringMiniCard from './sparring/SparringMiniCard';
 import { etfs, etfPath } from '@/lib/etfs';
@@ -294,58 +295,7 @@ export default function HomeClient({
   const userName = getUserName(user);
 
   return (
-    <div className={styles.app}>
-      {/* PC 네비 */}
-      <nav className={styles.pcNav}>
-        <div className={`${styles.pcLogo} logo-font`}>ETF<em>한입</em></div>
-        <ul className={styles.pcMenu}>
-          <li><Link href="/" className={styles.on}>홈</Link></li>
-          <li><Link href="/etf">ETF</Link></li>
-          <li><Link href="/feed">피드</Link></li>
-          <li><Link href="/sparring">스파링</Link></li>
-          <li><div className={styles.sep}/></li>
-          <li><a href="#" style={{fontSize:13,color:'var(--t3)'}}>전문가 신청</a></li>
-        </ul>
-        <div className={styles.pcRight}>
-          <div style={{position:'relative'}}>
-            <button className={styles.iconBtn} onClick={() => { setShowSearch(v=>!v); setTimeout(()=>searchRef.current?.focus(), 50); }}>
-              <FaIcon name="magnifying-glass" size={18}/>
-            </button>
-            {showSearch && (
-              <div style={{position:'absolute',right:0,top:40,background:'white',border:'1px solid #E5E8EB',borderRadius:10,boxShadow:'0 4px 16px rgba(0,0,0,.1)',width:280,zIndex:100,display:'flex',alignItems:'center',padding:'8px 12px',gap:8}}>
-                <FaIcon name="magnifying-glass" size={14} color="#8B95A1"/>
-                <input ref={searchRef} value={searchQuery} onChange={e=>setSearchQuery(e.target.value)} placeholder="질문 검색..." style={{flex:1,border:'none',outline:'none',fontSize:14}}/>
-                {searchQuery && <button onClick={()=>setSearchQuery('')} style={{background:'none',border:'none',cursor:'pointer',padding:0,display:'flex',color:'#8B95A1'}}><FaIcon name="xmark" size={14}/></button>}
-              </div>
-            )}
-          </div>
-          <button className={styles.iconBtn} aria-label="알림" type="button"><FaIcon name="bell" size={18}/></button>
-          {user ? (
-            <div style={{position:'relative'}} ref={dropRef}>
-              <button
-                type="button"
-                style={{width:32,height:32,borderRadius:'50%',border:'none',padding:0,background:'var(--blue)',color:'white',display:'flex',alignItems:'center',justifyContent:'center',fontWeight:700,fontSize:13,cursor:'pointer'}}
-                onClick={() => setShowDropdown(v=>!v)}
-                aria-label="내 정보"
-                title={userName}
-              >
-                {userName[0]?.toUpperCase() || 'U'}
-              </button>
-              {showDropdown && (
-                <div style={{position:'absolute',right:0,top:40,background:'white',border:'1px solid #E5E8EB',borderRadius:10,boxShadow:'0 4px 16px rgba(0,0,0,.1)',minWidth:160,zIndex:100}}>
-                  <div style={{padding:'12px 14px',fontSize:13,color:'#4E5968',borderBottom:'1px solid #F2F4F6',fontWeight:600}}>{userName}</div>
-                  <button onClick={()=>router.push(`/u/${user.id}`)} style={{width:'100%',padding:'10px 14px',border:'none',background:'none',textAlign:'left',fontSize:13,color:'#191F28',cursor:'pointer'}}>내 프로필</button>
-                  <button onClick={handleSignOut} style={{width:'100%',padding:'10px 14px',border:'none',background:'none',textAlign:'left',fontSize:13,color:'#FF3B30',cursor:'pointer'}}>로그아웃</button>
-                </div>
-              )}
-            </div>
-          ) : (
-            <button className={styles.iconBtn} onClick={() => router.push('/auth')} aria-label="내 정보" title="내 정보" type="button"><FaIcon name="user" size={18}/></button>
-          )}
-          <button className={styles.btnAsk} onClick={tryAsk}>나도 질문하기</button>
-        </div>
-      </nav>
-
+    <AppShell active="home" wide hideSlogan>
       {/* PC 본문 */}
       <div className={styles.pcBody}>
         <div className={styles.pcFeed}>
@@ -438,35 +388,6 @@ export default function HomeClient({
         </aside>
       </div>
 
-      {/* 모바일 헤더 */}
-      <header className={styles.moHeader}>
-        <div className={styles.moTop}>
-          <div className={`${styles.moLogo} logo-font`}>ETF<em>한입</em></div>
-          <div className={styles.moIcons}>
-            <button className={styles.moIcon} onClick={() => { setShowSearch(v=>!v); setTimeout(()=>searchRef.current?.focus(),50); }}>
-              <FaIcon name="magnifying-glass" size={19}/>
-            </button>
-            <button className={styles.moIcon}><FaIcon name="bell" size={19}/></button>
-            <button className={styles.moIcon} onClick={() => router.push(user ? `/u/${user.id}` : '/auth')}>
-              {user
-                ? <span style={{fontSize:12,fontWeight:800,color:'var(--green)'}}>{userName[0]?.toUpperCase()}</span>
-                : <FaIcon name="user" size={19}/>}
-            </button>
-          </div>
-        </div>
-        {showSearch && (
-          <div style={{padding:'8px 16px',display:'flex',alignItems:'center',gap:8,borderBottom:'1px solid #F2F4F6',background:'white'}}>
-            <FaIcon name="magnifying-glass" size={14} color="#8B95A1"/>
-            <input ref={searchRef} value={searchQuery} onChange={e=>setSearchQuery(e.target.value)} placeholder="질문 검색..." style={{flex:1,border:'none',outline:'none',fontSize:14}}/>
-            {searchQuery && <button onClick={()=>setSearchQuery('')} style={{background:'none',border:'none',cursor:'pointer',padding:0,color:'#8B95A1'}}><FaIcon name="xmark" size={14}/></button>}
-          </div>
-        )}
-        <nav className={styles.moGnav}>
-          <Link href="/" className={styles.on}>홈</Link>
-          <Link href="/etf">ETF</Link><Link href="/feed">피드</Link><Link href="/sparring">스파링</Link>
-        </nav>
-      </header>
-
       <div className={styles.moMain}>
         <div className={styles.moFeedHd}>
           {FEED_TABS.map(tab => (
@@ -502,22 +423,10 @@ export default function HomeClient({
         )}
       </div>
 
-      <button className={styles.fab} onClick={tryAsk}><FaIcon name="plus" size={22} color="white"/></button>
-
-      <nav className={styles.bottomNav}>
-        <button className={`${styles.bnav} ${styles.on}`}><FaIcon name="house" size={21}/><span>홈</span></button>
-        <button className={styles.bnav} onClick={() => router.push('/etf')}><FaIcon name="chart-line" size={21}/><span>ETF</span></button>
-        <button className={styles.bnav} onClick={() => router.push('/sparring')}><Swords size={22}/><span>스파링</span></button>
-        <button className={styles.bnav}><FaIcon name="bell" size={21}/><span>알림</span></button>
-        <button className={styles.bnav} onClick={() => router.push(user ? `/u/${user.id}` : '/auth')} style={user?{color:'var(--green)'}:{}}>
-          <FaIcon name="user" size={21}/><span>{user ? userName[0]?.toUpperCase() || 'MY' : '로그인'}</span>
-        </button>
-      </nav>
-
       {/* 질문하기 모달 */}
       {showModal && <AskModal onClose={() => setShowModal(false)} onSubmit={submitQ} />}
       {toast && <div className={`${styles.toast} ${styles.show}`}>{toast}</div>}
-    </div>
+    </AppShell>
   );
 }
 
