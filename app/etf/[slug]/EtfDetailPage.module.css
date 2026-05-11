@@ -4,12 +4,18 @@
   padding: 24px 4px 56px;
 }
 
+.topBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-2);
+}
+
 .backLink {
   display: inline-flex;
   align-items: center;
   gap: 6px;
   height: 30px;
-  margin-bottom: 8px;
   color: var(--t3);
   font-size: 13px;
   font-weight: 750;

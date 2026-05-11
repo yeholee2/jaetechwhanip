@@ -19,6 +19,7 @@ import {
 import { RelatedContent } from '@/components/RelatedContent';
 import { Button, Chip, Badge } from '@/components/ui';
 import { WatchButton } from '../WatchButton';
+import { ShareButton } from '../ShareButton';
 import styles from './EtfDetailPage.module.css';
 
 type Props = { params: { slug: string } };
@@ -49,7 +50,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       type: 'website',
     },
     twitter: {
-      card: 'summary',
+      card: 'summary_large_image',
       title: `${etf.name} ETF | ${SITE_NAME}`,
       description,
     },
@@ -99,10 +100,13 @@ export default async function EtfDetailPage({ params }: Props) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <main className={styles.page}>
-        <Link className={styles.backLink} href={ETF_HOME_PATH}>
-          <FaIcon name="chevron-left" size={12} />
-          ETF
-        </Link>
+        <div className={styles.topBar}>
+          <Link className={styles.backLink} href={ETF_HOME_PATH}>
+            <FaIcon name="chevron-left" size={12} />
+            ETF
+          </Link>
+          <ShareButton title={`${etf.name} | ${SITE_NAME}`} text={etf.oneLine || etf.summary} />
+        </div>
 
         <section className={styles.hero}>
           <div>
