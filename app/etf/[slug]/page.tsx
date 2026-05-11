@@ -21,6 +21,7 @@ import { Button, Chip, Badge } from '@/components/ui';
 import { WatchButton } from '../WatchButton';
 import { ShareButton } from '../ShareButton';
 import { EtfChart } from '../EtfChart';
+import { EtfChat } from '../EtfChat';
 import styles from './EtfDetailPage.module.css';
 
 type Props = { params: { slug: string } };
@@ -159,6 +160,19 @@ export default async function EtfDetailPage({ params }: Props) {
               <span>한입 요약</span>
               <p>{etf.oneLine}</p>
             </section>
+
+            <EtfChat
+              etf={{
+                code: etf.code,
+                name: etf.name,
+                summary: etf.summary,
+                theme: etf.theme,
+                fee: etf.fee,
+                distribution: etf.distribution,
+                hedge: etf.hedge,
+                aum: etf.aum,
+              }}
+            />
 
             <section className={styles.section}>
               <div className={styles.sectionHead}>
