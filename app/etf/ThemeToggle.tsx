@@ -5,6 +5,7 @@
  */
 import Link from 'next/link';
 import { etfPath, etfs } from '@/lib/etfs';
+import { EtfLogo } from './EtfLogo';
 import styles from './ThemeToggle.module.css';
 
 const THEMES = ['반도체', 'AI', '배당', '월배당', 'S&P500', '리츠', '원자재'] as const;
@@ -47,6 +48,7 @@ export function ThemeToggle() {
         {items.length > 0 ? items.map(etf => (
           <li key={etf.slug}>
             <Link className={styles.item} href={etfPath(etf.slug)}>
+              <EtfLogo name={etf.shortName} size={36} />
               <div className={styles.info}>
                 <strong>{etf.shortName}</strong>
                 <span>{etf.price}</span>

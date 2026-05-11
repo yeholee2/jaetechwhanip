@@ -4,6 +4,7 @@
  */
 import Link from 'next/link';
 import { etfPath, etfs } from '@/lib/etfs';
+import { EtfLogo } from './EtfLogo';
 import styles from './EtfRanking.module.css';
 
 const SORT_OPTIONS = ['수익률', '거래량', '자금유입', '순자산총액', '투자자'] as const;
@@ -47,15 +48,12 @@ export function EtfRanking() {
           <li key={etf.slug}>
             <Link className={styles.item} href={etfPath(etf.slug)}>
               <span className={styles.rank}>{idx + 1}</span>
+              <EtfLogo name={etf.shortName} size={36} className={styles.logo} />
               <div className={styles.info}>
                 <strong>{etf.shortName}</strong>
-                <span>현재가 {etf.price}</span>
+                <span>{etf.price} <em className={etf.changeTone === 'down' ? styles.down : styles.up}>{etf.change}</em></span>
               </div>
-              <div className={styles.right}>
-                <span className={etf.changeTone === 'down' ? styles.down : styles.up}>
-                  {etf.change}
-                </span>
-              </div>
+              <span className={styles.bookmark} aria-hidden="true">☆</span>
             </Link>
           </li>
         ))}

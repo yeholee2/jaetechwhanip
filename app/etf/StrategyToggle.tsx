@@ -4,6 +4,7 @@
  */
 import Link from 'next/link';
 import { etfPath, etfs } from '@/lib/etfs';
+import { EtfLogo } from './EtfLogo';
 import styles from './StrategyToggle.module.css';
 
 type StrategyKey = 'big' | 'dividend' | 'safe';
@@ -51,6 +52,7 @@ export function StrategyToggle() {
         {items.length > 0 ? items.map(etf => (
           <li key={etf.slug}>
             <Link className={styles.item} href={etfPath(etf.slug)}>
+              <EtfLogo name={etf.shortName} size={32} />
               <strong className={styles.itemName}>{etf.shortName}</strong>
               <span className={etf.changeTone === 'down' ? styles.down : styles.up}>
                 {etf.change}

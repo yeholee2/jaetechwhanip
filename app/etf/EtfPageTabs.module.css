@@ -1,0 +1,43 @@
+/* RW 상단 탭 — 큰 텍스트 + 활성 시 굵게 + 밑줄 */
+.tabs {
+  display: flex;
+  gap: 24px;
+  padding: 0 4px;
+  margin: 4px 0 16px;
+  border-bottom: 1px solid var(--rw-hairline);
+}
+.tab {
+  position: relative;
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--rw-text-disabled);
+  padding: 14px 4px;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.tab:hover {
+  color: var(--rw-text-body);
+}
+.active {
+  color: var(--rw-text-strong);
+  font-weight: 700;
+}
+.active::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 2px;
+  background: var(--rw-text-strong);
+  border-radius: 2px 2px 0 0;
+}
+.dot {
+  position: absolute;
+  top: 12px;
+  right: -8px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--rw-up);
+}

@@ -3,6 +3,7 @@ import { AppShell } from '@/components/AppShell';
 import { ETF_HOME_PATH, ETF_HOME_URL, etfs } from '@/lib/etfs';
 import { SITE_NAME } from '@/lib/seo';
 import styles from './EtfPage.module.css';
+import { EtfPageTabs } from './EtfPageTabs';
 import { MyEtfSection } from './MyEtfSection';
 import { MarketIndices } from './MarketIndices';
 import { EtfNews } from './EtfNews';
@@ -67,6 +68,9 @@ export default async function EtfPage() {
           <h1>ETF</h1>
           <p>시장 흐름부터 내 포트폴리오까지 한 화면에서.</p>
         </header>
+
+        {/* RW 상단 탭 — 발견/관심/진단/피드 */}
+        <EtfPageTabs active="discover" />
 
         {/* 1. 내 ETF (RW엔 CTA에 진단으로 들어가나, 우리는 도미노 풀화면 가능해 상단에) */}
         <MyEtfSection />

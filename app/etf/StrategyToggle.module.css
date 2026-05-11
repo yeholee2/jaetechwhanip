@@ -103,7 +103,6 @@
 .item {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: 12px;
   padding: 14px 20px;
   text-decoration: none;
@@ -115,8 +114,9 @@
   background: var(--rw-gray2);
 }
 .itemName {
+  flex: 1;
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 600;
   color: var(--rw-text-strong);
   overflow: hidden;
   text-overflow: ellipsis;
