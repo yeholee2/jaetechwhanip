@@ -1,64 +1,35 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
 import { AppShell } from '@/components/AppShell';
-import { FaIcon } from '@/components/FaIcon';
-import { getEtfsWithMarketData } from '@/lib/etf-live-data';
-import {
-  ETF_HOME_PATH,
-  ETF_HOME_URL,
-  etfCompareRows,
-  etfFilters,
-  etfPath,
-  etfs,
-  holdingSearchRows,
-} from '@/lib/etfs';
+import { ETF_HOME_PATH, ETF_HOME_URL, etfs } from '@/lib/etfs';
 import { SITE_NAME } from '@/lib/seo';
 import styles from './EtfPage.module.css';
 import { MyEtfSection } from './MyEtfSection';
 import { ExploreHero } from './ExploreHero';
 import { HotThemes } from './HotThemes';
+import { EtfRanking } from './EtfRanking';
+import { EtfNews } from './EtfNews';
 
 export const revalidate = 300;
 
 export const metadata: Metadata = {
   title: 'ETF',
-  description: 'ETF를 이름, 코드, 구성종목, 보수, 분배금, 환헤지 기준으로 쉽게 비교하고 관련 질문과 스파링까지 함께 보는 재테크한입 ETF 공간입니다.',
-  keywords: ['ETF', 'S&P500 ETF', '나스닥100 ETF', '월배당 ETF', 'ISA ETF', '연금저축 ETF', SITE_NAME],
-  alternates: {
-    canonical: ETF_HOME_PATH,
-  },
+  description: 'ETF 자산을 한입에 관리하세요. 보유 ETF·HOT 테마·랭킹·증시 일정·AI 인사이트까지 한 페이지에서.',
+  keywords: ['ETF', '포트폴리오', 'S&P500 ETF', '나스닥100 ETF', '월배당 ETF', 'ISA ETF', SITE_NAME],
+  alternates: { canonical: ETF_HOME_PATH },
   openGraph: {
     title: `ETF | ${SITE_NAME}`,
-    description: 'ETF 정보값과 커뮤니티 질문을 한 화면에서 비교해요.',
+    description: 'ETF 자산을 한입에 관리하세요.',
     url: ETF_HOME_URL,
     type: 'website',
   },
   twitter: {
     card: 'summary',
     title: `ETF | ${SITE_NAME}`,
-    description: 'ETF 정보값과 커뮤니티 질문을 한 화면에서 비교해요.',
+    description: 'ETF 자산을 한입에 관리하세요.',
   },
 };
 
-const DASHBOARD_TABS = ['관심 ETF', '최근 본 ETF', '분배금 체크'];
-const QUICK_SEARCHES = ['S&P500', '나스닥100', '월배당', '엔비디아', 'ISA'];
-const SORT_LABEL = '투자자가 많이 보는';
-
-type EtfPageProps = {
-  searchParams?: Record<string, string | string[] | undefined>;
-};
-
-export default async function EtfPage({ searchParams }: EtfPageProps) {
-  const marketEtfs = await getEtfsWithMarketData();
-  const query = getParam(searchParams, 'q');
-  const activeTheme = getParam(searchParams, 'theme') || '전체';
-  const filteredEtfs = marketEtfs.filter(etf => matchesEtf(etf, query, activeTheme));
-  const featured = filteredEtfs[0] || marketEtfs[0];
-  const rankedEtfs = marketEtfs.slice(0, 5);
-  const usingPublicApi = marketEtfs.some(etf => etf.dataSource === 'public-api');
-  const baseDate = marketEtfs.find(etf => etf.baseDate)?.baseDate || 'API 키 등록 전';
-  const sourceLabel = usingPublicApi ? '공식 데이터' : '예시 데이터';
-  const totalThemes = new Set(marketEtfs.map(etf => etf.theme)).size;
+export default async function EtfPage() {
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'CollectionPage',
@@ -94,305 +65,16 @@ export default async function EtfPage({ searchParams }: EtfPageProps) {
           <p>내 보유부터 시장 흐름까지, 도미노식 자산 화면과 ETFCheck식 둘러보기를 한 페이지에서.</p>
         </header>
 
-        {/* 도미노 자산 홈 영역 — 비로그인/0개일 때 CTA, 보유 있을 때 풀 화면 */}
         <MyEtfSection />
 
-        {/* ETFCheck 둘러보기 영역 — 인기 키워드 + HOT 테마 */}
         <ExploreHero />
+
         <HotThemes />
 
-        <section className={styles.topGrid} aria-label="ETF 검색과 요약">
-          <div className={styles.searchPanel}>
-            <div className={styles.searchHead}>
-              <div>
-                <span className={styles.panelLabel}>ETF 통합검색</span>
-                <h2>ETF 바로 찾기</h2>
-              </div>
-              <div className={styles.sourceBadge}>
-                <span>{sourceLabel}</span>
-                <strong>{baseDate}</strong>
-              </div>
-            </div>
-            <form className={styles.searchForm} action={ETF_HOME_PATH}>
-              <FaIcon name="magnifying-glass" size={15} />
-              <input
-                aria-label="ETF 검색어"
-                defaultValue={query}
-                name="q"
-                placeholder="S&P500, 360750, 엔비디아"
-                type="search"
-              />
-              {activeTheme !== '전체' ? <input name="theme" type="hidden" value={activeTheme} /> : null}
-              <button type="submit" aria-label="ETF 검색">
-                <FaIcon name="arrow-right" size={14} />
-              </button>
-            </form>
-            <div className={styles.quickSearches} aria-label="추천 검색어">
-              {QUICK_SEARCHES.map(term => (
-                <Link href={`${ETF_HOME_PATH}?q=${encodeURIComponent(term)}`} key={term}>{term}</Link>
-              ))}
-            </div>
-          </div>
+        <EtfRanking />
 
-          <div className={styles.watchPanel}>
-            <div className={styles.watchTop}>
-              <span>오늘의 ETF</span>
-              <strong>{featured.theme}</strong>
-            </div>
-            <Link className={styles.watchItem} href={etfPath(featured.slug)}>
-              <div>
-                <strong>{featured.shortName}</strong>
-                <span>{featured.code} · {featured.theme}</span>
-              </div>
-              <div>
-                <b>{featured.price}</b>
-                <em className={featured.changeTone === 'down' ? styles.down : styles.up}>{featured.change}</em>
-              </div>
-            </Link>
-            <div className={styles.watchTabs}>
-              {DASHBOARD_TABS.map((tab, index) => (
-                <span className={index === 0 ? styles.activeWatchTab : ''} key={tab}>{tab}</span>
-              ))}
-            </div>
-            <div className={styles.miniStats}>
-              <span><b>{marketEtfs.length}</b> ETF</span>
-              <span><b>{totalThemes}</b> 테마</span>
-              <span><b>{filteredEtfs.length}</b> 결과</span>
-            </div>
-          </div>
-        </section>
-
-        <div className={styles.layout}>
-          <div className={styles.mainColumn}>
-            <section className={styles.rankSection}>
-              <div className={styles.sectionHead}>
-                <div>
-                  <span className={styles.selectPill}>{SORT_LABEL}</span>
-                  <h2>많이 보는 ETF</h2>
-                  <p>먼저 가격과 흐름을 보고, 아래 필터표에서 조건을 좁혀요.</p>
-                </div>
-                <span>{marketEtfs[0]?.dataNotice}</span>
-              </div>
-
-              <div className={styles.rankBoard}>
-                <Link className={styles.chartCard} href={etfPath(featured.slug)}>
-                  <div className={styles.chartTop}>
-                    <span>{featured.theme}</span>
-                    <em>수익률 흐름</em>
-                  </div>
-                  <strong>{featured.shortName}</strong>
-                  <div className={styles.chartNumbers}>
-                    <b>{featured.price}</b>
-                    <em className={featured.changeTone === 'down' ? styles.down : styles.up}>{featured.change}</em>
-                  </div>
-                  <div className={styles.sparkline} aria-hidden="true">
-                    <i />
-                    <i />
-                    <i />
-                    <i />
-                    <i />
-                    <i />
-                  </div>
-                  <small>데이터 업데이트: {baseDate}</small>
-                </Link>
-
-                <div className={styles.rankingList}>
-                  {rankedEtfs.map((etf, index) => (
-                    <Link href={etfPath(etf.slug)} key={etf.slug}>
-                      <span>{index + 1}</span>
-                      <div>
-                        <strong>{etf.name}</strong>
-                        <small>{etf.code} · {etf.theme}</small>
-                        <i style={{ width: `${Math.max(36, 100 - index * 12)}%` }} />
-                      </div>
-                      <b className={etf.changeTone === 'down' ? styles.down : styles.up}>{etf.change}</b>
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            </section>
-
-            <section className={styles.filterSection}>
-              <div className={styles.sectionHead}>
-                <div>
-                  <h2>상품 검색 필터</h2>
-                  <p>{query || activeTheme !== '전체' ? `${filteredEtfs.length}개 ETF가 조건에 맞아요.` : '테마, 보수, 분배금, 환헤지, 순자산을 표로 비교해요.'}</p>
-                </div>
-              </div>
-
-              <div className={styles.filterBar} aria-label="ETF 빠른 필터">
-                {etfFilters.map(filter => (
-                  <Link
-                    className={activeTheme === filter ? styles.ctagOn : ''}
-                    href={filterHref(filter, query)}
-                    key={filter}
-                  >
-                    {filter}
-                  </Link>
-                ))}
-              </div>
-
-              {filteredEtfs.length > 0 ? (
-                <div className={styles.tableWrap}>
-                  <table className={styles.etfTable}>
-                    <thead>
-                      <tr>
-                        <th>상품명</th>
-                        <th>분류</th>
-                        <th>총보수</th>
-                        <th>분배</th>
-                        <th>현재가</th>
-                        <th>등락률</th>
-                        <th>순자산</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {filteredEtfs.map(etf => (
-                        <tr key={etf.slug}>
-                          <td data-label="상품명">
-                            <Link href={etfPath(etf.slug)}>
-                              <span>{etf.code}</span>
-                              <strong>{etf.name}</strong>
-                              <small>{etf.tags.slice(0, 3).join(' · ')}</small>
-                            </Link>
-                          </td>
-                          <td data-label="분류">{etf.theme}</td>
-                          <td data-label="총보수">{etf.fee}</td>
-                          <td data-label="분배">{etf.distribution}</td>
-                          <td data-label="현재가">{etf.price}</td>
-                          <td data-label="등락률">
-                            <b className={etf.changeTone === 'down' ? styles.down : styles.up}>{etf.change}</b>
-                          </td>
-                          <td data-label="순자산">{etf.aum}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              ) : (
-                <div className={styles.emptyState}>
-                  <strong>조건에 맞는 ETF가 아직 없어요</strong>
-                  <p>검색어를 줄이거나 전체 필터로 다시 확인해 보세요.</p>
-                  <Link href={ETF_HOME_PATH}>전체 보기</Link>
-                </div>
-              )}
-            </section>
-
-            <section className={styles.section}>
-              <div className={styles.sectionHead}>
-                <div>
-                  <h2>구성종목으로 ETF 찾기</h2>
-                  <p>개별주를 직접 사기 전, 그 종목이 많이 들어간 ETF를 먼저 봐요.</p>
-                </div>
-              </div>
-              <div className={styles.holdingGrid}>
-                {holdingSearchRows.map(row => (
-                  <Link href={etfPath(row.slug)} key={`${row.holding}-${row.etf}`}>
-                    <span>{row.holding}</span>
-                    <strong>{row.etf}</strong>
-                    <p>{row.reason}</p>
-                    <b>{row.weight}</b>
-                  </Link>
-                ))}
-              </div>
-            </section>
-
-            <section className={styles.section}>
-              <div className={styles.sectionHead}>
-                <div>
-                  <h2>S&P500 ETF 비교</h2>
-                  <p>초보자가 자주 헷갈리는 기준만 먼저 뽑았어요.</p>
-                </div>
-              </div>
-              <div className={styles.compareList}>
-                {etfCompareRows.map(row => (
-                  <Link href={etfPath(row.slug)} key={row.name}>
-                    <strong>{row.name}</strong>
-                    <span>{row.fee}</span>
-                    <span>{row.distribution}</span>
-                    <span>{row.hedge}</span>
-                    <b>{row.fit}</b>
-                  </Link>
-                ))}
-              </div>
-            </section>
-          </div>
-
-          <aside className={styles.sideColumn}>
-            <Link className={styles.featureCard} href={etfPath(featured.slug)}>
-              <span>오늘 많이 본 ETF</span>
-              <strong>{featured.name}</strong>
-              <p>{featured.oneLine}</p>
-              <div>
-                <b>{featured.price}</b>
-                <em className={featured.changeTone === 'down' ? styles.down : styles.up}>{featured.change}</em>
-              </div>
-            </Link>
-
-            <section className={styles.sideCard}>
-              <h2>ETF 한입 기준</h2>
-              <ul>
-                <li><FaIcon name="circle-check" size={12} /> 계좌와 투자기간을 먼저 정해요.</li>
-                <li><FaIcon name="circle-check" size={12} /> 보수, 분배금, 환헤지는 같이 봐요.</li>
-                <li><FaIcon name="circle-check" size={12} /> 테마형 ETF는 전체 비중을 작게 잡아요.</li>
-              </ul>
-            </section>
-
-            <section className={styles.sideCard}>
-              <h2>관련 질문</h2>
-              {featured.relatedQuestions.map(question => (
-                <article className={styles.questionCard} key={question.title}>
-                  <span>{question.tag}</span>
-                  <strong>{question.title}</strong>
-                  <p>{question.meta}</p>
-                </article>
-              ))}
-            </section>
-
-            <section className={styles.sparringCard}>
-              <span>진행중 스파링</span>
-              <strong>{featured.sparringTitle}</strong>
-              <p>정보만 보고 끝내지 않고 찬반으로 판단을 점검해요.</p>
-              <Link href="/sparring">참여하기</Link>
-            </section>
-          </aside>
-        </div>
+        <EtfNews />
       </main>
     </AppShell>
   );
-}
-
-function getParam(searchParams: EtfPageProps['searchParams'], key: string) {
-  const value = searchParams?.[key];
-  if (Array.isArray(value)) return value[0] || '';
-  return value || '';
-}
-
-function filterHref(filter: string, query: string) {
-  const params = new URLSearchParams();
-  if (query) params.set('q', query);
-  if (filter !== '전체') params.set('theme', filter);
-  const suffix = params.toString();
-  return suffix ? `${ETF_HOME_PATH}?${suffix}` : ETF_HOME_PATH;
-}
-
-function matchesEtf(etf: Awaited<ReturnType<typeof getEtfsWithMarketData>>[number], query: string, theme: string) {
-  const normalizedQuery = query.trim().toLowerCase();
-  const themeMatched = theme === '전체' || etf.theme.includes(theme) || etf.tags.includes(theme);
-  if (!themeMatched) return false;
-  if (!normalizedQuery) return true;
-
-  const searchTarget = [
-    etf.code,
-    etf.name,
-    etf.shortName,
-    etf.issuer,
-    etf.category,
-    etf.theme,
-    etf.summary,
-    etf.tags.join(' '),
-    etf.holdings.map(holding => holding.name).join(' '),
-  ].join(' ').toLowerCase();
-
-  return searchTarget.includes(normalizedQuery);
 }
