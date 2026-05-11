@@ -70,27 +70,8 @@
   gap: 8px;
 }
 
-.categoryChips a {
+.categoryChips > * {
   flex: 0 0 auto;
-  display: inline-flex;
-  align-items: center;
-  text-decoration: none;
-  white-space: nowrap;
-}
-
-.categoryChips a {
-  height: 38px;
-  padding: 0 15px;
-  border-radius: 8px;
-  background: #f7f8fa;
-  color: var(--t2);
-  font-size: 14px;
-  font-weight: 800;
-}
-
-.categoryChips a.on {
-  background: #6b7684;
-  color: #fff;
 }
 
 .grid {

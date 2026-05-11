@@ -1,0 +1,96 @@
+/* Page hero — 페이지 진입 hero 영역 */
+.hero {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-6);
+  padding: var(--space-10) 0 var(--space-5);
+}
+
+.heroBody {
+  flex: 1;
+  min-width: 0;
+}
+
+.heroEyebrow {
+  display: inline-block;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-heavy);
+  color: var(--rw-primary);
+  letter-spacing: .3px;
+  margin-bottom: var(--space-2);
+}
+
+.heroTitle {
+  color: var(--rw-text-strong);
+  font-size: var(--text-2xl);
+  line-height: var(--leading-tight);
+  font-weight: var(--weight-black);
+  letter-spacing: -0.2px;
+  margin: 0;
+}
+
+.heroLead {
+  margin-top: var(--space-3);
+  max-width: 600px;
+  color: var(--rw-text-body);
+  font-size: var(--text-md);
+  line-height: var(--leading-relaxed);
+  font-weight: var(--weight-semibold);
+}
+
+.heroAside {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+/* Section — 본문 섹션 헤더 + body */
+.section {
+  margin-top: var(--space-8);
+}
+
+.sectionHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+}
+
+.sectionTitle {
+  font-size: var(--text-xl);
+  font-weight: var(--weight-heavy);
+  color: var(--rw-text-strong);
+  letter-spacing: -0.1px;
+  margin: 0;
+}
+
+.sectionSub {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  color: var(--rw-text-muted);
+}
+
+.sectionLink {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+  color: var(--rw-primary);
+  text-decoration: none;
+}
+
+@media (max-width: 768px) {
+  .hero {
+    display: block;
+    padding: var(--space-6) 0 var(--space-4);
+  }
+  .heroTitle { font-size: var(--text-xl); }
+  .heroLead { font-size: var(--text-base); margin-top: var(--space-2); }
+  .heroAside {
+    margin-top: var(--space-3);
+    justify-content: flex-start;
+  }
+  .section { margin-top: var(--space-6); }
+  .sectionTitle { font-size: var(--text-lg); }
+}

@@ -1,0 +1,33 @@
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  height: 22px;
+  padding: 0 var(--space-2);
+  border-radius: var(--rw-radius-xs);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-heavy);
+  line-height: 1;
+  letter-spacing: .2px;
+  white-space: nowrap;
+}
+
+/* tones */
+.neutral { background: var(--rw-card-muted); color: var(--rw-text-body); }
+.primary { background: var(--rw-primary-bg); color: var(--rw-blue70); }
+.success { background: rgba(21, 196, 126, .12); color: #028450; }
+.warning { background: rgba(255, 169, 39, .15); color: #b85d00; }
+.danger  { background: #fff0f0; color: var(--rw-red60); }
+.purple  { background: rgba(126, 87, 194, .12); color: #5e35b1; }
+.orange  { background: rgba(255, 122, 0, .1); color: #ed6700; }
+.fresh   { background: #fff0f0; color: var(--rw-red60); }
+
+.solid {
+  background: var(--rw-text-strong);
+  color: #fff;
+}
+
+.pill {
+  border-radius: var(--rw-radius-full);
+  padding: 0 var(--space-3);
+}

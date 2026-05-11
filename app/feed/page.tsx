@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { AppShell } from '@/components/AppShell';
 import { FaIcon } from '@/components/FaIcon';
+import { PageHero, Badge, Chip } from '@/components/ui';
 import { createFeedDigest } from '@/lib/feed-digest';
 import {
   FEED_CATEGORY_FILTERS,
@@ -102,16 +103,17 @@ export default async function FeedPage({
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <main className={styles.page}>
-        <section className={styles.hero}>
-          <div>
-            <h1>피드</h1>
-            <p>한입머니 글을 재테크 판단 기준으로 정리했어요.</p>
-          </div>
-          <div className={styles.feedStats} aria-label="피드 현황">
-            <span>글 {articleCount}</span>
-            <span>{activeCategory === '전체' ? '전체' : activeCategory}</span>
-          </div>
-        </section>
+        <PageHero
+          eyebrow="피드"
+          title="질문 · 뉴스 · 리포트 · 칼럼"
+          lead="ETF 한 입에 필요한 모든 글을 한 흐름으로 모았어요."
+          aside={
+            <>
+              <Badge tone="neutral">글 {articleCount}</Badge>
+              <Badge tone="primary">{activeCategory === '전체' ? '전체' : activeCategory}</Badge>
+            </>
+          }
+        />
 
         <section className={styles.filters} aria-label="피드 필터">
           <div className={styles.feedTabs}>
@@ -127,13 +129,14 @@ export default async function FeedPage({
           </div>
           <div className={styles.categoryChips}>
             {FEED_CATEGORY_FILTERS.map(category => (
-              <Link
+              <Chip
                 key={category.key}
                 href={feedFilterHref(category.key, activeTab)}
-                className={activeCategory === category.key ? styles.on : ''}
+                active={activeCategory === category.key}
+                size="sm"
               >
                 {category.label}
-              </Link>
+              </Chip>
             ))}
           </div>
         </section>
