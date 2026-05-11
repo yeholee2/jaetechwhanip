@@ -8,13 +8,16 @@ import { MarketIndices } from './MarketIndices';
 import { EtfNews } from './EtfNews';
 import { EtfRanking } from './EtfRanking';
 import { CtaCards } from './CtaCards';
+import { StrategyToggle } from './StrategyToggle';
 import { ThemeToggle } from './ThemeToggle';
+import { InsightCarousel } from './InsightCarousel';
+import { FeaturePromo } from './FeaturePromo';
 
 export const revalidate = 300;
 
 export const metadata: Metadata = {
   title: 'ETF',
-  description: 'ETF 자산을 한입에 관리하세요. 시장 지수·최신 뉴스·랭킹·테마·포트폴리오 진단까지 한 페이지에서.',
+  description: 'ETF 자산을 한입에 관리하세요. 시장 지수·최신 뉴스·랭킹·전략·테마·큐레이션까지 한 페이지에서.',
   keywords: ['ETF', '포트폴리오', 'S&P500 ETF', '나스닥100 ETF', '월배당 ETF', 'ISA ETF', SITE_NAME],
   alternates: { canonical: ETF_HOME_PATH },
   openGraph: {
@@ -65,17 +68,32 @@ export default async function EtfPage() {
           <p>시장 흐름부터 내 포트폴리오까지 한 화면에서.</p>
         </header>
 
+        {/* 1. 내 ETF (RW엔 CTA에 진단으로 들어가나, 우리는 도미노 풀화면 가능해 상단에) */}
         <MyEtfSection />
 
+        {/* 2. 시장 지수 가로 스크롤 */}
         <MarketIndices />
 
+        {/* 3. 최신 ETF 뉴스 */}
         <EtfNews />
 
+        {/* 4. 투자 매력도 높은 ETF (RW: 투자 매력도 높은 주식) */}
         <EtfRanking />
 
+        {/* 5. CTA 카드 2개 (RW: 큰 돈 / 내 주식 진단) */}
         <CtaCards />
 
+        {/* 6. 따라하면 돈 버는 ETF 전략 (RW: 따라하면 돈 버는 투자 전략) */}
+        <StrategyToggle />
+
+        {/* 7. 요즘 뜨는 ETF 테마 (RW: 요즘 뜨는 산업) */}
         <ThemeToggle />
+
+        {/* 8. ETF 큐레이션 가로 카드 (RW: 트럼프 리스크 / AI 전기 / K-푸드) */}
+        <InsightCarousel />
+
+        {/* 9. 단일 진입 카드 (RW: 세계가 주목하는 K-뷰티) */}
+        <FeaturePromo />
       </main>
     </AppShell>
   );
