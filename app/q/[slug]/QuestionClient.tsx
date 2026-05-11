@@ -455,7 +455,7 @@ export default function QuestionClient({
       {/* ── PC 네비 (홈과 동일) ── */}
       <nav className={styles.pcNav}>
         <div className={`logo-font ${styles.navLogo}`} onClick={() => router.push('/')}>
-          재테크<em>한입</em>
+          ETF<em>한입</em>
         </div>
         <ul className={styles.navMenu}>
           <li><button onClick={() => router.push('/')}>홈</button></li>
@@ -493,7 +493,7 @@ export default function QuestionClient({
       <header className={styles.mobileHeader}>
         <button onClick={() => router.back()}><ChevronLeft size={24} /></button>
         <div className={`logo-font ${styles.navLogo}`} onClick={() => router.push('/')} style={{ cursor: 'pointer' }}>
-          재테크<em>한입</em>
+          ETF<em>한입</em>
         </div>
         <button onClick={share}><Share2 size={20} /></button>
       </header>

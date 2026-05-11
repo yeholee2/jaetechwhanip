@@ -287,7 +287,7 @@ export default function HomeClient({
     <div className={styles.app}>
       {/* PC 네비 */}
       <nav className={styles.pcNav}>
-        <div className={`${styles.pcLogo} logo-font`}>재테크<em>한입</em></div>
+        <div className={`${styles.pcLogo} logo-font`}>ETF<em>한입</em></div>
         <ul className={styles.pcMenu}>
           <li><Link href="/" className={styles.on}>홈</Link></li>
           <li><Link href="/etf">ETF</Link></li>
@@ -388,7 +388,7 @@ export default function HomeClient({
       {/* 모바일 헤더 */}
       <header className={styles.moHeader}>
         <div className={styles.moTop}>
-          <div className={`${styles.moLogo} logo-font`}>재테크<em>한입</em></div>
+          <div className={`${styles.moLogo} logo-font`}>ETF<em>한입</em></div>
           <div className={styles.moIcons}>
             <button className={styles.moIcon} onClick={() => { setShowSearch(v=>!v); setTimeout(()=>searchRef.current?.focus(),50); }}>
               <FaIcon name="magnifying-glass" size={19}/>

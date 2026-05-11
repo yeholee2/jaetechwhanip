@@ -14,9 +14,8 @@ export type AppNavKey = 'home' | 'etf' | 'topics' | 'sparring' | 'feed' | 'missi
 const NAV_ITEMS: { key: AppNavKey; label: string; href: string }[] = [
   { key: 'home', label: '홈', href: '/' },
   { key: 'etf', label: 'ETF', href: '/etf' },
+  { key: 'feed', label: '피드', href: '/feed' },
   { key: 'sparring', label: '스파링', href: '/sparring' },
-  { key: 'feed', label: '아티클', href: '/feed' },
-  { key: 'mission', label: '미션', href: '#' },
 ];
 
 function getUserName(user: any) {
@@ -101,7 +100,7 @@ export function AppShell({
   return (
     <div className={styles.shell}>
       <nav className={styles.pcNav}>
-        <Link className={`${styles.logo} logo-font`} href="/">재테크<em>한입</em></Link>
+        <Link className={`${styles.logo} logo-font`} href="/">ETF<em>한입</em></Link>
         <ul className={styles.pcMenu}>
           {NAV_ITEMS.map(item => (
             <li key={item.key}>
@@ -157,7 +156,7 @@ export function AppShell({
 
       <header className={styles.moHeader}>
         <div className={styles.moTop}>
-          <Link className={`${styles.moLogo} logo-font`} href="/">재테크<em>한입</em></Link>
+          <Link className={`${styles.moLogo} logo-font`} href="/">ETF<em>한입</em></Link>
           <div className={styles.moIcons}>
             <button className={styles.moIcon} aria-label="검색"><FaIcon name="magnifying-glass" size={19} /></button>
             <button className={styles.moIcon} aria-label="알림"><FaIcon name="bell" size={19} /></button>
@@ -196,10 +195,10 @@ export function AppShell({
         <Link className={`${styles.bnav} ${active === 'etf' ? styles.active : ''}`} href="/etf">
           <FaIcon name="chart-line" size={21} /><span>ETF</span>
         </Link>
-        <button className={`${styles.bnav} ${styles.bnavAsk}`} onClick={ask}>
-          <span className={styles.bnavAskIcon}><FaIcon name="plus" size={22} /></span>
-          <span>질문</span>
-        </button>
+        <Link className={`${styles.bnav} ${styles.bnavAsk} ${active === 'feed' ? styles.active : ''}`} href="/feed">
+          <span className={styles.bnavAskIcon}><FaIcon name="comments" size={22} /></span>
+          <span>피드</span>
+        </Link>
         <Link className={`${styles.bnav} ${active === 'sparring' ? styles.active : ''}`} href="/sparring">
           <Swords size={22} /><span>스파링</span>
         </Link>
@@ -214,7 +213,7 @@ export function AppShell({
 export function Slogan() {
   return (
     <p className={styles.slogan}>
-      <strong>질문하고 답변받는 재테크 커뮤니티</strong> · 돈 고민을 한입 크기로 쪼개서 같이 판단해요.
+      <strong>ETF 자산을 한입에 관리해요</strong> · 시장 흐름·내 포트폴리오·토론까지 한 곳에서.
     </p>
   );
 }

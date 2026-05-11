@@ -43,7 +43,7 @@ export default function AuthClient() {
   return (
     <div className={styles.page}>
       <div className={styles.card}>
-        <div className={`${styles.wordmark} logo-font`}>재테크<em>한입</em></div>
+        <div className={`${styles.wordmark} logo-font`}>ETF<em>한입</em></div>
         <div className={styles.tagline}>궁금할 땐,<br/><em>재테크한입</em></div>
 
         <button

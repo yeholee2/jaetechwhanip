@@ -47,7 +47,7 @@ export default function TempHomePage() {
     <main className={styles.screen}>
       <nav className={styles.nav} aria-label="임시 홈 내비게이션">
         <Link href="/" className={`${styles.logo} logo-font`}>
-          재테크<em>한입</em>
+          ETF<em>한입</em>
         </Link>
         <div className={styles.navLinks}>
           <Link href="/topics/재테크-입문">토픽</Link>
