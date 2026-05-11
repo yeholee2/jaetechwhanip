@@ -112,6 +112,100 @@
 .fab { position:fixed; bottom:calc(64px + var(--sb) + 10px); right:16px; width:50px; height:50px; border-radius:50%; background:var(--blue); box-shadow:0 4px 14px rgba(49,130,246,.38); align-items:center; justify-content:center; z-index:190; transition:transform .12s; }
 .fab:active { transform:scale(.94); }
 
+/* 사이드 위젯 (a-ha식 우 사이드 큐레이션) */
+.sideWidget {
+  display:block;
+  background:var(--white);
+  border:1px solid var(--line);
+  border-radius:12px;
+  padding:14px 16px;
+  margin-top:10px;
+  color:inherit;
+  text-decoration:none;
+  transition:box-shadow .12s, border-color .12s;
+}
+a.sideWidget:hover { box-shadow:0 2px 12px rgba(0,0,0,.05); border-color:#dadfe6; }
+.sideHead {
+  font-size:12px;
+  font-weight:800;
+  color:var(--t3);
+  letter-spacing:.2px;
+  margin-bottom:10px;
+}
+.etfWidgetTitle {
+  font-size:15px;
+  font-weight:800;
+  color:var(--t1);
+  line-height:1.35;
+  margin-bottom:4px;
+  display:-webkit-box;
+  -webkit-line-clamp:1;
+  -webkit-box-orient:vertical;
+  overflow:hidden;
+}
+.etfWidgetMeta {
+  font-size:12px;
+  color:var(--t3);
+  font-weight:600;
+  margin-bottom:10px;
+}
+.etfWidgetRow {
+  display:flex;
+  align-items:baseline;
+  gap:8px;
+  margin-bottom:10px;
+}
+.etfWidgetRow strong {
+  font-size:16px;
+  font-weight:800;
+  color:var(--t1);
+}
+.sideUp { color:#e42939; font-size:13px; font-weight:700; }
+.sideDown { color:#3182f6; font-size:13px; font-weight:700; }
+.sideMore {
+  display:inline-block;
+  font-size:12px;
+  font-weight:700;
+  color:var(--blue-dk);
+}
+
+.indexList {
+  list-style:none;
+  margin:0;
+  padding:0;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+.indexRow {
+  display:flex;
+  align-items:center;
+  gap:8px;
+  font-size:13px;
+}
+.indexName { flex:1; color:var(--t2); font-weight:600; }
+.indexVal { color:var(--t1); font-weight:700; }
+
+.keywordChips {
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+}
+.keywordChip {
+  height:28px;
+  display:inline-flex;
+  align-items:center;
+  padding:0 10px;
+  border-radius:999px;
+  background:var(--bg);
+  color:var(--t2);
+  font-size:12px;
+  font-weight:700;
+  text-decoration:none;
+  transition:background .12s, color .12s;
+}
+.keywordChip:hover { background:var(--blue-bg); color:var(--blue-dk); }
+
 /* 토스트 */
 .toast { position:fixed; bottom:26px; left:50%; transform:translateX(-50%) translateY(30px); background:var(--t1); color:#fff; padding:10px 17px; border-radius:8px; font-size:13px; z-index:500; transition:all .22s; opacity:0; }
 .toast.show { transform:translateX(-50%) translateY(0); opacity:1; }

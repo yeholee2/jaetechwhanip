@@ -14,7 +14,16 @@ import { getAuthNickname, syncFinanceNickname } from '@/lib/nicknames';
 import { useAutoTranslation } from '@/lib/useAutoTranslation';
 import { FaIcon } from './FaIcon';
 import SparringMiniCard from './sparring/SparringMiniCard';
+import { etfs, etfPath } from '@/lib/etfs';
 import styles from './HomeClient.module.css';
+
+const HOME_INDICES = [
+  { name: '코스피', val: '7,822', chg: '+4.32%', up: true },
+  { name: 'S&P500', val: '7,398', chg: '+0.84%', up: true },
+  { name: '나스닥', val: '26,247', chg: '+1.71%', up: true },
+  { name: '원달러', val: '1,474', chg: '+0.86%', up: true },
+];
+const HOME_KEYWORDS = ['반도체', '월배당', 'AI전력', '나스닥100', 'S&P500', '커버드콜', '밸류업'];
 
 const CATS = CATEGORY_LABELS;
 const CAT_EMOJI = CATEGORY_EMOJI;
@@ -291,9 +300,8 @@ export default function HomeClient({
         <ul className={styles.pcMenu}>
           <li><Link href="/" className={styles.on}>홈</Link></li>
           <li><Link href="/etf">ETF</Link></li>
+          <li><Link href="/feed">피드</Link></li>
           <li><Link href="/sparring">스파링</Link></li>
-          <li><Link href="/feed">아티클</Link></li>
-          <li><a href="#">미션</a></li>
           <li><div className={styles.sep}/></li>
           <li><a href="#" style={{fontSize:13,color:'var(--t3)'}}>전문가 신청</a></li>
         </ul>
@@ -381,7 +389,50 @@ export default function HomeClient({
           )}
         </div>
         <aside className={styles.pcSide}>
+          {/* 1. 핫 스파링 (기존) */}
           <SparringMiniCard sparring={featuredSparring} />
+
+          {/* 2. 오늘의 ETF */}
+          {etfs[0] && (
+            <Link href={etfPath(etfs[0].slug)} className={styles.sideWidget}>
+              <div className={styles.sideHead}>오늘의 ETF</div>
+              <div className={styles.etfWidgetTitle}>{etfs[0].shortName}</div>
+              <div className={styles.etfWidgetMeta}>{etfs[0].code} · {etfs[0].theme}</div>
+              <div className={styles.etfWidgetRow}>
+                <strong>{etfs[0].price}</strong>
+                <span className={etfs[0].changeTone === 'down' ? styles.sideDown : styles.sideUp}>
+                  {etfs[0].change}
+                </span>
+              </div>
+              <span className={styles.sideMore}>전체 ETF 보기 →</span>
+            </Link>
+          )}
+
+          {/* 3. 시장 지수 */}
+          <div className={styles.sideWidget}>
+            <div className={styles.sideHead}>시장 지수</div>
+            <ul className={styles.indexList}>
+              {HOME_INDICES.map(i => (
+                <li key={i.name} className={styles.indexRow}>
+                  <span className={styles.indexName}>{i.name}</span>
+                  <span className={styles.indexVal}>{i.val}</span>
+                  <span className={i.up ? styles.sideUp : styles.sideDown}>{i.chg}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* 4. 인기 키워드 */}
+          <div className={styles.sideWidget}>
+            <div className={styles.sideHead}>인기 키워드</div>
+            <div className={styles.keywordChips}>
+              {HOME_KEYWORDS.map(kw => (
+                <Link key={kw} className={styles.keywordChip} href={`/etf?q=${encodeURIComponent(kw)}`}>
+                  #{kw}
+                </Link>
+              ))}
+            </div>
+          </div>
         </aside>
       </div>
 
@@ -410,7 +461,7 @@ export default function HomeClient({
         )}
         <nav className={styles.moGnav}>
           <Link href="/" className={styles.on}>홈</Link>
-          <Link href="/etf">ETF</Link><Link href="/sparring">스파링</Link><Link href="/feed">아티클</Link><a href="#">미션</a>
+          <Link href="/etf">ETF</Link><Link href="/feed">피드</Link><Link href="/sparring">스파링</Link>
         </nav>
       </header>
 
