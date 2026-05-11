@@ -5,6 +5,7 @@ import type { CSSProperties } from 'react';
 import Countdown from '@/components/sparring/Countdown';
 import { FaIcon } from '@/components/FaIcon';
 import { sparringPath, type Sparring } from '@/lib/sparring';
+import { getEtfByCode } from '@/lib/etfs';
 import styles from './SparringCards.module.css';
 
 const gradients: Record<string, string> = {
@@ -23,6 +24,9 @@ function formatNumber(value: number) {
 export default function SparringActiveCard({ sparring }: { sparring: Sparring }) {
   const thumb = sparring.thumbnail_url ? `url("${sparring.thumbnail_url}")` : 'none';
   const total = sparring.stats.votes_total || sparring.stats.votes_a + sparring.stats.votes_b;
+  const etfA = getEtfByCode(sparring.etf_a_code || undefined);
+  const etfB = getEtfByCode(sparring.etf_b_code || undefined);
+  const isCompare = Boolean(sparring.etf_a_code && sparring.etf_b_code);
 
   return (
     <article
@@ -37,8 +41,16 @@ export default function SparringActiveCard({ sparring }: { sparring: Sparring })
         <div className={styles.activeCopy}>
           <div className={styles.activeMeta}>
             <span>{formatNumber(total)}명 투표 중</span>
+            {isCompare && <span className={styles.activeCompareBadge}>ETF 비교</span>}
           </div>
           <h2 className={styles.activeTitle}>{sparring.title}</h2>
+          {isCompare && (
+            <div className={styles.activeCompareRow}>
+              <span className={styles.activeCompareChip}>{etfA?.shortName || sparring.etf_a_code}</span>
+              <span className={styles.activeCompareVs}>VS</span>
+              <span className={styles.activeCompareChip}>{etfB?.shortName || sparring.etf_b_code}</span>
+            </div>
+          )}
         </div>
         <div className={styles.activeFoot}>
           <span><FaIcon name="clock" size={15} /> <Countdown deadlineAt={sparring.deadline_at} compact /></span>

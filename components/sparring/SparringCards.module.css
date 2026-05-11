@@ -131,6 +131,95 @@
   font-weight: 700;
 }
 
+/* ETF 비교 모드 표시 */
+.compareTag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 22px;
+  padding: 0 9px;
+  border-radius: 999px;
+  background: rgba(49, 130, 246, .1);
+  color: var(--blue-dk);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .2px;
+}
+
+.compareChips {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--t2);
+}
+
+.compareChip {
+  display: inline-flex;
+  align-items: center;
+  height: 22px;
+  padding: 0 9px;
+  border-radius: 6px;
+  background: var(--white);
+  border: 1px solid var(--line);
+  color: var(--t1);
+}
+
+.compareVs {
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--t3);
+  letter-spacing: .5px;
+}
+
+/* Active 카드 위 오버레이용 (그라디언트 위에 떠야 함) */
+.activeCompareRow {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+  font-size: 12px;
+  font-weight: 800;
+  color: rgba(255, 255, 255, .94);
+}
+
+.activeCompareChip {
+  display: inline-flex;
+  align-items: center;
+  height: 22px;
+  padding: 0 9px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, .18);
+  border: 1px solid rgba(255, 255, 255, .35);
+  color: #fff;
+  backdrop-filter: blur(4px);
+}
+
+.activeCompareVs {
+  font-size: 11px;
+  font-weight: 800;
+  color: rgba(255, 255, 255, .85);
+  letter-spacing: .5px;
+}
+
+.activeCompareBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 22px;
+  padding: 0 9px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .22);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .2px;
+}
+
 .round {
   color: var(--t3);
   font-size: 12px;
