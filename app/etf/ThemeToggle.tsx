@@ -1,18 +1,21 @@
+'use client';
+
 /**
  * "요즘 뜨는 ETF 테마" — RiskWeather "요즘 뜨는 산업" 패턴.
- * 가로 토글 + 종목 리스트.
- * Phase B: 정적 시드. Phase F에서 카테고리별 실시간 매핑.
+ * 가로 토글 + 종목 리스트. 클릭으로 활성 테마 전환.
  */
+import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import { etfPath, etfs } from '@/lib/etfs';
 import { EtfLogo } from './EtfLogo';
+import { Chip } from '@/components/ui';
 import styles from './ThemeToggle.module.css';
 
 const THEMES = ['반도체', 'AI', '배당', '월배당', 'S&P500', '리츠', '원자재'] as const;
 
 type ThemeKey = typeof THEMES[number];
 
-// 시드 — 테마별 매핑 (Phase F에서 etfs.tags 기반 동적 필터)
+// 테마별 매핑 시드 — Phase F에서 etfs.tags 기반 동적 필터로 대체.
 const SEED: Record<ThemeKey, string[]> = {
   '반도체': ['TIGER 미국필라델피아반도체나스닥', 'KODEX 미국S&P500TR'],
   'AI': ['KODEX 미국나스닥100TR', 'TIGER 미국S&P500'],
@@ -24,10 +27,14 @@ const SEED: Record<ThemeKey, string[]> = {
 };
 
 export function ThemeToggle() {
-  // 첫 번째 테마 기본 활성 (Phase B는 정적, Phase F에서 client component로 토글)
-  const activeTheme: ThemeKey = '반도체';
-  const targetNames = SEED[activeTheme];
-  const items = etfs.filter(e => targetNames.some(n => e.shortName.includes(n) || e.name.includes(n))).slice(0, 5);
+  const [activeTheme, setActiveTheme] = useState<ThemeKey>('반도체');
+
+  const items = useMemo(() => {
+    const targetNames = SEED[activeTheme];
+    return etfs
+      .filter(e => targetNames.some(n => e.shortName.includes(n) || e.name.includes(n)))
+      .slice(0, 5);
+  }, [activeTheme]);
 
   return (
     <section className={styles.section} aria-label="요즘 뜨는 ETF 테마">
@@ -35,12 +42,14 @@ export function ThemeToggle() {
 
       <div className={styles.toggleRow}>
         {THEMES.map(theme => (
-          <span
+          <Chip
             key={theme}
-            className={`${styles.toggle} ${theme === activeTheme ? styles.toggleActive : ''}`}
+            active={theme === activeTheme}
+            size="sm"
+            onClick={() => setActiveTheme(theme)}
           >
             {theme}
-          </span>
+          </Chip>
         ))}
       </div>
 
@@ -59,7 +68,7 @@ export function ThemeToggle() {
             </Link>
           </li>
         )) : (
-          <li className={styles.empty}>해당 테마 ETF를 곧 보강할게요.</li>
+          <li className={styles.empty}>'{activeTheme}' 테마 ETF를 곧 보강할게요.</li>
         )}
       </ul>
     </section>

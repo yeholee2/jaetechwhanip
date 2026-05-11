@@ -1,7 +1,10 @@
+'use client';
+
 /**
  * RiskWeather "따라하면 돈 버는 투자 전략" — 카테고리 토글 + 종목 3개 + 더 보기.
- * 우리 버전: "따라하면 돈 버는 ETF 전략"
+ * 우리 버전: "따라하면 돈 버는 ETF 전략" — 클릭으로 전략 전환.
  */
+import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import { etfPath, etfs } from '@/lib/etfs';
 import { EtfLogo } from './EtfLogo';
@@ -22,9 +25,14 @@ const STRATEGY_PICKS: Record<StrategyKey, string[]> = {
 };
 
 export function StrategyToggle() {
-  const active: StrategyKey = 'big';
-  const picks = STRATEGY_PICKS[active];
-  const items = etfs.filter(e => picks.some(p => e.shortName.includes(p) || e.name.includes(p))).slice(0, 3);
+  const [active, setActive] = useState<StrategyKey>('big');
+
+  const items = useMemo(() => {
+    const picks = STRATEGY_PICKS[active];
+    return etfs
+      .filter(e => picks.some(p => e.shortName.includes(p) || e.name.includes(p)))
+      .slice(0, 3);
+  }, [active]);
 
   return (
     <section className={styles.section} aria-label="따라하면 돈 버는 ETF 전략">
@@ -33,18 +41,22 @@ export function StrategyToggle() {
         <Link href="#" className={styles.more}>더 보기 →</Link>
       </div>
 
-      <div className={styles.toggleRow}>
+      <div className={styles.toggleRow} role="tablist">
         {STRATEGIES.map(s => (
-          <div
+          <button
             key={s.key}
+            role="tab"
+            aria-selected={s.key === active}
+            type="button"
+            onClick={() => setActive(s.key)}
             className={`${styles.strategyCard} ${s.key === active ? styles.strategyActive : ''}`}
           >
-            <span className={styles.strategyIcon} aria-hidden="true">{s.icon}</span>
+            <span className={`${styles.strategyIcon} tf`} aria-hidden="true">{s.icon}</span>
             <div className={styles.strategyBody}>
               <strong>{s.label}</strong>
               <span>{s.sub}</span>
             </div>
-          </div>
+          </button>
         ))}
       </div>
 
@@ -60,7 +72,7 @@ export function StrategyToggle() {
             </Link>
           </li>
         )) : (
-          <li className={styles.empty}>해당 전략 ETF를 곧 보강할게요.</li>
+          <li className={styles.empty}>'{STRATEGIES.find(s => s.key === active)?.label}' ETF를 곧 보강할게요.</li>
         )}
       </ul>
     </section>

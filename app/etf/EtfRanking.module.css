@@ -32,46 +32,13 @@
   padding: 0 20px 8px;
 }
 .sortRow::-webkit-scrollbar,
-.catRow::-webkit-scrollbar {
-  display: none;
-}
+.catRow::-webkit-scrollbar { display: none; }
+
+.sortRow > *,
+.catRow > * { flex-shrink: 0; }
+
 .catRow {
   padding-bottom: 12px;
-}
-
-.sortChip {
-  flex-shrink: 0;
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--rw-text-muted);
-  padding: 4px 0;
-  cursor: default;
-  position: relative;
-}
-.sortChip + .sortChip {
-  margin-left: 10px;
-}
-.sortActive {
-  color: var(--rw-text-strong);
-  font-weight: 700;
-}
-
-.catChip {
-  flex-shrink: 0;
-  height: 30px;
-  display: inline-flex;
-  align-items: center;
-  padding: 0 12px;
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--rw-text-body);
-  border-radius: 999px;
-  background: var(--rw-gray10);
-  cursor: default;
-}
-.catActive {
-  color: var(--rw-primary);
-  background: var(--rw-blue5);
 }
 
 .list {

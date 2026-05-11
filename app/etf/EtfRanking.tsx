@@ -1,17 +1,26 @@
+'use client';
+
 /**
  * ETFCheck식 랭킹 TOP 10.
- * Phase B 현재: 정적 시드. Phase F에서 실시간 데이터 연결.
+ * 정렬·카테고리 칩 클릭으로 활성 상태 전환 (실제 정렬 로직은 Phase F).
  */
+import { useState } from 'react';
 import Link from 'next/link';
 import { etfPath, etfs } from '@/lib/etfs';
 import { EtfLogo } from './EtfLogo';
+import { Chip } from '@/components/ui';
 import styles from './EtfRanking.module.css';
 
 const SORT_OPTIONS = ['수익률', '거래량', '자금유입', '순자산총액', '투자자'] as const;
 const CATEGORY_OPTIONS = ['전체', '주식', '채권', '원자재'] as const;
+type SortKey = typeof SORT_OPTIONS[number];
+type CategoryKey = typeof CATEGORY_OPTIONS[number];
 
 export function EtfRanking() {
-  // 시드: 기존 etfs에서 상위 5개를 랭킹 형식으로 노출
+  const [sort, setSort] = useState<SortKey>('수익률');
+  const [category, setCategory] = useState<CategoryKey>('전체');
+
+  // Phase F: sort/category 기반 실제 정렬·필터. 지금은 상위 5개 시드 노출.
   const ranked = etfs.slice(0, 5);
 
   return (
@@ -22,24 +31,29 @@ export function EtfRanking() {
       </div>
 
       <div className={styles.sortRow}>
-        {SORT_OPTIONS.map((opt, i) => (
-          <span
+        {SORT_OPTIONS.map(opt => (
+          <Chip
             key={opt}
-            className={`${styles.sortChip} ${i === 0 ? styles.sortActive : ''}`}
+            active={opt === sort}
+            size="sm"
+            onClick={() => setSort(opt)}
           >
             {opt}
-          </span>
+          </Chip>
         ))}
       </div>
 
       <div className={styles.catRow}>
-        {CATEGORY_OPTIONS.map((cat, i) => (
-          <span
+        {CATEGORY_OPTIONS.map(cat => (
+          <Chip
             key={cat}
-            className={`${styles.catChip} ${i === 0 ? styles.catActive : ''}`}
+            active={cat === category}
+            subtle
+            size="sm"
+            onClick={() => setCategory(cat)}
           >
             {cat}
-          </span>
+          </Chip>
         ))}
       </div>
 

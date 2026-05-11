@@ -13,28 +13,14 @@
 }
 .toggleRow {
   display: flex;
-  gap: 16px;
+  gap: 6px;
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
   padding: 0 20px 12px;
 }
-.toggleRow::-webkit-scrollbar {
-  display: none;
-}
-.toggle {
-  flex-shrink: 0;
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--rw-text-muted);
-  padding: 4px 0;
-  cursor: default;
-  white-space: nowrap;
-}
-.toggleActive {
-  color: var(--rw-text-strong);
-  font-weight: 700;
-}
+.toggleRow::-webkit-scrollbar { display: none; }
+.toggleRow > * { flex-shrink: 0; }
 
 .list {
   list-style: none;

@@ -43,12 +43,16 @@
   height: 44px;
   border-radius: 12px;
   background: var(--rw-gray10);
+  border: none;
   display: flex;
   align-items: center;
   justify-content: center;
   position: relative;
-  cursor: default;
-  transition: background var(--duration-instant, .15s) var(--ease-in-out, ease);
+  cursor: pointer;
+  transition: background var(--duration-instant) var(--ease-in-out);
+}
+.strategyCard:hover:not(.strategyActive) {
+  background: var(--rw-gray15);
 }
 .strategyActive {
   background: var(--rw-blue5);
