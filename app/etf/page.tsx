@@ -16,6 +16,7 @@ import { InsightCarousel } from './InsightCarousel';
 import { FeaturePromo } from './FeaturePromo';
 import { WatchList } from './WatchList';
 import { PortfolioDiagnostic } from './PortfolioDiagnostic';
+import { EtfLearnCard } from './EtfLearnCard';
 
 export const revalidate = 300;
 
@@ -132,6 +133,9 @@ function DiscoverTab() {
 
       {/* 9. 단일 피처 카드 */}
       <FeaturePromo />
+
+      {/* 10. ETF 입문 가이드 (첫 사용자용) */}
+      <EtfLearnCard />
     </>
   );
 }

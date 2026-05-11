@@ -1,8 +1,12 @@
+'use client';
+
 /**
  * RW 페이지 상단 탭 — 발견 / 관심 / 진단 / 피드.
- * 클릭 시 페이지 내 섹션 이동 또는 별도 라우트 (Phase 추가 시).
+ * 관심 탭에는 등록 개수 뱃지가 자동으로 붙음.
  */
 import Link from 'next/link';
+import { useEffect, useState } from 'react';
+import { listWatchedEtfCodes, subscribeWatchChanges } from '@/lib/etfWatch';
 import styles from './EtfPageTabs.module.css';
 
 export type EtfPageTab = 'discover' | 'watch' | 'diagnostic' | 'feed';
@@ -15,6 +19,15 @@ const TABS: { key: EtfPageTab; label: string; href: string; dot?: boolean }[] = 
 ];
 
 export function EtfPageTabs({ active = 'discover' }: { active?: EtfPageTab }) {
+  const [watchCount, setWatchCount] = useState(0);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    setWatchCount(listWatchedEtfCodes().length);
+    return subscribeWatchChanges(codes => setWatchCount(codes.length));
+  }, []);
+
   return (
     <nav className={styles.tabs} aria-label="ETF 섹션">
       {TABS.map(t => (
@@ -24,6 +37,9 @@ export function EtfPageTabs({ active = 'discover' }: { active?: EtfPageTab }) {
           className={`${styles.tab} ${active === t.key ? styles.active : ''}`}
         >
           {t.label}
+          {t.key === 'watch' && mounted && watchCount > 0 && (
+            <span className={styles.count}>{watchCount}</span>
+          )}
           {t.dot && <span className={styles.dot} aria-hidden="true" />}
         </Link>
       ))}
