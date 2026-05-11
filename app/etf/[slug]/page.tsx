@@ -17,6 +17,7 @@ import {
   findRelatedReportsForEtf,
 } from '@/lib/relatedContent';
 import { RelatedContent } from '@/components/RelatedContent';
+import { Button, Chip, Badge } from '@/components/ui';
 import styles from './EtfDetailPage.module.css';
 
 type Props = { params: { slug: string } };
@@ -104,16 +105,21 @@ export default async function EtfDetailPage({ params }: Props) {
 
         <section className={styles.hero}>
           <div>
-            <span className={styles.code}>{etf.code}</span>
+            <span className={styles.heroEyebrow}>
+              <Badge tone="neutral">{etf.code}</Badge>
+              <span className={styles.heroIssuer}>{etf.issuer} · {etf.category}</span>
+            </span>
             <h1>{etf.name}</h1>
             <p>{etf.summary}</p>
             <div className={styles.tags}>
-              {etf.tags.map(tag => <span key={tag}>{tag}</span>)}
+              {etf.tags.map(tag => (
+                <Chip key={tag} subtle size="sm">#{tag}</Chip>
+              ))}
             </div>
           </div>
           <div className={styles.actions}>
-            <button type="button">관심</button>
-            <Link href="/?ask=1">질문하기</Link>
+            <Button variant="outline" size="md">관심</Button>
+            <Button href="/?ask=1" variant="primary" size="md">질문하기</Button>
           </div>
         </section>
 
