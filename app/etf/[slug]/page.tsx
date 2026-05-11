@@ -6,6 +6,15 @@ import { FaIcon } from '@/components/FaIcon';
 import { getEtfsWithMarketData } from '@/lib/etf-live-data';
 import { ETF_HOME_PATH, etfPath, etfUrl, etfs, getEtfBySlug, getRelatedEtfs } from '@/lib/etfs';
 import { SITE_NAME, truncateDescription } from '@/lib/seo';
+import { sampleQuestions } from '@/lib/sampleData';
+import { listSparrings } from '@/lib/sparring';
+import { fetchGhostArticles } from '@/lib/feed';
+import {
+  findRelatedQuestionsForEtf,
+  findRelatedSparringsForEtf,
+  findRelatedArticlesForEtf,
+} from '@/lib/relatedContent';
+import { RelatedContent } from '@/components/RelatedContent';
 import styles from './EtfDetailPage.module.css';
 
 type Props = { params: { slug: string } };
@@ -54,6 +63,16 @@ export default async function EtfDetailPage({ params }: Props) {
   const etfNav = 'nav' in etf ? etf.nav : undefined;
   const etfBaseDate = 'baseDate' in etf ? etf.baseDate : undefined;
   const relatedEtfs = getRelatedEtfs(etf.slug, 3);
+
+  // 분절 해소: ETF 키워드로 4페이지 연결
+  const baseEtf = staticEtf || etf;
+  const [sparringRes, articles] = await Promise.all([
+    listSparrings(),
+    fetchGhostArticles(),
+  ]);
+  const relatedQs = findRelatedQuestionsForEtf(baseEtf as any, sampleQuestions as any, 3);
+  const relatedSparrings = findRelatedSparringsForEtf(baseEtf as any, sparringRes.sparrings, 2);
+  const relatedArticles = findRelatedArticlesForEtf(baseEtf as any, articles, 3);
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'WebPage',
@@ -161,23 +180,25 @@ export default async function EtfDetailPage({ params }: Props) {
           </div>
 
           <aside className={styles.sideColumn}>
-            <section className={styles.sideCard}>
-              <h2>관련 질문</h2>
-              {etf.relatedQuestions.map(question => (
-                <article className={styles.questionCard} key={question.title}>
-                  <span>{question.tag}</span>
-                  <strong>{question.title}</strong>
-                  <p>{question.meta}</p>
-                </article>
-              ))}
-            </section>
+            <RelatedContent
+              heading={`${etf.shortName} 관련 콘텐츠`}
+              questions={relatedQs.map(q => ({ slug: q.slug, title: q.title, ans: q.ans }))}
+              sparrings={relatedSparrings}
+              articles={relatedArticles}
+            />
 
-            <section className={styles.sparringCard}>
-              <span>진행중 스파링</span>
-              <strong>{etf.sparringTitle}</strong>
-              <p>1,284명 투표 중 · 2일 남음</p>
-              <Link href="/sparring">참여하기</Link>
-            </section>
+            {relatedQs.length === 0 && relatedSparrings.length === 0 && relatedArticles.length === 0 && (
+              <section className={styles.sideCard}>
+                <h2>관련 질문</h2>
+                {etf.relatedQuestions.map(question => (
+                  <article className={styles.questionCard} key={question.title}>
+                    <span>{question.tag}</span>
+                    <strong>{question.title}</strong>
+                    <p>{question.meta}</p>
+                  </article>
+                ))}
+              </section>
+            )}
           </aside>
         </div>
       </main>

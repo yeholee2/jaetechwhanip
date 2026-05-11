@@ -4,6 +4,8 @@ import { AppShell } from '@/components/AppShell';
 import { FEED_URL, fetchGhostArticleBySlug, hanipArticles } from '@/lib/feed';
 import { SITE_NAME } from '@/lib/seo';
 import { buildFeedSeoDescription, buildFeedSeoKeywords, buildFeedSeoTitle } from '@/lib/seo-content';
+import { findEtfsForText } from '@/lib/relatedContent';
+import { RelatedContent } from '@/components/RelatedContent';
 import styles from '../FeedPage.module.css';
 
 export function generateStaticParams() {
@@ -52,6 +54,12 @@ export default async function FeedArticlePage({ params }: { params: { slug: stri
   const article = await fetchGhostArticleBySlug(params.slug);
   if (!article) notFound();
 
+  // 분절 해소: 이 칼럼에서 언급된 ETF 추출
+  const mentionedEtfs = findEtfsForText(
+    [article.title, article.description, (article.tags || []).join(' '), article.contentHtml || ''].join(' '),
+    3,
+  );
+
   return (
     <AppShell active="feed">
       <article className={`${styles.card} ${styles.articleDetail}`}>
@@ -75,6 +83,8 @@ export default async function FeedArticlePage({ params }: { params: { slug: stri
             원문에서 읽기
           </a>
         )}
+
+        <RelatedContent heading="이 글과 관련된 ETF" etfs={mentionedEtfs} />
       </article>
     </AppShell>
   );
