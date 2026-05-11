@@ -1,0 +1,526 @@
+/* ============================================================
+ * ETF 토스 스타일 시안
+ * - 둥근 카드 (radius 20-24)
+ * - 미세 그림자
+ * - 큰 숫자
+ * - 친근 카피
+ * - Tossface 이모지
+ * - Toss 블루 #3182F6 (= --rw-primary 동일)
+ * ============================================================ */
+
+.page {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 20px 16px 80px;
+  background: #f9fafb;
+  min-height: 100vh;
+}
+
+.header {
+  padding: 12px 4px 24px;
+}
+.header h1 {
+  font-size: 28px;
+  font-weight: 800;
+  color: #191f28;
+  letter-spacing: -0.7px;
+  line-height: 1.3;
+  margin-bottom: 6px;
+}
+.header h1 .tf {
+  margin-left: 4px;
+}
+.header p {
+  font-size: 15px;
+  color: #6b7684;
+  font-weight: 500;
+}
+
+.demoBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: #fef3e0;
+  color: #ff7a00;
+  font-size: 12px;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+/* ============================================================
+ * 메인 자산 카드 (토스 hero)
+ * ============================================================ */
+.heroCard {
+  background: linear-gradient(135deg, #ffffff 0%, #f0f8ff 100%);
+  border-radius: 24px;
+  padding: 24px;
+  margin-bottom: 14px;
+  box-shadow: 0 4px 14px rgba(49, 130, 246, 0.06);
+}
+.heroLabel {
+  font-size: 13px;
+  color: #6b7684;
+  font-weight: 600;
+}
+.heroChange {
+  font-size: 16px;
+  font-weight: 800;
+  color: #e42939;
+  margin-top: 4px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.heroChange .tf {
+  font-size: 18px;
+}
+.heroAmount {
+  font-size: 36px;
+  font-weight: 800;
+  color: #191f28;
+  letter-spacing: -1px;
+  line-height: 1.15;
+  margin-top: 14px;
+}
+.heroSub {
+  font-size: 14px;
+  color: #8b95a1;
+  font-weight: 600;
+  margin-top: 4px;
+}
+.spark {
+  width: 100%;
+  height: 60px;
+  margin: 16px 0 20px;
+  display: block;
+}
+
+.actions {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 4px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+}
+.actionItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 4px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background 150ms;
+}
+.actionItem:hover {
+  background: rgba(49, 130, 246, 0.06);
+}
+.actionIcon {
+  font-size: 22px;
+  line-height: 1;
+}
+.actionLabel {
+  font-size: 11px;
+  font-weight: 600;
+  color: #4e5968;
+}
+
+/* ============================================================
+ * 검색
+ * ============================================================ */
+.searchCard {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #fff;
+  border-radius: 16px;
+  padding: 14px 18px;
+  margin-bottom: 14px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+.searchIcon {
+  font-size: 18px;
+  color: #b0b8c1;
+}
+.searchInput {
+  flex: 1;
+  border: none;
+  background: transparent;
+  font-size: 15px;
+  color: #191f28;
+  font-family: inherit;
+  outline: none;
+}
+.searchInput::placeholder {
+  color: #b0b8c1;
+  font-weight: 500;
+}
+
+/* ============================================================
+ * 빠른 진입 3개
+ * ============================================================ */
+.quickRow {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 24px;
+}
+.quickCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 18px 12px;
+  background: #fff;
+  border-radius: 16px;
+  text-align: center;
+  text-decoration: none;
+  color: inherit;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  transition: transform 150ms, box-shadow 150ms;
+}
+.quickCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 14px rgba(49, 130, 246, 0.1);
+}
+.quickIcon {
+  font-size: 28px;
+  line-height: 1;
+}
+.quickCard strong {
+  font-size: 13px;
+  font-weight: 700;
+  color: #191f28;
+  line-height: 1.4;
+}
+.quickCard span {
+  font-size: 11px;
+  color: #8b95a1;
+  font-weight: 600;
+}
+
+/* ============================================================
+ * 큐레이션 가로 스크롤
+ * ============================================================ */
+.section {
+  margin-bottom: 24px;
+}
+.sectionHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  padding: 0 4px;
+}
+.sectionHead h3 {
+  font-size: 18px;
+  font-weight: 800;
+  color: #191f28;
+  letter-spacing: -0.3px;
+}
+.more {
+  font-size: 13px;
+  color: #8b95a1;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.curationScroller {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  padding: 4px 4px 8px;
+  margin: 0 -4px;
+}
+.curationScroller::-webkit-scrollbar {
+  display: none;
+}
+.curationCard {
+  flex-shrink: 0;
+  width: 200px;
+  padding: 20px;
+  border-radius: 20px;
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  transition: transform 150ms;
+}
+.curationCard:hover {
+  transform: translateY(-3px);
+}
+.curationEmoji {
+  font-size: 32px;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+.curationCard strong {
+  font-size: 16px;
+  font-weight: 800;
+  color: #191f28;
+  line-height: 1.3;
+}
+.curationSub {
+  font-size: 13px;
+  color: #6b7684;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+.curationTag {
+  margin-top: auto;
+  font-size: 12px;
+  font-weight: 700;
+  color: #3182F6;
+}
+
+/* ============================================================
+ * 시장 지수
+ * ============================================================ */
+.indices {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  background: #fff;
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+.indexItem {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: 8px 0;
+}
+.indexName {
+  font-size: 13px;
+  color: #6b7684;
+  font-weight: 600;
+}
+.indexVal {
+  font-size: 14px;
+  font-weight: 700;
+  color: #191f28;
+}
+.up {
+  font-size: 12px;
+  font-weight: 700;
+  color: #e42939;
+}
+.down {
+  font-size: 12px;
+  font-weight: 700;
+  color: #3182F6;
+}
+
+/* ============================================================
+ * 스파링 (우리 차별점 강조)
+ * ============================================================ */
+.sparringCard {
+  background: linear-gradient(135deg, #fff5f7 0%, #fff0f3 100%);
+  border-radius: 24px;
+  padding: 24px;
+  margin-bottom: 24px;
+  box-shadow: 0 4px 14px rgba(228, 41, 57, 0.06);
+}
+.sparringHead {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 16px;
+}
+.sparringEmoji {
+  font-size: 36px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+.sparringHead strong {
+  display: block;
+  font-size: 16px;
+  font-weight: 800;
+  color: #191f28;
+  margin-bottom: 2px;
+}
+.sparringHead span {
+  font-size: 13px;
+  color: #6b7684;
+  font-weight: 500;
+}
+.sparringQ {
+  font-size: 22px;
+  font-weight: 800;
+  color: #191f28;
+  letter-spacing: -0.5px;
+  line-height: 1.4;
+  margin-bottom: 20px;
+}
+.sparringVote {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.voteA,
+.voteB {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 18px;
+  border-radius: 16px;
+  border: none;
+  cursor: pointer;
+  transition: transform 150ms;
+  font-family: inherit;
+}
+.voteA {
+  background: #e8f3ff;
+  color: #3182F6;
+}
+.voteB {
+  background: #ffe8eb;
+  color: #e42939;
+}
+.voteA:hover,
+.voteB:hover {
+  transform: translateY(-2px);
+}
+.voteA span,
+.voteB span {
+  font-size: 28px;
+  line-height: 1;
+}
+.voteA strong,
+.voteB strong {
+  font-size: 14px;
+  font-weight: 800;
+  color: #191f28;
+}
+.voteA em,
+.voteB em {
+  font-size: 12px;
+  font-weight: 600;
+  color: #6b7684;
+  font-style: normal;
+}
+
+/* ============================================================
+ * 한입 칼럼 리스트
+ * ============================================================ */
+.articleList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.articleCard {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px;
+  background: #fff;
+  border-radius: 16px;
+  text-decoration: none;
+  color: inherit;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  transition: transform 150ms;
+}
+.articleCard:hover {
+  transform: translateY(-2px);
+}
+.articleEmoji {
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  background: #f2f4f6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+}
+.articleCard > div {
+  flex: 1;
+  min-width: 0;
+}
+.articleCard strong {
+  display: block;
+  font-size: 14px;
+  font-weight: 700;
+  color: #191f28;
+  line-height: 1.4;
+  margin-bottom: 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+.articleCard > div span {
+  font-size: 12px;
+  color: #8b95a1;
+  font-weight: 500;
+}
+.articleArrow {
+  font-size: 22px;
+  color: #d1d6db;
+  flex-shrink: 0;
+  font-weight: 300;
+}
+
+/* ============================================================
+ * 큰 CTA
+ * ============================================================ */
+.bigCta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 24px;
+  background: linear-gradient(135deg, #3182F6 0%, #2272eb 100%);
+  border-radius: 20px;
+  text-decoration: none;
+  color: white;
+  margin-bottom: 24px;
+  box-shadow: 0 8px 20px rgba(49, 130, 246, 0.25);
+  transition: transform 150ms;
+}
+.bigCta:hover {
+  transform: translateY(-2px);
+}
+.bigCta strong {
+  display: block;
+  font-size: 16px;
+  font-weight: 800;
+  margin-bottom: 4px;
+  line-height: 1.3;
+}
+.bigCta span:not(.bigCtaEmoji) {
+  font-size: 13px;
+  font-weight: 500;
+  opacity: 0.9;
+}
+.bigCtaEmoji {
+  font-size: 40px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.footer {
+  margin-top: 32px;
+  font-size: 12px;
+  color: #b0b8c1;
+  text-align: center;
+  line-height: 1.6;
+}
+
+/* ============================================================
+ * 데스크탑
+ * ============================================================ */
+@media (min-width: 768px) {
+  .page {
+    max-width: 540px;
+  }
+}
