@@ -20,6 +20,7 @@ import { RelatedContent } from '@/components/RelatedContent';
 import { Button, Chip, Badge } from '@/components/ui';
 import { WatchButton } from '../WatchButton';
 import { ShareButton } from '../ShareButton';
+import { EtfChart } from '../EtfChart';
 import styles from './EtfDetailPage.module.css';
 
 type Props = { params: { slug: string } };
@@ -133,15 +134,16 @@ export default async function EtfDetailPage({ params }: Props) {
           <div className={styles.mainColumn}>
             <section className={styles.priceCard}>
               <div className={styles.priceHead}>
-              <div>
-                <span>현재가</span>
-                <strong>{etf.price}</strong>
-                <em className={etf.changeTone === 'down' ? styles.down : styles.up}>{etf.change}</em>
+                <div>
+                  <span>현재가</span>
+                  <strong>{etf.price}</strong>
+                  <em className={etf.changeTone === 'down' ? styles.down : styles.up}>{etf.change}</em>
+                </div>
+                <p>{etf.issuer} · {etf.category}<br />{etf.dataNotice}</p>
               </div>
-              <p>{etf.issuer} · {etf.category}<br />{etf.dataNotice}</p>
-            </div>
-              <div className={styles.chartMock} aria-hidden="true"><i /></div>
             </section>
+
+            <EtfChart code={etf.code} price={etf.price} changeTone={etf.changeTone} />
 
             <section className={styles.factGrid} aria-label="ETF 핵심 정보">
               <div><span>순자산</span><strong>{etf.aum}</strong><p>{etf.theme}</p></div>

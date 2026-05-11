@@ -19,3 +19,5 @@ export type { BadgeTone } from './Badge';
 export { PageHero, Section } from './Page';
 
 export { Avatar } from './Avatar';
+
+export { Sparkline } from './Sparkline';
