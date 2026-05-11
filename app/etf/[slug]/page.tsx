@@ -120,6 +120,7 @@ export default async function EtfDetailPage({ params }: Props) {
           </div>
           <div className={styles.actions}>
             <WatchButton code={etf.code} shortName={etf.shortName} />
+            <Button href={`/etf/compare?a=${etf.code}`} variant="outline" size="md">비교하기</Button>
             <Button href="/?ask=1" variant="primary" size="md">질문하기</Button>
           </div>
         </section>

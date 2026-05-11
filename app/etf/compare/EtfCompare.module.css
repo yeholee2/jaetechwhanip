@@ -1,0 +1,171 @@
+.page {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: var(--space-3) var(--space-5) var(--space-12);
+}
+
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+/* ─────────────────────────────────────────────────────────
+ * Picker grid (A | ⇄ | B)
+ * ───────────────────────────────────────────────────────── */
+.pickerGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  gap: var(--space-3);
+  align-items: stretch;
+}
+
+.swapBtn {
+  align-self: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--rw-primary-bg);
+  color: var(--rw-blue70);
+  font-size: 20px;
+  font-weight: var(--weight-bold);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background var(--duration-instant) var(--ease-in-out);
+}
+.swapBtn:hover:not(:disabled) {
+  background: var(--rw-primary);
+  color: #fff;
+}
+.swapBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ─────────────────────────────────────────────────────────
+ * Picker
+ * ───────────────────────────────────────────────────────── */
+.picker {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.pickerHead {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  margin-bottom: var(--space-2);
+}
+
+.pickerHead h3 {
+  font-size: var(--text-lg);
+  font-weight: var(--weight-heavy);
+  color: var(--rw-text-strong);
+  margin: 0;
+}
+
+.pickerMeta {
+  font-size: var(--text-sm);
+  color: var(--rw-text-muted);
+  font-weight: var(--weight-bold);
+}
+
+.pickerSearch {
+  height: 36px;
+  padding: 0 var(--space-3);
+  border: 1px solid var(--rw-hairline);
+  border-radius: var(--rw-radius-sm);
+  font: inherit;
+  font-size: var(--text-sm);
+  outline: none;
+  background: var(--rw-card);
+  color: var(--rw-text-strong);
+}
+.pickerSearch:focus {
+  border-color: var(--rw-primary);
+  box-shadow: var(--rw-shadow-focus);
+}
+
+.pickerList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: 240px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.pickerItem {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2);
+  border-radius: var(--rw-radius-sm);
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  transition: background var(--duration-instant) var(--ease-in-out);
+}
+.pickerItem:hover { background: var(--rw-card-muted); }
+.pickerItemActive {
+  background: var(--rw-primary-bg);
+}
+
+.pickerItemInfo {
+  min-width: 0;
+}
+
+.pickerItemInfo strong {
+  display: block;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-heavy);
+  color: var(--rw-text-strong);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pickerItemInfo span {
+  font-size: var(--text-xs);
+  color: var(--rw-text-muted);
+  font-weight: var(--weight-semibold);
+}
+
+.pickerEmpty {
+  padding: var(--space-4);
+  text-align: center;
+  color: var(--rw-text-muted);
+  font-size: var(--text-sm);
+}
+
+/* ─────────────────────────────────────────────────────────
+ * 빈 상태 / 결과 영역
+ * ───────────────────────────────────────────────────────── */
+.empty {
+  text-align: center;
+  color: var(--rw-text-muted);
+  font-size: var(--text-base);
+}
+
+.detailLinks {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+@media (max-width: 768px) {
+  .pickerGrid {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto auto;
+  }
+  .swapBtn {
+    justify-self: center;
+    transform: rotate(90deg);
+  }
+}
