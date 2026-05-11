@@ -15,6 +15,7 @@ import { ThemeToggle } from './ThemeToggle';
 import { InsightCarousel } from './InsightCarousel';
 import { FeaturePromo } from './FeaturePromo';
 import { WatchList } from './WatchList';
+import { PortfolioDiagnostic } from './PortfolioDiagnostic';
 
 export const revalidate = 300;
 
@@ -169,15 +170,7 @@ function WatchTabPlaceholder() {
 }
 
 function DiagnosticTabPlaceholder() {
-  return (
-    <ComingSoonCard
-      eyebrow="준비 중"
-      title="내 포트폴리오 진단 (β)"
-      body="보유 ETF의 자산 배분·중복·비용 구조를 한입이 자동 분석해드릴 예정이에요. 우선 내 ETF부터 등록해 두면 출시되자마자 분석을 받을 수 있어요."
-      ctaLabel="내 ETF 등록하기"
-      ctaHref="/etf"
-    />
-  );
+  return <PortfolioDiagnostic />;
 }
 
 function FeedTabPlaceholder() {
