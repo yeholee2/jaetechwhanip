@@ -6,6 +6,8 @@ import { useEffect, useMemo, useState } from 'react';
 import Countdown from '@/components/sparring/Countdown';
 import { FaIcon } from '@/components/FaIcon';
 import { createComment, getCurrentUserVote, getSideLabel, getSidePolarity, sparringPath, vote, type Sparring, type SparringComment, type SparringSide } from '@/lib/sparring';
+import { RelatedContent } from '@/components/RelatedContent';
+import type { EtfInfo } from '@/lib/etfs';
 import { createClient, hasSupabase } from '@/lib/supabase/client';
 import styles from './SparringDetail.module.css';
 
@@ -40,11 +42,13 @@ export default function SparringDetailClient({
   initialComments,
   otherActive,
   usingFallback,
+  mentionedEtfs = [],
 }: {
   sparring: Sparring;
   initialComments: SparringComment[];
   otherActive: Sparring[];
   usingFallback: boolean;
+  mentionedEtfs?: EtfInfo[];
 }) {
   const router = useRouter();
   const supabaseReady = hasSupabase();
@@ -298,6 +302,10 @@ export default function SparringDetailClient({
             <em>{formatNumber(item.stats.votes_total)}명 투표 중</em>
           </Link>
         ))}
+
+        {mentionedEtfs.length > 0 && (
+          <RelatedContent heading="이 스파링과 관련된 ETF" etfs={mentionedEtfs} />
+        )}
       </aside>
     </main>
   );

@@ -19,6 +19,7 @@ import { useAutoTranslation } from '@/lib/useAutoTranslation';
 import { buildSeoDescription } from '@/lib/seo-content';
 import { FaIcon } from '@/components/FaIcon';
 import SparringMiniCard from '@/components/sparring/SparringMiniCard';
+import { RelatedContent } from '@/components/RelatedContent';
 import styles from './QuestionClient.module.css';
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -98,12 +99,14 @@ export default function QuestionClient({
   initialAnswers = EMPTY_ANSWERS,
   initialRelated = EMPTY_RELATED,
   featuredSparring = null,
+  mentionedEtfs = [],
 }: {
   slug: string;
   initialQuestion?: QuestionDetail | null;
   initialAnswers?: AnswerDetail[];
   initialRelated?: RelatedQuestion[];
   featuredSparring?: Sparring | null;
+  mentionedEtfs?: import('@/lib/etfs').EtfInfo[];
 }) {
   const router = useRouter();
   const dropRef = useRef<HTMLDivElement>(null);
@@ -460,9 +463,8 @@ export default function QuestionClient({
         <ul className={styles.navMenu}>
           <li><button onClick={() => router.push('/')}>홈</button></li>
           <li><button onClick={() => router.push('/etf')}>ETF</button></li>
-          <li><button onClick={() => router.push('/sparring')}>스파링</button></li>
           <li><button onClick={() => router.push('/feed')}>피드</button></li>
-          <li><button>미션</button></li>
+          <li><button onClick={() => router.push('/sparring')}>스파링</button></li>
           <li><div className={styles.navSep} /></li>
           <li><button style={{ fontSize: 13, color: 'var(--t3)' }}>전문가 신청</button></li>
         </ul>
@@ -647,6 +649,10 @@ export default function QuestionClient({
         {/* 사이드바 */}
         <aside className={styles.sidebar}>
           <SparringMiniCard sparring={featuredSparring} />
+
+          {mentionedEtfs.length > 0 && (
+            <RelatedContent heading="이 질문과 관련된 ETF" etfs={mentionedEtfs} />
+          )}
 
           {/* 유사 질문 */}
           <div className={styles.widget}>
