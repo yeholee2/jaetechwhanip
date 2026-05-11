@@ -1,5 +1,44 @@
 # 패치노트
 
+## [2026-05-10] UI v3 — RiskWeather Design System Standard 채택 — Claude
+**작업자:** Claude
+**태그:** #UIPrinciples #DesignTokens #RiskWeather #ETFv2
+
+### 결정
+- Chrome MCP로 `riskweather.io/ko` 정밀 분석 (CSS variables 직접 추출)
+- 추출된 design system을 우리 standard로 채택 (사용자 결정)
+- ETF 페이지 1차 적용, 향후 전 페이지 마이그레이션
+
+### 신규: globals.css `--rw-*` 토큰 시리즈
+- Gray scale 12단계: `--rw-gray2` ~ `--rw-gray90` (#f9fafb → #191f28)
+- Blue: `--rw-blue5` ~ `--rw-blue70` (primary #3182f6)
+- Red/Green/Orange: 시리즈 5-90단계
+- Risk 특화: `--rw-risk-green/yellow/orange/red` + bg 변형
+- 시맨틱: `--rw-screen` (페이지), `--rw-card` (흰 카드), `--rw-hairline` (divider), `--rw-text-strong/body/muted/disabled`, `--rw-primary/hover`, `--rw-up/down`
+- Radius: `--rw-radius-sm/md/lg` (8/14/20px)
+
+### 적용 완료 (ETF 페이지)
+- `EtfPage.module.css` — 페이지 배경 `--rw-screen` (#f6f7f8), max-width 820px
+- `MyEtfSection` — RW 진입 카드 (📊 아이콘 + 텍스트 + ❯)
+- `MarketIndices` — RW 시장 지수 가로 스크롤 카드
+- `EtfNews` — 흰 카드 컨테이너 + hairline 디바이더
+- `EtfRanking` — 5토글 + 4카테고리 + 리스트 (전부 RW 톤)
+- `CtaCards` — 💰🩺 RW CTA 카드
+- `ThemeToggle` — 가로 토글 + 종목 리스트
+
+### docs/ui-principles.md v3
+- "RiskWeather Design System v3" 섹션 신규 추가
+- 핵심 시맨틱 토큰 표 + Gray scale 명세
+- 채택 룰: 모든 새 작업은 `--rw-*`만 사용, legacy 토큰 점진 폐기
+- 패턴 명세: 회색 배경 + 흰 카드 + hairline divider + ❯ 화살표
+
+### 다음 작업
+- ETF 페이지 라이브 검증
+- Q&A·스파링·피드도 RW 토큰으로 점진 마이그레이션 (별도 PR)
+- ThemeToggle을 client component로 (토글 활성화)
+
+---
+
 ## [2026-05-10] ETF v2 도미노 패턴 풀 도입 스펙 — Claude
 **작업자:** Claude
 **태그:** #ETF #Domino #Portfolio #Alerts #Calendar #AI #Spec

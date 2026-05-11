@@ -1,9 +1,9 @@
+/* RW 시장 지수 가로 스크롤 카드 */
 .section {
-  margin: 0 0 28px;
-  padding: 18px 4px;
-  background: var(--white);
-  border-radius: 14px;
-  border: 1px solid var(--line);
+  margin: 0 0 16px;
+  padding: 20px 4px;
+  background: var(--rw-card);
+  border-radius: var(--rw-radius-md);
 }
 .scroller {
   display: flex;
@@ -11,14 +11,14 @@
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
-  padding: 0 18px;
+  padding: 0 20px;
 }
 .scroller::-webkit-scrollbar {
   display: none;
 }
 .item {
   flex-shrink: 0;
-  min-width: 100px;
+  min-width: 96px;
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -30,26 +30,26 @@
 }
 .name {
   font-size: 12px;
-  font-weight: 700;
-  color: var(--t3);
+  font-weight: 500;
+  color: var(--rw-text-muted);
 }
 .warn {
   font-size: 11px;
   line-height: 1;
 }
 .price {
-  font-size: 17px;
-  font-weight: 800;
-  color: var(--t1);
-  letter-spacing: -0.3px;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--rw-text-strong);
+  letter-spacing: -0.2px;
 }
 .up {
   font-size: 12px;
-  font-weight: 800;
-  color: #e52a39;
+  font-weight: 600;
+  color: var(--rw-up);
 }
 .down {
   font-size: 12px;
-  font-weight: 800;
-  color: var(--primary-dk);
+  font-weight: 600;
+  color: var(--rw-down);
 }

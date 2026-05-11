@@ -33,6 +33,77 @@
   --duration-slow: 400ms;
   --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
   --ease-out: cubic-bezier(0, 0, 0.2, 1);
+
+  /* ============================================================
+   * RiskWeather Design System v3 (riskweather.io/ko 추출)
+   * 토스 Pretendard 베이스, 흰 카드 + 회색 페이지 배경 + #e5e8eb hairline.
+   * ETF 페이지부터 적용, 향후 전 페이지로 확장.
+   * ============================================================ */
+
+  /* Gray scale */
+  --rw-gray2: #f9fafb;
+  --rw-gray5: #f6f7f8;
+  --rw-gray10: #f2f4f6;
+  --rw-gray15: #edeff1;
+  --rw-gray20: #e5e8eb;
+  --rw-gray30: #d1d6db;
+  --rw-gray40: #b0b8c1;
+  --rw-gray50: #8b95a1;
+  --rw-gray60: #6b7684;
+  --rw-gray70: #4e5968;
+  --rw-gray80: #333d4b;
+  --rw-gray90: #191f28;
+
+  /* Blue (Primary, Toss 블루와 동일) */
+  --rw-blue5: #e8f3ff;
+  --rw-blue10: #c9e2ff;
+  --rw-blue40: #4593fc;
+  --rw-blue50: #3182f6;      /* primary */
+  --rw-blue60: #2272eb;      /* primary hover */
+  --rw-blue70: #1b64da;
+
+  /* Red (상승 — 한국 증시 관습) */
+  --rw-red50: #f66570;
+  --rw-red60: #e42939;       /* 등락 빨강 */
+  --rw-red70: #d22030;
+
+  /* Green (긍정/안전) */
+  --rw-green40: #15c47e;
+  --rw-green50: #03b26c;
+
+  /* Orange (경고) */
+  --rw-orange40: #ffa927;
+  --rw-orange50: #fe9800;
+
+  /* Risk 색상 (RW 특화 — 진단 결과 톤) */
+  --rw-risk-green: #34bb7a;
+  --rw-risk-yellow: #f99f01;
+  --rw-risk-orange: #ff4d00;
+  --rw-risk-red: #df1525;
+  --rw-risk-bg-green: #e6f5f0;
+  --rw-risk-bg-yellow: #fef5e6;
+  --rw-risk-bg-orange: #ffe4d9;
+  --rw-risk-bg-red: #ffecef;
+
+  /* 시맨틱 토큰 (RW 컴포넌트가 사용) */
+  --rw-screen: #f6f7f8;            /* 페이지 배경 */
+  --rw-card: #fff;                 /* 카드 배경 */
+  --rw-card-muted: #f2f4f6;        /* 보조 회색 카드 */
+  --rw-hairline: #e5e8eb;          /* 디바이더/얇은 경계 */
+  --rw-text-strong: #333d4b;       /* 제목 (gray80) */
+  --rw-text-body: #4e5968;         /* 본문 (gray70) */
+  --rw-text-muted: #8b95a1;        /* 메타 (gray50) */
+  --rw-text-disabled: #b0b8c1;     /* 비활성 (gray40) */
+  --rw-primary: #3182f6;           /* primary 액션 (blue50) */
+  --rw-primary-hover: #2272eb;     /* primary hover (blue60) */
+  --rw-up: #e42939;                /* 상승 (red60) */
+  --rw-down: #3182f6;              /* 하락 (blue50 동일 톤) */
+
+  /* 카드/모서리 */
+  --rw-radius-sm: 8px;
+  --rw-radius-md: 14px;
+  --rw-radius-lg: 20px;
+  --rw-card-pad: 24px;             /* H2 padding-top과 동일 */
 }
 
 *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
