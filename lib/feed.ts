@@ -1,6 +1,7 @@
 import { SITE_URL } from '@/lib/seo';
 import { parseRss, stripHtml, truncateText } from '@/lib/rss';
 import type { RssEntry } from '@/lib/rss';
+import { fetchRecentReportsWithFallback, type ReportItem } from '@/lib/reports';
 
 export const FEED_PATH = '/feed';
 export const FEED_URL = `${SITE_URL}${FEED_PATH}`;
@@ -34,7 +35,22 @@ export type HanipArticle = {
 export type FeedItem =
   | ({ type: 'column' } & HanipArticle)
   | ({ type: 'question' } & FeedQuestion)
-  | ({ type: 'news' } & FeedNews);
+  | ({ type: 'news' } & FeedNews)
+  | ({ type: 'report' } & FeedReport);
+
+export type FeedReport = {
+  slug: string;            // = report.id
+  title: string;
+  description: string;
+  category: string;
+  publishedAt: string;
+  sourceName: string;      // 증권사·운용사 명
+  originalUrl: string;
+  thumbnailUrl?: string | null;
+  relatedEtfCodes: string[];
+  readingTime?: string;
+  tags?: string[];
+};
 
 export type FeedQuestion = {
   slug: string;
@@ -112,21 +128,39 @@ export function toFeedItems(articles: HanipArticle[] = hanipArticles): FeedItem[
 }
 
 export async function fetchFeedItems() {
-  const [articles, questions, news] = await Promise.all([
+  const [articles, questions, news, reports] = await Promise.all([
     fetchGhostArticles(),
     fetchRecentQuestions(),
     fetchRecentNewsItems(),
+    fetchRecentReportsWithFallback(),
   ]);
 
   const items: FeedItem[] = [
     ...articles.map(a => ({ ...a, type: 'column' as const })),
     ...questions.map(q => ({ ...q, type: 'question' as const })),
     ...news.map(n => ({ ...n, type: 'news' as const })),
+    ...reports.map(r => reportToFeedItem(r)),
   ];
 
   return items.sort((a, b) => (
     new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
   ));
+}
+
+function reportToFeedItem(r: ReportItem): Extract<FeedItem, { type: 'report' }> {
+  return {
+    type: 'report',
+    slug: r.id,
+    title: r.title,
+    description: r.summary,
+    category: r.category,
+    publishedAt: r.publishedAt,
+    sourceName: r.source,
+    originalUrl: r.url,
+    thumbnailUrl: r.thumbnailUrl,
+    relatedEtfCodes: r.relatedEtfCodes,
+    tags: [],
+  };
 }
 
 /**

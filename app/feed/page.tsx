@@ -16,17 +16,18 @@ import styles from './FeedPage.module.css';
 
 type FeedSearchParams = { category?: string; tab?: string };
 
-type FeedTab = 'all' | 'q' | 'news';
+type FeedTab = 'all' | 'q' | 'news' | 'report';
 
 const FEED_TABS: { key: FeedTab; label: string }[] = [
   { key: 'all', label: '전체' },
   { key: 'q', label: '질문' },
   { key: 'news', label: '뉴스' },
+  { key: 'report', label: '리포트' },
 ];
 
 function getActiveTab(searchParams?: FeedSearchParams): FeedTab {
   const raw = searchParams?.tab;
-  if (raw === 'q' || raw === 'news') return raw;
+  if (raw === 'q' || raw === 'news' || raw === 'report') return raw;
   return 'all';
 }
 
@@ -73,6 +74,7 @@ export default async function FeedPage({
     // 탭 필터: 질문 = question, 뉴스 = news + column(한입 칼럼·리포트 통합), 전체 = 모두
     if (activeTab === 'q') return item.type === 'question';
     if (activeTab === 'news') return item.type === 'news' || item.type === 'column';
+    if (activeTab === 'report') return item.type === 'report';
     return true;
   });
   const articleCount = allItems.length;
@@ -173,6 +175,7 @@ function feedItemKey(item: FeedItem) {
 function FeedCard({ item }: { item: FeedItem }) {
   if (item.type === 'question') return <QuestionFeedCard item={item} />;
   if (item.type === 'news') return <NewsFeedCard item={item} />;
+  if (item.type === 'report') return <ReportFeedCard item={item} />;
   return <ColumnFeedCard item={item} />;
 }
 
@@ -279,6 +282,46 @@ function NewsFeedCard({ item }: { item: Extract<FeedItem, { type: 'news' }> }) {
         <div className={styles.cardHead}>
           <span className={styles.badgeLine}>
             <span className={styles.typeBadge} data-type="news">📰 뉴스</span>
+            <span className={styles.categoryLabel}>{item.category}</span>
+            <span className={styles.sourceName}>{item.sourceName}</span>
+          </span>
+        </div>
+        <h2>{item.title}</h2>
+        {item.description && <p className={styles.digestLead}>{item.description}</p>}
+        <div className={styles.byline}>
+          <span className={styles.author}>
+            <span>{formatRelativeDate(item.publishedAt)}</span>
+          </span>
+          <span className={styles.metrics} style={{ color: 'var(--rw-primary)', fontWeight: 700 }}>
+            원문 보기 ↗
+          </span>
+        </div>
+      </div>
+    </a>
+  );
+}
+
+function ReportFeedCard({ item }: { item: Extract<FeedItem, { type: 'report' }> }) {
+  const thumbTone = getThumbnailTone(item.category);
+  return (
+    <a
+      className={`${styles.feedCard} ${styles.reportCard}`}
+      href={item.originalUrl}
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      <div className={`${styles.thumb} ${thumbTone}`} aria-hidden="true">
+        {item.thumbnailUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={item.thumbnailUrl} alt="" />
+        ) : (
+          <FaIcon name="chart-column" size={28} />
+        )}
+      </div>
+      <div className={styles.cardBody}>
+        <div className={styles.cardHead}>
+          <span className={styles.badgeLine}>
+            <span className={styles.typeBadge} data-type="report">📊 리포트</span>
             <span className={styles.categoryLabel}>{item.category}</span>
             <span className={styles.sourceName}>{item.sourceName}</span>
           </span>

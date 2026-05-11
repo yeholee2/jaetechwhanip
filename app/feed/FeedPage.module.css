@@ -486,10 +486,18 @@
   background: rgba(255, 122, 0, 0.1);
   color: #ed6700;
 }
+.typeBadge[data-type="report"] {
+  background: rgba(126, 87, 194, 0.12);
+  color: #5e35b1;
+}
 
 .questionCard .thumb {
   background: linear-gradient(135deg, rgba(49,130,246,.08) 0%, rgba(49,130,246,.04) 100%);
 }
 .newsCard .thumb {
   background: linear-gradient(135deg, rgba(255,122,0,.08) 0%, rgba(255,122,0,.04) 100%);
+}
+.reportCard .thumb {
+  background: linear-gradient(135deg, rgba(126,87,194,.12) 0%, rgba(126,87,194,.05) 100%);
+  color: #5e35b1;
 }
