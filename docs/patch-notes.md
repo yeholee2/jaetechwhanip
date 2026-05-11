@@ -1,5 +1,48 @@
 # 패치노트
 
+## [2026-05-10] ETF v2 도미노 패턴 풀 도입 스펙 — Claude
+**작업자:** Claude
+**태그:** #ETF #Domino #Portfolio #Alerts #Calendar #AI #Spec
+
+### 결정 (예호님)
+- 도미노 앱(Fast Forward Corp, App Store id1540576519) 5기능을 `/etf`에 ETF 한정으로 풀 도입
+- 마이데이터/실시간 시세 라이선스 없는 범위 (수동 입력 + 공공 API + AI)
+- "도미노 라이트, ETF 전용" 포지션
+
+### 신규 문서
+- `docs/etf-portfolio-spec.md` — 4-탭 IA + 도미노 5기능 매핑 + Phase A-F 작업 계획
+- `docs/migration_etf_v2.sql` — 4 테이블(holdings/alerts/market_events/ai_summaries) + RLS + 시드 이벤트
+
+### IA 변화
+현재 `/etf` 단일 페이지 → **4-탭 구조**:
+- 둘러보기 (기존 유지)
+- 내 포트폴리오 (신규) — 보유 입력, 자산/비중/배당 차트
+- 알림·캘린더 (신규) — 가격 알림 + 증시 일정
+- AI 인사이트 (신규) — 시장 5줄 + ETF별 3섹션
+
+### 작업 Phase (Codex/GPT)
+- A: 데이터·기초 (migration + lib helpers)
+- B: IA 변경 (탭 4개 도입)
+- C: 포트폴리오 탭 (가장 큰 작업)
+- D: 알림·캘린더 탭
+- E: AI 인사이트 탭
+- F: 폴리싱
+
+### 다음 작업자 TODO
+- [ ] (Codex) Phase A부터 시작 — feat/etf-v2-portfolio 브랜치
+- [ ] (예호) `migration_etf_v2.sql` Supabase 실행 (Phase A 완료 후)
+- [ ] (예호) `OPENAI_API_KEY` Vercel env 확인 (Phase E 전제)
+- [ ] (예호) `DATA_GO_KR_SERVICE_KEY` Vercel env 확인 (Phase C에서 시세 fetch)
+
+### 도미노에 있지만 우리 못 함 (정직)
+- ❌ 자동 계좌 연동 (마이데이터 라이선스)
+- ❌ 나스닥 실시간 시세 (라이선스 비용)
+- ❌ 펀드·채권·부동산 통합
+
+→ ETF 한정 + 수동 입력 + 24h 시세 + AI 보강으로 "도미노 라이트" 구현
+
+---
+
 ## [2026-05-11] ETF v2 Lazyweb 시안 롤백 — Codex
 **작업자:** Codex
 **태그:** #ETF #Rollback #Mockup
