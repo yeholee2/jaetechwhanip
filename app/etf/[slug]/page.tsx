@@ -18,6 +18,7 @@ import {
 } from '@/lib/relatedContent';
 import { RelatedContent } from '@/components/RelatedContent';
 import { Button, Chip, Badge } from '@/components/ui';
+import { WatchButton } from '../WatchButton';
 import styles from './EtfDetailPage.module.css';
 
 type Props = { params: { slug: string } };
@@ -118,7 +119,7 @@ export default async function EtfDetailPage({ params }: Props) {
             </div>
           </div>
           <div className={styles.actions}>
-            <Button variant="outline" size="md">관심</Button>
+            <WatchButton code={etf.code} shortName={etf.shortName} />
             <Button href="/?ask=1" variant="primary" size="md">질문하기</Button>
           </div>
         </section>

@@ -14,6 +14,7 @@ import { StrategyToggle } from './StrategyToggle';
 import { ThemeToggle } from './ThemeToggle';
 import { InsightCarousel } from './InsightCarousel';
 import { FeaturePromo } from './FeaturePromo';
+import { WatchList } from './WatchList';
 
 export const revalidate = 300;
 
@@ -82,7 +83,12 @@ export default async function EtfPage({
           eyebrow="ETF"
           title="시장과 내 자산을 한 화면에"
           lead="지수·뉴스·랭킹·전략·테마를 한 페이지에서 보고, 내 포트폴리오로 바로 이어가요."
-          aside={<Badge tone="primary">{etfs.length}개 ETF</Badge>}
+          aside={
+            <>
+              <Badge tone="primary">{etfs.length}개</Badge>
+              <Button href="/etf/all" variant="outline" size="sm">전체 검색</Button>
+            </>
+          }
         />
 
         <EtfPageTabs active={active} />
@@ -159,15 +165,7 @@ function ComingSoonCard({
 }
 
 function WatchTabPlaceholder() {
-  return (
-    <ComingSoonCard
-      eyebrow="준비 중"
-      title="관심 ETF 모음이 곧 열려요"
-      body="좋아하는 ETF를 모아두면 시세·뉴스·분배금 알림을 한눈에 받을 수 있어요. ETF 상세 페이지에서 ♡ 관심 등록을 먼저 해 두세요."
-      ctaLabel="발견 탭으로 돌아가기"
-      ctaHref="/etf"
-    />
-  );
+  return <WatchList />;
 }
 
 function DiagnosticTabPlaceholder() {
