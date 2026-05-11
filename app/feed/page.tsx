@@ -203,8 +203,8 @@ function ColumnFeedCard({ item }: { item: Extract<FeedItem, { type: 'column' }> 
       <div className={styles.cardBody}>
         <div className={styles.cardHead}>
           <span className={styles.badgeLine}>
-            <span className={styles.typeBadge} data-type="column">✍️ 칼럼</span>
-            {fresh && <span className={styles.newBadge}>NEW</span>}
+            <Badge tone="success">✍️ 칼럼</Badge>
+            {fresh && <Badge tone="fresh">NEW</Badge>}
             <span className={styles.categoryLabel}>{item.category}</span>
           </span>
         </div>
@@ -241,8 +241,8 @@ function QuestionFeedCard({ item }: { item: Extract<FeedItem, { type: 'question'
       <div className={styles.cardBody}>
         <div className={styles.cardHead}>
           <span className={styles.badgeLine}>
-            <span className={styles.typeBadge} data-type="question">🦊 질문</span>
-            {fresh && <span className={styles.newBadge}>NEW</span>}
+            <Badge tone="primary">🦊 질문</Badge>
+            {fresh && <Badge tone="fresh">NEW</Badge>}
             <span className={styles.categoryLabel}>{item.category}</span>
           </span>
         </div>
@@ -284,7 +284,7 @@ function NewsFeedCard({ item }: { item: Extract<FeedItem, { type: 'news' }> }) {
       <div className={styles.cardBody}>
         <div className={styles.cardHead}>
           <span className={styles.badgeLine}>
-            <span className={styles.typeBadge} data-type="news">📰 뉴스</span>
+            <Badge tone="orange">📰 뉴스</Badge>
             <span className={styles.categoryLabel}>{item.category}</span>
             <span className={styles.sourceName}>{item.sourceName}</span>
           </span>
@@ -324,7 +324,7 @@ function ReportFeedCard({ item }: { item: Extract<FeedItem, { type: 'report' }> 
       <div className={styles.cardBody}>
         <div className={styles.cardHead}>
           <span className={styles.badgeLine}>
-            <span className={styles.typeBadge} data-type="report">📊 리포트</span>
+            <Badge tone="purple">📊 리포트</Badge>
             <span className={styles.categoryLabel}>{item.category}</span>
             <span className={styles.sourceName}>{item.sourceName}</span>
           </span>
