@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { etfPath, type EtfInfo } from '@/lib/etfs';
 import { Card, Chip, Badge, Button } from '@/components/ui';
 import { EtfCompareCard } from '@/components/sparring/EtfCompareCard';
+import { EtfCompareChart } from './EtfCompareChart';
 import { EtfLogo } from '../EtfLogo';
 import styles from './EtfCompare.module.css';
 
@@ -142,6 +143,7 @@ export function EtfCompareClient({
 
       {bothSelected ? (
         <>
+          <EtfCompareChart etfA={a} etfB={b} />
           <EtfCompareCard etfA={a} etfB={b} />
           <div className={styles.detailLinks}>
             <Button href={etfPath(a.slug)} variant="outline" size="md">
