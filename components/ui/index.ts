@@ -24,3 +24,6 @@ export { Sparkline } from './Sparkline';
 
 export { PriceChart } from './PriceChart';
 export type { ChartPoint } from './PriceChart';
+
+export { DonutChart } from './DonutChart';
+export type { DonutSegment } from './DonutChart';

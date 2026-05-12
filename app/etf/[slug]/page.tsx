@@ -19,6 +19,8 @@ import {
 import { RelatedContent } from '@/components/RelatedContent';
 import { Button, Chip, Badge } from '@/components/ui';
 import { buildEtfInsight, type EtfTag } from '@/lib/etfInsights';
+import { buildSectorBreakdown } from '@/lib/etfBreakdown';
+import { DonutChart } from '@/components/ui';
 import { WatchButton } from '../WatchButton';
 import { ShareButton } from '../ShareButton';
 import { RecordEtfView } from '../RecordEtfView';
@@ -92,6 +94,10 @@ export default async function EtfDetailPage({ params }: Props) {
   const insight = buildEtfInsight(etf as any);
   const tagBadgeTone = (t?: EtfTag): 'success' | 'neutral' | 'fresh' =>
     t?.tone === 'good' ? 'success' : t?.tone === 'warn' ? 'fresh' : 'neutral';
+
+  // 섹터 도넛 차트용 비중 추출
+  const sectorBreakdown = buildSectorBreakdown(etf.holdings);
+  const topSector = sectorBreakdown[0];
 
   const jsonLd: Record<string, unknown>[] = [
     {
@@ -268,6 +274,21 @@ export default async function EtfDetailPage({ params }: Props) {
                 })()}
               </div>
             </section>
+
+            {/* 섹터 비중 도넛 (Toss / FunETF 스타일) */}
+            {sectorBreakdown.length > 1 && (
+              <section className={styles.section}>
+                <div className={styles.sectionHead}>
+                  <h2>섹터 비중</h2>
+                  <span>{topSector ? `${topSector.label} ${topSector.value.toFixed(1)}%` : ''}</span>
+                </div>
+                <DonutChart
+                  segments={sectorBreakdown}
+                  centerLabel="가장 큰 섹터"
+                  centerValue={topSector ? topSector.label : ''}
+                />
+              </section>
+            )}
 
             <section className={styles.section}>
               <div className={styles.sectionHead}>
