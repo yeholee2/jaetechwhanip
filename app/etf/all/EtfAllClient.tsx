@@ -9,6 +9,13 @@ import styles from './EtfAll.module.css';
 
 type SortKey = 'name' | 'aum' | 'fee' | 'change';
 type CategoryKey = '전체' | '국내주식' | '해외주식' | '채권' | '원자재' | '테마';
+type MarketTab = 'all' | 'kr' | 'us';
+
+const MARKET_TABS: { key: MarketTab; label: string; flag: string; sublabel: string }[] = [
+  { key: 'all', label: '전체', flag: '🌐', sublabel: '국내 + 미국' },
+  { key: 'kr', label: '국내상장', flag: '🇰🇷', sublabel: 'KRX' },
+  { key: 'us', label: '미국상장', flag: '🇺🇸', sublabel: 'NYSE · NASDAQ' },
+];
 
 const SORT_OPTIONS: { key: SortKey; label: string }[] = [
   { key: 'change', label: '변동률' },
@@ -44,10 +51,25 @@ export function EtfAllClient({ initialEtfs }: { initialEtfs: EtfInfo[] }) {
   const [q, setQ] = useState('');
   const [sort, setSort] = useState<SortKey>('change');
   const [category, setCategory] = useState<CategoryKey>('전체');
+  const [market, setMarket] = useState<MarketTab>('all');
+
+  // 시장별 카운트 (탭 라벨 옆에 표시)
+  const marketCounts = useMemo(() => {
+    let kr = 0, us = 0;
+    for (const e of initialEtfs) {
+      const c = (e.country || 'KR').toUpperCase();
+      if (c === 'US') us++;
+      else kr++;
+    }
+    return { all: initialEtfs.length, kr, us };
+  }, [initialEtfs]);
 
   const filtered = useMemo(() => {
     const query = q.trim().toLowerCase();
     let list = initialEtfs.filter(e => {
+      // 상장 시장 필터
+      if (market === 'kr' && (e.country || 'KR').toUpperCase() !== 'KR') return false;
+      if (market === 'us' && (e.country || 'KR').toUpperCase() !== 'US') return false;
       // 카테고리 필터
       if (category !== '전체') {
         const matcher = CATEGORY_MATCHERS[category];
@@ -79,10 +101,27 @@ export function EtfAllClient({ initialEtfs }: { initialEtfs: EtfInfo[] }) {
       );
     }
     return sorted;
-  }, [initialEtfs, q, sort, category]);
+  }, [initialEtfs, q, sort, category, market]);
 
   return (
     <div className={styles.wrap}>
+      {/* 상장 시장 탭 */}
+      <div className={styles.marketTabs}>
+        {MARKET_TABS.map(tab => (
+          <button
+            key={tab.key}
+            type="button"
+            className={`${styles.marketTab} ${tab.key === market ? styles.marketTabOn : ''}`}
+            onClick={() => setMarket(tab.key)}
+          >
+            <span className={styles.marketFlag}>{tab.flag}</span>
+            <span className={styles.marketLabel}>{tab.label}</span>
+            <span className={styles.marketCount}>{marketCounts[tab.key]}</span>
+            <span className={styles.marketSub}>{tab.sublabel}</span>
+          </button>
+        ))}
+      </div>
+
       {/* 검색 입력 */}
       <div className={styles.searchBar}>
         <input
@@ -153,6 +192,9 @@ export function EtfAllClient({ initialEtfs }: { initialEtfs: EtfInfo[] }) {
                 <div className={styles.itemTop}>
                   <strong>{etf.shortName}</strong>
                   <Badge tone="neutral">{etf.code}</Badge>
+                  {(etf.country || 'KR').toUpperCase() === 'US' && (
+                    <Badge tone="fresh">🇺🇸 미국상장</Badge>
+                  )}
                 </div>
                 <div className={styles.itemMeta}>
                   <span>{etf.issuer}</span>

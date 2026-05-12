@@ -201,3 +201,72 @@
     font-size: var(--text-sm);
   }
 }
+
+/* ──────────── 상장 시장 탭 (국내상장 / 미국상장) ──────────── */
+.marketTabs {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
+}
+
+.marketTab {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  padding: var(--space-3);
+  background: var(--rw-card-muted);
+  border: 1.5px solid transparent;
+  border-radius: var(--rw-radius-md);
+  cursor: pointer;
+  font-family: inherit;
+  text-align: left;
+  transition: border-color 120ms ease, background 120ms ease, transform 120ms ease;
+}
+
+.marketTab:hover {
+  background: var(--rw-card);
+  border-color: var(--rw-border);
+}
+
+.marketTabOn {
+  background: var(--rw-card);
+  border-color: var(--rw-primary);
+}
+
+.marketFlag {
+  font-size: 18px;
+  line-height: 1;
+}
+
+.marketLabel {
+  font-size: var(--type-body);
+  font-weight: var(--weight-black);
+  color: var(--rw-text-strong);
+  letter-spacing: -0.2px;
+}
+
+.marketCount {
+  font-size: 11px;
+  font-weight: var(--weight-bold);
+  color: var(--rw-primary);
+}
+
+.marketSub {
+  font-size: 11px;
+  color: var(--rw-text-muted);
+  font-weight: var(--weight-semibold);
+}
+
+@media (max-width: 600px) {
+  .marketTab {
+    padding: var(--space-2);
+  }
+  .marketLabel {
+    font-size: var(--type-caption);
+  }
+  .marketSub {
+    display: none;
+  }
+}
