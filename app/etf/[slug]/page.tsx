@@ -82,18 +82,58 @@ export default async function EtfDetailPage({ params }: Props) {
   const relatedSparrings = findRelatedSparringsForEtf(baseEtf as any, sparringRes.sparrings, 2);
   const relatedArticles = findRelatedArticlesForEtf(baseEtf as any, articles, 3);
   const relatedReports = findRelatedReportsForEtf(baseEtf as any, reports, 3);
-  const jsonLd = {
-    '@context': 'https://schema.org',
-    '@type': 'WebPage',
-    name: `${etf.name} ETF`,
-    url: etfUrl(etf.slug),
-    description: etf.summary,
-    isPartOf: {
-      '@type': 'CollectionPage',
-      name: '재테크한입 ETF',
-      url: `${etfUrl(etf.slug).replace(`/${encodeURIComponent(etf.slug)}`, '')}`,
+  // 가격 숫자 추출 (Schema.org Offer)
+  const priceNumMatch = etf.price.replace(/,/g, '').match(/-?\d+(\.\d+)?/);
+  const priceValue = priceNumMatch ? priceNumMatch[0] : undefined;
+
+  const jsonLd: Record<string, unknown>[] = [
+    {
+      '@context': 'https://schema.org',
+      '@type': 'FinancialProduct',
+      name: `${etf.name} ETF`,
+      identifier: etf.code,
+      url: etfUrl(etf.slug),
+      description: etf.summary,
+      category: 'Exchange-Traded Fund',
+      provider: {
+        '@type': 'Organization',
+        name: etf.issuer,
+      },
+      audience: { '@type': 'Audience', audienceType: 'investors' },
+      feesAndCommissionsSpecification: `총보수 ${etf.fee}`,
+      ...(priceValue
+        ? {
+            offers: {
+              '@type': 'Offer',
+              price: priceValue,
+              priceCurrency: 'KRW',
+              availability: 'https://schema.org/InStock',
+            },
+          }
+        : {}),
+      additionalProperty: [
+        { '@type': 'PropertyValue', name: '순자산', value: etf.aum },
+        { '@type': 'PropertyValue', name: '분배', value: etf.distribution },
+        { '@type': 'PropertyValue', name: '환헤지', value: etf.hedge },
+        { '@type': 'PropertyValue', name: '거래량', value: etf.volume },
+        { '@type': 'PropertyValue', name: '상장일', value: etf.listedAt },
+      ],
+      isPartOf: {
+        '@type': 'CollectionPage',
+        name: 'ETF한입 ETF 목록',
+        url: `${etfUrl(etf.slug).replace(`/${encodeURIComponent(etf.slug)}`, '')}`,
+      },
     },
-  };
+    {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'ETF한입', item: etfUrl(etf.slug).replace(`/etf/${encodeURIComponent(etf.slug)}`, '') },
+        { '@type': 'ListItem', position: 2, name: 'ETF', item: `${etfUrl(etf.slug).replace(`/${encodeURIComponent(etf.slug)}`, '')}` },
+        { '@type': 'ListItem', position: 3, name: etf.name, item: etfUrl(etf.slug) },
+      ],
+    },
+  ];
 
   return (
     <AppShell active="etf" wide hideSlogan>
