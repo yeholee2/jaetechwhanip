@@ -20,7 +20,7 @@ export type AppNavKey = 'home' | 'etf' | 'portfolio' | 'topics' | 'sparring' | '
 const NAV_ITEMS: { key: AppNavKey; label: string; href: string }[] = [
   { key: 'home', label: '홈', href: '/' },
   { key: 'etf', label: 'ETF', href: '/etf' },
-  { key: 'portfolio', label: '진단', href: '/portfolio' },
+  { key: 'portfolio', label: 'MY포트폴리오', href: '/portfolio' },
   { key: 'feed', label: '피드', href: '/feed' },
   { key: 'sparring', label: '스파링', href: '/sparring' },
 ];
