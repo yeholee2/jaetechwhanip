@@ -1,17 +1,30 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Button } from '@/components/ui';
 import { isEtfWatched, toggleEtfWatch, subscribeWatchChanges, syncEtfWatchFromServer } from '@/lib/etfWatch';
+import styles from './WatchButton.module.css';
 
-export function WatchButton({ code, shortName }: { code: string; shortName: string }) {
+/**
+ * 관심 ETF 토글.
+ * - mode='full'(default): "♡ 관심" 텍스트 버튼
+ * - mode='icon': 동그란 ♡ 아이콘만 (헤로 CTA 경쟁 회피용)
+ */
+export function WatchButton({
+  code,
+  shortName,
+  mode = 'icon',
+}: {
+  code: string;
+  shortName: string;
+  mode?: 'full' | 'icon';
+}) {
   const [watched, setWatched] = useState(false);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
     setWatched(isEtfWatched(code));
-    void syncEtfWatchFromServer(); // 로그인 시 서버 머지
+    void syncEtfWatchFromServer();
     return subscribeWatchChanges(codes => setWatched(codes.includes(code)));
   }, [code]);
 
@@ -20,24 +33,32 @@ export function WatchButton({ code, shortName }: { code: string; shortName: stri
     setWatched(next);
   };
 
-  // SSR/hydration 안전: 마운트 전엔 기본 outline.
-  if (!mounted) {
+  const label = `${shortName} ${watched ? '관심 해제' : '관심 등록'}`;
+
+  if (mode === 'icon') {
     return (
-      <Button variant="outline" size="md">
-        ♡ 관심
-      </Button>
+      <button
+        type="button"
+        className={`${styles.iconBtn} ${watched ? styles.iconActive : ''}`}
+        onClick={onClick}
+        aria-pressed={watched}
+        aria-label={label}
+        title={watched ? '관심 해제' : '관심 등록'}
+      >
+        {mounted && watched ? '♥' : '♡'}
+      </button>
     );
   }
 
   return (
-    <Button
-      variant={watched ? 'primary' : 'outline'}
-      size="md"
+    <button
+      type="button"
+      className={`${styles.fullBtn} ${watched ? styles.fullActive : ''}`}
       onClick={onClick}
       aria-pressed={watched}
-      aria-label={`${shortName} ${watched ? '관심 해제' : '관심 등록'}`}
+      aria-label={label}
     >
-      {watched ? '♥ 관심중' : '♡ 관심'}
-    </Button>
+      {mounted && watched ? '♥ 관심중' : '♡ 관심'}
+    </button>
   );
 }

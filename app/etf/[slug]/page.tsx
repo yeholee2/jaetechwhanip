@@ -18,6 +18,7 @@ import {
 } from '@/lib/relatedContent';
 import { RelatedContent } from '@/components/RelatedContent';
 import { Button, Chip, Badge } from '@/components/ui';
+import { buildEtfInsight, type EtfTag } from '@/lib/etfInsights';
 import { WatchButton } from '../WatchButton';
 import { ShareButton } from '../ShareButton';
 import { EtfChart } from '../EtfChart';
@@ -85,6 +86,11 @@ export default async function EtfDetailPage({ params }: Props) {
   // 가격 숫자 추출 (Schema.org Offer)
   const priceNumMatch = etf.price.replace(/,/g, '').match(/-?\d+(\.\d+)?/);
   const priceValue = priceNumMatch ? priceNumMatch[0] : undefined;
+
+  // 자동 한줄평 + 태그
+  const insight = buildEtfInsight(etf as any);
+  const tagBadgeTone = (t?: EtfTag): 'success' | 'neutral' | 'fresh' =>
+    t?.tone === 'good' ? 'success' : t?.tone === 'warn' ? 'fresh' : 'neutral';
 
   const jsonLd: Record<string, unknown>[] = [
     {
@@ -165,8 +171,8 @@ export default async function EtfDetailPage({ params }: Props) {
             </div>
           </div>
           <div className={styles.actions}>
-            <WatchButton code={etf.code} shortName={etf.shortName} />
-            <Button href={`/etf/compare?a=${etf.code}`} variant="outline" size="md">비교하기</Button>
+            <WatchButton code={etf.code} shortName={etf.shortName} mode="icon" />
+            <Button href={`/etf/compare?a=${etf.code}`} variant="ghost" size="md">비교</Button>
             <Button href="/?ask=1" variant="primary" size="md">질문하기</Button>
           </div>
         </section>
@@ -184,14 +190,32 @@ export default async function EtfDetailPage({ params }: Props) {
               </div>
             </section>
 
+            {/* 한입 한줄평 (자동 생성) */}
+            <section className={styles.takeaway} aria-label="한입 한줄평">
+              <Badge tone="primary">한입 한줄평</Badge>
+              <p>{insight.oneLiner}</p>
+            </section>
+
             <EtfChart code={etf.code} price={etf.price} changeTone={etf.changeTone} />
 
             <section className={styles.factGrid} aria-label="ETF 핵심 정보">
-              <div><span>순자산</span><strong>{etf.aum}</strong><p>{etf.theme}</p></div>
+              <div>
+                <span>순자산</span><strong>{etf.aum}</strong>
+                <Badge tone={tagBadgeTone(insight.tags.aum)}>{insight.tags.aum?.label}</Badge>
+              </div>
               {etfNav && <div><span>NAV</span><strong>{etfNav}</strong><p>공식 API 기준</p></div>}
-              <div><span>총보수</span><strong>{etf.fee}</strong><p>장기 보유 비용</p></div>
-              <div><span>분배금</span><strong>{etf.distribution}</strong><p>현금흐름 방식</p></div>
-              <div><span>환헤지</span><strong>{etf.hedge}</strong><p>환율 노출</p></div>
+              <div>
+                <span>총보수</span><strong>{etf.fee}</strong>
+                <Badge tone={tagBadgeTone(insight.tags.fee)}>{insight.tags.fee?.label}</Badge>
+              </div>
+              <div>
+                <span>분배금</span><strong>{etf.distribution}</strong>
+                <Badge tone={tagBadgeTone(insight.tags.distribution)}>{insight.tags.distribution?.label}</Badge>
+              </div>
+              <div>
+                <span>환헤지</span><strong>{etf.hedge}</strong>
+                <Badge tone={tagBadgeTone(insight.tags.hedge)}>{insight.tags.hedge?.label}</Badge>
+              </div>
               <div><span>거래량</span><strong>{etf.volume}</strong><p>유동성 참고</p></div>
               <div><span>{etfBaseDate ? '기준일' : '상장일'}</span><strong>{etfBaseDate || etf.listedAt}</strong><p>{etfBaseDate ? '시세 기준' : '운용 기간'}</p></div>
             </section>

@@ -24,7 +24,7 @@ export function MarketIndices() {
         <h3 className={sec.title}>시장 지수</h3>
         <Badge tone="neutral">샘플</Badge>
       </div>
-      <div className={sec.bleedScroller}>
+      <div className={styles.grid}>
         {INDICES.map(idx => (
           <div key={idx.name} className={styles.item}>
             <div className={styles.head}>

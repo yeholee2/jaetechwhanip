@@ -1,15 +1,15 @@
-/* ===== 비로그인/0보유: 단일 행 진입 카드 ===== */
+/* ===== 비로그인/0보유: Hero 진입 카드 (발견 탭의 primary) ===== */
 .row {
   display: flex;
   align-items: center;
-  gap: var(--space-3);
-  padding: var(--space-5);
-  background: var(--rw-card);
-  border: 1px solid var(--rw-hairline);
-  border-radius: var(--rw-radius-md);
+  gap: var(--space-4);
+  padding: var(--space-8) var(--space-6);
+  background: linear-gradient(135deg, var(--rw-blue5) 0%, var(--rw-card) 75%);
+  border: 1px solid var(--rw-primary-bg);
+  border-radius: var(--rw-radius-lg);
   text-decoration: none;
   color: inherit;
-  margin: 0 0 var(--space-3);
+  margin: 0 0 var(--space-4);
   width: 100%;
   text-align: left;
   cursor: pointer;
@@ -22,14 +22,15 @@
 
 .entryIcon {
   flex-shrink: 0;
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
-  background: var(--rw-blue5);
+  width: 60px;
+  height: 60px;
+  border-radius: 16px;
+  background: var(--rw-primary);
+  color: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 20px;
+  font-size: 30px;
   line-height: 1;
 }
 
@@ -38,25 +39,26 @@
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: var(--space-1);
 }
 .body strong {
-  font-size: 15px;
-  font-weight: 600;
+  font-size: var(--type-title);
+  font-weight: var(--weight-black);
   color: var(--rw-text-strong);
-  line-height: 1.4;
+  line-height: 1.3;
+  letter-spacing: -0.2px;
 }
 .body span {
-  font-size: 12px;
-  color: var(--rw-primary);
+  font-size: var(--type-body);
+  color: var(--rw-text-body);
   line-height: 1.5;
-  font-weight: 500;
+  font-weight: var(--weight-semibold);
 }
 
 .arrow {
   flex-shrink: 0;
-  font-size: 22px;
-  color: var(--rw-text-disabled);
+  font-size: 28px;
+  color: var(--rw-primary);
   font-weight: 300;
   line-height: 1;
 }

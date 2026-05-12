@@ -12,14 +12,25 @@
   white-space: nowrap;
 }
 
-/* tones */
+/*
+ * 컬러 다이어트:
+ * - 핵심 액션·강조       = primary (toss blue)
+ * - 가격 증감            = up/down (라벨 색은 아래 fresh에 빨강 잔존)
+ * - 그 외(success/warning/purple/orange/danger) = 무채색 강등
+ *   → 같은 시각 무게를 유지하되 시선 분산 최소화.
+ * - fresh(NEW)만 빨강 살림 (시간 민감 강조)
+ */
 .neutral { background: var(--rw-card-muted); color: var(--rw-text-body); }
 .primary { background: var(--rw-primary-bg); color: var(--rw-blue70); }
-.success { background: rgba(21, 196, 126, .12); color: #028450; }
-.warning { background: rgba(255, 169, 39, .15); color: #b85d00; }
-.danger  { background: #fff0f0; color: var(--rw-red60); }
-.purple  { background: rgba(126, 87, 194, .12); color: #5e35b1; }
-.orange  { background: rgba(255, 122, 0, .1); color: #ed6700; }
+
+/* 강등된 톤들 — 회색 계열로 통합 */
+.success { background: var(--rw-card-muted); color: var(--rw-text-title); }
+.warning { background: var(--rw-card-muted); color: var(--rw-text-title); }
+.danger  { background: var(--rw-card-muted); color: var(--rw-red60); }
+.purple  { background: var(--rw-card-muted); color: var(--rw-text-title); }
+.orange  { background: var(--rw-card-muted); color: var(--rw-text-title); }
+
+/* NEW 만 빨강 살림 (시간 민감) */
 .fresh   { background: #fff0f0; color: var(--rw-red60); }
 
 .solid {

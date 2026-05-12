@@ -1,26 +1,25 @@
-/* CtaCards 내부 그리드 — 섹션 카드/헤더는 sectionStyles 공용 */
+/* CtaCards — 섹션 카드 안에서 카드 또 X. 단순 분리 row */
 .grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: var(--space-3);
+  gap: 0;
 }
 
 .card {
   display: flex;
   align-items: center;
   gap: var(--space-3);
-  padding: var(--space-4);
-  background: var(--rw-card-muted);
-  border: 1px solid transparent;
-  border-radius: var(--rw-radius-sm);
+  padding: var(--space-3) var(--space-4);
+  background: transparent;
   text-decoration: none;
   color: inherit;
-  transition: background var(--duration-instant) var(--ease-in-out),
-              border-color var(--duration-instant) var(--ease-in-out);
+  transition: background var(--duration-instant) var(--ease-in-out);
 }
 .card:hover {
-  background: var(--rw-card);
-  border-color: var(--rw-primary);
+  background: var(--rw-card-muted);
+}
+.card:nth-child(2) {
+  border-left: 1px solid var(--rw-hairline);
 }
 
 .icon {
@@ -43,7 +42,7 @@
 }
 
 .body strong {
-  font-size: var(--text-sm);
+  font-size: var(--type-caption);
   font-weight: var(--weight-heavy);
   color: var(--rw-text-strong);
   line-height: 1.4;
@@ -51,8 +50,8 @@
 
 .body span {
   font-size: 12px;
-  color: var(--rw-primary);
-  font-weight: var(--weight-bold);
+  color: var(--rw-text-muted);
+  font-weight: var(--weight-semibold);
   line-height: 1.4;
 }
 
@@ -67,5 +66,9 @@
 @media (max-width: 600px) {
   .grid {
     grid-template-columns: 1fr;
+  }
+  .card:nth-child(2) {
+    border-left: none;
+    border-top: 1px solid var(--rw-hairline);
   }
 }

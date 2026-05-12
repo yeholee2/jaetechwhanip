@@ -103,14 +103,23 @@
   /* ─────────────────────────────────────────────────────────
    * Typography scale (1.125 modular, 14px 베이스)
    * ───────────────────────────────────────────────────────── */
-  --text-xs: 11px;       /* badge, caption mini */
-  --text-sm: 13px;       /* meta, secondary */
+  --text-xs: 11px;       /* badge mini, deprecated for body */
+  --text-sm: 13px;       /* meta, caption */
   --text-base: 15px;     /* body */
-  --text-md: 16px;       /* body-emphasis */
-  --text-lg: 18px;       /* h3 */
-  --text-xl: 22px;       /* h2 */
-  --text-2xl: 28px;      /* h1 page */
-  --text-3xl: 34px;      /* display */
+  --text-md: 16px;       /* body-emphasis (deprecated, use body) */
+  --text-lg: 18px;       /* (deprecated, use title) */
+  --text-xl: 22px;       /* (deprecated, use title) */
+  --text-2xl: 28px;      /* display */
+  --text-3xl: 34px;      /* deprecated */
+
+  /*
+   * 의미적 4단계 — 권장 사용. 새 코드는 이 4개만 사용.
+   * 기존 --text-* 는 호환용 alias.
+   */
+  --type-caption: 13px;  /* 메타·라벨·캡션·뱃지 본문 */
+  --type-body: 15px;     /* 본문 */
+  --type-title: 20px;    /* 카드 제목 / h2-h3 */
+  --type-display: 28px;  /* 페이지 hero h1 */
 
   --leading-tight: 1.25;
   --leading-snug: 1.4;

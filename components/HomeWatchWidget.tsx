@@ -26,7 +26,23 @@ export function HomeWatchWidget() {
     return subscribeWatchChanges(setCodes);
   }, []);
 
-  if (!mounted) return null;
+  if (!mounted) {
+    return (
+      <div className={styles.widget} aria-busy="true">
+        <div className={styles.head}>
+          <span className={styles.title}>내 관심 ETF</span>
+        </div>
+        <ul className={styles.list}>
+          {[1, 2, 3].map(i => (
+            <li key={i} className={styles.skelRow}>
+              <span className={styles.skelName} />
+              <span className={styles.skelChange} />
+            </li>
+          ))}
+        </ul>
+      </div>
+    );
+  }
 
   const items = codes
     .map(c => getEtfByCode(c))

@@ -94,3 +94,23 @@
   font-weight: var(--weight-bold);
   color: var(--rw-blue70);
 }
+
+/* Skeleton */
+.skelRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 0;
+}
+.skelName,
+.skelChange {
+  background: var(--rw-card-muted);
+  border-radius: 4px;
+  animation: pulse 1.4s ease-in-out infinite;
+}
+.skelName { width: 70%; height: 14px; }
+.skelChange { width: 48px; height: 14px; }
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}

@@ -30,10 +30,30 @@
 .summaryBox,
 .section,
 .sideCard,
-.sparringCard {
+.sparringCard,
+.takeaway {
   border: 1px solid var(--line);
   border-radius: 12px;
   background: var(--white);
+}
+
+/* 한입 한줄평 카드 (hero 바로 아래, primary 톤) */
+.takeaway {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-5);
+  margin-bottom: var(--space-3);
+  background: linear-gradient(135deg, var(--rw-blue5) 0%, var(--rw-card) 80%);
+  border-color: var(--rw-primary-bg);
+}
+
+.takeaway p {
+  margin: 0;
+  font-size: var(--type-body);
+  font-weight: var(--weight-semibold);
+  color: var(--rw-text-strong);
+  line-height: var(--leading-relaxed);
 }
 
 .hero {
