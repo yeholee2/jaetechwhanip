@@ -21,6 +21,7 @@ import { Button, Chip, Badge } from '@/components/ui';
 import { buildEtfInsight, type EtfTag } from '@/lib/etfInsights';
 import { WatchButton } from '../WatchButton';
 import { ShareButton } from '../ShareButton';
+import { RecordEtfView } from '../RecordEtfView';
 import { EtfChart } from '../EtfChart';
 import { EtfChat } from '../EtfChat';
 import styles from './EtfDetailPage.module.css';
@@ -148,6 +149,7 @@ export default async function EtfDetailPage({ params }: Props) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <main className={styles.page}>
+        <RecordEtfView slug={etf.slug} />
         <div className={styles.topBar}>
           <Link className={styles.backLink} href={ETF_HOME_PATH}>
             <FaIcon name="chevron-left" size={12} />

@@ -2,10 +2,13 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { Swords } from 'lucide-react';
 import { getAuthNickname, syncFinanceNickname } from '@/lib/nicknames';
 import { createClient, hasSupabase } from '@/lib/supabase/client';
+import { searchInline } from '@/lib/searchInline';
+import { listRecentSearches, pushRecentSearch, clearRecentSearches } from '@/lib/recentActivity';
+import { etfPath } from '@/lib/etfs';
 import { FaIcon } from './FaIcon';
 import { Footer } from './Footer';
 import { BottomPromoBar } from './BottomPromoBar';
@@ -74,14 +77,29 @@ export function AppShell({
     event.preventDefault();
     const q = searchQuery.trim();
     if (!q) return;
-    // 통합 검색 결과 페이지 (ETF·질문·스파링·뉴스·칼럼·리포트 한 번에)
+    pushRecentSearch(q);
     router.push(`/search?q=${encodeURIComponent(q)}`);
     setShowSearch(false);
+    setSearchQuery('');
   };
 
   const openSearch = () => {
     setShowSearch(true);
     setTimeout(() => searchInputRef.current?.focus(), 50);
+  };
+
+  // 인라인 결과 + 최근 검색
+  const [recents, setRecents] = useState<string[]>([]);
+  const inlineHits = useMemo(() => searchInline(searchQuery, 6), [searchQuery]);
+  useEffect(() => {
+    if (showSearch) setRecents(listRecentSearches());
+  }, [showSearch]);
+
+  const goTo = (href: string, q?: string) => {
+    if (q) pushRecentSearch(q);
+    router.push(href);
+    setShowSearch(false);
+    setSearchQuery('');
   };
 
   const [bellNotice, setBellNotice] = useState(false);
@@ -162,27 +180,108 @@ export function AppShell({
               <FaIcon name="magnifying-glass" size={18} />
             </button>
             {showSearch && (
-              <form className={styles.searchPopup} onSubmit={submitSearch} role="search">
-                <FaIcon name="magnifying-glass" size={14} />
-                <input
-                  ref={searchInputRef}
-                  type="search"
-                  value={searchQuery}
-                  onChange={event => setSearchQuery(event.target.value)}
-                  placeholder="질문·ETF·키워드 검색"
-                  aria-label="검색어"
-                />
-                {searchQuery && (
-                  <button
-                    type="button"
-                    className={styles.searchClear}
-                    onClick={() => setSearchQuery('')}
-                    aria-label="검색어 지우기"
-                  >
-                    <FaIcon name="xmark" size={12} />
-                  </button>
+              <div className={styles.searchDropdown}>
+                <form className={styles.searchPopup} onSubmit={submitSearch} role="search">
+                  <FaIcon name="magnifying-glass" size={14} />
+                  <input
+                    ref={searchInputRef}
+                    type="search"
+                    value={searchQuery}
+                    onChange={event => setSearchQuery(event.target.value)}
+                    placeholder="질문·ETF·키워드 검색"
+                    aria-label="검색어"
+                    autoComplete="off"
+                  />
+                  {searchQuery && (
+                    <button
+                      type="button"
+                      className={styles.searchClear}
+                      onClick={() => setSearchQuery('')}
+                      aria-label="검색어 지우기"
+                    >
+                      <FaIcon name="xmark" size={12} />
+                    </button>
+                  )}
+                </form>
+
+                {/* 인라인 결과 또는 최근 검색 */}
+                {searchQuery.trim() && inlineHits.length > 0 && (
+                  <div className={styles.searchResults}>
+                    <div className={styles.searchResultsHead}>빠른 결과</div>
+                    {inlineHits.map((hit, i) => hit.kind === 'etf' ? (
+                      <button
+                        key={`etf-${hit.etf.code}`}
+                        className={styles.searchHit}
+                        type="button"
+                        onClick={() => goTo(etfPath(hit.etf.slug), searchQuery)}
+                      >
+                        <span className={styles.hitKind}>ETF</span>
+                        <span className={styles.hitTitle}>{hit.etf.shortName}</span>
+                        <span className={styles.hitMeta}>{hit.etf.code}</span>
+                      </button>
+                    ) : (
+                      <button
+                        key={`q-${hit.slug}`}
+                        className={styles.searchHit}
+                        type="button"
+                        onClick={() => goTo(`/q/${hit.slug}`, searchQuery)}
+                      >
+                        <span className={styles.hitKind}>질문</span>
+                        <span className={styles.hitTitle}>{hit.title}</span>
+                        <span className={styles.hitMeta}>{hit.category}</span>
+                      </button>
+                    ))}
+                    <button
+                      type="button"
+                      className={styles.searchAll}
+                      onClick={() => goTo(`/search?q=${encodeURIComponent(searchQuery)}`, searchQuery)}
+                    >
+                      &quot;{searchQuery}&quot; 전체 결과 보기 →
+                    </button>
+                  </div>
                 )}
-              </form>
+
+                {searchQuery.trim() && inlineHits.length === 0 && (
+                  <div className={styles.searchResults}>
+                    <div className={styles.searchEmpty}>
+                      바로 매칭되는 게 없어요.
+                      <button
+                        type="button"
+                        className={styles.searchAll}
+                        onClick={() => goTo(`/search?q=${encodeURIComponent(searchQuery)}`, searchQuery)}
+                      >
+                        통합 검색에서 더 찾기 →
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {!searchQuery.trim() && recents.length > 0 && (
+                  <div className={styles.searchResults}>
+                    <div className={styles.searchResultsHead}>
+                      최근 검색
+                      <button
+                        type="button"
+                        className={styles.searchClearAll}
+                        onClick={() => { clearRecentSearches(); setRecents([]); }}
+                      >
+                        지우기
+                      </button>
+                    </div>
+                    {recents.map(r => (
+                      <button
+                        key={r}
+                        type="button"
+                        className={styles.searchHit}
+                        onClick={() => goTo(`/search?q=${encodeURIComponent(r)}`, r)}
+                      >
+                        <span className={styles.hitKind}>↺</span>
+                        <span className={styles.hitTitle}>{r}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
             )}
           </div>
           <button
