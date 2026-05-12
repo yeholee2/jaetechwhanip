@@ -13,6 +13,7 @@ import { Card, Badge, Button } from '@/components/ui';
 import styles from './PortfolioDiagnostic.module.css';
 import { HoldingAddModal } from './HoldingAddModal';
 import { BulkPasteModal } from './BulkPasteModal';
+import { buildPortfolioInsight, type WeightedHolding } from '@/lib/etfPortfolioInsights';
 
 function buildPriceMap(): Record<string, number> {
   const map: Record<string, number> = {};
@@ -172,6 +173,15 @@ export function PortfolioDiagnostic() {
     };
   }).sort((a, b) => b.basis - a.basis);
 
+  // 한입 진단 인사이트 (가중평균 보수/위험/환노출, 섹터 중복도, 한줄평)
+  const weightedHoldings: WeightedHolding[] = weighed
+    .map(({ d, weight }) => {
+      const etf = getEtfByCode(d.etf_code);
+      return etf ? { etf, weight } : null;
+    })
+    .filter((x): x is WeightedHolding => !!x);
+  const insight = buildPortfolioInsight(weightedHoldings);
+
   // 운용사 비중 합산
   const issuerMap = new Map<string, number>();
   weighed.forEach(({ d, basis }) => {
@@ -219,6 +229,91 @@ export function PortfolioDiagnostic() {
           </div>
         </div>
       </Card>
+
+      {/* 한입 진단 인사이트 (가중평균 보수/위험/환노출/섹터 중복도) */}
+      {insight && (
+        <Card pad="lg" className={styles.section}>
+          <div className={styles.sectionHead}>
+            <h3>한입 진단</h3>
+            <span>비중 가중 평균</span>
+          </div>
+
+          <p className={styles.insightOneLiner}>{insight.oneLiner}</p>
+
+          <div className={styles.insightGrid}>
+            <div className={styles.insightCell}>
+              <span className={styles.insightLabel}>위험 등급</span>
+              <strong
+                className={styles.insightValue}
+                style={{
+                  color: insight.riskTone === 'good' ? 'var(--rw-green50)' :
+                         insight.riskTone === 'warn' ? 'var(--rw-red60)' : 'var(--rw-text-strong)'
+                }}
+              >
+                {insight.riskLabel}
+              </strong>
+              <span className={styles.insightSub}>{insight.weightedRisk.toFixed(1)} / 5</span>
+            </div>
+
+            <div className={styles.insightCell}>
+              <span className={styles.insightLabel}>환 노출</span>
+              <strong
+                className={styles.insightValue}
+                style={{
+                  color: insight.fxTone === 'good' ? 'var(--rw-green50)' :
+                         insight.fxTone === 'warn' ? 'var(--rw-red60)' : 'var(--rw-text-strong)'
+                }}
+              >
+                {insight.fxExposureLabel}
+              </strong>
+              <span className={styles.insightSub}>{(insight.fxExposure * 100).toFixed(0)}%</span>
+            </div>
+
+            <div className={styles.insightCell}>
+              <span className={styles.insightLabel}>총보수 가중평균</span>
+              <strong className={styles.insightValue}>
+                {insight.weightedFee.toFixed(2)}%
+              </strong>
+              <span className={styles.insightSub}>연</span>
+            </div>
+
+            <div className={styles.insightCell}>
+              <span className={styles.insightLabel}>섹터 집중도</span>
+              <strong
+                className={styles.insightValue}
+                style={{
+                  color: insight.concentrationTone === 'good' ? 'var(--rw-green50)' :
+                         insight.concentrationTone === 'warn' ? 'var(--rw-red60)' : 'var(--rw-text-strong)'
+                }}
+              >
+                {insight.concentrationLabel}
+              </strong>
+              <span className={styles.insightSub}>
+                {insight.topSector
+                  ? `${insight.topSector.label} ${(insight.topSector.weight * 100).toFixed(0)}%`
+                  : '—'}
+              </span>
+            </div>
+          </div>
+
+          {(insight.highlights.length > 0 || insight.warnings.length > 0) && (
+            <ul className={styles.insightPoints}>
+              {insight.highlights.map((h, i) => (
+                <li key={`h${i}`} className={styles.pointGood}>
+                  <span className={styles.pointIcon} aria-hidden="true">✓</span>
+                  <span>{h}</span>
+                </li>
+              ))}
+              {insight.warnings.map((w, i) => (
+                <li key={`w${i}`} className={styles.pointWarn}>
+                  <span className={styles.pointIcon} aria-hidden="true">!</span>
+                  <span>{w}</span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </Card>
+      )}
 
       {/* 종목 비중 */}
       <Card pad="lg" className={styles.section}>

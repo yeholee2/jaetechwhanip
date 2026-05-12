@@ -278,7 +278,97 @@
   font-weight: var(--weight-semibold);
 }
 
+/* ─────────────────────────────────────────────────────────
+ * 한입 진단 인사이트 (가중평균)
+ * ───────────────────────────────────────────────────────── */
+.insightOneLiner {
+  font-size: var(--type-body);
+  color: var(--rw-text-strong);
+  font-weight: var(--weight-heavy);
+  margin: 0 0 var(--space-3);
+  line-height: 1.5;
+  letter-spacing: -0.1px;
+}
+
+.insightGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
+}
+
+.insightCell {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--space-3);
+  background: var(--rw-card-muted);
+  border-radius: var(--rw-radius-sm);
+  min-width: 0;
+}
+
+.insightLabel {
+  font-size: 11px;
+  color: var(--rw-text-muted);
+  font-weight: var(--weight-semibold);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.insightValue {
+  font-size: var(--type-body);
+  font-weight: var(--weight-black);
+  color: var(--rw-text-strong);
+  letter-spacing: -0.2px;
+}
+
+.insightSub {
+  font-size: 11px;
+  color: var(--rw-text-muted);
+  font-weight: var(--weight-semibold);
+}
+
+.insightPoints {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.pointGood,
+.pointWarn {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  font-size: var(--type-caption);
+  color: var(--rw-text-body);
+  line-height: 1.45;
+}
+
+.pointIcon {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: var(--weight-black);
+  color: #fff;
+  margin-top: 1px;
+}
+
+.pointGood .pointIcon { background: var(--rw-green50); }
+.pointWarn .pointIcon { background: var(--rw-red60); }
+
 @media (max-width: 600px) {
+  .insightGrid {
+    grid-template-columns: 1fr 1fr;
+  }
   .metricsGrid {
     grid-template-columns: 1fr 1fr;
   }
