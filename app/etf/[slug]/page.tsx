@@ -23,6 +23,7 @@ import { buildSectorBreakdown } from '@/lib/etfBreakdown';
 import { DonutChart, CompareBar, RiskMeter, MiniBarChart } from '@/components/ui';
 import { buildEtfRisk } from '@/lib/etfRisk';
 import { buildDistributionHistory } from '@/lib/etfDistribution';
+import { countryInfo } from '@/lib/etfCountry';
 import { WatchButton } from '../WatchButton';
 import { ShareButton } from '../ShareButton';
 import { RecordEtfView } from '../RecordEtfView';
@@ -179,6 +180,11 @@ export default async function EtfDetailPage({ params }: Props) {
           <div>
             <span className={styles.heroEyebrow}>
               <Badge tone="neutral">{etf.code}</Badge>
+              {etf.underlyingCountry && (
+                <Badge tone={countryInfo(etf.underlyingCountry).isOverseas ? 'fresh' : 'success'}>
+                  {countryInfo(etf.underlyingCountry).flag} {countryInfo(etf.underlyingCountry).label}
+                </Badge>
+              )}
               <span className={styles.heroIssuer}>{etf.issuer} · {etf.category}</span>
             </span>
             <h1>{etf.name}</h1>

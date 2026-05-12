@@ -38,15 +38,20 @@ function parseFeePercent(fee: string): number {
 }
 
 function isFxExposed(etf: EtfInfo): boolean {
+  // 1순위: underlyingCountry 가 있으면 KR 아닌 경우 환노출
+  if (etf.underlyingCountry) {
+    if (etf.underlyingCountry === 'KR') return false;
+    // 명시적 환헤지 표시가 있으면 환노출 X
+    const h = etf.hedge || '';
+    if (/헤지\(H\)|환헤지|H\)/i.test(h) && !/언헤지|미.*헤지/i.test(h)) return false;
+    return true;
+  }
+  // 2순위: 헤지/카테고리 텍스트 휴리스틱 (legacy)
   const h = etf.hedge || '';
-  // 명시적 헤지 표시가 있으면 환노출 X
   if (/헤지\(H\)|환헤지|H\)/i.test(h) && !/언헤지|미.*헤지/i.test(h)) return false;
-  // 원화 자산
   if (/원화|국내|코스피|코스닥|KRW/i.test(h)) return false;
-  // 카테고리·이름에 해외 키워드면 환노출
   const probe = `${etf.name} ${etf.category} ${etf.theme}`;
   if (/미국|S&P500|나스닥|일본|중국|유럽|글로벌|신흥|해외|USD|달러/i.test(probe)) return true;
-  // 명시적 언헤지
   if (/언헤지|미.*헤지|no hedge/i.test(h)) return true;
   return false;
 }

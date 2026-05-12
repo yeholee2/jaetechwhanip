@@ -34,6 +34,10 @@ type RawRow = {
   related_questions: any;
   sparring_title: string | null;
   data_source: string;
+  market: string | null;
+  country: string | null;
+  currency: string | null;
+  underlying_country: string | null;
 };
 
 function rowToInfo(row: RawRow): EtfInfo {
@@ -61,6 +65,10 @@ function rowToInfo(row: RawRow): EtfInfo {
     holdings: Array.isArray(row.holdings) ? row.holdings : [],
     relatedQuestions: Array.isArray(row.related_questions) ? row.related_questions : [],
     sparringTitle: row.sparring_title || '',
+    market: row.market || 'KRX',
+    country: row.country || 'KR',
+    currency: row.currency || 'KRW',
+    underlyingCountry: row.underlying_country || 'KR',
   };
 }
 

@@ -90,11 +90,15 @@ function slugify(name: string, code: string): string {
 }
 
 function pickCategoryFromName(name: string): string {
-  if (/(미국|S&P|나스닥|다우|글로벌)/i.test(name)) return '해외주식·ETF';
-  if (/(채권|국채|회사채)/.test(name)) return '채권';
-  if (/(금|은|원유|구리|원자재)/.test(name)) return '원자재';
-  if (/(부동산|리츠|REITs)/i.test(name)) return '부동산';
-  if (/(코스피|코스닥|국내)/.test(name)) return '국내주식·ETF';
+  if (/레버리지|2X|3X|인버스|곱버스/i.test(name)) return '레버리지·인버스';
+  if (/커버드콜/.test(name)) return '커버드콜';
+  if (/리츠|REIT|부동산/i.test(name)) return '부동산';
+  if (/원유|천연가스|구리|니켈|코코아|원자재|금|은\b/.test(name)) return '원자재';
+  if (/(국고채|국채|회사채|단기채|중기채|장기채|크레딧|MMF|머니마켓|채권)/.test(name)) return '채권';
+  if (/(미국|S&P|나스닥|다우|글로벌|선진국|이머징|신흥국|중국|차이나|일본|인도|베트남|유럽|독일|영국)/i.test(name)) return '해외주식·ETF';
+  if (/(반도체|2차전지|전기차|바이오|AI|인공지능|로봇|메타버스|블록체인|클라우드)/i.test(name)) return '테마형';
+  if (/(배당|월배당|고배당)/.test(name)) return '배당형';
+  if (/(코스피|코스닥|국내|K-|한국)/.test(name)) return '국내주식·ETF';
   return '국내주식·ETF';
 }
 
@@ -102,27 +106,66 @@ function pickThemeFromName(name: string): string {
   if (/반도체/.test(name)) return '반도체';
   if (/AI|인공지능/i.test(name)) return 'AI';
   if (/(2차전지|전기차|배터리)/.test(name)) return '2차전지';
-  if (/(배당|월배당|고배당)/.test(name)) return '배당';
-  if (/(나스닥|NASDAQ)/i.test(name)) return '나스닥100';
+  if (/바이오/.test(name)) return '바이오';
+  if (/(월배당|고배당|배당)/.test(name)) return '배당';
+  if (/나스닥|NASDAQ/i.test(name)) return '나스닥100';
   if (/S&P\s*500/i.test(name)) return 'S&P500';
   if (/리츠|REIT/i.test(name)) return '리츠';
-  if (/(채권|국채)/.test(name)) return '채권';
+  if (/(국고채|국채|회사채|채권)/.test(name)) return '채권';
+  if (/원자재|금|은|원유|구리/.test(name)) return '원자재';
+  if (/커버드콜/.test(name)) return '커버드콜';
+  if (/레버리지|2X|3X/i.test(name)) return '레버리지';
+  if (/인버스|곱버스/.test(name)) return '인버스';
+  if (/코스피|KOSPI/i.test(name)) return '코스피';
+  if (/코스닥|KOSDAQ/i.test(name)) return '코스닥';
   return '시장지수';
 }
 
+const ISSUER_RULES: [RegExp, string][] = [
+  [/^KODEX\b/, '삼성자산운용'],
+  [/^TIGER\b/, '미래에셋자산운용'],
+  [/^ACE\b/, '한국투자신탁운용'],
+  [/^1Q\b/, '한국투자신탁운용'],
+  [/^ITF\b/, '한국투자신탁운용'],
+  [/^PLUS\b/, '한화자산운용'],
+  [/^ARIRANG\b/, '한화자산운용'],
+  [/^KBSTAR\b|^KB STAR\b/, 'KB자산운용'],
+  [/^RISE\b/, 'KB자산운용'],
+  [/^SOL\b/, '신한자산운용'],
+  [/^HANARO\b/, 'NH-Amundi자산운용'],
+  [/^KIWOOM\b/, '키움투자자산운용'],
+  [/^TIMEFOLIO\b|^TIME\b/, '타임폴리오자산운용'],
+  [/^WOORI\b|^WON\b/, '우리자산운용'],
+  [/^BNK\b/, 'BNK자산운용'],
+  [/^HK\b/, '흥국자산운용'],
+  [/^MIDAS\b/, '마이다스에셋자산운용'],
+  [/^KoAct\b|^코액트\b/, '삼성액티브자산운용'],
+  [/^에셋플러스\b/, '에셋플러스자산운용'],
+  [/^마이티\b/, 'DB자산운용'],
+  [/^아이엠에셋\b/, '아이엠에셋자산운용'],
+  [/^더제이\b/, '더제이자산운용'],
+  [/^FOCUS\b/, '마이다스에셋자산운용'],
+  [/^파워\b/, '교보악사자산운용'],
+];
+
 function pickIssuerFromName(name: string): string {
-  if (name.startsWith('KODEX')) return '삼성자산운용';
-  if (name.startsWith('TIGER')) return '미래에셋자산운용';
-  if (name.startsWith('ACE')) return '한국투자신탁운용';
-  if (name.startsWith('PLUS')) return '한화자산운용';
-  if (name.startsWith('ARIRANG')) return '한화자산운용';
-  if (name.startsWith('KBSTAR') || name.startsWith('KB STAR')) return 'KB자산운용';
-  if (name.startsWith('RISE')) return 'KB자산운용';
-  if (name.startsWith('SOL')) return '신한자산운용';
-  if (name.startsWith('HANARO')) return 'NH-Amundi자산운용';
-  if (name.startsWith('TIMEFOLIO')) return '타임폴리오자산운용';
-  if (name.startsWith('WOORI')) return '우리자산운용';
-  return '운용사';
+  for (const [re, v] of ISSUER_RULES) if (re.test(name)) return v;
+  return '기타';
+}
+
+/** 종목명 + 기초지수명으로 추종 자산 국가 자동 분류 */
+function pickUnderlyingCountry(name: string, bssIdx: string): string {
+  const t = `${name} ${bssIdx}`;
+  if (/미국|S&P\s*500|나스닥|NASDAQ|다우|러셀|필라델피아|S&P|미국채|미국주|뉴욕|US\b/i.test(t)) return 'US';
+  if (/(중국|차이나|상해|항셍|홍콩|H지수|CSI|선전)/i.test(t)) return 'CN';
+  if (/(일본|JP|TOPIX|닛케이|Nikkei)/i.test(t)) return 'JP';
+  if (/(인도|니프티|Nifty|India)/i.test(t)) return 'IN';
+  if (/(유럽|독일|영국|프랑스|EU|Eurostoxx|DAX|FTSE)/i.test(t)) return 'EU';
+  if (/(베트남|호치민)/i.test(t)) return 'VN';
+  if (/(대만|TAIEX)/i.test(t)) return 'TW';
+  if (/(이머징|신흥국|EM|Emerging)/i.test(t)) return 'EM';
+  if (/(글로벌|선진국|World|Developed|MSCI)/i.test(t)) return 'GLOBAL';
+  return 'KR';
 }
 
 async function fetchAllPages(serviceKey: string): Promise<PublicRow[]> {
@@ -162,6 +205,7 @@ function rowToEtf(row: PublicRow) {
   const issuer = pickIssuerFromName(name);
   const category = pickCategoryFromName(name);
   const theme = pickThemeFromName(name);
+  const underlyingCountry = pickUnderlyingCountry(name, readField(row, 'bssIdxIdxNm'));
 
   return {
     slug: slugify(shortName, code),
@@ -184,11 +228,15 @@ function rowToEtf(row: PublicRow) {
     base_date: formatBaseDate(readField(row, 'basDt')),
     volume: formatVolume(readField(row, 'trqu')),
     nav: formatWon(readField(row, 'nav')),
-    tags: [theme, category].filter(Boolean),
+    tags: [theme, category, underlyingCountry].filter(Boolean),
     holdings: [],
     related_questions: [],
     sparring_title: null,
     data_source: 'public-api',
+    market: 'KRX',
+    country: 'KR',
+    currency: 'KRW',
+    underlying_country: underlyingCountry,
   };
 }
 
