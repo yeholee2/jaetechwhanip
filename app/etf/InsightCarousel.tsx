@@ -4,6 +4,7 @@
  */
 import Link from 'next/link';
 import { etfPath, etfs } from '@/lib/etfs';
+import { Badge } from '@/components/ui';
 import sec from './sectionStyles.module.css';
 import styles from './InsightCarousel.module.css';
 
@@ -63,7 +64,7 @@ export function InsightCarousel() {
     <section className={sec.card} aria-label="ETF 큐레이션">
       <div className={sec.head}>
         <h3 className={sec.title}>이번 주 ETF 큐레이션</h3>
-        <span className={sec.meta}>{INSIGHTS.length}개 묶음</span>
+        <Badge tone="neutral">샘플</Badge>
       </div>
       <div className={`${sec.bleedScroller} ${styles.scroller}`}>
         {INSIGHTS.map(i => (

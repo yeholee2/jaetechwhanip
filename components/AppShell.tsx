@@ -73,14 +73,20 @@ export function AppShell({
     event.preventDefault();
     const q = searchQuery.trim();
     if (!q) return;
-    // 홈으로 검색 결과 전달 (홈에서 question filter 처리)
-    router.push(`/?q=${encodeURIComponent(q)}`);
+    // 통합 검색 결과 페이지 (ETF·질문·스파링·뉴스·칼럼·리포트 한 번에)
+    router.push(`/search?q=${encodeURIComponent(q)}`);
     setShowSearch(false);
   };
 
   const openSearch = () => {
     setShowSearch(true);
     setTimeout(() => searchInputRef.current?.focus(), 50);
+  };
+
+  const [bellNotice, setBellNotice] = useState(false);
+  const showBellNotice = () => {
+    setBellNotice(true);
+    setTimeout(() => setBellNotice(false), 2400);
   };
 
   useEffect(() => {
@@ -178,7 +184,14 @@ export function AppShell({
               </form>
             )}
           </div>
-          <button className={styles.iconBtn} aria-label="알림"><FaIcon name="bell" size={18} /></button>
+          <button
+            className={styles.iconBtn}
+            aria-label="알림 (준비 중)"
+            type="button"
+            onClick={showBellNotice}
+          >
+            <FaIcon name="bell" size={18} />
+          </button>
           {user ? (
             <div className={styles.profileWrap} ref={profileRef}>
               <button
@@ -230,7 +243,14 @@ export function AppShell({
             >
               <FaIcon name="magnifying-glass" size={19} />
             </button>
-            <button className={styles.moIcon} aria-label="알림"><FaIcon name="bell" size={19} /></button>
+            <button
+              className={styles.moIcon}
+              aria-label="알림 (준비 중)"
+              type="button"
+              onClick={showBellNotice}
+            >
+              <FaIcon name="bell" size={19} />
+            </button>
             {user ? (
               <Link className={styles.moAvatar} href={profileHref} aria-label="내 정보">
                 {userAvatar ? (
@@ -281,6 +301,12 @@ export function AppShell({
 
       {!hideSlogan && <Slogan />}
       <div className={`${styles.content} ${wide ? styles.wideContent : ''}`}>{children}</div>
+
+      {bellNotice && (
+        <div className={styles.toast} role="status">
+          🔔 알림 기능은 곧 열려요. 관심 ETF 가격·답변·스파링 결과를 미리 받아볼 수 있어요.
+        </div>
+      )}
 
       <Footer />
 

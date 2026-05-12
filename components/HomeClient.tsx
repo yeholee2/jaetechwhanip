@@ -306,6 +306,21 @@ export default function HomeClient({
 
   return (
     <AppShell active="home" wide hideSlogan>
+      {/* 비로그인 환영 hero — 인증 로딩 끝나고 user 없을 때만 노출 */}
+      {!authLoading && !user && (
+        <div className={styles.welcomeHero}>
+          <div className={styles.welcomeBody}>
+            <span className={styles.welcomeEyebrow}>ETF한입에 오신 걸 환영해요</span>
+            <h1>ETF, 한입에 정리</h1>
+            <p>시장 흐름·관심 ETF·포트폴리오 진단을 한 곳에서. 궁금한 점은 질문으로 남기고, 다른 사람들이 어떻게 결정했는지 스파링에서 보세요.</p>
+          </div>
+          <div className={styles.welcomeActions}>
+            <Link href="/auth" className={styles.welcomeCta}>3초 가입 →</Link>
+            <Link href="/etf/all" className={styles.welcomeOutline}>ETF 둘러보기</Link>
+          </div>
+        </div>
+      )}
+
       {/* PC 본문 */}
       <div className={styles.pcBody}>
         <div className={styles.pcFeed}>

@@ -8,7 +8,7 @@ import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import { etfPath, etfs } from '@/lib/etfs';
 import { EtfLogo } from './EtfLogo';
-import { Chip } from '@/components/ui';
+import { Chip, Badge } from '@/components/ui';
 import sec from './sectionStyles.module.css';
 import styles from './ThemeToggle.module.css';
 
@@ -41,7 +41,7 @@ export function ThemeToggle() {
     <section className={sec.card} aria-label="요즘 뜨는 ETF 테마">
       <div className={sec.head}>
         <h3 className={sec.title}>요즘 뜨는 테마</h3>
-        <span className={sec.meta}>{THEMES.length}개</span>
+        <Badge tone="neutral">샘플</Badge>
       </div>
 
       <div className={`${sec.bleedScroller} ${styles.toggleRow}`}>

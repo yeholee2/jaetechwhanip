@@ -7,7 +7,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { etfPath, etfs } from '@/lib/etfs';
 import { EtfLogo } from './EtfLogo';
-import { Chip } from '@/components/ui';
+import { Chip, Badge } from '@/components/ui';
 import sec from './sectionStyles.module.css';
 import styles from './EtfRanking.module.css';
 
@@ -27,7 +27,7 @@ export function EtfRanking() {
     <section className={sec.card} aria-label="ETF 랭킹 TOP 10">
       <div className={sec.head}>
         <h3 className={sec.title}>랭킹 TOP 10</h3>
-        <span className={sec.meta}>당일 · 전일</span>
+        <Badge tone="neutral">샘플</Badge>
       </div>
 
       <div className={`${sec.bleedScroller} ${styles.chipRow}`}>

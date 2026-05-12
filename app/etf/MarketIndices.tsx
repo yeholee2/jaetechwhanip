@@ -2,6 +2,7 @@
  * 시장 지수 가로 스크롤 — RiskWeather 상단 패턴.
  * Phase B: 정적 시드. Phase F에서 data.go.kr API 연결.
  */
+import { Badge } from '@/components/ui';
 import sec from './sectionStyles.module.css';
 import styles from './MarketIndices.module.css';
 
@@ -21,7 +22,7 @@ export function MarketIndices() {
     <section className={sec.card} aria-label="시장 지수">
       <div className={sec.head}>
         <h3 className={sec.title}>시장 지수</h3>
-        <span className={sec.meta}>실시간</span>
+        <Badge tone="neutral">샘플</Badge>
       </div>
       <div className={sec.bleedScroller}>
         {INDICES.map(idx => (

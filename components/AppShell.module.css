@@ -202,6 +202,29 @@
   .moAskFab { display: inline-flex; }
 }
 
+/* 알림 종 클릭 토스트 */
+.toast {
+  position: fixed;
+  bottom: 100px;
+  left: 50%;
+  transform: translateX(-50%);
+  max-width: 90%;
+  padding: var(--space-3) var(--space-5);
+  background: var(--rw-text-strong);
+  color: #fff;
+  border-radius: var(--rw-radius-md);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  box-shadow: var(--rw-shadow-3);
+  z-index: var(--z-toast);
+  animation: toastIn .25s var(--ease-out);
+}
+
+@keyframes toastIn {
+  from { opacity: 0; transform: translate(-50%, 8px); }
+  to   { opacity: 1; transform: translate(-50%, 0); }
+}
+
 .askBtn {
   height: 36px;
   padding: 0 16px;

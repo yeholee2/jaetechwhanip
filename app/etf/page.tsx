@@ -105,6 +105,7 @@ export default async function EtfPage({
 }
 
 function DiscoverTab() {
+  // 발견 탭은 핵심만. 뉴스/전략/큐레이션은 /etf/themes, /etf/news 페이지로 분리.
   return (
     <>
       {/* 1. 내 ETF (로그인 시 도미노 풀화면, 비로그인 시 가입 CTA) */}
@@ -113,30 +114,37 @@ function DiscoverTab() {
       {/* 2. 시장 지수 */}
       <MarketIndices />
 
-      {/* 3. 최신 ETF 뉴스 */}
-      <EtfNews />
-
-      {/* 4. 투자 매력도 높은 ETF */}
+      {/* 3. 투자 매력도 높은 ETF */}
       <EtfRanking />
 
-      {/* 5. CTA 카드 2개 */}
-      <CtaCards />
+      {/* 4. 더 보기 — 테마·뉴스 페이지로 진입 */}
+      <DiscoverMoreCards />
 
-      {/* 6. 따라하면 돈 버는 ETF 전략 */}
-      <StrategyToggle />
-
-      {/* 7. 요즘 뜨는 ETF 테마 */}
+      {/* 5. 요즘 뜨는 테마 (mini) */}
       <ThemeToggle />
 
-      {/* 8. 큐레이션 캐러셀 */}
-      <InsightCarousel />
-
-      {/* 9. 단일 피처 카드 */}
-      <FeaturePromo />
-
-      {/* 10. ETF 입문 가이드 (첫 사용자용) */}
+      {/* 6. ETF 입문 가이드 (첫 사용자용) */}
       <EtfLearnCard />
     </>
+  );
+}
+
+function DiscoverMoreCards() {
+  return (
+    <section className={styles.discoverMore}>
+      <Card href="/etf/themes" pad="lg" className={styles.moreCard}>
+        <Badge tone="purple">테마 · 전략</Badge>
+        <h3>뜨는 테마와 검증된 전략</h3>
+        <p>월배당·반도체·AI · 큐레이션 묶음까지 한 페이지에서.</p>
+        <span className={styles.moreLink}>둘러보기 →</span>
+      </Card>
+      <Card href="/etf/news" pad="lg" className={styles.moreCard}>
+        <Badge tone="orange">📰 뉴스</Badge>
+        <h3>ETF·시장 뉴스</h3>
+        <p>ETF·시장·정책 관련 주요 기사 모음.</p>
+        <span className={styles.moreLink}>뉴스 보기 →</span>
+      </Card>
+    </section>
   );
 }
 

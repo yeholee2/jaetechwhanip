@@ -3,6 +3,7 @@
  * Phase B 현재: 정적 시드. Phase F에서 RSS 자동수집 검토.
  */
 import Link from 'next/link';
+import { Badge } from '@/components/ui';
 import sec from './sectionStyles.module.css';
 import styles from './EtfNews.module.css';
 
@@ -26,7 +27,10 @@ export function EtfNews() {
     <section className={sec.card} aria-label="주요 뉴스">
       <div className={sec.head}>
         <h3 className={sec.title}>주요 뉴스</h3>
-        <Link href="/feed?tab=news" className={sec.metaLink}>더보기 →</Link>
+        <span className={sec.headRight}>
+          <Badge tone="neutral">샘플</Badge>
+          <Link href="/feed?tab=news" className={sec.metaLink}>더보기 →</Link>
+        </span>
       </div>
 
       <ul className={styles.list}>

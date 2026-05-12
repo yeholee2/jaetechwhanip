@@ -6,6 +6,47 @@
   min-height: 100vh;
 }
 
+/* 발견 탭 — 더 보기 카드 (테마/뉴스 진입) */
+.discoverMore {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+  margin-bottom: var(--space-3);
+}
+
+.moreCard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.moreCard h3 {
+  font-size: var(--text-md);
+  font-weight: var(--weight-heavy);
+  color: var(--rw-text-strong);
+  margin: var(--space-1) 0 0;
+  letter-spacing: -0.1px;
+}
+
+.moreCard p {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  color: var(--rw-text-body);
+  line-height: var(--leading-relaxed);
+  margin: 0;
+}
+
+.moreLink {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+  color: var(--rw-blue70);
+  margin-top: var(--space-1);
+}
+
+@media (max-width: 600px) {
+  .discoverMore { grid-template-columns: 1fr; }
+}
+
 /* "준비 중" 탭 카드 */
 .comingSoonCard {
   margin-top: var(--space-6);
