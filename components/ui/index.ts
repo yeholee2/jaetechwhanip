@@ -29,3 +29,8 @@ export { DonutChart } from './DonutChart';
 export type { DonutSegment } from './DonutChart';
 
 export { CompareBar } from './CompareBar';
+
+export { RiskMeter } from './RiskMeter';
+
+export { MiniBarChart } from './MiniBarChart';
+export type { BarPoint } from './MiniBarChart';

@@ -20,7 +20,9 @@ import { RelatedContent } from '@/components/RelatedContent';
 import { Button, Chip, Badge } from '@/components/ui';
 import { buildEtfInsight, computeFeeStats, type EtfTag } from '@/lib/etfInsights';
 import { buildSectorBreakdown } from '@/lib/etfBreakdown';
-import { DonutChart, CompareBar } from '@/components/ui';
+import { DonutChart, CompareBar, RiskMeter, MiniBarChart } from '@/components/ui';
+import { buildEtfRisk } from '@/lib/etfRisk';
+import { buildDistributionHistory } from '@/lib/etfDistribution';
 import { WatchButton } from '../WatchButton';
 import { ShareButton } from '../ShareButton';
 import { RecordEtfView } from '../RecordEtfView';
@@ -101,6 +103,12 @@ export default async function EtfDetailPage({ params }: Props) {
 
   // 동종 카테고리 보수 비교
   const feeStats = computeFeeStats(etf as any, etfs);
+
+  // 위험 등급 + 투자 포인트
+  const risk = buildEtfRisk(etf as any);
+
+  // 분배금 히스토리 (분배 있는 ETF만)
+  const distHistory = buildDistributionHistory(etf as any);
 
   const jsonLd: Record<string, unknown>[] = [
     {
@@ -207,6 +215,17 @@ export default async function EtfDetailPage({ params }: Props) {
               <p>{insight.oneLiner}</p>
             </section>
 
+            {/* 위험 등급 + 투자 포인트 (Toss 스타일) */}
+            <section aria-label="위험 등급과 투자 포인트">
+              <RiskMeter
+                level={risk.level}
+                label={risk.label}
+                tone={risk.tone}
+                reasons={risk.reasons}
+                points={risk.points}
+              />
+            </section>
+
             <EtfChart code={etf.code} price={etf.price} changeTone={etf.changeTone} />
 
             <section className={styles.factGrid} aria-label="ETF 핵심 정보">
@@ -289,6 +308,35 @@ export default async function EtfDetailPage({ params }: Props) {
                   segments={sectorBreakdown}
                   centerLabel="가장 큰 섹터"
                   centerValue={topSector ? topSector.label : ''}
+                />
+              </section>
+            )}
+
+            {/* 분배금 히스토리 mini bar (Toss 스타일) */}
+            {distHistory.points.length > 0 && (
+              <section className={styles.section}>
+                <div className={styles.sectionHead}>
+                  <h2>분배금 히스토리</h2>
+                  <span>
+                    {distHistory.period === 'monthly' ? '월별' :
+                     distHistory.period === 'quarterly' ? '분기별' :
+                     distHistory.period === 'semiannual' ? '반기별' : '연별'} ·
+                    {' '}최근 {distHistory.points.length}회
+                  </span>
+                </div>
+                <MiniBarChart
+                  label="1주당 분배금"
+                  caption="예시 데이터 (KRX API 연동 후 실제 값)"
+                  data={distHistory.points.map(p => ({
+                    label: p.label,
+                    value: p.value,
+                    tooltip: `${p.date} · ${p.value.toLocaleString()}원`,
+                  }))}
+                  unit="원"
+                  summary={[
+                    { label: '구간 합계', value: `${distHistory.perShareSum.toLocaleString()}원` },
+                    { label: '연환산 수익률', value: `${distHistory.yieldPercent.toFixed(2)}%` },
+                  ]}
                 />
               </section>
             )}

@@ -15,11 +15,12 @@ import { BottomPromoBar } from './BottomPromoBar';
 import { DarkModeToggle } from './DarkModeToggle';
 import styles from './AppShell.module.css';
 
-export type AppNavKey = 'home' | 'etf' | 'topics' | 'sparring' | 'feed' | 'mission' | 'my';
+export type AppNavKey = 'home' | 'etf' | 'portfolio' | 'topics' | 'sparring' | 'feed' | 'mission' | 'my';
 
 const NAV_ITEMS: { key: AppNavKey; label: string; href: string }[] = [
   { key: 'home', label: '홈', href: '/' },
   { key: 'etf', label: 'ETF', href: '/etf' },
+  { key: 'portfolio', label: '진단', href: '/portfolio' },
   { key: 'feed', label: '피드', href: '/feed' },
   { key: 'sparring', label: '스파링', href: '/sparring' },
 ];

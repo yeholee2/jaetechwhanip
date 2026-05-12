@@ -38,6 +38,67 @@
   margin: 0;
 }
 
+.entryGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: var(--space-2);
+  width: 100%;
+  margin-top: var(--space-2);
+}
+
+.entryCard {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  padding: var(--space-3);
+  background: var(--rw-card-muted);
+  border: 1px solid var(--rw-border);
+  border-radius: var(--rw-radius-sm);
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 120ms ease, transform 120ms ease;
+  font-family: inherit;
+}
+
+.entryCard:hover:not(:disabled) {
+  border-color: var(--rw-primary);
+  transform: translateY(-1px);
+}
+
+.entryCard:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.entryIcon {
+  font-size: 22px;
+  line-height: 1;
+}
+
+.entryTitle {
+  font-size: var(--type-body);
+  font-weight: var(--weight-heavy);
+  color: var(--rw-text-strong);
+}
+
+.entryDesc {
+  font-size: 12px;
+  color: var(--rw-text-muted);
+  line-height: 1.4;
+}
+
+.entryBadge {
+  font-size: 10px;
+  font-weight: var(--weight-bold);
+  color: var(--rw-text-muted);
+  background: var(--rw-card);
+  border: 1px solid var(--rw-border);
+  padding: 2px 6px;
+  border-radius: 999px;
+  margin-top: auto;
+}
+
 /* ─────────────────────────────────────────────────────────
  * 요약 카드
  * ───────────────────────────────────────────────────────── */

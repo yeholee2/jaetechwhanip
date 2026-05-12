@@ -11,6 +11,8 @@ import {
 import { etfs, getEtfByCode } from '@/lib/etfs';
 import { Card, Badge, Button } from '@/components/ui';
 import styles from './PortfolioDiagnostic.module.css';
+import { HoldingAddModal } from './HoldingAddModal';
+import { BulkPasteModal } from './BulkPasteModal';
 
 function buildPriceMap(): Record<string, number> {
   const map: Record<string, number> = {};
@@ -27,6 +29,8 @@ const formatPct = (n: number) => `${n >= 0 ? '+' : ''}${(n * 100).toFixed(2)}%`;
 export function PortfolioDiagnostic() {
   const [authState, setAuthState] = useState<'loading' | 'unauth' | 'auth'>('loading');
   const [holdings, setHoldings] = useState<UserEtfHolding[]>([]);
+  const [modal, setModal] = useState<null | 'manual' | 'bulk' | 'screenshot'>(null);
+  const [screenshotToast, setScreenshotToast] = useState('');
 
   const priceMap = useMemo(buildPriceMap, []);
 
@@ -67,18 +71,89 @@ export function PortfolioDiagnostic() {
     );
   }
 
+  const recordScreenshotInterest = () => {
+    try {
+      const key = 'etfhanip:screenshot-interest';
+      const cnt = parseInt(localStorage.getItem(key) || '0', 10) + 1;
+      localStorage.setItem(key, String(cnt));
+    } catch {}
+    setScreenshotToast('등록해주셔서 감사해요! OCR 자동 인식이 곧 추가됩니다.');
+    setTimeout(() => setScreenshotToast(''), 3500);
+  };
+
   if (holdings.length === 0) {
     return (
-      <Card pad="lg" className={styles.placeholder}>
-        <div className={styles.placeholderInner}>
-          <Badge tone="primary">진단</Badge>
-          <h2 className={styles.placeholderTitle}>아직 보유한 ETF가 없어요</h2>
-          <p className={styles.placeholderBody}>
-            ETF를 등록하면 평가액·수익률·자산 배분을 한눈에 진단해드릴게요.
-          </p>
-          <Button href="/etf" variant="primary" size="md">발견 탭에서 ETF 등록</Button>
-        </div>
-      </Card>
+      <>
+        <Card pad="lg" className={styles.placeholder}>
+          <div className={styles.placeholderInner}>
+            <Badge tone="primary">진단</Badge>
+            <h2 className={styles.placeholderTitle}>아직 보유한 ETF가 없어요</h2>
+            <p className={styles.placeholderBody}>
+              마이데이터 연동 없이도 진단이 가능해요. 가장 편한 방법을 골라주세요.
+            </p>
+
+            <div className={styles.entryGrid}>
+              <button
+                type="button"
+                className={styles.entryCard}
+                onClick={() => setModal('manual')}
+              >
+                <span className={styles.entryIcon}>✏️</span>
+                <span className={styles.entryTitle}>한 종목씩 추가</span>
+                <span className={styles.entryDesc}>ETF 검색 → 수량 / 평단 입력. 정확도 최고.</span>
+                <span className={styles.entryBadge}>가장 정확</span>
+              </button>
+
+              <button
+                type="button"
+                className={styles.entryCard}
+                onClick={() => setModal('bulk')}
+              >
+                <span className={styles.entryIcon}>📋</span>
+                <span className={styles.entryTitle}>한 번에 붙여넣기</span>
+                <span className={styles.entryDesc}>증권사 잔고 텍스트를 복사 → 자동 파싱.</span>
+                <span className={styles.entryBadge}>가장 빠름</span>
+              </button>
+
+              <button
+                type="button"
+                className={styles.entryCard}
+                onClick={recordScreenshotInterest}
+              >
+                <span className={styles.entryIcon}>📸</span>
+                <span className={styles.entryTitle}>스크린샷 업로드</span>
+                <span className={styles.entryDesc}>잔고 화면 캡처 → OCR로 자동 인식. 준비 중.</span>
+                <span className={styles.entryBadge}>곧 출시</span>
+              </button>
+            </div>
+
+            {screenshotToast && (
+              <p style={{ fontSize: 12, color: 'var(--rw-primary)', fontWeight: 600 }}>
+                {screenshotToast}
+              </p>
+            )}
+          </div>
+        </Card>
+
+        {modal === 'manual' && (
+          <HoldingAddModal
+            onClose={() => setModal(null)}
+            onAdded={(row) => {
+              setHoldings(prev => [row, ...prev]);
+              setModal(null);
+            }}
+          />
+        )}
+        {modal === 'bulk' && (
+          <BulkPasteModal
+            onClose={() => setModal(null)}
+            onAdded={(rows) => {
+              setHoldings(prev => [...rows, ...prev]);
+              setModal(null);
+            }}
+          />
+        )}
+      </>
     );
   }
 
