@@ -179,6 +179,9 @@
    * ───────────────────────────────────────────────────────── */
   --sb: env(safe-area-inset-bottom, 0px);
 
+  /* color-scheme 알림 (브라우저가 form/스크롤바 등 자동 매칭) */
+  color-scheme: light;
+
   /* ─────────────────────────────────────────────────────────
    * Legacy aliases (기존 코드 호환용 — 점진 마이그)
    * ───────────────────────────────────────────────────────── */
@@ -252,6 +255,42 @@ body {
     animation-duration: 0ms !important;
     transition-duration: 0ms !important;
   }
+}
+
+/* ─────────────────────────────────────────────────────────
+ * 다크 모드 토큰 (data-theme="dark")
+ * 사용자 설정(localStorage) 또는 system preference 둘 다 반응.
+ * 시맨틱 토큰만 재정의 → 모든 컴포넌트 자동 전환.
+ * ───────────────────────────────────────────────────────── */
+:root[data-theme='dark'] {
+  color-scheme: dark;
+
+  /* surface / text */
+  --rw-screen: #0f1216;
+  --rw-card: #181c22;
+  --rw-card-muted: #1f242c;
+  --rw-hairline: #2a313b;
+  --rw-text-strong: #f5f6f8;
+  --rw-text-title: #d1d6db;
+  --rw-text-body: #b0b8c1;
+  --rw-text-muted: #8b95a1;
+  --rw-text-disabled: #4e5968;
+
+  /* primary 톤은 밝기 살짝 ↑ (다크 위에서 가시성 ↑) */
+  --rw-primary: #4593fc;
+  --rw-primary-hover: #5aa3ff;
+  --rw-primary-bg: rgba(69, 147, 252, .18);
+
+  /* 그레이 스케일 일부 재정의 (카드·바 등에서 사용) */
+  --rw-gray2: #1a1f26;
+  --rw-gray5: #1d232b;
+  --rw-gray10: #232a33;
+  --rw-gray15: #2a323d;
+  --rw-gray20: #2a313b;
+  --rw-gray30: #3b4452;
+
+  /* 시야 색상은 그대로 유지 (한국 증시 컨벤션 색 영향 X) */
+  /* up = red, down = blue */
 }
 
 a {

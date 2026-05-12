@@ -1,0 +1,24 @@
+.btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  color: var(--rw-text-body);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  transition: background var(--duration-instant) var(--ease-in-out);
+}
+.btn:hover {
+  background: var(--rw-card-muted);
+}
+
+.iconLight,
+.iconDark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}

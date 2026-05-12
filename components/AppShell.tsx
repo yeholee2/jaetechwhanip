@@ -12,6 +12,7 @@ import { etfPath } from '@/lib/etfs';
 import { FaIcon } from './FaIcon';
 import { Footer } from './Footer';
 import { BottomPromoBar } from './BottomPromoBar';
+import { DarkModeToggle } from './DarkModeToggle';
 import styles from './AppShell.module.css';
 
 export type AppNavKey = 'home' | 'etf' | 'topics' | 'sparring' | 'feed' | 'mission' | 'my';
@@ -284,6 +285,7 @@ export function AppShell({
               </div>
             )}
           </div>
+          <DarkModeToggle />
           <button
             className={styles.iconBtn}
             aria-label="알림 (준비 중)"
