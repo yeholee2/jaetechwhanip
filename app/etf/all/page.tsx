@@ -3,8 +3,8 @@ import { AppShell } from '@/components/AppShell';
 import { etfs, ETF_HOME_URL } from '@/lib/etfs';
 import { SITE_NAME } from '@/lib/seo';
 import { PageHero, Badge } from '@/components/ui';
+import { PageSidebar } from '@/components/PageSidebar';
 import { EtfAllClient } from './EtfAllClient';
-import styles from './EtfAll.module.css';
 
 export const revalidate = 600;
 
@@ -23,15 +23,18 @@ export const metadata: Metadata = {
 
 export default async function EtfAllPage() {
   return (
-    <AppShell active="etf" hideSlogan>
-      <main className={styles.page}>
-        <PageHero
-          eyebrow="전체 ETF"
-          title="찾는 ETF, 한 번에 검색해요"
-          lead="코드·이름·테마로 검색하고 운용사·총보수로 좁혀보세요."
-          aside={<Badge tone="primary">{etfs.length}개</Badge>}
-        />
-        <EtfAllClient initialEtfs={etfs} />
+    <AppShell active="etf" wide hideSlogan>
+      <main className="pc-layout">
+        <div className="pc-layout-main">
+          <PageHero
+            eyebrow="전체 ETF"
+            title="찾는 ETF, 한 번에 검색해요"
+            lead="코드·이름·테마로 검색하고 운용사·총보수로 좁혀보세요."
+            aside={<Badge tone="primary">{etfs.length}개</Badge>}
+          />
+          <EtfAllClient initialEtfs={etfs} />
+        </div>
+        <PageSidebar widgets={['watch', 'etf-nav']} />
       </main>
     </AppShell>
   );

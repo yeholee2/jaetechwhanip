@@ -3,8 +3,8 @@ import { AppShell } from '@/components/AppShell';
 import { etfs, getEtfByCode, ETF_HOME_URL } from '@/lib/etfs';
 import { SITE_NAME } from '@/lib/seo';
 import { PageHero } from '@/components/ui';
+import { PageSidebar } from '@/components/PageSidebar';
 import { EtfCompareClient } from './EtfCompareClient';
-import styles from './EtfCompare.module.css';
 
 export const revalidate = 600;
 
@@ -30,14 +30,17 @@ export default async function EtfComparePage({
   const b = searchParams?.b ? getEtfByCode(searchParams.b) : undefined;
 
   return (
-    <AppShell active="etf" hideSlogan>
-      <main className={styles.page}>
-        <PageHero
-          eyebrow="ETF 비교"
-          title="두 ETF를 한눈에 비교해요"
-          lead="현재가·순자산·총보수·분배금·환헤지를 나란히 놓고 보세요."
-        />
-        <EtfCompareClient initialA={a} initialB={b} candidates={etfs} />
+    <AppShell active="etf" wide hideSlogan>
+      <main className="pc-layout">
+        <div className="pc-layout-main">
+          <PageHero
+            eyebrow="ETF 비교"
+            title="두 ETF를 한눈에 비교해요"
+            lead="현재가·순자산·총보수·분배금·환헤지를 나란히 놓고 보세요."
+          />
+          <EtfCompareClient initialA={a} initialB={b} candidates={etfs} />
+        </div>
+        <PageSidebar widgets={['watch', 'etf-nav', 'help']} />
       </main>
     </AppShell>
   );

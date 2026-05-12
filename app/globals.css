@@ -282,6 +282,50 @@ button {
   padding: 0 var(--space-6);
 }
 
+/* ─────────────────────────────────────────────────────────
+ * PC 표준 2-column 레이아웃 (홈 + Q&A 기준)
+ * .pc-layout       — 컨테이너 (max-width 1040 + flex)
+ * .pc-layout-main  — 좌측 메인 (flex 1)
+ * .pc-layout-side  — 우측 사이드바 (280px sticky)
+ *
+ * 사이드바 없는 페이지도 .pc-layout-main 만 써서 같은 max-width 유지.
+ * ───────────────────────────────────────────────────────── */
+.pc-layout {
+  display: flex;
+  gap: var(--space-5);
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: var(--space-3) var(--space-5) var(--space-12);
+}
+
+.pc-layout-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.pc-layout-side {
+  width: 280px;
+  flex-shrink: 0;
+  position: sticky;
+  top: 76px;
+  align-self: flex-start;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+@media (max-width: 920px) {
+  .pc-layout {
+    flex-direction: column;
+    padding-top: var(--space-3);
+    gap: var(--space-4);
+  }
+  .pc-layout-side {
+    width: 100%;
+    position: static;
+  }
+}
+
 /* 시각적으로 hidden, 스크린리더는 읽음 */
 .sr-only {
   position: absolute;

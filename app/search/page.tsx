@@ -7,6 +7,7 @@ import { fetchGhostArticles, articleUrl } from '@/lib/feed';
 import { fetchRecentReportsWithFallback } from '@/lib/reports';
 import { SITE_NAME } from '@/lib/seo';
 import { PageHero, Badge, Card } from '@/components/ui';
+import { PageSidebar } from '@/components/PageSidebar';
 import Link from 'next/link';
 import { EtfLogo } from '../etf/EtfLogo';
 import styles from './Search.module.css';
@@ -103,8 +104,9 @@ export default async function SearchPage({
   const totalHits = etfMatches.length + questionMatches.length + sparringMatches.length + articleMatches.length + reportMatches.length;
 
   return (
-    <AppShell active="home" hideSlogan>
-      <main className={styles.page}>
+    <AppShell active="home" wide hideSlogan>
+      <main className="pc-layout">
+        <div className="pc-layout-main">
         <PageHero
           eyebrow="통합 검색"
           title={q ? `"${q}" 검색 결과` : '무엇을 찾고 있나요?'}
@@ -216,6 +218,8 @@ export default async function SearchPage({
             </ul>
           </section>
         )}
+        </div>
+        <PageSidebar widgets={['watch', 'etf-nav', 'help']} />
       </main>
     </AppShell>
   );

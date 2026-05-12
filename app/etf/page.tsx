@@ -17,6 +17,8 @@ import { FeaturePromo } from './FeaturePromo';
 import { WatchList } from './WatchList';
 import { PortfolioDiagnostic } from './PortfolioDiagnostic';
 import { EtfLearnCard } from './EtfLearnCard';
+import { PageSidebar } from '@/components/PageSidebar';
+import { getFeaturedActiveSparring, listSparrings } from '@/lib/sparring';
 
 export const revalidate = 300;
 
@@ -51,6 +53,8 @@ export default async function EtfPage({
   searchParams?: { tab?: string };
 }) {
   const active = getActiveTab(searchParams?.tab);
+  const { sparrings } = await listSparrings();
+  const featured = getFeaturedActiveSparring(sparrings);
 
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -75,30 +79,34 @@ export default async function EtfPage({
   };
 
   return (
-    <AppShell active="etf" hideSlogan>
+    <AppShell active="etf" wide hideSlogan>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <main className={styles.page}>
-        <PageHero
-          eyebrow="ETF"
-          title="시장과 내 자산을 한 화면에"
-          lead="지수·뉴스·랭킹·전략·테마를 한 페이지에서 보고, 내 포트폴리오로 바로 이어가요."
-          aside={
-            <>
-              <Badge tone="primary">{etfs.length}개</Badge>
-              <Button href="/etf/all" variant="outline" size="sm">전체 검색</Button>
-            </>
-          }
-        />
+      <main className="pc-layout">
+        <div className="pc-layout-main">
+          <PageHero
+            eyebrow="ETF"
+            title="시장과 내 자산을 한 화면에"
+            lead="지수·뉴스·랭킹·전략·테마를 한 페이지에서 보고, 내 포트폴리오로 바로 이어가요."
+            aside={
+              <>
+                <Badge tone="primary">{etfs.length}개</Badge>
+                <Button href="/etf/all" variant="outline" size="sm">전체 검색</Button>
+              </>
+            }
+          />
 
-        <EtfPageTabs active={active} />
+          <EtfPageTabs active={active} />
 
-        {active === 'discover' && <DiscoverTab />}
-        {active === 'watch' && <WatchTabPlaceholder />}
-        {active === 'diagnostic' && <DiagnosticTabPlaceholder />}
-        {active === 'feed' && <FeedTabPlaceholder />}
+          {active === 'discover' && <DiscoverTab />}
+          {active === 'watch' && <WatchTabPlaceholder />}
+          {active === 'diagnostic' && <DiagnosticTabPlaceholder />}
+          {active === 'feed' && <FeedTabPlaceholder />}
+        </div>
+
+        <PageSidebar widgets={['sparring', 'watch', 'etf-nav', 'help']} featuredSparring={featured} />
       </main>
     </AppShell>
   );

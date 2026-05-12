@@ -3,8 +3,8 @@ import { AppShell } from '@/components/AppShell';
 import { ETF_HOME_URL } from '@/lib/etfs';
 import { SITE_NAME } from '@/lib/seo';
 import { PageHero, Button } from '@/components/ui';
+import { PageSidebar } from '@/components/PageSidebar';
 import { EtfNews } from '../EtfNews';
-import styles from '../EtfPage.module.css';
 
 export const revalidate = 300;
 
@@ -23,16 +23,19 @@ export const metadata: Metadata = {
 
 export default function EtfNewsPage() {
   return (
-    <AppShell active="etf" hideSlogan>
-      <main className={styles.page}>
-        <PageHero
-          eyebrow="ETF 뉴스"
-          title="ETF·시장 흐름을 따라가요"
-          lead="ETF·시장·정책 관련 주요 기사. 더 깊은 글은 피드의 뉴스/리포트/칼럼 탭에서 만나보세요."
-          aside={<Button href="/feed?tab=news" variant="outline" size="sm">통합 피드 →</Button>}
-        />
+    <AppShell active="etf" wide hideSlogan>
+      <main className="pc-layout">
+        <div className="pc-layout-main">
+          <PageHero
+            eyebrow="ETF 뉴스"
+            title="ETF·시장 흐름을 따라가요"
+            lead="ETF·시장·정책 관련 주요 기사. 더 깊은 글은 피드의 뉴스/리포트/칼럼 탭에서 만나보세요."
+            aside={<Button href="/feed?tab=news" variant="outline" size="sm">통합 피드 →</Button>}
+          />
 
-        <EtfNews />
+          <EtfNews />
+        </div>
+        <PageSidebar widgets={['watch', 'etf-nav']} />
       </main>
     </AppShell>
   );

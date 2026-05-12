@@ -3,6 +3,8 @@ import Link from 'next/link';
 import { AppShell } from '@/components/AppShell';
 import { FaIcon } from '@/components/FaIcon';
 import { PageHero, Badge, Chip } from '@/components/ui';
+import { PageSidebar } from '@/components/PageSidebar';
+import { getFeaturedActiveSparring, listSparrings } from '@/lib/sparring';
 import { createFeedDigest } from '@/lib/feed-digest';
 import {
   FEED_CATEGORY_FILTERS,
@@ -68,7 +70,11 @@ export default async function FeedPage({
 }) {
   const activeCategory = getActiveFeedCategory(searchParams);
   const activeTab = getActiveTab(searchParams);
-  const allItems = await fetchFeedItems();
+  const [allItems, sparringRes] = await Promise.all([
+    fetchFeedItems(),
+    listSparrings(),
+  ]);
+  const featured = getFeaturedActiveSparring(sparringRes.sparrings);
   const items = allItems.filter(item => {
     const categoryMatches = activeCategory === '전체' || item.category === activeCategory;
     if (!categoryMatches) return false;
@@ -102,7 +108,8 @@ export default async function FeedPage({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <main className={styles.page}>
+      <main className="pc-layout">
+        <div className="pc-layout-main">
         <PageHero
           eyebrow="피드"
           title="질문 · 뉴스 · 리포트 · 칼럼"
@@ -147,6 +154,8 @@ export default async function FeedPage({
           )}
           {items.map(item => <FeedCard key={feedItemKey(item)} item={item} />)}
         </section>
+        </div>
+        <PageSidebar widgets={['sparring', 'watch', 'help']} featuredSparring={featured} />
       </main>
     </AppShell>
   );

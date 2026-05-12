@@ -7,6 +7,7 @@ import SparringPastCard from '@/components/sparring/SparringPastCard';
 import { CATEGORY_DEFINITIONS, getCategoryLabel } from '@/lib/categories';
 import type { Sparring } from '@/lib/sparring';
 import { PageHero, Section, Chip, Badge } from '@/components/ui';
+import { PageSidebar } from '@/components/PageSidebar';
 import styles from './SparringPage.module.css';
 
 type SortMode = 'default' | 'comments';
@@ -33,7 +34,8 @@ export default function SparringClient({ sparrings }: { sparrings: Sparring[] })
 
   return (
     <AppShell active="sparring" wide hideSlogan>
-      <main className={styles.page}>
+      <main className="pc-layout">
+        <div className="pc-layout-main">
         <PageHero
           eyebrow="머니 스파링"
           title="결정하기 전에, 찬반으로 먼저 검증해요"
@@ -78,6 +80,8 @@ export default function SparringClient({ sparrings }: { sparrings: Sparring[] })
             ))}
           </div>
         </Section>
+        </div>
+        <PageSidebar widgets={['watch', 'help']} />
       </main>
     </AppShell>
   );
