@@ -27,3 +27,5 @@ export type { ChartPoint } from './PriceChart';
 
 export { DonutChart } from './DonutChart';
 export type { DonutSegment } from './DonutChart';
+
+export { CompareBar } from './CompareBar';

@@ -111,6 +111,28 @@ function buildOneLiner(
   return `보수 ${fee.label} · 순자산 ${aum.label} — 비슷한 카테고리에서 평이한 편이에요.`;
 }
 
+/**
+ * 같은 카테고리 ETF 중 보수 분포 (min/avg/max) 계산.
+ * 한 ETF 가 카테고리 내에서 어느 위치인지 비교용.
+ */
+export function computeFeeStats(currentEtf: EtfInfo, allEtfs: EtfInfo[]) {
+  const peers = allEtfs.filter(
+    e => e.category === currentEtf.category && e.fee && parseFeePercent(e.fee) > 0,
+  );
+  const fees = peers.map(e => parseFeePercent(e.fee)).filter(n => n > 0);
+  if (fees.length < 2) return null;
+  const min = Math.min(...fees);
+  const max = Math.max(...fees);
+  const avg = fees.reduce((a, b) => a + b, 0) / fees.length;
+  return {
+    current: parseFeePercent(currentEtf.fee),
+    min,
+    max,
+    avg,
+    peerCount: fees.length,
+  };
+}
+
 export function buildEtfInsight(etf: EtfInfo): EtfInsight {
   const fee = feeTag(etf.fee);
   const dist = distributionTag(etf.distribution);

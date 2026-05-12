@@ -18,9 +18,9 @@ import {
 } from '@/lib/relatedContent';
 import { RelatedContent } from '@/components/RelatedContent';
 import { Button, Chip, Badge } from '@/components/ui';
-import { buildEtfInsight, type EtfTag } from '@/lib/etfInsights';
+import { buildEtfInsight, computeFeeStats, type EtfTag } from '@/lib/etfInsights';
 import { buildSectorBreakdown } from '@/lib/etfBreakdown';
-import { DonutChart } from '@/components/ui';
+import { DonutChart, CompareBar } from '@/components/ui';
 import { WatchButton } from '../WatchButton';
 import { ShareButton } from '../ShareButton';
 import { RecordEtfView } from '../RecordEtfView';
@@ -98,6 +98,9 @@ export default async function EtfDetailPage({ params }: Props) {
   // 섹터 도넛 차트용 비중 추출
   const sectorBreakdown = buildSectorBreakdown(etf.holdings);
   const topSector = sectorBreakdown[0];
+
+  // 동종 카테고리 보수 비교
+  const feeStats = computeFeeStats(etf as any, etfs);
 
   const jsonLd: Record<string, unknown>[] = [
     {
@@ -286,6 +289,25 @@ export default async function EtfDetailPage({ params }: Props) {
                   segments={sectorBreakdown}
                   centerLabel="가장 큰 섹터"
                   centerValue={topSector ? topSector.label : ''}
+                />
+              </section>
+            )}
+
+            {/* 동종 카테고리 보수 비교 (Toss 스타일) */}
+            {feeStats && (
+              <section className={styles.section}>
+                <div className={styles.sectionHead}>
+                  <h2>동종 ETF 대비</h2>
+                  <span>{etf.category} {feeStats.peerCount}개</span>
+                </div>
+                <CompareBar
+                  label="총보수"
+                  current={feeStats.current}
+                  min={feeStats.min}
+                  max={feeStats.max}
+                  avg={feeStats.avg}
+                  unit="%"
+                  lowerIsBetter
                 />
               </section>
             )}
