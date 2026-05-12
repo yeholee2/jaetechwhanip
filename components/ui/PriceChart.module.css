@@ -1,0 +1,56 @@
+.wrap {
+  position: relative;
+  width: 100%;
+}
+
+.yLabel {
+  font-size: 11px;
+  font-weight: var(--weight-bold);
+  fill: var(--rw-text-muted);
+  font-family: inherit;
+}
+
+.xLabel {
+  font-size: 11px;
+  font-weight: var(--weight-semibold);
+  fill: var(--rw-text-muted);
+  font-family: inherit;
+}
+
+.tooltip {
+  position: absolute;
+  pointer-events: none;
+  transform: translate(-50%, calc(-100% - 10px));
+  background: var(--rw-text-strong);
+  color: #fff;
+  padding: 6px 10px;
+  border-radius: var(--rw-radius-sm);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+  white-space: nowrap;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, .15);
+  line-height: 1.3;
+}
+
+.tooltipDate {
+  font-size: 11px;
+  color: rgba(255, 255, 255, .7);
+  font-weight: var(--weight-semibold);
+  margin-bottom: 2px;
+}
+
+.tooltipValue {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-heavy);
+}
+
+.tooltip::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: -4px;
+  transform: translateX(-50%) rotate(45deg);
+  width: 8px;
+  height: 8px;
+  background: var(--rw-text-strong);
+}

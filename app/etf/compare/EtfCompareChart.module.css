@@ -68,7 +68,66 @@
 }
 
 .canvas {
+  position: relative;
   margin: 0 calc(-1 * var(--space-2));
+}
+
+.yLabel {
+  font-size: 11px;
+  font-weight: var(--weight-bold);
+  fill: var(--rw-text-muted);
+  font-family: inherit;
+}
+
+.xLabel {
+  font-size: 11px;
+  font-weight: var(--weight-semibold);
+  fill: var(--rw-text-muted);
+  font-family: inherit;
+}
+
+.tooltip {
+  position: absolute;
+  pointer-events: none;
+  transform: translateX(-50%);
+  background: var(--rw-text-strong);
+  color: #fff;
+  padding: 8px 12px;
+  border-radius: var(--rw-radius-sm);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+  white-space: nowrap;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, .2);
+  z-index: 2;
+}
+
+.tooltipDate {
+  font-size: 11px;
+  color: rgba(255, 255, 255, .7);
+  font-weight: var(--weight-semibold);
+  margin-bottom: var(--space-2);
+}
+
+.tooltipRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: 4px;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+}
+
+.tooltipRow .swatch {
+  flex-shrink: 0;
+}
+
+.tooltipRow span:nth-child(2) {
+  color: rgba(255, 255, 255, .9);
+}
+
+.tooltipRow strong {
+  margin-left: auto;
+  font-weight: var(--weight-heavy);
 }
 
 .footer {

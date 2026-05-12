@@ -21,3 +21,6 @@ export { PageHero, Section } from './Page';
 export { Avatar } from './Avatar';
 
 export { Sparkline } from './Sparkline';
+
+export { PriceChart } from './PriceChart';
+export type { ChartPoint } from './PriceChart';

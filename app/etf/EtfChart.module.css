@@ -2,7 +2,7 @@
   background: var(--rw-card);
   border: 1px solid var(--rw-hairline);
   border-radius: var(--rw-radius-md);
-  padding: var(--space-4);
+  padding: var(--space-5);
 }
 
 .head {
@@ -10,24 +10,40 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--space-3);
-  margin-bottom: var(--space-3);
+  margin-bottom: var(--space-4);
+  flex-wrap: wrap;
 }
 
-.head > div:first-child {
+.summary {
   display: flex;
   align-items: baseline;
-  gap: var(--space-2);
+  gap: var(--space-3);
 }
 
-.label {
+.summaryLabel {
   font-size: var(--text-sm);
   font-weight: var(--weight-bold);
   color: var(--rw-text-muted);
 }
 
-.up { color: var(--rw-up); font-size: var(--text-md); font-weight: var(--weight-heavy); }
-.down { color: var(--rw-down); font-size: var(--text-md); font-weight: var(--weight-heavy); }
-.flat { color: var(--rw-text-muted); font-size: var(--text-md); font-weight: var(--weight-heavy); }
+.summary strong {
+  font-size: var(--text-xl);
+  font-weight: var(--weight-black);
+  letter-spacing: -0.2px;
+}
+
+.summary span:last-child {
+  font-size: var(--text-base);
+  font-weight: var(--weight-heavy);
+}
+
+.up { color: var(--rw-up); }
+.down { color: var(--rw-down); }
+.flat { color: var(--rw-text-muted); }
+
+.upSmall { color: var(--rw-up); }
+.downSmall { color: var(--rw-down); }
+.flatSmall { color: var(--rw-text-muted); }
 
 .periodRow {
   display: flex;
@@ -36,8 +52,8 @@
 }
 
 .periodBtn {
-  height: 28px;
-  padding: 0 10px;
+  height: 30px;
+  padding: 0 12px;
   border-radius: 6px;
   background: transparent;
   color: var(--rw-text-muted);
@@ -47,7 +63,10 @@
   transition: background var(--duration-instant) var(--ease-in-out),
               color var(--duration-instant) var(--ease-in-out);
 }
-.periodBtn:hover { color: var(--rw-text-body); background: var(--rw-card-muted); }
+.periodBtn:hover {
+  color: var(--rw-text-body);
+  background: var(--rw-card-muted);
+}
 
 .periodActive {
   background: var(--rw-primary-bg);
@@ -58,14 +77,24 @@
   color: var(--rw-blue70);
 }
 
-.canvas {
-  margin: 0 calc(-1 * var(--space-2));
-}
-
 .notice {
-  margin-top: var(--space-2);
+  margin-top: var(--space-3);
   font-size: 11px;
   color: var(--rw-text-disabled);
   font-weight: var(--weight-medium);
   text-align: right;
+}
+
+@media (max-width: 600px) {
+  .head {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .periodRow {
+    width: 100%;
+    overflow-x: auto;
+  }
+  .summary strong {
+    font-size: var(--text-lg);
+  }
 }

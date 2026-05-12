@@ -1,49 +1,71 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { Sparkline } from '@/components/ui/Sparkline';
+import { PriceChart, type ChartPoint } from '@/components/ui';
 import styles from './EtfChart.module.css';
 
 type Period = '1M' | '3M' | '6M' | '1Y' | '5Y';
 
-const PERIODS: { key: Period; label: string; points: number }[] = [
-  { key: '1M', label: '1M', points: 22 },
-  { key: '3M', label: '3M', points: 64 },
-  { key: '6M', label: '6M', points: 128 },
-  { key: '1Y', label: '1Y', points: 250 },
-  { key: '5Y', label: '5Y', points: 60 },
+const PERIODS: { key: Period; label: string; points: number; stepDays: number }[] = [
+  { key: '1M', label: '1개월', points: 22, stepDays: 1 },
+  { key: '3M', label: '3개월', points: 64, stepDays: 1 },
+  { key: '6M', label: '6개월', points: 128, stepDays: 1 },
+  { key: '1Y', label: '1년', points: 250, stepDays: 1 },
+  { key: '5Y', label: '5년', points: 60, stepDays: 30 },
 ];
 
 /**
- * Mock 가격 시리즈 생성 (seeded random walk).
+ * 끝점에서 역산한 seeded random walk + 날짜 부여.
  * Phase F: KRX 일별가격 API 결과로 대체.
  */
-function generateMockSeries(seed: string, points: number, endPrice: number, tone: 'up' | 'down' | 'flat'): number[] {
-  // 간단한 hash → seed
+function generateMockSeries(
+  seed: string,
+  points: number,
+  stepDays: number,
+  endPrice: number,
+  tone: 'up' | 'down' | 'flat',
+): ChartPoint[] {
   let h = 0;
-  for (let i = 0; i < seed.length; i++) {
-    h = ((h << 5) - h + seed.charCodeAt(i)) | 0;
-  }
+  for (let i = 0; i < seed.length; i++) h = ((h << 5) - h + seed.charCodeAt(i)) | 0;
   const rand = () => {
     h = (h * 1664525 + 1013904223) | 0;
     return ((h >>> 0) % 10000) / 10000;
   };
-  const drift = tone === 'up' ? 0.002 : tone === 'down' ? -0.002 : 0;
-  // 끝점에서부터 역산
-  const series: number[] = new Array(points);
+  const drift = tone === 'up' ? 0.0018 : tone === 'down' ? -0.0018 : 0;
+
+  const values: number[] = new Array(points);
   let v = endPrice;
-  series[points - 1] = v;
+  values[points - 1] = v;
   for (let i = points - 2; i >= 0; i--) {
-    const change = (rand() - 0.5) * 0.04 - drift;
+    const change = (rand() - 0.5) * 0.03 - drift;
     v = v / (1 + change);
-    series[i] = v;
+    values[i] = v;
   }
-  return series;
+
+  const now = new Date();
+  return values.map((value, i) => {
+    const d = new Date(now);
+    const daysBack = (points - 1 - i) * stepDays;
+    d.setDate(d.getDate() - daysBack);
+    return {
+      date: d.toISOString().slice(0, 10),
+      value: Math.round(value),
+    };
+  });
 }
 
 function parsePrice(str: string): number {
   const m = str.replace(/,/g, '').match(/-?\d+(\.\d+)?/);
   return m ? parseFloat(m[0]) : 0;
+}
+
+function formatKRW(n: number): string {
+  return n.toLocaleString('ko-KR') + '원';
+}
+
+function formatDateLabel(d: string): string {
+  const date = new Date(d);
+  return `${date.getMonth() + 1}.${date.getDate()}`;
 }
 
 export function EtfChart({
@@ -55,16 +77,16 @@ export function EtfChart({
   price: string;
   changeTone: 'up' | 'down' | 'flat';
 }) {
-  const [period, setPeriod] = useState<Period>('1M');
+  const [period, setPeriod] = useState<Period>('3M');
+  const cfg = PERIODS.find(p => p.key === period)!;
 
   const endPrice = useMemo(() => parsePrice(price), [price]);
-  const points = PERIODS.find(p => p.key === period)?.points ?? 22;
   const series = useMemo(
-    () => generateMockSeries(`${code}-${period}`, points, endPrice, changeTone),
-    [code, period, points, endPrice, changeTone],
+    () => generateMockSeries(`${code}-${period}`, cfg.points, cfg.stepDays, endPrice, changeTone),
+    [code, period, cfg.points, cfg.stepDays, endPrice, changeTone],
   );
 
-  const startPrice = series[0];
+  const startPrice = series[0].value;
   const periodChange = endPrice - startPrice;
   const periodPct = startPrice > 0 ? (periodChange / startPrice) * 100 : 0;
   const periodTone: 'up' | 'down' | 'flat' = periodChange > 0 ? 'up' : periodChange < 0 ? 'down' : 'flat';
@@ -72,10 +94,13 @@ export function EtfChart({
   return (
     <section className={styles.chart} aria-label="가격 차트">
       <div className={styles.head}>
-        <div>
-          <span className={styles.label}>{period} 변동</span>
-          <span className={periodTone === 'down' ? styles.down : periodTone === 'up' ? styles.up : styles.flat}>
+        <div className={styles.summary}>
+          <span className={styles.summaryLabel}>{cfg.label} 변동</span>
+          <strong className={periodTone === 'down' ? styles.down : periodTone === 'up' ? styles.up : styles.flat}>
             {periodChange >= 0 ? '+' : ''}{periodPct.toFixed(2)}%
+          </strong>
+          <span className={periodTone === 'down' ? styles.downSmall : periodTone === 'up' ? styles.upSmall : styles.flatSmall}>
+            {periodChange >= 0 ? '+' : ''}{formatKRW(Math.round(Math.abs(periodChange)))}
           </span>
         </div>
         <div className={styles.periodRow} role="tablist">
@@ -88,16 +113,22 @@ export function EtfChart({
               onClick={() => setPeriod(p.key)}
               type="button"
             >
-              {p.label}
+              {p.key}
             </button>
           ))}
         </div>
       </div>
-      <div className={styles.canvas}>
-        <Sparkline data={series} tone={periodTone} width={720} height={140} />
-      </div>
+
+      <PriceChart
+        data={series}
+        tone={periodTone}
+        height={240}
+        valueFormat={formatKRW}
+        dateFormat={formatDateLabel}
+      />
+
       <p className={styles.notice}>
-        ※ 차트는 시연용 임시 데이터예요. 실제 일별가격은 곧 KRX 데이터로 연결됩니다.
+        ※ 시연용 임시 데이터예요. KRX 일별가격 API 연결 후 자동 전환됩니다.
       </p>
     </section>
   );
