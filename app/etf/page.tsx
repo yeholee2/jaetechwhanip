@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { AppShell } from '@/components/AppShell';
-import { ETF_HOME_PATH, ETF_HOME_URL, etfs } from '@/lib/etfs';
+import { ETF_HOME_PATH, ETF_HOME_URL } from '@/lib/etfs';
+import { fetchEtfs } from '@/lib/etfsDb';
 import { SITE_NAME } from '@/lib/seo';
 import { PageHero, Badge, Card, Button } from '@/components/ui';
 import styles from './EtfPage.module.css';
@@ -53,7 +54,10 @@ export default async function EtfPage({
   searchParams?: { tab?: string };
 }) {
   const active = getActiveTab(searchParams?.tab);
-  const { sparrings } = await listSparrings();
+  const [{ sparrings }, etfs] = await Promise.all([
+    listSparrings(),
+    fetchEtfs(2000),
+  ]);
   const featured = getFeaturedActiveSparring(sparrings);
 
   const jsonLd = {
@@ -69,7 +73,7 @@ export default async function EtfPage({
     },
     mainEntity: {
       '@type': 'ItemList',
-      itemListElement: etfs.map((etf, index) => ({
+      itemListElement: etfs.slice(0, 50).map((etf, index) => ({
         '@type': 'ListItem',
         position: index + 1,
         url: `${ETF_HOME_URL}/${encodeURIComponent(etf.slug)}`,
@@ -100,7 +104,7 @@ export default async function EtfPage({
 
           <EtfPageTabs active={active} />
 
-          {active === 'discover' && <DiscoverTab />}
+          {active === 'discover' && <DiscoverTab allEtfs={etfs} />}
           {active === 'watch' && <WatchTabPlaceholder />}
           {active === 'diagnostic' && <DiagnosticTabPlaceholder />}
           {active === 'feed' && <FeedTabPlaceholder />}
@@ -112,7 +116,7 @@ export default async function EtfPage({
   );
 }
 
-function DiscoverTab() {
+function DiscoverTab({ allEtfs }: { allEtfs: import('@/lib/etfs').EtfInfo[] }) {
   // 발견 탭은 핵심만. 뉴스/전략/큐레이션은 /etf/themes, /etf/news 페이지로 분리.
   return (
     <>
@@ -123,7 +127,7 @@ function DiscoverTab() {
       <MarketIndices />
 
       {/* 3. 투자 매력도 높은 ETF */}
-      <EtfRanking />
+      <EtfRanking allEtfs={allEtfs} />
 
       {/* 4. 더 보기 — 테마·뉴스 페이지로 진입 */}
       <DiscoverMoreCards />
