@@ -1,0 +1,72 @@
+/* InsightCarousel — 섹션 카드 안에서는 카드 또 안 쓰기. divider만. */
+
+.scroller {}
+
+.card {
+  flex-shrink: 0;
+  width: 220px;
+  background: transparent;
+  border-left: 1px solid var(--rw-hairline);
+  padding: 0 var(--space-3);
+  display: flex;
+  flex-direction: column;
+}
+.card:first-child {
+  border-left: none;
+  padding-left: 0;
+}
+
+.cardTitle {
+  font-size: var(--type-body);
+  font-weight: var(--weight-heavy);
+  color: var(--rw-text-strong);
+  line-height: 1.4;
+  margin-bottom: var(--space-3);
+  min-height: 44px;
+}
+
+.cardList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  margin-bottom: var(--space-3);
+}
+
+.cardItem {
+  display: flex;
+  align-items: center;
+  padding: var(--space-2) 0;
+  text-decoration: none;
+  color: inherit;
+  border-bottom: 1px solid var(--rw-gray10);
+  transition: color var(--duration-instant) var(--ease-in-out);
+}
+.cardItem:last-child { border-bottom: none; }
+.cardItem:hover { color: var(--rw-primary); }
+
+.cardEtf {
+  font-size: var(--type-caption);
+  font-weight: var(--weight-semibold);
+  color: var(--rw-text-strong);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cardEmpty {
+  padding: var(--space-2) 0;
+  font-size: var(--type-caption);
+  color: var(--rw-text-muted);
+  text-align: center;
+}
+
+.cardMore {
+  font-size: var(--type-caption);
+  font-weight: var(--weight-bold);
+  color: var(--rw-primary);
+  text-decoration: none;
+  margin-top: auto;
+}
+.cardMore:hover { text-decoration: underline; }

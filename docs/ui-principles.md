@@ -1,5 +1,6 @@
 # UI 원칙 — 재테크한입
 
+> v3 (2026-05-10): **RiskWeather standard 채택** — `globals.css` `--rw-*` 토큰이 표준. ETF 페이지부터 적용, 향후 전 페이지 마이그레이션.
 > v2.2 (2026-05-09): a-ha 정밀 분석 후 카드 모티브 결정 — **bg/border/shadow 모두 제거, 디바이더만**.
 > v2.1 (2026-05-09): a-ha 사이트 자동 추출 데이터 큐레이션 후 흡수. 노이즈 토큰 제거.
 > v2 (2026-05-09): 방향성 a-ha 톤으로 전환. 기존 "토스 감성/여백 넓게" 폐기.
@@ -120,6 +121,46 @@ font-family:
 - 권장은 **should** (예: "카드 hover에서 그림자 should 강조")
 - 시스템 일관성 > 로컬 예외. 한 페이지만 다르게 하지 말 것.
 - 의미 없는 토큰 예외 금지 — 새 값 필요하면 토큰 표 수정해서 도입
+
+## RiskWeather Design System v3 (2026-05-10)
+
+Chrome MCP로 `riskweather.io/ko`에서 직접 추출한 design tokens. `app/globals.css` `:root`에 `--rw-*` 토큰으로 정의돼 있고 이게 표준.
+
+### 핵심 시맨틱 토큰
+| 토큰 | 값 | 용도 |
+|---|---|---|
+| `--rw-screen` | `#f6f7f8` | 페이지 배경 (회색) |
+| `--rw-card` | `#fff` | 카드 배경 (흰색) |
+| `--rw-card-muted` | `#f2f4f6` | 보조 회색 카드 |
+| `--rw-hairline` | `#e5e8eb` | 디바이더/얇은 경계 |
+| `--rw-text-strong` | `#333d4b` | 제목 (gray80) |
+| `--rw-text-body` | `#4e5968` | 본문 (gray70) |
+| `--rw-text-muted` | `#8b95a1` | 메타 (gray50) |
+| `--rw-text-disabled` | `#b0b8c1` | 비활성 (gray40) |
+| `--rw-primary` | `#3182f6` | 핵심 CTA (blue50, Toss 블루) |
+| `--rw-primary-hover` | `#2272eb` | hover (blue60) |
+| `--rw-up` | `#e42939` | 상승 (red60, 한국 증시) |
+| `--rw-down` | `#3182f6` | 하락 (blue50) |
+| `--rw-radius-md` | `14px` | 카드 모서리 |
+| `--rw-radius-lg` | `20px` | 큰 컨테이너 |
+
+### Gray scale (gray2~90)
+회색 12단계 `--rw-gray2` ~ `--rw-gray90` (#f9fafb → #191f28). 시맨틱 토큰이 부족할 때만 직접 사용.
+
+### 채택 룰
+- **모든 새 페이지/컴포넌트는 `--rw-*` 토큰만 사용.**
+- 기존 `--t1`, `--blue` 등 legacy 토큰은 점진 폐기 (마이그레이션 중).
+- ETF 페이지가 1차 적용 완료, Q&A·스파링·피드는 v3 이후 작업.
+
+### 핵심 패턴 (RiskWeather 모방)
+- **페이지 회색 배경 + 흰 카드 컨테이너** (그림자 X, hairline X — 배경 대비만으로 카드 분리)
+- **카드 padding 16-20px**, 모서리 `--rw-radius-md` 14px
+- **섹션 간 12-16px 간격**
+- **리스트 아이템 사이 1px hairline divider** (`--rw-hairline`)
+- **타이포 위계:** 제목 17-20px / 700 / strong, 본문 14-15px / 400-500 / body, 메타 12-13px / muted
+- **❯ 화살표:** 진입 가능한 행에 우측 작게 (font-size 20-22, color disabled, font-weight 300)
+- **이모지 아이콘:** 카드 좌측 36-40px 사각 배경 (`--rw-blue5` 또는 `--rw-card-muted`) + 중앙 정렬
+- **한국 증시 색:** 상승=`--rw-up` 빨강, 하락=`--rw-down` 파랑
 
 ## 변경 이력
 - v1 (~2026-05-08): 토스 감성, 여백 넓게

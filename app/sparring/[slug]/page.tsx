@@ -9,6 +9,8 @@ import {
   buildSparringSeoKeywords,
   buildSparringSeoTitle,
 } from '@/lib/seo-content';
+import { findEtfsForText } from '@/lib/relatedContent';
+import { getEtfByCode } from '@/lib/etfs';
 import SparringDetailClient from './SparringDetailClient';
 
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
@@ -116,6 +118,17 @@ export default async function SparringDetailPage({ params }: { params: { slug: s
 
   if (!sparring) notFound();
 
+  // 분절 해소: 어드민이 명시적으로 연결한 ETF가 있으면 그걸 우선,
+  // 없으면 본문 키워드로 매칭.
+  const linkedEtfs = [getEtfByCode(sparring.etf_a_code), getEtfByCode(sparring.etf_b_code)]
+    .filter((e): e is NonNullable<typeof e> => Boolean(e));
+  const mentionedEtfs = linkedEtfs.length > 0
+    ? linkedEtfs
+    : findEtfsForText(
+        [sparring.title, sparring.body || '', sparring.side_a_label, sparring.side_b_label].join(' '),
+        3,
+      );
+
   return (
     <AppShell active="sparring" wide hideSlogan>
       <script
@@ -129,6 +142,7 @@ export default async function SparringDetailPage({ params }: { params: { slug: s
         initialComments={comments}
         otherActive={otherActive}
         usingFallback={usingFallback}
+        mentionedEtfs={mentionedEtfs}
       />
     </AppShell>
   );

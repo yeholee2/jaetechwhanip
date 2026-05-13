@@ -42,7 +42,7 @@
   align-items: center;
   padding: 0 9px;
   border-radius: 7px;
-  background: #f5f6f8;
+  background: var(--rw-screen);
   color: var(--t2);
   font-size: 12px;
   font-weight: 800;
@@ -70,27 +70,8 @@
   gap: 8px;
 }
 
-.categoryChips a {
+.categoryChips > * {
   flex: 0 0 auto;
-  display: inline-flex;
-  align-items: center;
-  text-decoration: none;
-  white-space: nowrap;
-}
-
-.categoryChips a {
-  height: 38px;
-  padding: 0 15px;
-  border-radius: 8px;
-  background: #f7f8fa;
-  color: var(--t2);
-  font-size: 14px;
-  font-weight: 800;
-}
-
-.categoryChips a.on {
-  background: #6b7684;
-  color: #fff;
 }
 
 .grid {
@@ -123,7 +104,7 @@
 }
 
 .columnCard .avatar {
-  background: #eef4ff;
+  background: var(--rw-blue5);
   color: var(--primary);
 }
 
@@ -174,17 +155,7 @@
   min-width: 0;
 }
 
-.newBadge {
-  height: 21px;
-  display: inline-flex;
-  align-items: center;
-  padding: 0 6px;
-  border-radius: 4px;
-  background: #fff0f0;
-  color: #e52a39;
-  font-size: 11px;
-  font-weight: 900;
-}
+/* newBadge → Badge tone="fresh" 로 대체 (deprecated) */
 
 .categoryLabel {
   color: var(--t2);
@@ -315,6 +286,34 @@
   padding: 24px;
 }
 
+.articleDetail .meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
+  font-size: var(--text-sm);
+  color: var(--rw-text-muted);
+  font-weight: var(--weight-bold);
+}
+
+.articleDetail h1 {
+  font-size: var(--text-2xl);
+  line-height: var(--leading-tight);
+  font-weight: var(--weight-black);
+  letter-spacing: -0.2px;
+  color: var(--rw-text-strong);
+  margin-bottom: var(--space-3);
+}
+
+.articleDetail .tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-top: var(--space-4);
+  margin-bottom: var(--space-4);
+}
+
 .articleDetail > p {
   color: var(--t2);
   font-size: 15px;
@@ -425,4 +424,54 @@
   }
   .articleDetail { padding: 18px; }
   .articleBody { font-size: 15px; }
+}
+
+/* ============================================================
+ * Phase 2: 피드 탭 + 카드 type 배지
+ * ============================================================ */
+.feedTabs {
+  display: flex;
+  gap: 22px;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 14px;
+  padding: 0 4px;
+}
+.feedTab {
+  position: relative;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--t3);
+  padding: 10px 0 12px;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.feedTab:hover {
+  color: var(--t2);
+}
+.feedTabActive {
+  color: var(--t1);
+  font-weight: 700;
+}
+.feedTabActive::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 2px;
+  background: var(--t1);
+  border-radius: 2px 2px 0 0;
+}
+
+/* typeBadge → Badge 컴포넌트로 대체 (deprecated, 룰 제거됨) */
+
+.questionCard .thumb {
+  background: linear-gradient(135deg, rgba(49,130,246,.08) 0%, rgba(49,130,246,.04) 100%);
+}
+.newsCard .thumb {
+  background: linear-gradient(135deg, rgba(255,122,0,.08) 0%, rgba(255,122,0,.04) 100%);
+}
+.reportCard .thumb {
+  background: linear-gradient(135deg, rgba(126,87,194,.12) 0%, rgba(126,87,194,.05) 100%);
+  color: #5e35b1;
 }

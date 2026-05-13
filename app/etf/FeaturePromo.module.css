@@ -1,0 +1,67 @@
+/* FeaturePromo — 단일 가로 카드. 다른 섹션과 동일한 외곽 박스 사용. */
+.card {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-5);
+  background: var(--rw-card);
+  border: 1px solid var(--rw-hairline);
+  border-radius: var(--rw-radius-md);
+  text-decoration: none;
+  color: inherit;
+  margin: 0 0 var(--space-3);
+  transition: background var(--duration-instant) var(--ease-in-out),
+              border-color var(--duration-instant) var(--ease-in-out);
+}
+.card:hover {
+  background: var(--rw-gray2);
+  border-color: var(--rw-gray30);
+}
+
+.illustration {
+  flex-shrink: 0;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--rw-blue5) 0%, var(--rw-blue10) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 30px;
+  line-height: 1;
+}
+
+.body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.body strong {
+  font-size: var(--text-md);
+  font-weight: var(--weight-heavy);
+  color: var(--rw-text-strong);
+  line-height: 1.4;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.body span {
+  font-size: var(--text-sm);
+  color: var(--rw-text-muted);
+  font-weight: var(--weight-medium);
+  line-height: 1.5;
+}
+
+.arrow {
+  font-size: 22px;
+  color: var(--rw-text-disabled);
+  flex-shrink: 0;
+  line-height: 1;
+  font-weight: 300;
+}

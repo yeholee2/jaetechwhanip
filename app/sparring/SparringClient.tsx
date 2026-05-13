@@ -6,6 +6,8 @@ import SparringActiveCard from '@/components/sparring/SparringActiveCard';
 import SparringPastCard from '@/components/sparring/SparringPastCard';
 import { CATEGORY_DEFINITIONS, getCategoryLabel } from '@/lib/categories';
 import type { Sparring } from '@/lib/sparring';
+import { PageHero, Section, Chip, Badge } from '@/components/ui';
+import { PageSidebar } from '@/components/PageSidebar';
 import styles from './SparringPage.module.css';
 
 type SortMode = 'default' | 'comments';
@@ -32,40 +34,35 @@ export default function SparringClient({ sparrings }: { sparrings: Sparring[] })
 
   return (
     <AppShell active="sparring" wide hideSlogan>
-      <main className={styles.page}>
-        <header className={styles.header}>
-          <span className={styles.eyebrow}>머니 스파링</span>
-          <h1>스파링</h1>
-          <p>재테크 결정, 바로 고르기 전에 찬반 의견으로 먼저 검증해요.</p>
-        </header>
+      <main className="pc-layout">
+        <div className="pc-layout-main">
+        <PageHero
+          eyebrow="머니 스파링"
+          title="결정하기 전에, 찬반으로 먼저 검증해요"
+          lead="ETF·세금·보험 — 헷갈리는 선택을 라운드로 가린 뒤 모두의 의견을 들어봐요."
+          aside={<Badge tone="primary">{activeSparrings.length}개 진행중</Badge>}
+        />
 
-        <div className={styles.sectionHead}>
-          <h2>진행중 스파링</h2>
-          <span>{activeSparrings.length}개 진행중</span>
-        </div>
-        <section className={styles.activeGrid} aria-label="진행중 스파링">
-          {activeSparrings.map(sparring => (
-            <SparringActiveCard key={sparring.id} sparring={sparring} />
-          ))}
-        </section>
-
-        <section className={styles.pastSection}>
-          <div className={styles.pastHead}>
-            <h2>지난 스파링</h2>
-            <span>{pastSparrings.length}개</span>
+        <Section title="진행중 스파링" sub={`${activeSparrings.length}개`}>
+          <div className={styles.activeGrid} aria-label="진행중 스파링">
+            {activeSparrings.map(sparring => (
+              <SparringActiveCard key={sparring.id} sparring={sparring} />
+            ))}
           </div>
+        </Section>
 
+        <Section title="지난 스파링" sub={`${pastSparrings.length}개`} className={styles.pastSection}>
           <div className={styles.filterRow}>
             <div className={styles.chips} aria-label="카테고리">
               {['전체', ...CATEGORY_DEFINITIONS.map(item => item.key)].map(item => (
-                <button
+                <Chip
                   key={item}
-                  className={category === item ? styles.chipOn : ''}
-                  type="button"
+                  active={category === item}
+                  size="sm"
                   onClick={() => setCategory(item)}
                 >
                   {item === '전체' ? item : getCategoryLabel(item)}
-                </button>
+                </Chip>
               ))}
             </div>
             <button
@@ -82,7 +79,9 @@ export default function SparringClient({ sparrings }: { sparrings: Sparring[] })
               <SparringPastCard key={sparring.id} sparring={sparring} />
             ))}
           </div>
-        </section>
+        </Section>
+        </div>
+        <PageSidebar widgets={['watch', 'help']} />
       </main>
     </AppShell>
   );

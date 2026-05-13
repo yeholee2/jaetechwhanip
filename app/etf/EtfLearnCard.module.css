@@ -1,0 +1,78 @@
+.card {
+  margin-top: var(--space-6);
+  background: linear-gradient(180deg, var(--rw-blue5) 0%, var(--rw-card) 60%);
+  border-color: var(--rw-primary-bg);
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-2);
+  margin-bottom: var(--space-5);
+}
+
+.header h2 {
+  font-size: var(--text-xl);
+  font-weight: var(--weight-black);
+  color: var(--rw-text-strong);
+  margin: 0;
+  letter-spacing: -0.1px;
+}
+
+.header p {
+  font-size: var(--text-md);
+  color: var(--rw-text-body);
+  font-weight: var(--weight-semibold);
+  line-height: var(--leading-relaxed);
+  margin: 0;
+}
+
+.faq {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.faq li {
+  padding: var(--space-3) var(--space-4);
+  background: var(--rw-card);
+  border: 1px solid var(--rw-hairline);
+  border-radius: var(--rw-radius-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.faq strong {
+  font-size: var(--text-base);
+  font-weight: var(--weight-heavy);
+  color: var(--rw-text-strong);
+}
+
+.faq span {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  color: var(--rw-text-body);
+  line-height: var(--leading-relaxed);
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  margin-top: var(--space-5);
+  flex-wrap: wrap;
+}
+
+.helpLink {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+  color: var(--rw-blue70);
+}
+.helpLink:hover {
+  text-decoration: underline;
+}

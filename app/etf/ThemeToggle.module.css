@@ -1,0 +1,56 @@
+/* ThemeToggle 내부 — 섹션 카드/헤더는 sectionStyles 공용 */
+
+.toggleRow {
+  margin-bottom: var(--space-2);
+}
+
+.list {
+  list-style: none;
+  margin: 0 calc(-1 * var(--space-5)) calc(-1 * var(--space-2));
+  padding: 0;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-5);
+  text-decoration: none;
+  color: inherit;
+  border-top: 1px solid var(--rw-hairline);
+  transition: background var(--duration-instant) var(--ease-in-out);
+}
+.item:hover { background: var(--rw-gray2); }
+
+.info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.info strong {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  color: var(--rw-text-strong);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.info span {
+  font-size: 12px;
+  color: var(--rw-text-muted);
+}
+
+.up { color: var(--rw-up); font-size: 13px; font-weight: 700; flex-shrink: 0; }
+.down { color: var(--rw-down); font-size: 13px; font-weight: 700; flex-shrink: 0; }
+
+.empty {
+  padding: var(--space-4);
+  text-align: center;
+  font-size: var(--text-sm);
+  color: var(--rw-text-muted);
+  border-top: 1px solid var(--rw-hairline);
+}

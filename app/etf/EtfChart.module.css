@@ -1,0 +1,100 @@
+.chart {
+  background: var(--rw-card);
+  border: 1px solid var(--rw-hairline);
+  border-radius: var(--rw-radius-md);
+  padding: var(--space-5);
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+  flex-wrap: wrap;
+}
+
+.summary {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-3);
+}
+
+.summaryLabel {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+  color: var(--rw-text-muted);
+}
+
+.summary strong {
+  font-size: var(--text-xl);
+  font-weight: var(--weight-black);
+  letter-spacing: -0.2px;
+}
+
+.summary span:last-child {
+  font-size: var(--text-base);
+  font-weight: var(--weight-heavy);
+}
+
+.up { color: var(--rw-up); }
+.down { color: var(--rw-down); }
+.flat { color: var(--rw-text-muted); }
+
+.upSmall { color: var(--rw-up); }
+.downSmall { color: var(--rw-down); }
+.flatSmall { color: var(--rw-text-muted); }
+
+.periodRow {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.periodBtn {
+  height: 30px;
+  padding: 0 12px;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--rw-text-muted);
+  font-size: 12px;
+  font-weight: var(--weight-bold);
+  cursor: pointer;
+  transition: background var(--duration-instant) var(--ease-in-out),
+              color var(--duration-instant) var(--ease-in-out);
+}
+.periodBtn:hover {
+  color: var(--rw-text-body);
+  background: var(--rw-card-muted);
+}
+
+.periodActive {
+  background: var(--rw-primary-bg);
+  color: var(--rw-blue70);
+}
+.periodActive:hover {
+  background: var(--rw-primary-bg);
+  color: var(--rw-blue70);
+}
+
+.notice {
+  margin-top: var(--space-3);
+  font-size: 11px;
+  color: var(--rw-text-disabled);
+  font-weight: var(--weight-medium);
+  text-align: right;
+}
+
+@media (max-width: 600px) {
+  .head {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .periodRow {
+    width: 100%;
+    overflow-x: auto;
+  }
+  .summary strong {
+    font-size: var(--text-lg);
+  }
+}

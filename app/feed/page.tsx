@@ -2,6 +2,9 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { AppShell } from '@/components/AppShell';
 import { FaIcon } from '@/components/FaIcon';
+import { PageHero, Badge, Chip } from '@/components/ui';
+import { PageSidebar } from '@/components/PageSidebar';
+import { getFeaturedActiveSparring, listSparrings } from '@/lib/sparring';
 import { createFeedDigest } from '@/lib/feed-digest';
 import {
   FEED_CATEGORY_FILTERS,
@@ -14,7 +17,22 @@ import { SITE_NAME } from '@/lib/seo';
 import { buildFeedListSeoDescription, buildFeedListSeoTitle } from '@/lib/seo-content';
 import styles from './FeedPage.module.css';
 
-type FeedSearchParams = { category?: string };
+type FeedSearchParams = { category?: string; tab?: string };
+
+type FeedTab = 'all' | 'q' | 'news' | 'report';
+
+const FEED_TABS: { key: FeedTab; label: string }[] = [
+  { key: 'all', label: '전체' },
+  { key: 'q', label: '질문' },
+  { key: 'news', label: '뉴스' },
+  { key: 'report', label: '리포트' },
+];
+
+function getActiveTab(searchParams?: FeedSearchParams): FeedTab {
+  const raw = searchParams?.tab;
+  if (raw === 'q' || raw === 'news' || raw === 'report') return raw;
+  return 'all';
+}
 
 export function generateMetadata({ searchParams }: { searchParams?: FeedSearchParams }): Metadata {
   const activeCategory = getActiveFeedCategory(searchParams);
@@ -51,10 +69,20 @@ export default async function FeedPage({
   searchParams?: FeedSearchParams;
 }) {
   const activeCategory = getActiveFeedCategory(searchParams);
-  const allItems = await fetchFeedItems();
+  const activeTab = getActiveTab(searchParams);
+  const [allItems, sparringRes] = await Promise.all([
+    fetchFeedItems(),
+    listSparrings(),
+  ]);
+  const featured = getFeaturedActiveSparring(sparringRes.sparrings);
   const items = allItems.filter(item => {
     const categoryMatches = activeCategory === '전체' || item.category === activeCategory;
-    return categoryMatches;
+    if (!categoryMatches) return false;
+    // 탭 필터: 질문 = question, 뉴스 = news + column(한입 칼럼·리포트 통합), 전체 = 모두
+    if (activeTab === 'q') return item.type === 'question';
+    if (activeTab === 'news') return item.type === 'news' || item.type === 'column';
+    if (activeTab === 'report') return item.type === 'report';
+    return true;
   });
   const articleCount = allItems.length;
 
@@ -80,28 +108,42 @@ export default async function FeedPage({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <main className={styles.page}>
-        <section className={styles.hero}>
-          <div>
-            <h1>피드</h1>
-            <p>한입머니 글을 재테크 판단 기준으로 정리했어요.</p>
-          </div>
-          <div className={styles.feedStats} aria-label="피드 현황">
-            <span>글 {articleCount}</span>
-            <span>{activeCategory === '전체' ? '전체' : activeCategory}</span>
-          </div>
-        </section>
+      <main className="pc-layout">
+        <div className="pc-layout-main">
+        <PageHero
+          eyebrow="피드"
+          title="질문 · 뉴스 · 리포트 · 칼럼"
+          lead="ETF 한 입에 필요한 모든 글을 한 흐름으로 모았어요."
+          aside={
+            <>
+              <Badge tone="neutral">글 {articleCount}</Badge>
+              <Badge tone="primary">{activeCategory === '전체' ? '전체' : activeCategory}</Badge>
+            </>
+          }
+        />
 
         <section className={styles.filters} aria-label="피드 필터">
+          <div className={styles.feedTabs}>
+            {FEED_TABS.map(tab => (
+              <Link
+                key={tab.key}
+                href={feedFilterHref(activeCategory, tab.key)}
+                className={`${styles.feedTab} ${activeTab === tab.key ? styles.feedTabActive : ''}`}
+              >
+                {tab.label}
+              </Link>
+            ))}
+          </div>
           <div className={styles.categoryChips}>
             {FEED_CATEGORY_FILTERS.map(category => (
-              <Link
+              <Chip
                 key={category.key}
-                href={feedFilterHref(category.key)}
-                className={activeCategory === category.key ? styles.on : ''}
+                href={feedFilterHref(category.key, activeTab)}
+                active={activeCategory === category.key}
+                size="sm"
               >
                 {category.label}
-              </Link>
+              </Chip>
             ))}
           </div>
         </section>
@@ -112,14 +154,17 @@ export default async function FeedPage({
           )}
           {items.map(item => <FeedCard key={feedItemKey(item)} item={item} />)}
         </section>
+        </div>
+        <PageSidebar widgets={['sparring', 'watch', 'help']} featuredSparring={featured} />
       </main>
     </AppShell>
   );
 }
 
-function feedFilterHref(category: string) {
+function feedFilterHref(category: string, tab: FeedTab = 'all') {
   const params = new URLSearchParams();
   if (category !== '전체') params.set('category', category);
+  if (tab !== 'all') params.set('tab', tab);
   const query = params.toString();
   return query ? `/feed?${query}` : '/feed';
 }
@@ -136,20 +181,26 @@ function getActiveFeedCategory(searchParams?: FeedSearchParams) {
 }
 
 function feedItemKey(item: FeedItem) {
-  return `column:${item.slug}`;
+  return `${item.type}:${item.slug}`;
 }
 
 function FeedCard({ item }: { item: FeedItem }) {
+  if (item.type === 'question') return <QuestionFeedCard item={item} />;
+  if (item.type === 'news') return <NewsFeedCard item={item} />;
+  if (item.type === 'report') return <ReportFeedCard item={item} />;
+  return <ColumnFeedCard item={item} />;
+}
+
+function ColumnFeedCard({ item }: { item: Extract<FeedItem, { type: 'column' }> }) {
   const digest = createFeedDigest(item);
-  const sourceLabel = '재테크한입';
   const href = articleUrl(item.slug);
   const thumbUrl = item.thumbnailUrl || null;
   const metrics = getFeedMetrics(item);
   const fresh = isFresh(item.publishedAt);
   const thumbTone = getThumbnailTone(item.category);
-  const thumbIcon = getThumbnailIcon(item);
-  const content = (
-    <>
+  const thumbIcon = getThumbnailIcon(item.category);
+  return (
+    <Link className={`${styles.feedCard} ${styles.columnCard}`} href={href}>
       <div className={`${styles.thumb} ${thumbTone}`} aria-hidden="true">
         {thumbUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
@@ -161,9 +212,9 @@ function FeedCard({ item }: { item: FeedItem }) {
       <div className={styles.cardBody}>
         <div className={styles.cardHead}>
           <span className={styles.badgeLine}>
-            {fresh && <span className={styles.newBadge}>NEW</span>}
+            <Badge tone="success">✍️ 칼럼</Badge>
+            {fresh && <Badge tone="fresh">NEW</Badge>}
             <span className={styles.categoryLabel}>{item.category}</span>
-            <span className={styles.sourceName}>{sourceLabel}</span>
           </span>
         </div>
         <h2>{item.title}</h2>
@@ -184,13 +235,121 @@ function FeedCard({ item }: { item: FeedItem }) {
           </span>
         </div>
       </div>
-    </>
-  );
-
-  return (
-    <Link className={`${styles.feedCard} ${styles.columnCard}`} href={href}>
-      {content}
     </Link>
+  );
+}
+
+function QuestionFeedCard({ item }: { item: Extract<FeedItem, { type: 'question' }> }) {
+  const fresh = isFresh(item.publishedAt);
+  const thumbTone = getThumbnailTone(item.category);
+  return (
+    <Link className={`${styles.feedCard} ${styles.questionCard}`} href={`/q/${item.slug}`}>
+      <div className={`${styles.thumb} ${thumbTone}`} aria-hidden="true">
+        <FaIcon name="circle-question" size={28} />
+      </div>
+      <div className={styles.cardBody}>
+        <div className={styles.cardHead}>
+          <span className={styles.badgeLine}>
+            <Badge tone="primary">🦊 질문</Badge>
+            {fresh && <Badge tone="fresh">NEW</Badge>}
+            <span className={styles.categoryLabel}>{item.category}</span>
+          </span>
+        </div>
+        <h2>{item.title}</h2>
+        {item.description && <p className={styles.digestLead}>{item.description}</p>}
+        <div className={styles.byline}>
+          <span className={styles.author}>
+            <span className={styles.avatar}>{item.authorName[0] || 'U'}</span>
+            <span>{item.authorName} · {formatRelativeDate(item.publishedAt)}</span>
+          </span>
+          <span className={styles.metrics}>
+            <span><FaIcon name="comment" variant="regular" size={13} /> 답변 {item.answerCount}</span>
+            <span><FaIcon name="heart" variant="regular" size={13} /> {item.likeCount}</span>
+            <span><FaIcon name="eye" variant="regular" size={13} /> {formatCompact(item.viewCount)}</span>
+          </span>
+        </div>
+      </div>
+    </Link>
+  );
+}
+
+function NewsFeedCard({ item }: { item: Extract<FeedItem, { type: 'news' }> }) {
+  const thumbTone = getThumbnailTone(item.category);
+  return (
+    <a
+      className={`${styles.feedCard} ${styles.newsCard}`}
+      href={item.originalUrl}
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      <div className={`${styles.thumb} ${thumbTone}`} aria-hidden="true">
+        {item.thumbnailUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={item.thumbnailUrl} alt="" />
+        ) : (
+          <FaIcon name="newspaper" size={28} />
+        )}
+      </div>
+      <div className={styles.cardBody}>
+        <div className={styles.cardHead}>
+          <span className={styles.badgeLine}>
+            <Badge tone="orange">📰 뉴스</Badge>
+            <span className={styles.categoryLabel}>{item.category}</span>
+            <span className={styles.sourceName}>{item.sourceName}</span>
+          </span>
+        </div>
+        <h2>{item.title}</h2>
+        {item.description && <p className={styles.digestLead}>{item.description}</p>}
+        <div className={styles.byline}>
+          <span className={styles.author}>
+            <span>{formatRelativeDate(item.publishedAt)}</span>
+          </span>
+          <span className={styles.metrics} style={{ color: 'var(--rw-primary)', fontWeight: 700 }}>
+            원문 보기 ↗
+          </span>
+        </div>
+      </div>
+    </a>
+  );
+}
+
+function ReportFeedCard({ item }: { item: Extract<FeedItem, { type: 'report' }> }) {
+  const thumbTone = getThumbnailTone(item.category);
+  return (
+    <a
+      className={`${styles.feedCard} ${styles.reportCard}`}
+      href={item.originalUrl}
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      <div className={`${styles.thumb} ${thumbTone}`} aria-hidden="true">
+        {item.thumbnailUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={item.thumbnailUrl} alt="" />
+        ) : (
+          <FaIcon name="chart-column" size={28} />
+        )}
+      </div>
+      <div className={styles.cardBody}>
+        <div className={styles.cardHead}>
+          <span className={styles.badgeLine}>
+            <Badge tone="purple">📊 리포트</Badge>
+            <span className={styles.categoryLabel}>{item.category}</span>
+            <span className={styles.sourceName}>{item.sourceName}</span>
+          </span>
+        </div>
+        <h2>{item.title}</h2>
+        {item.description && <p className={styles.digestLead}>{item.description}</p>}
+        <div className={styles.byline}>
+          <span className={styles.author}>
+            <span>{formatRelativeDate(item.publishedAt)}</span>
+          </span>
+          <span className={styles.metrics} style={{ color: 'var(--rw-primary)', fontWeight: 700 }}>
+            원문 보기 ↗
+          </span>
+        </div>
+      </div>
+    </a>
   );
 }
 
@@ -241,11 +400,11 @@ function getThumbnailTone(category: string) {
   return styles.thumbMoney;
 }
 
-function getThumbnailIcon(item: FeedItem) {
-  if (item.category === '국내주식·ETF') return 'chart-line';
-  if (item.category === '해외주식·ETF') return 'globe';
-  if (item.category === '절세') return 'landmark';
-  if (item.category === '보험') return 'shield-halved';
-  if (item.category === '대출·부채') return 'credit-card';
+function getThumbnailIcon(category: string) {
+  if (category === '국내주식·ETF') return 'chart-line';
+  if (category === '해외주식·ETF') return 'globe';
+  if (category === '절세') return 'landmark';
+  if (category === '보험') return 'shield-halved';
+  if (category === '대출·부채') return 'credit-card';
   return 'coins';
 }

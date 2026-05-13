@@ -1,0 +1,44 @@
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  height: 22px;
+  padding: 0 var(--space-2);
+  border-radius: var(--rw-radius-xs);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-heavy);
+  line-height: 1;
+  letter-spacing: .2px;
+  white-space: nowrap;
+}
+
+/*
+ * 컬러 다이어트:
+ * - 핵심 액션·강조       = primary (toss blue)
+ * - 가격 증감            = up/down (라벨 색은 아래 fresh에 빨강 잔존)
+ * - 그 외(success/warning/purple/orange/danger) = 무채색 강등
+ *   → 같은 시각 무게를 유지하되 시선 분산 최소화.
+ * - fresh(NEW)만 빨강 살림 (시간 민감 강조)
+ */
+.neutral { background: var(--rw-card-muted); color: var(--rw-text-body); }
+.primary { background: var(--rw-primary-bg); color: var(--rw-blue70); }
+
+/* 강등된 톤들 — 회색 계열로 통합 */
+.success { background: var(--rw-card-muted); color: var(--rw-text-title); }
+.warning { background: var(--rw-card-muted); color: var(--rw-text-title); }
+.danger  { background: var(--rw-card-muted); color: var(--rw-red60); }
+.purple  { background: var(--rw-card-muted); color: var(--rw-text-title); }
+.orange  { background: var(--rw-card-muted); color: var(--rw-text-title); }
+
+/* NEW 만 빨강 살림 (시간 민감) */
+.fresh   { background: #fff0f0; color: var(--rw-red60); }
+
+.solid {
+  background: var(--rw-text-strong);
+  color: #fff;
+}
+
+.pill {
+  border-radius: var(--rw-radius-full);
+  padding: 0 var(--space-3);
+}

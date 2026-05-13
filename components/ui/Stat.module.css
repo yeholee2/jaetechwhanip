@@ -1,0 +1,54 @@
+/**
+ * <Stat> — 큰 숫자 + 변화 (토스 스타일).
+ * 현재가, 손익, 평가액 등에 사용.
+ */
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.label {
+  font-size: var(--type-caption);
+  font-weight: var(--weight-semibold);
+  color: var(--rw-text-muted);
+  letter-spacing: -0.1px;
+}
+
+.row {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.value {
+  font-weight: var(--weight-black);
+  color: var(--rw-text-strong);
+  letter-spacing: -0.5px;
+  line-height: 1.1;
+  font-feature-settings: 'tnum';
+}
+
+.sizeSm  { font-size: var(--type-body); }
+.sizeMd  { font-size: var(--type-title); }
+.sizeLg  { font-size: var(--type-display); }
+.sizeXl  { font-size: calc(var(--type-display) * 1.25); }
+
+.delta {
+  font-size: var(--type-body);
+  font-weight: var(--weight-black);
+  letter-spacing: -0.2px;
+  font-feature-settings: 'tnum';
+}
+
+.up    { color: var(--rw-red60); }
+.down  { color: var(--rw-blue70); }
+.flat  { color: var(--rw-text-muted); }
+
+.foot {
+  font-size: 11px;
+  font-weight: var(--weight-semibold);
+  color: var(--rw-text-muted);
+  margin-top: 2px;
+}

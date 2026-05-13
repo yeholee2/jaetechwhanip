@@ -33,8 +33,21 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
+  // 다크 모드 FOUC 방지: hydration 전에 <html data-theme> 세팅
+  const themeScript = `
+    try {
+      var k = localStorage.getItem('etfhanip:theme');
+      var t = k === 'dark' || k === 'light'
+        ? k
+        : (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      document.documentElement.setAttribute('data-theme', t);
+    } catch (e) {}
+  `;
   return (
     <html lang="ko">
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+      </head>
       <body>{children}</body>
     </html>
   );

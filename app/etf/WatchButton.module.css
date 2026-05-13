@@ -1,0 +1,47 @@
+/* Icon-only mode (헤로 CTA 경쟁 회피) */
+.iconBtn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--rw-card);
+  border: 1px solid var(--rw-hairline);
+  color: var(--rw-text-muted);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background var(--duration-instant) var(--ease-in-out),
+              color var(--duration-instant) var(--ease-in-out),
+              border-color var(--duration-instant) var(--ease-in-out);
+}
+.iconBtn:hover {
+  border-color: var(--rw-red60);
+  color: var(--rw-red60);
+  background: #fff0f0;
+}
+.iconActive {
+  color: var(--rw-red60);
+  border-color: var(--rw-red60);
+  background: #fff0f0;
+}
+
+/* Full mode (다른 위치 호환용) */
+.fullBtn {
+  height: 40px;
+  padding: 0 var(--space-4);
+  border-radius: var(--rw-radius-sm);
+  background: var(--rw-card);
+  border: 1px solid var(--rw-hairline);
+  color: var(--rw-text-body);
+  font-size: var(--type-body);
+  font-weight: var(--weight-bold);
+  cursor: pointer;
+}
+.fullBtn:hover { border-color: var(--rw-primary); }
+.fullActive {
+  background: var(--rw-primary);
+  border-color: var(--rw-primary);
+  color: #fff;
+}

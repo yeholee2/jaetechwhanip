@@ -23,6 +23,7 @@ import {
 } from '@/lib/seo-content';
 import { fetchQuestionPageData, type AnswerDetail, type QuestionDetail } from '@/lib/question-detail';
 import { getFeaturedActiveSparring, listSparrings } from '@/lib/sparring';
+import { findEtfsForText } from '@/lib/relatedContent';
 import QuestionClient from './QuestionClient';
 
 type Props = { params: { slug: string } };
@@ -163,6 +164,11 @@ export default async function QuestionPage({ params }: Props) {
   }
   const shouldIndex = question ? isIndexableQuestion({ title: question.title, body: question.body }) : false;
 
+  // 분절 해소: 질문 본문에서 언급된 ETF 추출
+  const mentionedEtfs = question
+    ? findEtfsForText(`${question.title || ''} ${question.body || ''}`, 3)
+    : [];
+
   return (
     <>
       {question && shouldIndex ? (
@@ -179,6 +185,7 @@ export default async function QuestionPage({ params }: Props) {
         initialAnswers={pageData.answers}
         initialRelated={pageData.related}
         featuredSparring={getFeaturedActiveSparring(sparringData.sparrings)}
+        mentionedEtfs={mentionedEtfs}
       />
     </>
   );

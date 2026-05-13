@@ -1,0 +1,57 @@
+/* MarketIndices — 3-col grid (한 화면에 가지런히, 가로 스크롤 X) */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-3);
+}
+
+.item {
+  padding: var(--space-3) var(--space-4);
+  background: var(--rw-card-muted);
+  border-radius: var(--rw-radius-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.name {
+  font-size: var(--type-caption);
+  font-weight: var(--weight-semibold);
+  color: var(--rw-text-muted);
+}
+
+.warn {
+  font-size: 11px;
+  line-height: 1;
+}
+
+.price {
+  font-size: var(--type-body);
+  font-weight: var(--weight-heavy);
+  color: var(--rw-text-strong);
+  letter-spacing: -0.2px;
+}
+
+.up {
+  font-size: var(--type-caption);
+  font-weight: var(--weight-bold);
+  color: var(--rw-up);
+}
+
+.down {
+  font-size: var(--type-caption);
+  font-weight: var(--weight-bold);
+  color: var(--rw-down);
+}
+
+@media (max-width: 600px) {
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

@@ -19,6 +19,9 @@ import { useAutoTranslation } from '@/lib/useAutoTranslation';
 import { buildSeoDescription } from '@/lib/seo-content';
 import { FaIcon } from '@/components/FaIcon';
 import SparringMiniCard from '@/components/sparring/SparringMiniCard';
+import { RelatedContent } from '@/components/RelatedContent';
+import { Chip, Badge, Button } from '@/components/ui';
+import { AppShell } from '@/components/AppShell';
 import styles from './QuestionClient.module.css';
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -98,12 +101,14 @@ export default function QuestionClient({
   initialAnswers = EMPTY_ANSWERS,
   initialRelated = EMPTY_RELATED,
   featuredSparring = null,
+  mentionedEtfs = [],
 }: {
   slug: string;
   initialQuestion?: QuestionDetail | null;
   initialAnswers?: AnswerDetail[];
   initialRelated?: RelatedQuestion[];
   featuredSparring?: Sparring | null;
+  mentionedEtfs?: import('@/lib/etfs').EtfInfo[];
 }) {
   const router = useRouter();
   const dropRef = useRef<HTMLDivElement>(null);
@@ -450,54 +455,7 @@ export default function QuestionClient({
   const seoSummary = translation.text('question:summary', rawSeoSummary);
 
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--bg)' }}>
-
-      {/* ── PC 네비 (홈과 동일) ── */}
-      <nav className={styles.pcNav}>
-        <div className={`logo-font ${styles.navLogo}`} onClick={() => router.push('/')}>
-          재테크<em>한입</em>
-        </div>
-        <ul className={styles.navMenu}>
-          <li><button onClick={() => router.push('/')}>홈</button></li>
-          <li><button onClick={() => router.push('/etf')}>ETF</button></li>
-          <li><button onClick={() => router.push('/sparring')}>스파링</button></li>
-          <li><button onClick={() => router.push('/feed')}>피드</button></li>
-          <li><button>미션</button></li>
-          <li><div className={styles.navSep} /></li>
-          <li><button style={{ fontSize: 13, color: 'var(--t3)' }}>전문가 신청</button></li>
-        </ul>
-        <div className={styles.navRight}>
-          <button className={styles.iconBtn} aria-label="검색"><FaIcon name="magnifying-glass" size={18} /></button>
-          <button className={styles.iconBtn} aria-label="알림"><FaIcon name="bell" size={18} /></button>
-          {!authLoading && (user ? (
-            <div style={{ position: 'relative' }} ref={dropRef}>
-              <div className={styles.avatar} onClick={() => setShowDropdown(v => !v)} title={userName}>
-                {userName[0]?.toUpperCase() || 'U'}
-              </div>
-              {showDropdown && (
-                <div className={styles.dropdown}>
-                  <div className={styles.dropName}>{userName}</div>
-                  <button onClick={() => { router.push(`/u/${user.id}`); setShowDropdown(false); }}>내 프로필</button>
-                  <button onClick={handleSignOut} style={{ color: '#FF3B30' }}>로그아웃</button>
-                </div>
-              )}
-            </div>
-          ) : (
-            <button className={styles.iconBtn} onClick={() => router.push('/auth')}><FaIcon name="user" size={18} /></button>
-          ))}
-          <button className={styles.btnAsk} onClick={() => user ? setShowAskModal(true) : router.push('/auth?next=/')}>나도 질문하기</button>
-        </div>
-      </nav>
-
-      {/* ── 모바일 헤더 ── */}
-      <header className={styles.mobileHeader}>
-        <button onClick={() => router.back()}><ChevronLeft size={24} /></button>
-        <div className={`logo-font ${styles.navLogo}`} onClick={() => router.push('/')} style={{ cursor: 'pointer' }}>
-          재테크<em>한입</em>
-        </div>
-        <button onClick={share}><Share2 size={20} /></button>
-      </header>
-
+    <AppShell active="home" wide hideSlogan>
       {/* ── 본문 ── */}
       <div className={styles.body}>
 
@@ -506,7 +464,9 @@ export default function QuestionClient({
 
           {/* 브레드크럼 */}
           <div className={styles.breadcrumb}>
-            <button onClick={() => router.push('/')} className={styles.catChip}>{getCategoryLabel(q.category || '재테크')}</button>
+            <Chip onClick={() => router.push('/')} size="sm">
+              {getCategoryLabel(q.category || '재테크')}
+            </Chip>
           </div>
 
           {/* 질문 카드 */}
@@ -518,8 +478,8 @@ export default function QuestionClient({
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 2 }}>
                   <span style={{ fontSize: 14, fontWeight: 700 }}>{authorName}</span>
-                  {q.is_answered && <span className={styles.adoptedChip}>✅ 채택됨</span>}
-                  {qTranslated && <span className={styles.translatedBadge}>Translated</span>}
+                  {q.is_answered && <Badge tone="success">✅ 채택됨</Badge>}
+                  {qTranslated && <Badge tone="primary">Translated</Badge>}
                 </div>
                 <div style={{ fontSize: 12, color: 'var(--t3)' }}>
                   {ft(q.created_at)} · 조회 {q.view_count || 0}
@@ -648,6 +608,10 @@ export default function QuestionClient({
         <aside className={styles.sidebar}>
           <SparringMiniCard sparring={featuredSparring} />
 
+          {mentionedEtfs.length > 0 && (
+            <RelatedContent heading="이 질문과 관련된 ETF" etfs={mentionedEtfs} />
+          )}
+
           {/* 유사 질문 */}
           <div className={styles.widget}>
             <div className={styles.widgetHead}>유사한 질문이 있어요.</div>
@@ -670,25 +634,11 @@ export default function QuestionClient({
         </aside>
       </div>
 
-      {/* ── 모바일 하단 네비 ── */}
-      <nav className={styles.bottomNav}>
-        <button className={styles.bnav} onClick={() => router.push('/')}><FaIcon name="house" size={21} /><span>홈</span></button>
-        <button className={styles.bnav} onClick={() => router.push('/etf')}><FaIcon name="chart-line" size={21} /><span>ETF</span></button>
-        <button className={styles.bnav} onClick={() => router.push('/sparring')}><Swords size={22} /><span>스파링</span></button>
-        <button className={styles.bnav}><FaIcon name="bell" size={21} /><span>알림</span></button>
-        <button className={styles.bnav} onClick={() => router.push(user ? `/u/${user.id}` : '/auth')} style={user ? { color: 'var(--blue)' } : {}}>
-          <FaIcon name="user" size={21} /><span>{user ? userName[0]?.toUpperCase() || 'MY' : '로그인'}</span>
-        </button>
-      </nav>
-      <button className={styles.fab} onClick={() => user ? setShowAskModal(true) : router.push('/auth?next=/')}>
-        <FaIcon name="plus" size={22} color="white" />
-      </button>
-
       {/* 질문하기 모달 */}
       {showAskModal && <AskModal onClose={() => setShowAskModal(false)} router={router} user={user} onToast={showT} />}
 
       {toast && <div className={styles.toast}>{toast}</div>}
-    </div>
+    </AppShell>
   );
 }
 
@@ -711,7 +661,7 @@ function AnswerCard({ answer: a, currentUserId, isMyQuestion, isAnswered, liked,
         <div style={{ flex: 1 }}>
           <div style={{ fontWeight: 700, fontSize: 14 }}>{name}</div>
           <div style={{ fontSize: 12, color: 'var(--t3)' }}>{a.created_at ? ft(a.created_at) : ''}</div>
-          {isTranslated(answerBodyId) && <span className={styles.translatedBadge}>Translated</span>}
+          {isTranslated(answerBodyId) && <Badge tone="primary">Translated</Badge>}
         </div>
         {isMyAnswer && (
           <button className={styles.deleteBtn} onClick={onDelete}>삭제</button>

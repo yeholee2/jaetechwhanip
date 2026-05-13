@@ -4,6 +4,9 @@ import { AppShell } from '@/components/AppShell';
 import { FEED_URL, fetchGhostArticleBySlug, hanipArticles } from '@/lib/feed';
 import { SITE_NAME } from '@/lib/seo';
 import { buildFeedSeoDescription, buildFeedSeoKeywords, buildFeedSeoTitle } from '@/lib/seo-content';
+import { findEtfsForText } from '@/lib/relatedContent';
+import { RelatedContent } from '@/components/RelatedContent';
+import { Chip, Badge, Button } from '@/components/ui';
 import styles from '../FeedPage.module.css';
 
 export function generateStaticParams() {
@@ -52,17 +55,26 @@ export default async function FeedArticlePage({ params }: { params: { slug: stri
   const article = await fetchGhostArticleBySlug(params.slug);
   if (!article) notFound();
 
+  // 분절 해소: 이 칼럼에서 언급된 ETF 추출
+  const mentionedEtfs = findEtfsForText(
+    [article.title, article.description, (article.tags || []).join(' '), article.contentHtml || ''].join(' '),
+    3,
+  );
+
   return (
     <AppShell active="feed">
       <article className={`${styles.card} ${styles.articleDetail}`}>
         <div className={styles.meta}>
-          <span className={styles.source}>한입 칼럼 · {article.category}</span>
+          <Badge tone="purple">✍️ 칼럼</Badge>
+          <Badge tone="neutral">{article.category}</Badge>
           <span>{article.readingTime} 읽기</span>
         </div>
         <h1>{article.title}</h1>
         <p>{article.description}</p>
         <div className={styles.tags}>
-          {article.tags.map(tag => <span key={tag}>{tag}</span>)}
+          {article.tags.map(tag => (
+            <Chip key={tag} subtle size="sm">#{tag}</Chip>
+          ))}
         </div>
         {article.contentHtml && (
           <div
@@ -71,10 +83,12 @@ export default async function FeedArticlePage({ params }: { params: { slug: stri
           />
         )}
         {article.originalUrl && (
-          <a className={styles.originalLink} href={article.originalUrl} target="_blank" rel="noreferrer">
-            원문에서 읽기
-          </a>
+          <Button href={article.originalUrl} external variant="primary" size="md">
+            원문에서 읽기 ↗
+          </Button>
         )}
+
+        <RelatedContent heading="이 글과 관련된 ETF" etfs={mentionedEtfs} />
       </article>
     </AppShell>
   );

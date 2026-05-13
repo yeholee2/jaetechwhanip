@@ -1,5 +1,87 @@
 # 패치노트
 
+## [2026-05-10] UI v3 — RiskWeather Design System Standard 채택 — Claude
+**작업자:** Claude
+**태그:** #UIPrinciples #DesignTokens #RiskWeather #ETFv2
+
+### 결정
+- Chrome MCP로 `riskweather.io/ko` 정밀 분석 (CSS variables 직접 추출)
+- 추출된 design system을 우리 standard로 채택 (사용자 결정)
+- ETF 페이지 1차 적용, 향후 전 페이지 마이그레이션
+
+### 신규: globals.css `--rw-*` 토큰 시리즈
+- Gray scale 12단계: `--rw-gray2` ~ `--rw-gray90` (#f9fafb → #191f28)
+- Blue: `--rw-blue5` ~ `--rw-blue70` (primary #3182f6)
+- Red/Green/Orange: 시리즈 5-90단계
+- Risk 특화: `--rw-risk-green/yellow/orange/red` + bg 변형
+- 시맨틱: `--rw-screen` (페이지), `--rw-card` (흰 카드), `--rw-hairline` (divider), `--rw-text-strong/body/muted/disabled`, `--rw-primary/hover`, `--rw-up/down`
+- Radius: `--rw-radius-sm/md/lg` (8/14/20px)
+
+### 적용 완료 (ETF 페이지)
+- `EtfPage.module.css` — 페이지 배경 `--rw-screen` (#f6f7f8), max-width 820px
+- `MyEtfSection` — RW 진입 카드 (📊 아이콘 + 텍스트 + ❯)
+- `MarketIndices` — RW 시장 지수 가로 스크롤 카드
+- `EtfNews` — 흰 카드 컨테이너 + hairline 디바이더
+- `EtfRanking` — 5토글 + 4카테고리 + 리스트 (전부 RW 톤)
+- `CtaCards` — 💰🩺 RW CTA 카드
+- `ThemeToggle` — 가로 토글 + 종목 리스트
+
+### docs/ui-principles.md v3
+- "RiskWeather Design System v3" 섹션 신규 추가
+- 핵심 시맨틱 토큰 표 + Gray scale 명세
+- 채택 룰: 모든 새 작업은 `--rw-*`만 사용, legacy 토큰 점진 폐기
+- 패턴 명세: 회색 배경 + 흰 카드 + hairline divider + ❯ 화살표
+
+### 다음 작업
+- ETF 페이지 라이브 검증
+- Q&A·스파링·피드도 RW 토큰으로 점진 마이그레이션 (별도 PR)
+- ThemeToggle을 client component로 (토글 활성화)
+
+---
+
+## [2026-05-10] ETF v2 도미노 패턴 풀 도입 스펙 — Claude
+**작업자:** Claude
+**태그:** #ETF #Domino #Portfolio #Alerts #Calendar #AI #Spec
+
+### 결정 (예호님)
+- 도미노 앱(Fast Forward Corp, App Store id1540576519) 5기능을 `/etf`에 ETF 한정으로 풀 도입
+- 마이데이터/실시간 시세 라이선스 없는 범위 (수동 입력 + 공공 API + AI)
+- "도미노 라이트, ETF 전용" 포지션
+
+### 신규 문서
+- `docs/etf-portfolio-spec.md` — 4-탭 IA + 도미노 5기능 매핑 + Phase A-F 작업 계획
+- `docs/migration_etf_v2.sql` — 4 테이블(holdings/alerts/market_events/ai_summaries) + RLS + 시드 이벤트
+
+### IA 변화
+현재 `/etf` 단일 페이지 → **4-탭 구조**:
+- 둘러보기 (기존 유지)
+- 내 포트폴리오 (신규) — 보유 입력, 자산/비중/배당 차트
+- 알림·캘린더 (신규) — 가격 알림 + 증시 일정
+- AI 인사이트 (신규) — 시장 5줄 + ETF별 3섹션
+
+### 작업 Phase (Codex/GPT)
+- A: 데이터·기초 (migration + lib helpers)
+- B: IA 변경 (탭 4개 도입)
+- C: 포트폴리오 탭 (가장 큰 작업)
+- D: 알림·캘린더 탭
+- E: AI 인사이트 탭
+- F: 폴리싱
+
+### 다음 작업자 TODO
+- [ ] (Codex) Phase A부터 시작 — feat/etf-v2-portfolio 브랜치
+- [ ] (예호) `migration_etf_v2.sql` Supabase 실행 (Phase A 완료 후)
+- [ ] (예호) `OPENAI_API_KEY` Vercel env 확인 (Phase E 전제)
+- [ ] (예호) `DATA_GO_KR_SERVICE_KEY` Vercel env 확인 (Phase C에서 시세 fetch)
+
+### 도미노에 있지만 우리 못 함 (정직)
+- ❌ 자동 계좌 연동 (마이데이터 라이선스)
+- ❌ 나스닥 실시간 시세 (라이선스 비용)
+- ❌ 펀드·채권·부동산 통합
+
+→ ETF 한정 + 수동 입력 + 24h 시세 + AI 보강으로 "도미노 라이트" 구현
+
+---
+
 ## [2026-05-11] ETF v2 Lazyweb 시안 롤백 — Codex
 **작업자:** Codex
 **태그:** #ETF #Rollback #Mockup

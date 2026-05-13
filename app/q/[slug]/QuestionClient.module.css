@@ -26,12 +26,7 @@
   color: var(--t2); transition: background .12s;
 }
 .iconBtn:hover { background: var(--bg); }
-.btnAsk {
-  height: 36px; padding: 0 16px; background: var(--primary);
-  border-radius: 8px; color: #fff; font-size: 14px; font-weight: 700;
-  transition: background var(--duration-instant) var(--ease-in-out);
-}
-.btnAsk:hover { background: var(--primary-dk); }
+/* btnAsk → Button primary sm 으로 대체 (deprecated) */
 
 /* 유저 아바타 */
 .avatar {
@@ -77,13 +72,7 @@
 
 /* ── 브레드크럼 ── */
 .breadcrumb { margin-bottom: 14px; }
-.catChip {
-  height: 28px; padding: 0 13px; border-radius: 20px;
-  border: 1.5px solid var(--line); background: var(--white);
-  font-size: 12px; font-weight: 700; color: var(--blue);
-  background: var(--blue-bg); transition: all .12s;
-}
-.catChip:hover { border-color: var(--blue); }
+/* catChip → Chip 컴포넌트로 대체 (deprecated) */
 
 /* ── 질문 카드 ── */
 .qCard {
@@ -101,15 +90,7 @@
   display: flex; align-items: center; justify-content: center;
   font-size: 22px;
 }
-.adoptedChip {
-  font-size: 10px; font-weight: 700; color: #E65100;
-  background: #FFF3E0; padding: 2px 7px; border-radius: 4px;
-}
-.translatedBadge {
-  display: inline-flex; align-items: center;
-  font-size: 10px; font-weight: 700; color: var(--blue);
-  background: var(--blue-bg); padding: 2px 7px; border-radius: 4px;
-}
+/* adoptedChip, translatedBadge → Badge 컴포넌트로 대체 (deprecated) */
 .qTitle {
   font-size: 20px; font-weight: 800; line-height: 1.45;
   margin-bottom: 12px; color: var(--t1);

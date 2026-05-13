@@ -1,0 +1,162 @@
+/* 비로그인 hero — 정체성 카드 */
+.heroGuest {
+  position: relative;
+  padding: var(--space-6) var(--space-4);
+  margin-bottom: var(--space-5);
+  background: linear-gradient(135deg, #EEF4FF 0%, #FAFBFF 60%, #FFFFFF 100%);
+  border-radius: var(--rw-radius-lg);
+  overflow: hidden;
+  border: 1px solid var(--rw-border);
+}
+
+[data-theme='dark'] .heroGuest {
+  background: linear-gradient(135deg, rgba(49, 130, 246, 0.15) 0%, var(--rw-card) 60%);
+}
+
+.heroGuestMain {
+  max-width: 720px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.heroGuestMain h1 {
+  font-size: 36px;
+  line-height: 1.15;
+  font-weight: var(--weight-black);
+  letter-spacing: -1px;
+  color: var(--rw-text-strong);
+  margin: var(--space-1) 0 0;
+}
+
+.heroGuestMain h1 em {
+  font-style: normal;
+  color: var(--rw-primary);
+}
+
+.heroGuestMain p {
+  font-size: var(--type-body);
+  line-height: 1.6;
+  color: var(--rw-text-body);
+  font-weight: var(--weight-semibold);
+  margin: 0;
+}
+
+.heroGuestMain p strong {
+  color: var(--rw-text-strong);
+  font-weight: var(--weight-black);
+}
+
+/* 핵심 통계 (1,066 · 4단 · 무료) */
+.heroFacts {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-3);
+  margin-top: var(--space-2);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--rw-border);
+}
+
+.heroFacts > div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.heroFacts strong {
+  font-size: var(--type-title);
+  font-weight: var(--weight-black);
+  color: var(--rw-primary);
+  letter-spacing: -0.3px;
+  line-height: 1.1;
+}
+
+.heroFacts span {
+  font-size: 11px;
+  color: var(--rw-text-muted);
+  font-weight: var(--weight-semibold);
+}
+
+.heroActions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  margin-top: var(--space-2);
+}
+
+.heroLink {
+  font-size: var(--type-caption);
+  font-weight: var(--weight-bold);
+  color: var(--rw-text-muted);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  transition: color 120ms ease;
+}
+
+.heroLink:hover {
+  color: var(--rw-primary);
+}
+
+/* 로그인 hero — 가벼운 환영 */
+.heroAuth {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-5) var(--space-4);
+  margin-bottom: var(--space-4);
+  background: var(--rw-card-muted);
+  border-radius: var(--rw-radius-md);
+  border: 1px solid var(--rw-border);
+}
+
+.heroAuth h1 {
+  font-size: var(--type-title);
+  font-weight: var(--weight-black);
+  color: var(--rw-text-strong);
+  letter-spacing: -0.4px;
+  margin: var(--space-1) 0;
+}
+
+.heroAuth p {
+  font-size: var(--type-caption);
+  color: var(--rw-text-body);
+  line-height: 1.55;
+  font-weight: var(--weight-semibold);
+  margin: 0;
+}
+
+.eyebrow {
+  font-size: 11px;
+  font-weight: var(--weight-bold);
+  color: var(--rw-primary);
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+}
+
+@media (max-width: 768px) {
+  .heroGuest {
+    padding: var(--space-5) var(--space-3);
+  }
+  .heroGuestMain h1 {
+    font-size: 26px;
+    letter-spacing: -0.6px;
+  }
+  .heroGuestMain p {
+    font-size: var(--type-caption);
+  }
+  .heroFacts {
+    grid-template-columns: 1fr;
+    gap: var(--space-2);
+  }
+  .heroFacts > div {
+    flex-direction: row;
+    align-items: baseline;
+    gap: var(--space-2);
+  }
+  .heroAuth {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}

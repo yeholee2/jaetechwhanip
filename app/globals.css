@@ -1,72 +1,388 @@
+/* ============================================================
+ * ETF한입 Design System v3 (RW 베이스 + Toss Blue + Tossface)
+ *
+ * 색: --rw-* 가 단일 진실. legacy 토큰(--primary 등)은 alias.
+ * 타이포: 토스 Pretendard. .tf 클래스 또는 [data-emoji]에 Tossface.
+ * 스케일: --space-* (8pt 그리드), --text-* (1.125 modular).
+ * ============================================================ */
+
 /* 토스페이스 */
 @import url('https://cdn.jsdelivr.net/gh/toss/tossface/dist/tossface.css');
 /* Pretendard */
 @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
-/* Cafe24 Ssurround (로고용) */
-@import url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/Cafe24Ssurround.woff') format('woff');
 
 @font-face {
   font-family: 'Cafe24Ssurround';
   src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/Cafe24Ssurround.woff') format('woff');
   font-weight: 700;
   font-style: normal;
+  font-display: swap;
 }
 
 :root {
-  /* === Primary brand (a-ha 모티브 — 파랑) === */
-  --primary:#1e59da; --primary-bg:#E8F0F9; --primary-dk:#0649db;
-  /* a-ha와 동일 값: blue-600 #1e59da (CTA bg), blue-700 #0649db (--color-primary) */
-  /* Legacy 토스 블루 (서브 액센트로만 점진 사용) */
-  --blue:#3182F6; --blue-bg:#EBF3FF; --blue-dk:#1A6DE0;
-  /* 텍스트 / 배경 (a-ha gray scale 매칭) */
-  --t1:#191F28; --t2:#333D4B; --t3:#6B7684;
-  --text-1:#191F28; --text-2:#333D4B; --text-3:#6B7684;
-  --line:#E5E8EB; --bg:#F9FAFB; --white:#fff; --surface:#fff;
-  --orange:#FF6B35;
-  --kakao:#FEE500;
-  --sb: env(safe-area-inset-bottom, 0px);
+  /* ─────────────────────────────────────────────────────────
+   * Gray scale (12단계)
+   * ───────────────────────────────────────────────────────── */
+  --rw-gray2: #f9fafb;
+  --rw-gray5: #f6f7f8;
+  --rw-gray10: #f2f4f6;
+  --rw-gray15: #edeff1;
+  --rw-gray20: #e5e8eb;
+  --rw-gray30: #d1d6db;
+  --rw-gray40: #b0b8c1;
+  --rw-gray50: #8b95a1;
+  --rw-gray60: #6b7684;
+  --rw-gray70: #4e5968;
+  --rw-gray80: #333d4b;
+  --rw-gray90: #191f28;
 
-  /* === 모션 토큰 (a-ha 추출본 그대로) === */
-  --duration-instant: 150ms;
+  /* ─────────────────────────────────────────────────────────
+   * Brand: Toss Blue (단일 시그니처)
+   * ───────────────────────────────────────────────────────── */
+  --rw-blue5: #e8f3ff;
+  --rw-blue10: #c9e2ff;
+  --rw-blue40: #4593fc;
+  --rw-blue50: #3182f6;       /* primary */
+  --rw-blue60: #2272eb;       /* hover */
+  --rw-blue70: #1b64da;       /* pressed */
+
+  /* ─────────────────────────────────────────────────────────
+   * Semantic accents
+   * ───────────────────────────────────────────────────────── */
+  --rw-red50: #f66570;
+  --rw-red60: #e42939;        /* 등락 빨강 (한국 증시 관습: 상승) */
+  --rw-red70: #d22030;
+  --rw-green40: #15c47e;
+  --rw-green50: #03b26c;
+  --rw-orange40: #ffa927;
+  --rw-orange50: #fe9800;
+  --rw-purple50: #7e57c2;     /* 리포트 */
+
+  /* Risk 톤 */
+  --rw-risk-green: #34bb7a;
+  --rw-risk-yellow: #f99f01;
+  --rw-risk-orange: #ff4d00;
+  --rw-risk-red: #df1525;
+  --rw-risk-bg-green: #e6f5f0;
+  --rw-risk-bg-yellow: #fef5e6;
+  --rw-risk-bg-orange: #ffe4d9;
+  --rw-risk-bg-red: #ffecef;
+
+  /* ─────────────────────────────────────────────────────────
+   * Surface / Text (시맨틱)
+   * ───────────────────────────────────────────────────────── */
+  --rw-screen: #f6f7f8;           /* 페이지 배경 (회색) */
+  --rw-card: #fff;                /* 카드 배경 */
+  --rw-card-muted: #f2f4f6;       /* 보조 회색 카드 */
+  --rw-hairline: #e5e8eb;         /* 디바이더/경계 */
+  --rw-text-strong: #191f28;      /* h1/h2 (gray90) */
+  --rw-text-title: #333d4b;       /* h3/card title (gray80) */
+  --rw-text-body: #4e5968;        /* 본문 (gray70) */
+  --rw-text-muted: #8b95a1;       /* 메타/캡션 (gray50) */
+  --rw-text-disabled: #b0b8c1;    /* 비활성 (gray40) */
+  --rw-primary: #3182f6;          /* CTA */
+  --rw-primary-hover: #2272eb;
+  --rw-primary-bg: #ebf3ff;       /* primary 배경 톤 */
+  --rw-up: #e42939;
+  --rw-down: #3182f6;
+
+  /* ─────────────────────────────────────────────────────────
+   * 8pt 그리드 spacing
+   * ───────────────────────────────────────────────────────── */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+
+  /* ─────────────────────────────────────────────────────────
+   * Typography scale (1.125 modular, 14px 베이스)
+   * ───────────────────────────────────────────────────────── */
+  --text-xs: 11px;       /* badge mini, deprecated for body */
+  --text-sm: 13px;       /* meta, caption */
+  --text-base: 15px;     /* body */
+  --text-md: 16px;       /* body-emphasis (deprecated, use body) */
+  --text-lg: 18px;       /* (deprecated, use title) */
+  --text-xl: 22px;       /* (deprecated, use title) */
+  --text-2xl: 28px;      /* display */
+  --text-3xl: 34px;      /* deprecated */
+
+  /*
+   * 의미적 4단계 — 권장 사용. 새 코드는 이 4개만 사용.
+   * 기존 --text-* 는 호환용 alias.
+   */
+  --type-caption: 13px;  /* 메타·라벨·캡션·뱃지 본문 */
+  --type-body: 15px;     /* 본문 */
+  --type-title: 20px;    /* 카드 제목 / h2-h3 */
+  --type-display: 28px;  /* 페이지 hero h1 */
+
+  --leading-tight: 1.25;
+  --leading-snug: 1.4;
+  --leading-normal: 1.55;
+  --leading-relaxed: 1.7;
+
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-semibold: 650;
+  --weight-bold: 700;
+  --weight-heavy: 800;
+  --weight-black: 900;
+
+  /* ─────────────────────────────────────────────────────────
+   * Radius
+   * ───────────────────────────────────────────────────────── */
+  --rw-radius-xs: 4px;
+  --rw-radius-sm: 8px;
+  --rw-radius-md: 12px;
+  --rw-radius-lg: 16px;
+  --rw-radius-xl: 20px;
+  --rw-radius-2xl: 24px;
+  --rw-radius-full: 999px;
+  --rw-card-pad: 24px;
+
+  /* ─────────────────────────────────────────────────────────
+   * Shadow / elevation
+   * ───────────────────────────────────────────────────────── */
+  --rw-shadow-1: 0 1px 2px rgba(0, 0, 0, .04);
+  --rw-shadow-2: 0 2px 8px rgba(0, 0, 0, .06);
+  --rw-shadow-3: 0 4px 16px rgba(0, 0, 0, .08);
+  --rw-shadow-4: 0 8px 24px rgba(0, 0, 0, .1);
+  --rw-shadow-focus: 0 0 0 3px rgba(49, 130, 246, .2);
+
+  /* ─────────────────────────────────────────────────────────
+   * Motion
+   * ───────────────────────────────────────────────────────── */
+  --duration-instant: 120ms;
   --duration-fast: 200ms;
   --duration-normal: 300ms;
   --duration-slow: 400ms;
   --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
   --ease-out: cubic-bezier(0, 0, 0.2, 1);
+
+  /* ─────────────────────────────────────────────────────────
+   * z-index scale
+   * ───────────────────────────────────────────────────────── */
+  --z-base: 1;
+  --z-sticky: 100;
+  --z-header: 200;
+  --z-dropdown: 300;
+  --z-modal: 400;
+  --z-toast: 500;
+
+  /* ─────────────────────────────────────────────────────────
+   * 모바일 safe-area
+   * ───────────────────────────────────────────────────────── */
+  --sb: env(safe-area-inset-bottom, 0px);
+
+  /* color-scheme 알림 (브라우저가 form/스크롤바 등 자동 매칭) */
+  color-scheme: light;
+
+  /* ─────────────────────────────────────────────────────────
+   * Legacy aliases (기존 코드 호환용 — 점진 마이그)
+   * ───────────────────────────────────────────────────────── */
+  --primary: var(--rw-primary);
+  --primary-bg: var(--rw-primary-bg);
+  --primary-dk: var(--rw-primary-hover);
+  --blue: var(--rw-blue50);
+  --blue-bg: var(--rw-blue5);
+  --blue-dk: var(--rw-blue70);
+  --t1: var(--rw-text-strong);
+  --t2: var(--rw-text-body);
+  --t3: var(--rw-text-muted);
+  --text-1: var(--rw-text-strong);
+  --text-2: var(--rw-text-body);
+  --text-3: var(--rw-text-muted);
+  --line: var(--rw-hairline);
+  --bg: var(--rw-screen);
+  --white: var(--rw-card);
+  --surface: var(--rw-card);
+  --orange: var(--rw-orange50);
+  --kakao: #fee500;
 }
 
-*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
-html, body { height:100%; overflow-x:hidden; }
+/* ─────────────────────────────────────────────────────────
+ * Reset / base
+ * ───────────────────────────────────────────────────────── */
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html, body {
+  height: 100%;
+  overflow-x: hidden;
+}
+
 body {
-  /* Pretendard Variable 우선 + 한글 fallback 풀 스택 (a-ha 동일) */
+  /*
+   * 한글/영문: Pretendard. 이모지: Tossface (unicode-range로 자동 매칭).
+   * Tossface가 시스템 이모지 폰트들보다 먼저 와야 토스 톤으로 우선 적용됨.
+   */
   font-family:
     'Pretendard Variable', Pretendard,
     -apple-system, BlinkMacSystemFont, system-ui,
     Roboto, 'Helvetica Neue', 'Segoe UI',
     'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic',
+    'Tossface',
     'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
     sans-serif;
-  background: var(--bg);
-  color: var(--t1);
-  font-size: 15px;
+  background: var(--rw-screen);
+  color: var(--rw-text-strong);
+  font-size: var(--text-base);
+  line-height: var(--leading-normal);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-/* === 접근성: 키보드 포커스 인디케이터 (WCAG 2.2 AA) === */
+/* ─────────────────────────────────────────────────────────
+ * 접근성
+ * ───────────────────────────────────────────────────────── */
 :focus-visible {
-  outline: 2px solid var(--primary);
+  outline: 2px solid var(--rw-primary);
   outline-offset: 2px;
-  border-radius: 4px;
+  border-radius: var(--rw-radius-xs);
 }
-/* 모션 감소 선호하는 사용자 존중 */
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0ms !important;
     transition-duration: 0ms !important;
   }
 }
-a { text-decoration:none; color:inherit; }
-button { font-family:inherit; cursor:pointer; border:none; background:none; }
-.tf { font-family: 'Tossface', sans-serif; }
 
-/* 로고 폰트 */
-.logo-font { font-family: 'Cafe24Ssurround', 'Pretendard', sans-serif; }
+/* ─────────────────────────────────────────────────────────
+ * 다크 모드 토큰 (data-theme="dark")
+ * 사용자 설정(localStorage) 또는 system preference 둘 다 반응.
+ * 시맨틱 토큰만 재정의 → 모든 컴포넌트 자동 전환.
+ * ───────────────────────────────────────────────────────── */
+:root[data-theme='dark'] {
+  color-scheme: dark;
+
+  /* surface / text */
+  --rw-screen: #0f1216;
+  --rw-card: #181c22;
+  --rw-card-muted: #1f242c;
+  --rw-hairline: #2a313b;
+  --rw-text-strong: #f5f6f8;
+  --rw-text-title: #d1d6db;
+  --rw-text-body: #b0b8c1;
+  --rw-text-muted: #8b95a1;
+  --rw-text-disabled: #4e5968;
+
+  /* primary 톤은 밝기 살짝 ↑ (다크 위에서 가시성 ↑) */
+  --rw-primary: #4593fc;
+  --rw-primary-hover: #5aa3ff;
+  --rw-primary-bg: rgba(69, 147, 252, .18);
+
+  /* 그레이 스케일 일부 재정의 (카드·바 등에서 사용) */
+  --rw-gray2: #1a1f26;
+  --rw-gray5: #1d232b;
+  --rw-gray10: #232a33;
+  --rw-gray15: #2a323d;
+  --rw-gray20: #2a313b;
+  --rw-gray30: #3b4452;
+
+  /* 시야 색상은 그대로 유지 (한국 증시 컨벤션 색 영향 X) */
+  /* up = red, down = blue */
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+  background: none;
+}
+
+/* ─────────────────────────────────────────────────────────
+ * 유틸리티 클래스
+ * ───────────────────────────────────────────────────────── */
+.tf {
+  font-family: 'Tossface', 'Apple Color Emoji', sans-serif;
+  font-style: normal;
+}
+
+.logo-font {
+  font-family: 'Cafe24Ssurround', 'Pretendard', sans-serif;
+}
+
+/* 컨테이너 — PC 본문 최대폭 */
+.pc-container {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 0 var(--space-6);
+}
+
+.pc-container-wide {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 var(--space-6);
+}
+
+/* ─────────────────────────────────────────────────────────
+ * PC 표준 2-column 레이아웃 (홈 + Q&A 기준)
+ * .pc-layout       — 컨테이너 (max-width 1040 + flex)
+ * .pc-layout-main  — 좌측 메인 (flex 1)
+ * .pc-layout-side  — 우측 사이드바 (280px sticky)
+ *
+ * 사이드바 없는 페이지도 .pc-layout-main 만 써서 같은 max-width 유지.
+ * ───────────────────────────────────────────────────────── */
+.pc-layout {
+  display: flex;
+  gap: var(--space-5);
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: var(--space-3) var(--space-5) var(--space-12);
+}
+
+.pc-layout-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.pc-layout-side {
+  width: 280px;
+  flex-shrink: 0;
+  position: sticky;
+  top: 76px;
+  align-self: flex-start;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+@media (max-width: 920px) {
+  .pc-layout {
+    flex-direction: column;
+    padding-top: var(--space-3);
+    gap: var(--space-4);
+  }
+  .pc-layout-side {
+    width: 100%;
+    position: static;
+  }
+}
+
+/* 시각적으로 hidden, 스크린리더는 읽음 */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

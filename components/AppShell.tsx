@@ -2,21 +2,27 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { Swords } from 'lucide-react';
 import { getAuthNickname, syncFinanceNickname } from '@/lib/nicknames';
 import { createClient, hasSupabase } from '@/lib/supabase/client';
+import { searchInline } from '@/lib/searchInline';
+import { listRecentSearches, pushRecentSearch, clearRecentSearches } from '@/lib/recentActivity';
+import { etfPath } from '@/lib/etfs';
 import { FaIcon } from './FaIcon';
+import { Footer } from './Footer';
+import { BottomPromoBar } from './BottomPromoBar';
+import { DarkModeToggle } from './DarkModeToggle';
 import styles from './AppShell.module.css';
 
-export type AppNavKey = 'home' | 'etf' | 'topics' | 'sparring' | 'feed' | 'mission' | 'my';
+export type AppNavKey = 'home' | 'etf' | 'portfolio' | 'topics' | 'sparring' | 'feed' | 'mission' | 'my';
 
 const NAV_ITEMS: { key: AppNavKey; label: string; href: string }[] = [
   { key: 'home', label: '홈', href: '/' },
   { key: 'etf', label: 'ETF', href: '/etf' },
+  { key: 'portfolio', label: 'MY포트폴리오', href: '/portfolio' },
+  { key: 'feed', label: '피드', href: '/feed' },
   { key: 'sparring', label: '스파링', href: '/sparring' },
-  { key: 'feed', label: '아티클', href: '/feed' },
-  { key: 'mission', label: '미션', href: '#' },
 ];
 
 function getUserName(user: any) {
@@ -47,11 +53,62 @@ export function AppShell({
   const router = useRouter();
   const [user, setUser] = useState<any>(null);
   const [showProfile, setShowProfile] = useState(false);
+  const [showSearch, setShowSearch] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const profileRef = useRef<HTMLDivElement>(null);
+  const searchRef = useRef<HTMLDivElement>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
   const userName = getUserName(user);
   const userAvatar = getUserAvatar(user);
   const profileHref = user ? `/u/${user.id}` : '/auth';
   const ask = () => router.push(user ? '/?ask=1' : '/auth?next=/?ask=1');
+
+  // 검색 popup 외부 클릭 닫기
+  useEffect(() => {
+    if (!showSearch) return undefined;
+    const handler = (event: MouseEvent) => {
+      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
+        setShowSearch(false);
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [showSearch]);
+
+  const submitSearch = (event: React.FormEvent) => {
+    event.preventDefault();
+    const q = searchQuery.trim();
+    if (!q) return;
+    pushRecentSearch(q);
+    router.push(`/search?q=${encodeURIComponent(q)}`);
+    setShowSearch(false);
+    setSearchQuery('');
+  };
+
+  const openSearch = () => {
+    setShowSearch(true);
+    setTimeout(() => searchInputRef.current?.focus(), 50);
+  };
+
+  // 인라인 결과 + 최근 검색
+  const [recents, setRecents] = useState<string[]>([]);
+  const inlineHits = useMemo(() => searchInline(searchQuery, 6), [searchQuery]);
+  useEffect(() => {
+    if (showSearch) setRecents(listRecentSearches());
+  }, [showSearch]);
+
+  const goTo = (href: string, q?: string) => {
+    if (q) pushRecentSearch(q);
+    router.push(href);
+    setShowSearch(false);
+    setSearchQuery('');
+  };
+
+  const [bellNotice, setBellNotice] = useState(false);
+  const showBellNotice = () => {
+    setBellNotice(true);
+    setTimeout(() => setBellNotice(false), 2400);
+  };
 
   useEffect(() => {
     if (!hasSupabase()) {
@@ -101,7 +158,7 @@ export function AppShell({
   return (
     <div className={styles.shell}>
       <nav className={styles.pcNav}>
-        <Link className={`${styles.logo} logo-font`} href="/">재테크<em>한입</em></Link>
+        <Link className={`${styles.logo} logo-font`} href="/">ETF<em>한입</em></Link>
         <ul className={styles.pcMenu}>
           {NAV_ITEMS.map(item => (
             <li key={item.key}>
@@ -114,8 +171,130 @@ export function AppShell({
           <li><a href="#" style={{ fontSize: 13, color: 'var(--t3)' }}>전문가 신청</a></li>
         </ul>
         <div className={styles.pcRight}>
-          <button className={styles.iconBtn} aria-label="검색"><FaIcon name="magnifying-glass" size={18} /></button>
-          <button className={styles.iconBtn} aria-label="알림"><FaIcon name="bell" size={18} /></button>
+          <div className={styles.searchWrap} ref={searchRef}>
+            <button
+              className={styles.iconBtn}
+              aria-label="검색"
+              aria-expanded={showSearch}
+              type="button"
+              onClick={() => showSearch ? setShowSearch(false) : openSearch()}
+            >
+              <FaIcon name="magnifying-glass" size={18} />
+            </button>
+            {showSearch && (
+              <div className={styles.searchDropdown}>
+                <form className={styles.searchPopup} onSubmit={submitSearch} role="search">
+                  <FaIcon name="magnifying-glass" size={14} />
+                  <input
+                    ref={searchInputRef}
+                    type="search"
+                    value={searchQuery}
+                    onChange={event => setSearchQuery(event.target.value)}
+                    placeholder="질문·ETF·키워드 검색"
+                    aria-label="검색어"
+                    autoComplete="off"
+                  />
+                  {searchQuery && (
+                    <button
+                      type="button"
+                      className={styles.searchClear}
+                      onClick={() => setSearchQuery('')}
+                      aria-label="검색어 지우기"
+                    >
+                      <FaIcon name="xmark" size={12} />
+                    </button>
+                  )}
+                </form>
+
+                {/* 인라인 결과 또는 최근 검색 */}
+                {searchQuery.trim() && inlineHits.length > 0 && (
+                  <div className={styles.searchResults}>
+                    <div className={styles.searchResultsHead}>빠른 결과</div>
+                    {inlineHits.map((hit, i) => hit.kind === 'etf' ? (
+                      <button
+                        key={`etf-${hit.etf.code}`}
+                        className={styles.searchHit}
+                        type="button"
+                        onClick={() => goTo(etfPath(hit.etf.slug), searchQuery)}
+                      >
+                        <span className={styles.hitKind}>ETF</span>
+                        <span className={styles.hitTitle}>{hit.etf.shortName}</span>
+                        <span className={styles.hitMeta}>{hit.etf.code}</span>
+                      </button>
+                    ) : (
+                      <button
+                        key={`q-${hit.slug}`}
+                        className={styles.searchHit}
+                        type="button"
+                        onClick={() => goTo(`/q/${hit.slug}`, searchQuery)}
+                      >
+                        <span className={styles.hitKind}>질문</span>
+                        <span className={styles.hitTitle}>{hit.title}</span>
+                        <span className={styles.hitMeta}>{hit.category}</span>
+                      </button>
+                    ))}
+                    <button
+                      type="button"
+                      className={styles.searchAll}
+                      onClick={() => goTo(`/search?q=${encodeURIComponent(searchQuery)}`, searchQuery)}
+                    >
+                      &quot;{searchQuery}&quot; 전체 결과 보기 →
+                    </button>
+                  </div>
+                )}
+
+                {searchQuery.trim() && inlineHits.length === 0 && (
+                  <div className={styles.searchResults}>
+                    <div className={styles.searchEmpty}>
+                      바로 매칭되는 게 없어요.
+                      <button
+                        type="button"
+                        className={styles.searchAll}
+                        onClick={() => goTo(`/search?q=${encodeURIComponent(searchQuery)}`, searchQuery)}
+                      >
+                        통합 검색에서 더 찾기 →
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {!searchQuery.trim() && recents.length > 0 && (
+                  <div className={styles.searchResults}>
+                    <div className={styles.searchResultsHead}>
+                      최근 검색
+                      <button
+                        type="button"
+                        className={styles.searchClearAll}
+                        onClick={() => { clearRecentSearches(); setRecents([]); }}
+                      >
+                        지우기
+                      </button>
+                    </div>
+                    {recents.map(r => (
+                      <button
+                        key={r}
+                        type="button"
+                        className={styles.searchHit}
+                        onClick={() => goTo(`/search?q=${encodeURIComponent(r)}`, r)}
+                      >
+                        <span className={styles.hitKind}>↺</span>
+                        <span className={styles.hitTitle}>{r}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+          <DarkModeToggle />
+          <button
+            className={styles.iconBtn}
+            aria-label="알림 (준비 중)"
+            type="button"
+            onClick={showBellNotice}
+          >
+            <FaIcon name="bell" size={18} />
+          </button>
           {user ? (
             <div className={styles.profileWrap} ref={profileRef}>
               <button
@@ -157,10 +336,24 @@ export function AppShell({
 
       <header className={styles.moHeader}>
         <div className={styles.moTop}>
-          <Link className={`${styles.moLogo} logo-font`} href="/">재테크<em>한입</em></Link>
+          <Link className={`${styles.moLogo} logo-font`} href="/">ETF<em>한입</em></Link>
           <div className={styles.moIcons}>
-            <button className={styles.moIcon} aria-label="검색"><FaIcon name="magnifying-glass" size={19} /></button>
-            <button className={styles.moIcon} aria-label="알림"><FaIcon name="bell" size={19} /></button>
+            <button
+              className={styles.moIcon}
+              aria-label="검색"
+              type="button"
+              onClick={() => showSearch ? setShowSearch(false) : openSearch()}
+            >
+              <FaIcon name="magnifying-glass" size={19} />
+            </button>
+            <button
+              className={styles.moIcon}
+              aria-label="알림 (준비 중)"
+              type="button"
+              onClick={showBellNotice}
+            >
+              <FaIcon name="bell" size={19} />
+            </button>
             {user ? (
               <Link className={styles.moAvatar} href={profileHref} aria-label="내 정보">
                 {userAvatar ? (
@@ -177,6 +370,29 @@ export function AppShell({
             )}
           </div>
         </div>
+        {showSearch && (
+          <form className={styles.moSearchBar} onSubmit={submitSearch} role="search">
+            <FaIcon name="magnifying-glass" size={14} />
+            <input
+              type="search"
+              value={searchQuery}
+              onChange={event => setSearchQuery(event.target.value)}
+              placeholder="질문·ETF·키워드 검색"
+              aria-label="검색어"
+              autoFocus
+            />
+            {searchQuery && (
+              <button
+                type="button"
+                className={styles.searchClear}
+                onClick={() => setSearchQuery('')}
+                aria-label="검색어 지우기"
+              >
+                <FaIcon name="xmark" size={12} />
+              </button>
+            )}
+          </form>
+        )}
         <nav className={styles.moGnav}>
           {NAV_ITEMS.map(item => (
             <Link key={item.key} href={item.href} className={active === item.key ? styles.active : ''}>
@@ -189,6 +405,25 @@ export function AppShell({
       {!hideSlogan && <Slogan />}
       <div className={`${styles.content} ${wide ? styles.wideContent : ''}`}>{children}</div>
 
+      {bellNotice && (
+        <div className={styles.toast} role="status">
+          🔔 알림 기능은 곧 열려요. 관심 ETF 가격·답변·스파링 결과를 미리 받아볼 수 있어요.
+        </div>
+      )}
+
+      <Footer />
+
+      <BottomPromoBar />
+
+      <button
+        className={styles.moAskFab}
+        onClick={ask}
+        type="button"
+        aria-label="질문하기"
+      >
+        <FaIcon name="pen" size={20} color="#fff" />
+      </button>
+
       <nav className={styles.bottomNav}>
         <Link className={`${styles.bnav} ${active === 'home' ? styles.active : ''}`} href="/">
           <FaIcon name="house" size={21} /><span>홈</span>
@@ -196,10 +431,10 @@ export function AppShell({
         <Link className={`${styles.bnav} ${active === 'etf' ? styles.active : ''}`} href="/etf">
           <FaIcon name="chart-line" size={21} /><span>ETF</span>
         </Link>
-        <button className={`${styles.bnav} ${styles.bnavAsk}`} onClick={ask}>
-          <span className={styles.bnavAskIcon}><FaIcon name="plus" size={22} /></span>
-          <span>질문</span>
-        </button>
+        <Link className={`${styles.bnav} ${styles.bnavAsk} ${active === 'feed' ? styles.active : ''}`} href="/feed">
+          <span className={styles.bnavAskIcon}><FaIcon name="comments" size={22} /></span>
+          <span>피드</span>
+        </Link>
         <Link className={`${styles.bnav} ${active === 'sparring' ? styles.active : ''}`} href="/sparring">
           <Swords size={22} /><span>스파링</span>
         </Link>
@@ -214,7 +449,7 @@ export function AppShell({
 export function Slogan() {
   return (
     <p className={styles.slogan}>
-      <strong>질문하고 답변받는 재테크 커뮤니티</strong> · 돈 고민을 한입 크기로 쪼개서 같이 판단해요.
+      <strong>ETF 자산을 한입에 관리해요</strong> · 시장 흐름·내 포트폴리오·토론까지 한 곳에서.
     </p>
   );
 }

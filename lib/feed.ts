@@ -1,6 +1,7 @@
 import { SITE_URL } from '@/lib/seo';
 import { parseRss, stripHtml, truncateText } from '@/lib/rss';
 import type { RssEntry } from '@/lib/rss';
+import { fetchRecentReportsWithFallback, type ReportItem } from '@/lib/reports';
 
 export const FEED_PATH = '/feed';
 export const FEED_URL = `${SITE_URL}${FEED_PATH}`;
@@ -31,7 +32,53 @@ export type HanipArticle = {
   sourceName?: string;
 };
 
-export type FeedItem = { type: 'column' } & HanipArticle;
+export type FeedItem =
+  | ({ type: 'column' } & HanipArticle)
+  | ({ type: 'question' } & FeedQuestion)
+  | ({ type: 'news' } & FeedNews)
+  | ({ type: 'report' } & FeedReport);
+
+export type FeedReport = {
+  slug: string;            // = report.id
+  title: string;
+  description: string;
+  category: string;
+  publishedAt: string;
+  sourceName: string;      // 증권사·운용사 명
+  originalUrl: string;
+  thumbnailUrl?: string | null;
+  relatedEtfCodes: string[];
+  readingTime?: string;
+  tags?: string[];
+};
+
+export type FeedQuestion = {
+  slug: string;
+  title: string;
+  description: string;
+  category: string;
+  publishedAt: string;
+  authorName: string;
+  answerCount: number;
+  likeCount: number;
+  viewCount: number;
+  thumbnailUrl?: string | null;
+  readingTime?: string;
+  tags?: string[];
+};
+
+export type FeedNews = {
+  slug: string;        // 또는 newsItem id
+  title: string;
+  description: string;
+  category: string;
+  publishedAt: string;
+  sourceName: string;  // 매일경제, 한국경제 등
+  originalUrl: string;
+  thumbnailUrl?: string | null;
+  readingTime?: string;
+  tags?: string[];
+};
 
 export const hanipArticles: HanipArticle[] = [
   {
@@ -81,8 +128,102 @@ export function toFeedItems(articles: HanipArticle[] = hanipArticles): FeedItem[
 }
 
 export async function fetchFeedItems() {
-  const articles = await fetchGhostArticles();
-  return toFeedItems(articles);
+  const [articles, questions, news, reports] = await Promise.all([
+    fetchGhostArticles(),
+    fetchRecentQuestions(),
+    fetchRecentNewsItems(),
+    fetchRecentReportsWithFallback(),
+  ]);
+
+  const items: FeedItem[] = [
+    ...articles.map(a => ({ ...a, type: 'column' as const })),
+    ...questions.map(q => ({ ...q, type: 'question' as const })),
+    ...news.map(n => ({ ...n, type: 'news' as const })),
+    ...reports.map(r => reportToFeedItem(r)),
+  ];
+
+  return items.sort((a, b) => (
+    new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
+  ));
+}
+
+function reportToFeedItem(r: ReportItem): Extract<FeedItem, { type: 'report' }> {
+  return {
+    type: 'report',
+    slug: r.id,
+    title: r.title,
+    description: r.summary,
+    category: r.category,
+    publishedAt: r.publishedAt,
+    sourceName: r.source,
+    originalUrl: r.url,
+    thumbnailUrl: r.thumbnailUrl,
+    relatedEtfCodes: r.relatedEtfCodes,
+    tags: [],
+  };
+}
+
+/**
+ * Supabase에서 최근 질문 fetch.
+ * 마이그레이션 미적용/실패 시 빈 배열 안전.
+ */
+export async function fetchRecentQuestions(limit = 20): Promise<FeedQuestion[]> {
+  try {
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    if (!url || !key) return [];
+    const res = await fetch(
+      `${url}/rest/v1/questions?select=id,slug,title,body,category,created_at,answer_count,like_count,view_count,users:author_id(name)&order=created_at.desc&limit=${limit}`,
+      { headers: { apikey: key, Authorization: `Bearer ${key}` }, next: { revalidate: 60 } },
+    );
+    if (!res.ok) return [];
+    const data = await res.json();
+    return (Array.isArray(data) ? data : []).map((row: any) => ({
+      slug: row.slug || row.id,
+      title: row.title || '',
+      description: (row.body || '').slice(0, 160),
+      category: normalizeFeedCategory(row.category || '', row.title || '', row.body || ''),
+      publishedAt: row.created_at,
+      authorName: row.users?.name || '익명',
+      answerCount: row.answer_count || 0,
+      likeCount: row.like_count || 0,
+      viewCount: row.view_count || 0,
+      tags: [],
+    }));
+  } catch {
+    return [];
+  }
+}
+
+/**
+ * Supabase news_items에서 최근 뉴스 fetch.
+ * 테이블 미적용/실패 시 빈 배열 안전.
+ */
+export async function fetchRecentNewsItems(limit = 20): Promise<FeedNews[]> {
+  try {
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    if (!url || !key) return [];
+    const res = await fetch(
+      `${url}/rest/v1/news_items?select=id,source,title,summary,url,thumbnail_url,category,published_at&order=published_at.desc&limit=${limit}`,
+      { headers: { apikey: key, Authorization: `Bearer ${key}` }, next: { revalidate: 300 } },
+    );
+    if (!res.ok) return [];
+    const data = await res.json();
+    return (Array.isArray(data) ? data : []).map((row: any) => ({
+      slug: row.id,
+      title: row.title || '',
+      description: row.summary || '',
+      category: row.category || '재테크입문',
+      publishedAt: row.published_at,
+      sourceName: row.source || '뉴스',
+      originalUrl: row.url || '#',
+      thumbnailUrl: row.thumbnail_url || null,
+      tags: [],
+    }));
+  } catch {
+    return [];
+  }
 }
 
 export async function fetchGhostArticles(): Promise<HanipArticle[]> {

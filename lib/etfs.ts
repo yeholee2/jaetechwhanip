@@ -36,6 +36,16 @@ export type EtfInfo = {
   holdings: EtfHolding[];
   relatedQuestions: EtfQuestion[];
   sparringTitle: string;
+  /** 거래소 — 'KRX'(한국), 'NYSE', 'NASDAQ', 'HKEX' 등. 기본 'KRX'. */
+  market?: string;
+  /** 발행국가 — 'KR', 'US', 'HK', 'JP' 등. 기본 'KR'. */
+  country?: string;
+  /** 거래통화 — 'KRW', 'USD', 'HKD' 등. 기본 'KRW'. */
+  currency?: string;
+  /** 추종 자산 국가 — 'KR', 'US', 'CN', 'JP', 'IN', 'EU', 'GLOBAL', 'EM' 등. */
+  underlyingCountry?: string;
+  /** 추종 지수명 (예: 'KRX 바이오 TOP 10 지수', 'S&P 500 Index'). */
+  trackingIndex?: string;
 };
 
 export const ETF_HOME_PATH = '/etf';
@@ -267,6 +277,12 @@ export function etfUrl(slug: string) {
 
 export function getEtfBySlug(slug: string) {
   return etfs.find(etf => etf.slug === decodeURIComponent(slug));
+}
+
+/** ETF 종목 코드(6자리)로 ETF 찾기. */
+export function getEtfByCode(code: string | null | undefined) {
+  if (!code) return undefined;
+  return etfs.find(etf => etf.code === code);
 }
 
 export function getRelatedEtfs(currentSlug: string, limit = 3) {

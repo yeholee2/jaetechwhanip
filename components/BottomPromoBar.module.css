@@ -1,0 +1,113 @@
+.bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: var(--z-sticky);
+  background: linear-gradient(135deg, var(--rw-primary) 0%, var(--rw-blue70) 100%);
+  color: #fff;
+  box-shadow: 0 -4px 20px rgba(49, 130, 246, .25);
+  animation: slideUp .3s var(--ease-out);
+}
+
+.inner {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: var(--space-3) var(--space-5);
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.copy {
+  flex: 1;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  line-height: 1.4;
+  min-width: 0;
+}
+
+.copy strong {
+  font-size: var(--type-body);
+  font-weight: var(--weight-heavy);
+  color: #fff;
+}
+
+.copy span {
+  font-size: var(--type-caption);
+  color: rgba(255, 255, 255, .82);
+  font-weight: var(--weight-semibold);
+}
+
+.cta {
+  flex-shrink: 0;
+  height: 40px;
+  padding: 0 var(--space-5);
+  display: inline-flex;
+  align-items: center;
+  background: #fff;
+  color: var(--rw-blue70);
+  border-radius: var(--rw-radius-sm);
+  font-size: var(--type-caption);
+  font-weight: var(--weight-heavy);
+  text-decoration: none;
+  transition: background var(--duration-instant) var(--ease-in-out);
+  white-space: nowrap;
+}
+.cta:hover {
+  background: var(--rw-blue5);
+}
+
+.close {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, .15);
+  color: #fff;
+  font-size: 14px;
+  font-weight: var(--weight-bold);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  transition: background var(--duration-instant) var(--ease-in-out);
+}
+.close:hover {
+  background: rgba(255, 255, 255, .25);
+}
+
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+/* 모바일: bottomNav 위로 띄우고 더 작게 */
+@media (max-width: 768px) {
+  .bar {
+    bottom: calc(64px + var(--sb));
+  }
+  .inner {
+    padding: var(--space-2) var(--space-3);
+    gap: var(--space-2);
+  }
+  .copy strong {
+    font-size: var(--type-caption);
+  }
+  .copy span {
+    display: none; /* 모바일은 한 줄만 */
+  }
+  .cta {
+    height: 34px;
+    padding: 0 var(--space-3);
+    font-size: 12px;
+  }
+  .close {
+    width: 28px;
+    height: 28px;
+    font-size: 12px;
+  }
+}

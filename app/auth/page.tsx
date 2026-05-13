@@ -9,8 +9,8 @@ export const metadata = {
 export default function AuthPage() {
   return (
     <Suspense fallback={
-      <div style={{minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center',background:'#1a1a2e'}}>
-        <div style={{width:40,height:40,border:'3px solid rgba(255,255,255,.2)',borderTopColor:'white',borderRadius:'50%',animation:'spin .7s linear infinite'}}/>
+      <div style={{minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center',background:'var(--rw-screen)'}}>
+        <div style={{width:40,height:40,border:'3px solid var(--rw-hairline)',borderTopColor:'var(--rw-primary)',borderRadius:'50%',animation:'spin .7s linear infinite'}}/>
       </div>
     }>
       <AuthClient />

@@ -13,8 +13,21 @@ import { createQuestionSlug, ensureUniqueSlug } from '@/lib/slugs';
 import { getAuthNickname, syncFinanceNickname } from '@/lib/nicknames';
 import { useAutoTranslation } from '@/lib/useAutoTranslation';
 import { FaIcon } from './FaIcon';
+import { AppShell } from './AppShell';
+import { Chip, Badge } from '@/components/ui';
 import SparringMiniCard from './sparring/SparringMiniCard';
+import { HomeWatchWidget } from './HomeWatchWidget';
+import { HomeHero } from './HomeHero';
+import { etfs, etfPath } from '@/lib/etfs';
 import styles from './HomeClient.module.css';
+
+const HOME_INDICES = [
+  { name: '코스피', val: '7,822', chg: '+4.32%', up: true },
+  { name: 'S&P500', val: '7,398', chg: '+0.84%', up: true },
+  { name: '나스닥', val: '26,247', chg: '+1.71%', up: true },
+  { name: '원달러', val: '1,474', chg: '+0.86%', up: true },
+];
+const HOME_KEYWORDS = ['반도체', '월배당', 'AI전력', '나스닥100', 'S&P500', '커버드콜', '밸류업'];
 
 const CATS = CATEGORY_LABELS;
 const CAT_EMOJI = CATEGORY_EMOJI;
@@ -51,6 +64,15 @@ export default function HomeClient({
   const [showDropdown, setShowDropdown] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [showSearch, setShowSearch] = useState(false);
+
+  // AppShell의 검색 popup이 /?q=... 로 navigate하면 받음
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const params = new URLSearchParams(window.location.search);
+    const q = params.get('q');
+    if (q) setSearchQuery(q);
+  }, []);
+
   const [page, setPage] = useState(0);
   const [hasMore, setHasMore] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -284,58 +306,9 @@ export default function HomeClient({
   const userName = getUserName(user);
 
   return (
-    <div className={styles.app}>
-      {/* PC 네비 */}
-      <nav className={styles.pcNav}>
-        <div className={`${styles.pcLogo} logo-font`}>재테크<em>한입</em></div>
-        <ul className={styles.pcMenu}>
-          <li><Link href="/" className={styles.on}>홈</Link></li>
-          <li><Link href="/etf">ETF</Link></li>
-          <li><Link href="/sparring">스파링</Link></li>
-          <li><Link href="/feed">아티클</Link></li>
-          <li><a href="#">미션</a></li>
-          <li><div className={styles.sep}/></li>
-          <li><a href="#" style={{fontSize:13,color:'var(--t3)'}}>전문가 신청</a></li>
-        </ul>
-        <div className={styles.pcRight}>
-          <div style={{position:'relative'}}>
-            <button className={styles.iconBtn} onClick={() => { setShowSearch(v=>!v); setTimeout(()=>searchRef.current?.focus(), 50); }}>
-              <FaIcon name="magnifying-glass" size={18}/>
-            </button>
-            {showSearch && (
-              <div style={{position:'absolute',right:0,top:40,background:'white',border:'1px solid #E5E8EB',borderRadius:10,boxShadow:'0 4px 16px rgba(0,0,0,.1)',width:280,zIndex:100,display:'flex',alignItems:'center',padding:'8px 12px',gap:8}}>
-                <FaIcon name="magnifying-glass" size={14} color="#8B95A1"/>
-                <input ref={searchRef} value={searchQuery} onChange={e=>setSearchQuery(e.target.value)} placeholder="질문 검색..." style={{flex:1,border:'none',outline:'none',fontSize:14}}/>
-                {searchQuery && <button onClick={()=>setSearchQuery('')} style={{background:'none',border:'none',cursor:'pointer',padding:0,display:'flex',color:'#8B95A1'}}><FaIcon name="xmark" size={14}/></button>}
-              </div>
-            )}
-          </div>
-          <button className={styles.iconBtn} aria-label="알림" type="button"><FaIcon name="bell" size={18}/></button>
-          {user ? (
-            <div style={{position:'relative'}} ref={dropRef}>
-              <button
-                type="button"
-                style={{width:32,height:32,borderRadius:'50%',border:'none',padding:0,background:'var(--blue)',color:'white',display:'flex',alignItems:'center',justifyContent:'center',fontWeight:700,fontSize:13,cursor:'pointer'}}
-                onClick={() => setShowDropdown(v=>!v)}
-                aria-label="내 정보"
-                title={userName}
-              >
-                {userName[0]?.toUpperCase() || 'U'}
-              </button>
-              {showDropdown && (
-                <div style={{position:'absolute',right:0,top:40,background:'white',border:'1px solid #E5E8EB',borderRadius:10,boxShadow:'0 4px 16px rgba(0,0,0,.1)',minWidth:160,zIndex:100}}>
-                  <div style={{padding:'12px 14px',fontSize:13,color:'#4E5968',borderBottom:'1px solid #F2F4F6',fontWeight:600}}>{userName}</div>
-                  <button onClick={()=>router.push(`/u/${user.id}`)} style={{width:'100%',padding:'10px 14px',border:'none',background:'none',textAlign:'left',fontSize:13,color:'#191F28',cursor:'pointer'}}>내 프로필</button>
-                  <button onClick={handleSignOut} style={{width:'100%',padding:'10px 14px',border:'none',background:'none',textAlign:'left',fontSize:13,color:'#FF3B30',cursor:'pointer'}}>로그아웃</button>
-                </div>
-              )}
-            </div>
-          ) : (
-            <button className={styles.iconBtn} onClick={() => router.push('/auth')} aria-label="내 정보" title="내 정보" type="button"><FaIcon name="user" size={18}/></button>
-          )}
-          <button className={styles.btnAsk} onClick={tryAsk}>나도 질문하기</button>
-        </div>
-      </nav>
+    <AppShell active="home" wide hideSlogan>
+      {/* 정체성 hero — 비로그인은 진입 유도, 로그인은 진단 안내 */}
+      <HomeHero authed={!!user} userName={userName} />
 
       {/* PC 본문 */}
       <div className={styles.pcBody}>
@@ -353,9 +326,10 @@ export default function HomeClient({
           </div>
           <div className={styles.catRow}>
             {CATS.map(c => (
-              <button key={c} className={`${styles.ctag} ${currentCat===c?styles.on:''}`} onClick={() => setCurrentCat(c)}>
-                {CAT_EMOJI[c] && <span className="tf">{CAT_EMOJI[c]}</span>} {c === '전체' ? c : getCategoryLabel(c)}
-              </button>
+              <Chip key={c} active={currentCat === c} size="sm" onClick={() => setCurrentCat(c)}>
+                {CAT_EMOJI[c] && <span className="tf">{CAT_EMOJI[c]}</span>}
+                {c === '전체' ? c : getCategoryLabel(c)}
+              </Chip>
             ))}
           </div>
           {/* 검색창 (모바일 인라인) */}
@@ -381,38 +355,55 @@ export default function HomeClient({
           )}
         </div>
         <aside className={styles.pcSide}>
+          {/* 1. 핫 스파링 (기존) */}
           <SparringMiniCard sparring={featuredSparring} />
+
+          {/* 2. 내 관심 ETF */}
+          <HomeWatchWidget />
+
+          {/* 3. 오늘의 ETF */}
+          {etfs[0] && (
+            <Link href={etfPath(etfs[0].slug)} className={styles.sideWidget}>
+              <div className={styles.sideHead}>오늘의 ETF</div>
+              <div className={styles.etfWidgetTitle}>{etfs[0].shortName}</div>
+              <div className={styles.etfWidgetMeta}>{etfs[0].code} · {etfs[0].theme}</div>
+              <div className={styles.etfWidgetRow}>
+                <strong>{etfs[0].price}</strong>
+                <span className={etfs[0].changeTone === 'down' ? styles.sideDown : styles.sideUp}>
+                  {etfs[0].change}
+                </span>
+              </div>
+              <span className={styles.sideMore}>전체 ETF 보기 →</span>
+            </Link>
+          )}
+
+          {/* 3. 시장 지수 */}
+          <div className={styles.sideWidget}>
+            <div className={styles.sideHead}>시장 지수</div>
+            <ul className={styles.indexList}>
+              {HOME_INDICES.map(i => (
+                <li key={i.name} className={styles.indexRow}>
+                  <span className={styles.indexName}>{i.name}</span>
+                  <span className={styles.indexVal}>{i.val}</span>
+                  <span className={i.up ? styles.sideUp : styles.sideDown}>{i.chg}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* 4. 인기 키워드 */}
+          <div className={styles.sideWidget}>
+            <div className={styles.sideHead}>인기 키워드</div>
+            <div className={styles.keywordChips}>
+              {HOME_KEYWORDS.map(kw => (
+                <Link key={kw} className={styles.keywordChip} href={`/etf?q=${encodeURIComponent(kw)}`}>
+                  #{kw}
+                </Link>
+              ))}
+            </div>
+          </div>
         </aside>
       </div>
-
-      {/* 모바일 헤더 */}
-      <header className={styles.moHeader}>
-        <div className={styles.moTop}>
-          <div className={`${styles.moLogo} logo-font`}>재테크<em>한입</em></div>
-          <div className={styles.moIcons}>
-            <button className={styles.moIcon} onClick={() => { setShowSearch(v=>!v); setTimeout(()=>searchRef.current?.focus(),50); }}>
-              <FaIcon name="magnifying-glass" size={19}/>
-            </button>
-            <button className={styles.moIcon}><FaIcon name="bell" size={19}/></button>
-            <button className={styles.moIcon} onClick={() => router.push(user ? `/u/${user.id}` : '/auth')}>
-              {user
-                ? <span style={{fontSize:12,fontWeight:800,color:'var(--green)'}}>{userName[0]?.toUpperCase()}</span>
-                : <FaIcon name="user" size={19}/>}
-            </button>
-          </div>
-        </div>
-        {showSearch && (
-          <div style={{padding:'8px 16px',display:'flex',alignItems:'center',gap:8,borderBottom:'1px solid #F2F4F6',background:'white'}}>
-            <FaIcon name="magnifying-glass" size={14} color="#8B95A1"/>
-            <input ref={searchRef} value={searchQuery} onChange={e=>setSearchQuery(e.target.value)} placeholder="질문 검색..." style={{flex:1,border:'none',outline:'none',fontSize:14}}/>
-            {searchQuery && <button onClick={()=>setSearchQuery('')} style={{background:'none',border:'none',cursor:'pointer',padding:0,color:'#8B95A1'}}><FaIcon name="xmark" size={14}/></button>}
-          </div>
-        )}
-        <nav className={styles.moGnav}>
-          <Link href="/" className={styles.on}>홈</Link>
-          <Link href="/etf">ETF</Link><Link href="/sparring">스파링</Link><Link href="/feed">아티클</Link><a href="#">미션</a>
-        </nav>
-      </header>
 
       <div className={styles.moMain}>
         <div className={styles.moFeedHd}>
@@ -428,9 +419,10 @@ export default function HomeClient({
         </div>
         <div className={styles.moCat}>
           {CATS.map(c => (
-            <button key={c} className={`${styles.ctag} ${currentCat===c?styles.on:''}`} onClick={() => setCurrentCat(c)}>
-              {CAT_EMOJI[c] && <span className="tf">{CAT_EMOJI[c]}</span>} {c === '전체' ? c : getCategoryLabel(c)}
-            </button>
+            <Chip key={c} active={currentCat === c} size="sm" onClick={() => setCurrentCat(c)}>
+              {CAT_EMOJI[c] && <span className="tf">{CAT_EMOJI[c]}</span>}
+              {c === '전체' ? c : getCategoryLabel(c)}
+            </Chip>
           ))}
         </div>
         <FeedSummary
@@ -448,22 +440,10 @@ export default function HomeClient({
         )}
       </div>
 
-      <button className={styles.fab} onClick={tryAsk}><FaIcon name="plus" size={22} color="white"/></button>
-
-      <nav className={styles.bottomNav}>
-        <button className={`${styles.bnav} ${styles.on}`}><FaIcon name="house" size={21}/><span>홈</span></button>
-        <button className={styles.bnav} onClick={() => router.push('/etf')}><FaIcon name="chart-line" size={21}/><span>ETF</span></button>
-        <button className={styles.bnav} onClick={() => router.push('/sparring')}><Swords size={22}/><span>스파링</span></button>
-        <button className={styles.bnav}><FaIcon name="bell" size={21}/><span>알림</span></button>
-        <button className={styles.bnav} onClick={() => router.push(user ? `/u/${user.id}` : '/auth')} style={user?{color:'var(--green)'}:{}}>
-          <FaIcon name="user" size={21}/><span>{user ? userName[0]?.toUpperCase() || 'MY' : '로그인'}</span>
-        </button>
-      </nav>
-
       {/* 질문하기 모달 */}
       {showModal && <AskModal onClose={() => setShowModal(false)} onSubmit={submitQ} />}
       {toast && <div className={`${styles.toast} ${styles.show}`}>{toast}</div>}
-    </div>
+    </AppShell>
   );
 }
 
@@ -581,16 +561,15 @@ function FeedList({ questions, mobile, router }: { questions: Question[], mobile
             </div>
             <div className={styles.qinfo}>
               <div className={styles.qmeta}>
-                <span style={{fontSize:12,fontWeight:700}}>{getCategoryLabel(q.cat)}</span>
-                {q.topic && <span className={styles.topicBadge}>{q.topic}</span>}
-                <span style={{fontSize:10,color:'var(--t3)'}}>·</span>
-                <span style={{fontSize:12,color:'var(--t3)'}}>{q.time}</span>
-                {q.adopted && <span className={styles.adopted}>✅ 채택됨</span>}
-                {translated && <span className={styles.translatedBadge}>Translated</span>}
+                <Badge tone="neutral">{getCategoryLabel(q.cat)}</Badge>
+                {q.topic && <Badge tone="success">{q.topic}</Badge>}
+                <span style={{fontSize:12,color:'var(--rw-text-muted)'}}>{q.time}</span>
+                {q.adopted && <Badge tone="warning">✅ 채택됨</Badge>}
+                {translated && <Badge tone="primary">Translated</Badge>}
               </div>
               {q.tags && q.tags.length > 0 && (
                 <div className={styles.qtags}>
-                  {q.tags.slice(0, 3).map(tag => <span key={tag}>{tag}</span>)}
+                  {q.tags.slice(0, 3).map(tag => <span key={tag}>#{tag}</span>)}
                 </div>
               )}
               <h3 className={styles.qtitle}>

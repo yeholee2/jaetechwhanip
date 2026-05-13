@@ -6,6 +6,9 @@ import { useEffect, useMemo, useState } from 'react';
 import Countdown from '@/components/sparring/Countdown';
 import { FaIcon } from '@/components/FaIcon';
 import { createComment, getCurrentUserVote, getSideLabel, getSidePolarity, sparringPath, vote, type Sparring, type SparringComment, type SparringSide } from '@/lib/sparring';
+import { RelatedContent } from '@/components/RelatedContent';
+import { EtfCompareCard } from '@/components/sparring/EtfCompareCard';
+import { getEtfByCode, type EtfInfo } from '@/lib/etfs';
 import { createClient, hasSupabase } from '@/lib/supabase/client';
 import styles from './SparringDetail.module.css';
 
@@ -40,11 +43,13 @@ export default function SparringDetailClient({
   initialComments,
   otherActive,
   usingFallback,
+  mentionedEtfs = [],
 }: {
   sparring: Sparring;
   initialComments: SparringComment[];
   otherActive: Sparring[];
   usingFallback: boolean;
+  mentionedEtfs?: EtfInfo[];
 }) {
   const router = useRouter();
   const supabaseReady = hasSupabase();
@@ -210,6 +215,15 @@ export default function SparringDetailClient({
           </div>
         </section>
 
+        {(sparring.etf_a_code || sparring.etf_b_code) && (
+          <EtfCompareCard
+            etfA={getEtfByCode(sparring.etf_a_code || undefined)}
+            etfB={getEtfByCode(sparring.etf_b_code || undefined)}
+            sideALabel={sparring.side_a_label}
+            sideBLabel={sparring.side_b_label}
+          />
+        )}
+
         <section aria-label="토론">
           <div className={styles.commentsHead}>
             <h2>전체 토론 {formatNumber(stats.comment_count)}</h2>
@@ -298,6 +312,10 @@ export default function SparringDetailClient({
             <em>{formatNumber(item.stats.votes_total)}명 투표 중</em>
           </Link>
         ))}
+
+        {mentionedEtfs.length > 0 && (
+          <RelatedContent heading="이 스파링과 관련된 ETF" etfs={mentionedEtfs} />
+        )}
       </aside>
     </main>
   );
