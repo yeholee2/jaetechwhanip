@@ -119,7 +119,7 @@ export default async function EtfPage({
 async function DiscoverTab({ allEtfs }: { allEtfs: import('@/lib/etfs').EtfInfo[] }) {
   // 발견 탭은 핵심만. 뉴스/전략/큐레이션은 /etf/themes, /etf/news 페이지로 분리.
   return (
-    <>
+    <div className={styles.discoverStack}>
       {/* 1. 내 ETF (로그인 시 도미노 풀화면, 비로그인 시 가입 CTA) */}
       <MyEtfSection />
 
@@ -137,7 +137,7 @@ async function DiscoverTab({ allEtfs }: { allEtfs: import('@/lib/etfs').EtfInfo[
 
       {/* 6. ETF 입문 가이드 (첫 사용자용) */}
       <EtfLearnCard />
-    </>
+    </div>
   );
 }
 

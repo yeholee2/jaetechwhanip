@@ -6,6 +6,13 @@
   min-height: 100vh;
 }
 
+/* 발견 탭 — 섹션 사이 리듬 (Toss 톤 통일) */
+.discoverStack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-section-sm);
+}
+
 /* 발견 탭 — 더 보기 카드 (테마/뉴스 진입) */
 .discoverMore {
   display: grid;

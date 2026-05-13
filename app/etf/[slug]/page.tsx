@@ -577,6 +577,29 @@ export default async function EtfDetailPage({ params }: Props) {
               </section>
             )}
 
+            {/* 분배금 히스토리 — 데이터 없을 때 placeholder (분배 미확정 ETF 안내) */}
+            {distHistory.points.length === 0 && (
+              <section className={styles.section}>
+                <div className={styles.sectionHead}>
+                  <h2>분배금 히스토리</h2>
+                  <span>데이터 준비 중</span>
+                </div>
+                <div className={styles.emptyDist}>
+                  <FaIcon name="hand-holding-dollar" size={22} />
+                  <p className={styles.emptyDistTitle}>
+                    {/^없음|미확정|—|$/.test(etf.distribution || '')
+                      ? '이 ETF는 분배(배당) 이력이 없어요'
+                      : '분배금 데이터를 아직 불러올 수 없어요'}
+                  </p>
+                  <p className={styles.emptyDistBody}>
+                    {/^없음|미확정/.test(etf.distribution || '')
+                      ? '주가 상승만 노리는 무분배형 상품일 가능성이 커요. 운용사 공시에서 분배 정책을 확인해보세요.'
+                      : 'KRX 분배금 API 연동 전 단계예요. 실제 분배 이력은 운용사 공식 페이지에서 확인 가능해요.'}
+                  </p>
+                </div>
+              </section>
+            )}
+
             {/* 동종 카테고리 보수 비교 (Toss 스타일) */}
             {feeStats && (
               <section className={styles.section}>
@@ -736,45 +759,85 @@ export default async function EtfDetailPage({ params }: Props) {
               <p className={styles.sideQuickOneLiner}>{insight.oneLiner}</p>
               <div className={styles.sideQuickFacts}>
                 <div>
-                  <span>총보수</span>
-                  <strong>{etf.fee || '—'}</strong>
+                  <span className={styles.factLabel}>
+                    총보수
+                    <Tooltip label="총보수" title="총보수 (운용보수)" align="left">
+                      ETF가 매년 자동으로 떼가는 수수료. <strong>0.5% 이하면 저렴한 편</strong>이에요.
+                    </Tooltip>
+                  </span>
+                  <span className={styles.factValue}>{etf.fee || '—'}</span>
                 </div>
                 <div>
-                  <span>순자산</span>
-                  <strong>{etf.aum || '—'}</strong>
+                  <span className={styles.factLabel}>
+                    순자산
+                    <Tooltip label="순자산" title="순자산 (AUM)" align="left">
+                      이 ETF에 모인 총 자산. <strong>1조원 이상이면 대형</strong>, 100억 미만은 상장폐지 위험이 있어요.
+                    </Tooltip>
+                  </span>
+                  <span className={styles.factValue}>{etf.aum || '—'}</span>
                 </div>
                 <div>
-                  <span>위험</span>
-                  <strong style={{
-                    color: risk.tone === 'good' ? 'var(--rw-green50)' :
-                           risk.tone === 'warn' ? 'var(--rw-red60)' : 'var(--rw-text-strong)'
-                  }}>
+                  <span className={styles.factLabel}>
+                    위험
+                    <Tooltip label="위험 등급" title="위험 등급" align="left">
+                      변동성·하락 가능성·자산 종류를 종합한 5단계 등급. <strong>1등급이 가장 위험</strong>, 5등급이 가장 안전해요.
+                    </Tooltip>
+                  </span>
+                  <span
+                    className={styles.factValue}
+                    style={{
+                      color: risk.tone === 'good' ? 'var(--rw-green50)' :
+                             risk.tone === 'warn' ? 'var(--rw-red60)' : 'var(--rw-text-strong)',
+                    }}
+                  >
                     {risk.label}
-                  </strong>
+                  </span>
                 </div>
                 <div>
-                  <span>환노출</span>
-                  <strong>
+                  <span className={styles.factLabel}>
+                    환노출
+                    <Tooltip label="환노출" title="환노출" align="left">
+                      해외 자산을 담은 ETF는 환율에 영향을 받아요. <strong>환헤지(H)</strong>는 환율 영향을 차단하고, <strong>환 노출</strong>은 그대로 가져가요.
+                    </Tooltip>
+                  </span>
+                  <span className={styles.factValue}>
                     {etf.underlyingCountry === 'KR' ? '없음' : countryInfo(etf.underlyingCountry).label}
-                  </strong>
+                  </span>
                 </div>
                 <div>
-                  <span>거래량</span>
-                  <strong>{etf.volume || '—'}</strong>
+                  <span className={styles.factLabel}>
+                    거래량
+                    <Tooltip label="거래량" title="일일 거래량" align="left">
+                      하루에 거래된 주식 수. <strong>많을수록 사고팔기 쉽고 가격이 안정적</strong>이에요. 너무 적으면 호가 차이가 커져요.
+                    </Tooltip>
+                  </span>
+                  <span className={styles.factValue}>{etf.volume || '—'}</span>
                 </div>
                 <div>
-                  <span>{etfBaseDate ? '기준일' : '상장일'}</span>
-                  <strong>{etfBaseDate || etf.listedAt || '—'}</strong>
+                  <span className={styles.factLabel}>
+                    {etfBaseDate ? '기준일' : '상장일'}
+                    <Tooltip label={etfBaseDate ? '기준일' : '상장일'} title={etfBaseDate ? '기준일' : '상장일'} align="left">
+                      {etfBaseDate
+                        ? <>가격·NAV·순자산 값을 산출한 기준 날짜. 보통 <strong>최근 거래일 종가</strong> 기준이에요.</>
+                        : <>이 ETF가 거래소에 처음 상장된 날. 상장이 오래될수록 <strong>장기 성과 데이터</strong>가 쌓여 신뢰도가 올라가요.</>}
+                    </Tooltip>
+                  </span>
+                  <span className={styles.factValue}>{etfBaseDate || etf.listedAt || '—'}</span>
                 </div>
                 {etfNav && (
                   <div>
-                    <span>NAV</span>
-                    <strong>{etfNav}</strong>
+                    <span className={styles.factLabel}>
+                      NAV
+                      <Tooltip label="NAV" title="NAV (순자산가치)" align="left">
+                        ETF가 보유한 자산의 진짜 가격. <strong>현재가가 NAV보다 비싸면 고평가, 싸면 저평가</strong>로 거래되고 있다는 신호 (=괴리율).
+                      </Tooltip>
+                    </span>
+                    <span className={styles.factValue}>{etfNav}</span>
                   </div>
                 )}
                 <div>
-                  <span>운용사</span>
-                  <strong>{etf.issuer}</strong>
+                  <span className={styles.factLabel}>운용사</span>
+                  <span className={styles.factValue}>{etf.issuer}</span>
                 </div>
               </div>
             </div>

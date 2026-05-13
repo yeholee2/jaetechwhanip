@@ -79,9 +79,40 @@
   font-weight: 700;
   color: var(--t1);
   width: 42%;
+  position: relative;
 }
-.aCell { text-align: right; }
-.bCell { text-align: left; }
+.aCell {
+  text-align: right;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+}
+.bCell {
+  text-align: left;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 6px;
+}
+
+/* 유리한 쪽 강조 */
+.winnerCell {
+  color: var(--rw-primary);
+  font-weight: 900;
+}
+.winnerChip {
+  display: inline-flex;
+  align-items: center;
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: 0.2px;
+  padding: 2px 6px;
+  border-radius: 999px;
+  background: var(--rw-primary-bg);
+  color: var(--rw-primary);
+  text-transform: uppercase;
+}
 
 .labelCell {
   padding: 9px 8px;
@@ -92,6 +123,11 @@
   white-space: nowrap;
   background: var(--bg);
   letter-spacing: .2px;
+}
+.labelInner {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
 }
 
 .foot {
