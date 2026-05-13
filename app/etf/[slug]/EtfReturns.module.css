@@ -1,0 +1,152 @@
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+/* 기간별 수익률 표 */
+.tableWrap {
+  overflow-x: auto;
+}
+.table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 13px;
+  font-feature-settings: 'tnum';
+}
+.table thead th {
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--rw-text-muted);
+  letter-spacing: 0.3px;
+  padding: 8px 10px;
+  text-align: right;
+  background: var(--rw-card-muted);
+  border-bottom: 1px solid var(--rw-border);
+}
+.table thead th:first-child {
+  text-align: left;
+}
+.table tbody td {
+  padding: 12px 10px;
+  border-bottom: 1px solid var(--rw-border);
+  text-align: right;
+  font-weight: 800;
+}
+.table tbody td:first-child {
+  text-align: left;
+  color: var(--rw-text-muted);
+  font-size: 11px;
+  font-weight: 800;
+}
+.up { color: var(--rw-red60); }
+.down { color: var(--rw-blue70); }
+.neutral { color: var(--rw-text-muted); }
+
+.note {
+  font-size: 11px;
+  color: var(--rw-text-muted);
+  font-weight: 600;
+  line-height: 1.6;
+  margin: var(--space-2) 0 0;
+}
+.note strong { color: var(--rw-text-body); margin-right: 4px; font-weight: 800; }
+
+/* 수익률 계산기 */
+.calc {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  background: var(--rw-card-muted);
+  border-radius: var(--rw-radius-md);
+}
+
+@media (max-width: 600px) {
+  .calc {
+    grid-template-columns: 1fr;
+  }
+}
+
+.calcInputs {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.calcRow {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.calcRow label {
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--rw-text-muted);
+  letter-spacing: 0.2px;
+}
+
+.calcRow select,
+.calcRow input {
+  padding: 10px 12px;
+  font-size: 14px;
+  font-weight: 700;
+  border: 1px solid var(--rw-border);
+  border-radius: var(--rw-radius-sm);
+  background: var(--rw-card);
+  color: var(--rw-text-strong);
+  font-feature-settings: 'tnum';
+}
+
+.calcOutput {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  background: var(--rw-card);
+  border-radius: var(--rw-radius-sm);
+}
+
+.outRow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.outRow span {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--rw-text-muted);
+}
+
+.outValue {
+  font-size: 22px;
+  font-weight: 900;
+  color: var(--rw-text-strong);
+  letter-spacing: -0.5px;
+  font-feature-settings: 'tnum';
+}
+
+.outDelta {
+  font-size: 14px;
+  font-weight: 900;
+  font-feature-settings: 'tnum';
+}
+
+.outPrincipal {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--rw-text-body);
+  font-feature-settings: 'tnum';
+}
+
+.disclaim {
+  font-size: 11px;
+  color: var(--rw-text-muted);
+  font-weight: 600;
+  line-height: 1.55;
+  margin: var(--space-2) 0 0;
+}

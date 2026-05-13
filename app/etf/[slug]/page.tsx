@@ -30,6 +30,8 @@ import { buildDistributionHistory } from '@/lib/etfDistribution';
 import { countryInfo } from '@/lib/etfCountry';
 import { WatchButton } from '../WatchButton';
 import { AlertButton } from '../AlertButton';
+import { Suspense } from 'react';
+import { EtfReturns } from './EtfReturns';
 import { ShareButton } from '../ShareButton';
 import { RecordEtfView } from '../RecordEtfView';
 import { EtfChart } from '../EtfChart';
@@ -290,6 +292,11 @@ export default async function EtfDetailPage({ params }: Props) {
 
             {/* ──────────── 4단: 차트 ──────────── */}
             <EtfChart code={etf.code} price={etf.price} changeTone={etf.changeTone} />
+
+            {/* 기간별 수익률 + 적립식 계산기 (Yahoo) */}
+            <Suspense fallback={null}>
+              <EtfReturns code={etf.code} etfName={etf.shortName} lastUpdated={etfBaseDate} />
+            </Suspense>
 
             {/* ──────────── 5단: 보조 정보 (거래량/기준일/NAV/추종지수) ──────────── */}
             <section aria-label="보조 정보">
