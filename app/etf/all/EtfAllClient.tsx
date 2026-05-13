@@ -157,21 +157,7 @@ export function EtfAllClient({ initialEtfs }: { initialEtfs: EtfInfo[] }) {
         ))}
       </div>
 
-      {/* 정렬 */}
-      <div className={styles.sortRow}>
-        <span className={styles.sortLabel}>정렬</span>
-        {SORT_OPTIONS.map(s => (
-          <Chip
-            key={s.key}
-            active={s.key === sort}
-            subtle
-            size="sm"
-            onClick={() => setSort(s.key)}
-          >
-            {s.label}
-          </Chip>
-        ))}
-      </div>
+      {/* 정렬 chip은 표 헤더 클릭으로 통합 — 별도 행 제거 */}
 
       {/* 결과 카운터 */}
       <div className={styles.resultInfo}>
@@ -179,44 +165,70 @@ export function EtfAllClient({ initialEtfs }: { initialEtfs: EtfInfo[] }) {
         {q && <span> · "{q}" 검색</span>}
       </div>
 
-      {/* 결과 리스트 */}
-      <ul className={styles.list}>
-        {filtered.length === 0 && (
-          <li className={styles.empty}>조건에 맞는 ETF가 없어요. 검색어나 필터를 바꿔보세요.</li>
-        )}
-        {filtered.map(etf => (
-          <li key={etf.slug}>
-            <Link className={styles.item} href={etfPath(etf.slug)}>
-              <EtfLogo name={etf.shortName} size={36} />
-              <div className={styles.info}>
-                <div className={styles.itemTop}>
-                  <strong>{etf.shortName}</strong>
-                  <Badge tone="neutral">{etf.code}</Badge>
-                  {(etf.country || 'KR').toUpperCase() === 'US' && (
-                    <Badge tone="fresh">🇺🇸</Badge>
-                  )}
-                </div>
-                <div className={styles.itemMeta}>
-                  <span>{etf.issuer}</span>
-                  {etf.fee && <><span>·</span><span>보수 {etf.fee}</span></>}
-                  {etf.aum && <><span>·</span><span>{etf.aum}</span></>}
-                </div>
-                {etf.trackingIndex && (
-                  <div className={styles.itemIndex}>
-                    추종: {etf.trackingIndex}
-                  </div>
-                )}
-              </div>
-              <div className={styles.itemRight}>
-                <span className={styles.price}>{etf.price}</span>
-                <span className={etf.changeTone === 'down' ? styles.down : styles.up}>
-                  {etf.change}
-                </span>
-              </div>
-            </Link>
-          </li>
-        ))}
-      </ul>
+      {/* 결과 표 (다중 비교) */}
+      {filtered.length === 0 ? (
+        <div className={styles.empty}>조건에 맞는 ETF가 없어요. 검색어나 필터를 바꿔보세요.</div>
+      ) : (
+        <div className={styles.tableWrap}>
+          <table className={styles.table}>
+            <thead>
+              <tr>
+                <th scope="col" className={styles.colName}>
+                  <button type="button" onClick={() => setSort('name')} className={`${styles.sortBtn} ${sort === 'name' ? styles.sortBtnOn : ''}`}>
+                    종목 {sort === 'name' && '▾'}
+                  </button>
+                </th>
+                <th scope="col" className={styles.colMarket}>시장</th>
+                <th scope="col" className={styles.colPrice}>현재가</th>
+                <th scope="col" className={styles.colChange}>
+                  <button type="button" onClick={() => setSort('change')} className={`${styles.sortBtn} ${sort === 'change' ? styles.sortBtnOn : ''}`}>
+                    등락률 {sort === 'change' && '▾'}
+                  </button>
+                </th>
+                <th scope="col" className={styles.colFee}>
+                  <button type="button" onClick={() => setSort('fee')} className={`${styles.sortBtn} ${sort === 'fee' ? styles.sortBtnOn : ''}`}>
+                    총보수 {sort === 'fee' && '▾'}
+                  </button>
+                </th>
+                <th scope="col" className={styles.colAum}>
+                  <button type="button" onClick={() => setSort('aum')} className={`${styles.sortBtn} ${sort === 'aum' ? styles.sortBtnOn : ''}`}>
+                    순자산 {sort === 'aum' && '▾'}
+                  </button>
+                </th>
+                <th scope="col" className={styles.colIndex}>추종 지수</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filtered.map(etf => {
+                const isUS = (etf.country || 'KR').toUpperCase() === 'US';
+                return (
+                  <tr key={etf.slug} className={styles.row}>
+                    <td className={styles.colName}>
+                      <Link href={etfPath(etf.slug)} className={styles.nameLink}>
+                        <EtfLogo name={etf.shortName} size={28} />
+                        <span className={styles.nameMain}>
+                          <strong>{etf.shortName}</strong>
+                          <em>{etf.code} · {etf.issuer}</em>
+                        </span>
+                      </Link>
+                    </td>
+                    <td className={styles.colMarket}>
+                      {isUS ? '🇺🇸' : '🇰🇷'}
+                    </td>
+                    <td className={styles.colPrice}>{etf.price || '—'}</td>
+                    <td className={`${styles.colChange} ${etf.changeTone === 'down' ? styles.down : styles.up}`}>
+                      {etf.change || '—'}
+                    </td>
+                    <td className={styles.colFee}>{etf.fee || '—'}</td>
+                    <td className={styles.colAum}>{etf.aum || '—'}</td>
+                    <td className={styles.colIndex}>{etf.trackingIndex || '—'}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 }
