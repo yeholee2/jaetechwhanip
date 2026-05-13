@@ -74,18 +74,26 @@
   /* ─────────────────────────────────────────────────────────
    * Surface / Text (시맨틱)
    * ───────────────────────────────────────────────────────── */
-  --rw-screen: #f6f7f8;           /* 페이지 배경 (회색) */
-  --rw-card: #fff;                /* 카드 배경 */
-  --rw-card-muted: #f2f4f6;       /* 보조 회색 카드 */
-  --rw-hairline: #e5e8eb;         /* 디바이더/경계 */
-  --rw-text-strong: #191f28;      /* h1/h2 (gray90) */
-  --rw-text-title: #333d4b;       /* h3/card title (gray80) */
-  --rw-text-body: #4e5968;        /* 본문 (gray70) */
-  --rw-text-muted: #8b95a1;       /* 메타/캡션 (gray50) */
-  --rw-text-disabled: #b0b8c1;    /* 비활성 (gray40) */
-  --rw-primary: #3182f6;          /* CTA */
+  /* 토스 ETF 페이지 실제 computed CSS에서 추출한 정확 토큰 */
+  --rw-screen: #F6F7F9;                /* 페이지 배경 */
+  --rw-card: #FFFFFF;                  /* 화이트 카드 */
+  --rw-card-muted: #F9FAFB;            /* 카드 안 회색 박스 */
+  --rw-subtle-bg: rgba(2, 32, 71, 0.05); /* chip / input 배경 */
+  --rw-hairline: rgba(0, 27, 55, 0.1); /* 카드 안 구분선 */
+  --rw-border: rgba(0, 27, 55, 0.1);   /* alias */
+  --rw-text-strong: #191F28;           /* 가장 강한 (큰 숫자) */
+  --rw-text-title: #333D4B;            /* 섹션 헤딩 */
+  --rw-text-body: rgba(0, 12, 30, 0.8); /* 본문 */
+  --rw-text-meta: #4E5968;             /* 보조 */
+  --rw-text-muted: #6B7684;            /* 더 옅은 보조 */
+  --rw-text-hint: rgba(3, 24, 50, 0.46); /* 라벨 */
+  --rw-text-disabled: #8B95A1;
+  --rw-primary: #3182F6;               /* 토스 블루 */
   --rw-primary-hover: #2272eb;
-  --rw-primary-bg: #ebf3ff;       /* primary 배경 톤 */
+  --rw-primary-bg: rgba(49, 130, 246, 0.08);
+  --rw-red60: #F04452;                 /* 상승 빨강 (한국) */
+  --rw-blue70: #3182F6;                /* 하락 — 토스는 primary blue로 */
+  --rw-green50: #15C47E;               /* 차트 보조 (좋음 아이콘) */
   --rw-up: #e42939;
   --rw-down: #3182f6;
 
@@ -120,10 +128,12 @@
    * 기존 --text-* 는 호환용 alias.
    */
   /* 토스 토큰 정렬 (Toss Product Sans = Pretendard 베이스) */
-  --type-caption: 13px;   /* 메타·라벨·캡션 (토스 13px) */
-  --type-body: 15px;      /* 본문 (토스 15px) */
-  --type-title: 19px;     /* 섹션 헤드 (토스 19px) */
-  --type-display: 28px;   /* 페이지 hero h1 */
+  /* 토스 정확 사이즈 (실제 computed CSS) */
+  --type-label: 12px;     /* 작은 라벨 (line-height: 17px) */
+  --type-caption: 14px;   /* 본문·메타·등락 (line-height: 20px, ls -0.150391px) */
+  --type-body: 15px;      /* 강조 본문 */
+  --type-title: 20px;     /* 섹션 헤딩 (line-height: 29px, ls -0.449219px) */
+  --type-display: 20px;   /* 큰 가격 — 토스는 20px! (line-height: 26px) */
 
   /* 토스 line-height — 한국어 본문 1.5 ~ 1.6 */
   --leading-tight: 1.2;
