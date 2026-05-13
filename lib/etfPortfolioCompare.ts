@@ -16,8 +16,16 @@ import { buildPortfolioInsight, type WeightedHolding, type PortfolioInsight } fr
 export type SideBySide = {
   myInsight: PortfolioInsight | null;
   templateInsight: PortfolioInsight | null;
-  /** 코어 차이점 — 이건 매니저보다 좋은/나쁜 면을 가리는 짧은 평가 */
   diffSummary: string[];
+  /** 자산 갭 — 비교 시각화용 */
+  assetGap: {
+    /** 내가 갖고 있고 템플릿에도 있는 종목 (코드 매칭) */
+    overlap: { code: string; name: string; myWeight: number; tplWeight: number }[];
+    /** 내가 갖고 있는데 템플릿엔 없음 */
+    onlyMine: { code: string; name: string; myWeight: number }[];
+    /** 템플릿엔 있는데 내가 안 갖고 있음 — 추천 후보 */
+    onlyTpl: { code: string; name: string; tplWeight: number }[];
+  };
 };
 
 /**
@@ -90,5 +98,54 @@ export function buildComparison(
     diff.push(`${template.name}과 매우 유사한 성격이에요.`);
   }
 
-  return { myInsight, templateInsight, diffSummary: diff };
+  // 자산 갭 계산 — 미국 티커 기준 + 국내 대체 코드도 같이 비교
+  const myCodes = new Map<string, { name: string; weight: number }>();
+  for (const m of myWeighted) {
+    myCodes.set(m.etf.code, { name: m.etf.shortName, weight: m.weight });
+  }
+  const tplCodes = new Map<string, { name: string; weight: number }>();
+  for (const a of template.allocations) {
+    // 미국 티커 + 국내 대체 두 코드 모두 매칭 시도
+    const codes: string[] = [a.ticker];
+    if (a.krAlternative) codes.push(a.krAlternative.code);
+    for (const c of codes) {
+      const existing = tplCodes.get(c);
+      tplCodes.set(c, {
+        name: a.label,
+        weight: a.weight + (existing?.weight || 0),
+      });
+    }
+  }
+
+  const overlap: SideBySide['assetGap']['overlap'] = [];
+  const onlyMine: SideBySide['assetGap']['onlyMine'] = [];
+  const onlyTpl: SideBySide['assetGap']['onlyTpl'] = [];
+
+  const matchedTplCodes = new Set<string>();
+  for (const [code, my] of myCodes) {
+    if (tplCodes.has(code)) {
+      const tplEntry = tplCodes.get(code)!;
+      overlap.push({ code, name: my.name, myWeight: my.weight, tplWeight: tplEntry.weight });
+      matchedTplCodes.add(code);
+    } else {
+      onlyMine.push({ code, name: my.name, myWeight: my.weight });
+    }
+  }
+  for (const [code, tpl] of tplCodes) {
+    if (!matchedTplCodes.has(code)) {
+      // 같은 자산이 미국·국내 둘 다 매핑된 경우 한 번만 표시 — 가중 더 큰 쪽 우선
+      const dupe = onlyTpl.find(o => o.name === tpl.name);
+      if (!dupe) onlyTpl.push({ code, name: tpl.name, tplWeight: tpl.weight });
+    }
+  }
+  overlap.sort((a, b) => b.tplWeight - a.tplWeight);
+  onlyMine.sort((a, b) => b.myWeight - a.myWeight);
+  onlyTpl.sort((a, b) => b.tplWeight - a.tplWeight);
+
+  return {
+    myInsight,
+    templateInsight,
+    diffSummary: diff,
+    assetGap: { overlap, onlyMine, onlyTpl },
+  };
 }

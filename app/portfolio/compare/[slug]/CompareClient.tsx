@@ -207,6 +207,78 @@ export function CompareClient({ template, pool }: Props) {
           </Link>
         </div>
       </Card>
+
+      {/* 자산 갭 — 빠진 종목 / 추가 종목 */}
+      <Card pad="lg">
+        <h3 style={{ margin: '0 0 var(--space-3)', fontSize: 'var(--type-title)', fontWeight: 900, letterSpacing: '-0.3px' }}>
+          자산 갭
+        </h3>
+        <div className={styles.gapGrid}>
+          {cmp.assetGap.overlap.length > 0 && (
+            <div className={styles.gapCol}>
+              <span className={styles.gapColTitle}>
+                <em style={{ color: 'var(--rw-green50)' }}>✓ 둘 다 보유</em>
+                <strong>{cmp.assetGap.overlap.length}종</strong>
+              </span>
+              <ul className={styles.gapList}>
+                {cmp.assetGap.overlap.slice(0, 6).map(o => (
+                  <li key={o.code}>
+                    <span className={styles.gapName}>{o.name}</span>
+                    <span className={styles.gapPcts}>
+                      <em>{Math.round(o.myWeight * 100)}%</em> · <em>{Math.round(o.tplWeight * 100)}%</em>
+                    </span>
+                  </li>
+                ))}
+              </ul>
+              <span className={styles.gapHint}>내 비중 · 템플릿 비중</span>
+            </div>
+          )}
+
+          {cmp.assetGap.onlyTpl.length > 0 && (
+            <div className={styles.gapCol}>
+              <span className={styles.gapColTitle}>
+                <em style={{ color: 'var(--rw-primary)' }}>+ 빠진 종목</em>
+                <strong>{cmp.assetGap.onlyTpl.length}종</strong>
+              </span>
+              <ul className={styles.gapList}>
+                {cmp.assetGap.onlyTpl.slice(0, 6).map(o => (
+                  <li key={o.code}>
+                    <Link href={`/etf/${encodeURIComponent(o.code)}`} className={styles.gapNameLink}>
+                      {o.name}
+                    </Link>
+                    <span className={styles.gapPcts}>
+                      <em>—</em> · <em>{Math.round(o.tplWeight * 100)}%</em>
+                    </span>
+                  </li>
+                ))}
+              </ul>
+              <span className={styles.gapHint}>{template.name}에는 있는데 내 포트엔 없음</span>
+            </div>
+          )}
+
+          {cmp.assetGap.onlyMine.length > 0 && (
+            <div className={styles.gapCol}>
+              <span className={styles.gapColTitle}>
+                <em style={{ color: 'var(--rw-text-muted)' }}>· 내 포트만</em>
+                <strong>{cmp.assetGap.onlyMine.length}종</strong>
+              </span>
+              <ul className={styles.gapList}>
+                {cmp.assetGap.onlyMine.slice(0, 6).map(o => (
+                  <li key={o.code}>
+                    <Link href={`/etf/${encodeURIComponent(o.code)}`} className={styles.gapNameLink}>
+                      {o.name}
+                    </Link>
+                    <span className={styles.gapPcts}>
+                      <em>{Math.round(o.myWeight * 100)}%</em> · <em>—</em>
+                    </span>
+                  </li>
+                ))}
+              </ul>
+              <span className={styles.gapHint}>{template.name}에는 없음</span>
+            </div>
+          )}
+        </div>
+      </Card>
     </>
   );
 }
