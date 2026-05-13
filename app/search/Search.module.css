@@ -112,3 +112,35 @@
   font-weight: var(--weight-semibold);
   white-space: nowrap;
 }
+
+/* 검색 입력창 (페이지 내) */
+.searchForm {
+  display: flex;
+  gap: 8px;
+  margin-bottom: var(--space-3);
+}
+.searchInput {
+  flex: 1;
+  padding: 14px 18px;
+  font-size: 16px;
+  font-weight: 700;
+  border: 1.5px solid var(--rw-border);
+  border-radius: var(--rw-radius-md);
+  background: var(--rw-card);
+  color: var(--rw-text-strong);
+  outline: none;
+  transition: border-color 120ms ease;
+}
+.searchInput:focus { border-color: var(--rw-primary); }
+.searchBtn {
+  padding: 0 24px;
+  font-size: 14px;
+  font-weight: 900;
+  background: var(--rw-primary);
+  color: #fff;
+  border: none;
+  border-radius: var(--rw-radius-md);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.searchBtn:hover { opacity: 0.9; }

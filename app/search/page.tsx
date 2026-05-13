@@ -132,9 +132,22 @@ export default async function SearchPage({
         <PageHero
           eyebrow="통합 검색"
           title={q ? `"${q}" 검색 결과` : '무엇을 찾고 있나요?'}
-          lead={q ? `ETF·질문·스파링·뉴스·칼럼·리포트에서 총 ${totalHits}건 찾았어요.` : '상단 검색 아이콘으로 키워드를 입력하면 결과가 여기에 보여요.'}
+          lead={q ? `ETF·대가·질문·뉴스·리포트에서 총 ${totalHits}건 찾았어요.` : 'ETF·대가 포트폴리오·실시간 13F·질문까지 한 번에.'}
           aside={q && totalHits > 0 ? <Badge tone="primary">{totalHits}건</Badge> : undefined}
         />
+
+        <form action="/search" method="get" className={styles.searchForm}>
+          <input
+            type="search"
+            name="q"
+            defaultValue={q}
+            placeholder="ETF·대가 이름·종목·질문 키워드..."
+            autoFocus={!q}
+            className={styles.searchInput}
+            aria-label="검색"
+          />
+          <button type="submit" className={styles.searchBtn}>검색</button>
+        </form>
 
         {!q && (
           <Card pad="lg" className={styles.empty}>
