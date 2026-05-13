@@ -191,3 +191,53 @@
   .table thead th { padding: 6px 8px; }
   .table tbody td { padding: 10px 8px; }
 }
+
+/* 대가 전환 chips */
+.switcher {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.switcherLabel {
+  font-size: 11px;
+  font-weight: var(--weight-black);
+  color: var(--rw-text-muted);
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+}
+
+.switcherChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.switcherChip {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 12px;
+  background: var(--rw-card);
+  border: 1px solid var(--rw-border);
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: var(--weight-bold);
+  color: var(--rw-text-body);
+  text-decoration: none;
+  transition: border-color 120ms ease, color 120ms ease, background 120ms ease;
+}
+
+.switcherChip:hover {
+  border-color: var(--rw-primary);
+  color: var(--rw-primary);
+}
+
+.switcherChipOn {
+  background: var(--rw-primary);
+  color: #fff;
+  border-color: var(--rw-primary);
+}
+
+.switcherChipOn:hover {
+  color: #fff;
+}

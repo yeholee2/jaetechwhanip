@@ -15,6 +15,7 @@ type DbHolding = {
   shares?: number;
   weight: number;
   putCall?: string | null;
+  kind?: 'stock' | 'etf';
 };
 
 type DbRow = {
@@ -34,12 +35,12 @@ function dbToWhale(row: DbRow): WhalePortfolio {
   // 시드 메타(tagline, philosophy)는 유지
   const seed = getWhaleBySlug(row.manager_slug);
   const topHoldings: WhaleHolding[] = (row.holdings || []).map(h => ({
-    ticker: h.ticker || h.cusip.slice(0, 6), // ticker 없으면 cusip 앞 6자
+    ticker: h.ticker || h.cusip.slice(0, 6),
     name: h.name,
     weight: h.weight,
     valueMln: h.valueMln,
-    change: undefined, // 직전 분기 비교는 향후 (2개 분기 저장 시 가능)
-    kind: 'stock' as const,
+    change: undefined, // 직전 분기 비교는 향후 (history 테이블 도입 시)
+    kind: h.kind === 'etf' ? 'etf' : 'stock',
   }));
   return {
     slug: row.manager_slug,

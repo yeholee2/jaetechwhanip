@@ -211,29 +211,62 @@ export function AppShell({
                 {searchQuery.trim() && inlineHits.length > 0 && (
                   <div className={styles.searchResults}>
                     <div className={styles.searchResultsHead}>빠른 결과</div>
-                    {inlineHits.map((hit, i) => hit.kind === 'etf' ? (
-                      <button
-                        key={`etf-${hit.etf.code}`}
-                        className={styles.searchHit}
-                        type="button"
-                        onClick={() => goTo(etfPath(hit.etf.slug), searchQuery)}
-                      >
-                        <span className={styles.hitKind}>ETF</span>
-                        <span className={styles.hitTitle}>{hit.etf.shortName}</span>
-                        <span className={styles.hitMeta}>{hit.etf.code}</span>
-                      </button>
-                    ) : (
-                      <button
-                        key={`q-${hit.slug}`}
-                        className={styles.searchHit}
-                        type="button"
-                        onClick={() => goTo(`/q/${hit.slug}`, searchQuery)}
-                      >
-                        <span className={styles.hitKind}>질문</span>
-                        <span className={styles.hitTitle}>{hit.title}</span>
-                        <span className={styles.hitMeta}>{hit.category}</span>
-                      </button>
-                    ))}
+                    {inlineHits.map((hit, i) => {
+                      if (hit.kind === 'etf') {
+                        return (
+                          <button
+                            key={`etf-${hit.etf.code}`}
+                            className={styles.searchHit}
+                            type="button"
+                            onClick={() => goTo(etfPath(hit.etf.slug), searchQuery)}
+                          >
+                            <span className={styles.hitKind}>ETF</span>
+                            <span className={styles.hitTitle}>{hit.etf.shortName}</span>
+                            <span className={styles.hitMeta}>{hit.etf.code}</span>
+                          </button>
+                        );
+                      }
+                      if (hit.kind === 'template') {
+                        return (
+                          <button
+                            key={`tpl-${hit.slug}`}
+                            className={styles.searchHit}
+                            type="button"
+                            onClick={() => goTo(`/portfolio/templates/${hit.slug}`, searchQuery)}
+                          >
+                            <span className={styles.hitKind}>대가 모델</span>
+                            <span className={styles.hitTitle}>{hit.name}</span>
+                            <span className={styles.hitMeta}>{hit.author}</span>
+                          </button>
+                        );
+                      }
+                      if (hit.kind === 'whale') {
+                        return (
+                          <button
+                            key={`wh-${hit.slug}`}
+                            className={styles.searchHit}
+                            type="button"
+                            onClick={() => goTo(`/portfolio/whales/${hit.slug}`, searchQuery)}
+                          >
+                            <span className={styles.hitKind}>실시간 13F</span>
+                            <span className={styles.hitTitle}>{hit.manager}</span>
+                            <span className={styles.hitMeta}>{hit.fund}</span>
+                          </button>
+                        );
+                      }
+                      return (
+                        <button
+                          key={`q-${hit.slug}`}
+                          className={styles.searchHit}
+                          type="button"
+                          onClick={() => goTo(`/q/${hit.slug}`, searchQuery)}
+                        >
+                          <span className={styles.hitKind}>질문</span>
+                          <span className={styles.hitTitle}>{hit.title}</span>
+                          <span className={styles.hitMeta}>{hit.category}</span>
+                        </button>
+                      );
+                    })}
                     <button
                       type="button"
                       className={styles.searchAll}

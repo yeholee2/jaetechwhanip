@@ -10,6 +10,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { AppShell } from '@/components/AppShell';
 import { Badge } from '@/components/ui';
+import { Card } from '@/components/ui';
 import { getTemplateBySlug, PORTFOLIO_TEMPLATES } from '@/lib/portfolioTemplates';
 import { fetchEtfs } from '@/lib/etfsDb';
 import { SITE_NAME, SITE_URL } from '@/lib/seo';
@@ -60,6 +61,25 @@ export default async function ComparePage({ params }: { params: { slug: string }
             내 보유 자산이 {template.author}의 자산배분과 어떻게 다른지 한 번에 봐요.
           </p>
         </section>
+
+        {/* 다른 대가로 즉시 전환 */}
+        <Card pad="md" muted>
+          <div className={styles.switcher}>
+            <span className={styles.switcherLabel}>다른 대가와 비교하기</span>
+            <div className={styles.switcherChips}>
+              {PORTFOLIO_TEMPLATES.map(t => (
+                <Link
+                  key={t.slug}
+                  href={`/portfolio/compare/${t.slug}`}
+                  className={`${styles.switcherChip} ${t.slug === template.slug ? styles.switcherChipOn : ''}`}
+                  aria-current={t.slug === template.slug}
+                >
+                  {t.name}
+                </Link>
+              ))}
+            </div>
+          </div>
+        </Card>
 
         <CompareClient template={template} pool={pool} />
       </main>

@@ -10,6 +10,7 @@
 import { NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { fetch13FSnapshot } from '@/lib/edgar';
+import { resolveCusips } from '@/lib/cusipResolver';
 import { WHALE_PORTFOLIOS } from '@/lib/portfolioWhales';
 
 export const runtime = 'nodejs';
@@ -49,6 +50,19 @@ export async function GET(req: Request) {
         results.push({ slug: m.slug, status: 'no_filing' });
         continue;
       }
+      // CUSIP → 티커 매핑 (OpenFIGI)
+      const cusips = snap.topHoldings.map(h => h.cusip);
+      const tickerMap = await resolveCusips(cusips);
+      const enrichedHoldings = snap.topHoldings.map(h => {
+        const resolved = tickerMap.get(h.cusip);
+        return {
+          ...h,
+          ticker: resolved?.ticker || h.cusip.slice(0, 6),
+          name: resolved?.name || h.name,
+          kind: resolved?.kind || 'stock',
+        };
+      });
+
       const { error } = await admin.from('whale_filings').upsert({
         cik: snap.cik,
         manager_slug: m.slug,
@@ -58,7 +72,7 @@ export async function GET(req: Request) {
         filed_at: snap.filedAt,
         total_value_mln: snap.totalValueMln,
         position_count: snap.positionCount,
-        holdings: snap.topHoldings,
+        holdings: enrichedHoldings,
         updated_at: new Date().toISOString(),
       }, { onConflict: 'cik' });
       if (error) {
