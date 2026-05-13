@@ -25,6 +25,7 @@
   color: var(--blue);
 }
 
+/* 토스 톤 — 카드 border 거의 제거, 흰 배경 + 큰 여백으로 섹션 구분 */
 .hero,
 .priceCard,
 .summaryBox,
@@ -32,9 +33,9 @@
 .sideCard,
 .sparringCard,
 .takeaway {
-  border: 1px solid var(--rw-border);
-  border-radius: var(--rw-radius-md);
-  background: var(--rw-card);
+  border: none;
+  border-radius: 0;
+  background: transparent;
 }
 
 /* 한 줄 요약 — flat, 본문 일부처럼 */
@@ -203,26 +204,27 @@
 .layout {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 280px;
-  gap: 16px;
+  gap: 32px;
 }
 
+/* 토스 톤 — 큰 섹션 여백 (40px), 섹션 사이 hairline 분리 */
 .mainColumn {
   min-width: 0;
   display: grid;
-  gap: 12px;
+  gap: 36px;
 }
 
 .sideColumn {
   min-width: 0;
   display: grid;
   align-content: start;
-  gap: 12px;
+  gap: 16px;
   position: sticky;
   top: 76px;
 }
 
 .priceCard {
-  padding: var(--space-5) var(--space-5) var(--space-4);
+  padding: var(--space-5) 0 var(--space-3);
 }
 
 .priceHead {
@@ -653,17 +655,17 @@
   margin-top: 6px;
 }
 .priceBig {
-  font-size: 44px;
+  font-size: 56px;
   font-weight: 900;
   color: var(--rw-text-strong);
-  letter-spacing: -1.5px;
+  letter-spacing: -2.2px;
   line-height: 1;
   font-feature-settings: 'tnum';
 }
 .priceDelta {
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 900;
-  letter-spacing: -0.3px;
+  letter-spacing: -0.4px;
   font-feature-settings: 'tnum';
 }
 .delta_up { color: var(--rw-red60); }
@@ -678,8 +680,8 @@
 }
 
 @media (max-width: 600px) {
-  .priceBig { font-size: 32px; letter-spacing: -1px; }
-  .priceDelta { font-size: 15px; }
+  .priceBig { font-size: 38px; letter-spacing: -1.2px; }
+  .priceDelta { font-size: 16px; }
 }
 
 /* 위험 + 한 줄 요약 합친 카드 */

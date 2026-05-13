@@ -6,11 +6,13 @@
  * 스케일: --space-* (8pt 그리드), --text-* (1.125 modular).
  * ============================================================ */
 
-/* 토스페이스 */
+/* Toss Product Sans (공식 CDN) */
+@import url('https://static.toss.im/tps/main.css');
+@import url('https://static.toss.im/tps/others.css');
+/* Tossface (이모지) */
 @import url('https://cdn.jsdelivr.net/gh/toss/tossface/dist/tossface.css');
-/* Pretendard — Variable (토스 톤 weight 450/550/650/700/800/900 활용) + static fallback */
+/* Pretendard fallback (Toss Product Sans 누락 시) */
 @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/variable/pretendardvariable.css');
-@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
 
 @font-face {
   font-family: 'Cafe24Ssurround';
@@ -238,6 +240,7 @@ body {
    *   → 토스의 깔끔한 숫자 정렬 + 한글 변형 글리프 동일 적용
    */
   font-family:
+    'Toss Product Sans',
     'Pretendard Variable', Pretendard,
     -apple-system, BlinkMacSystemFont, system-ui,
     Roboto, 'Helvetica Neue', 'Segoe UI',
