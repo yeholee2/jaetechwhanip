@@ -243,8 +243,8 @@ export default async function EtfDetailPage({ params }: Props) {
               />
             </section>
 
-            <section className={styles.takeaway} aria-label="한입 한줄평">
-              <Badge tone="primary">한입 한줄평</Badge>
+            <section className={styles.takeaway} aria-label="한 줄 요약">
+              <Badge tone="primary">이 ETF는</Badge>
               <p>{insight.oneLiner}</p>
             </section>
 
@@ -319,7 +319,7 @@ export default async function EtfDetailPage({ params }: Props) {
 
             {etf.oneLine && (
               <section className={styles.summaryBox}>
-                <span>한입 요약</span>
+                <span>한 줄 요약</span>
                 <p>{etf.oneLine}</p>
               </section>
             )}
@@ -509,10 +509,10 @@ export default async function EtfDetailPage({ params }: Props) {
           </div>
 
           <aside className={styles.sideColumn}>
-            {/* 한 입 카드 — 한 화면에 핵심 5만 */}
+            {/* 핵심 요약 카드 — 한 화면에 5개 지표 */}
             <div className={styles.sideQuickCard}>
               <div className={styles.sideQuickHead}>
-                <span>한 입</span>
+                <span>핵심 요약</span>
                 <span className={styles.sideQuickCode}>{etf.code}</span>
               </div>
               <h3 className={styles.sideQuickTitle}>{etf.shortName}</h3>

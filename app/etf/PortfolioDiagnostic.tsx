@@ -64,7 +64,7 @@ export function PortfolioDiagnostic() {
           <Badge tone="primary">진단</Badge>
           <h2 className={styles.placeholderTitle}>로그인하면 포트폴리오 진단을 받을 수 있어요</h2>
           <p className={styles.placeholderBody}>
-            보유 ETF의 자산 배분·중복·비용 구조를 한입이 자동으로 분석해드려요.
+            보유 ETF의 자산 배분·중복·비용 구조를 자동으로 분석해드려요.
           </p>
           <Button href="/auth?next=/etf?tab=diagnostic" variant="primary" size="md">
             로그인하고 시작하기
@@ -264,7 +264,7 @@ export function PortfolioDiagnostic() {
       {insight && (
         <Card pad="lg" className={styles.section}>
           <div className={styles.sectionHead}>
-            <h3>한입 진단</h3>
+            <h3>포트폴리오 진단</h3>
             <Link
               href="/portfolio/compare/all-weather"
               style={{ fontSize: 12, color: 'var(--rw-primary)', fontWeight: 800, textDecoration: 'none' }}

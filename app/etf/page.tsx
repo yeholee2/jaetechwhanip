@@ -25,19 +25,19 @@ export const revalidate = 300;
 
 export const metadata: Metadata = {
   title: 'ETF',
-  description: 'ETF 자산을 한입에 관리하세요. 시장 지수·최신 뉴스·랭킹·전략·테마·큐레이션까지 한 페이지에서.',
+  description: 'ETF 자산을 한 화면에서. 시장 지수·최신 뉴스·랭킹·전략·테마·큐레이션까지.',
   keywords: ['ETF', '포트폴리오', 'S&P500 ETF', '나스닥100 ETF', '월배당 ETF', 'ISA ETF', SITE_NAME],
   alternates: { canonical: ETF_HOME_PATH },
   openGraph: {
     title: `ETF | ${SITE_NAME}`,
-    description: 'ETF 자산을 한입에 관리하세요.',
+    description: 'ETF 자산을 한 화면에서 관리하세요.',
     url: ETF_HOME_URL,
     type: 'website',
   },
   twitter: {
     card: 'summary',
     title: `ETF | ${SITE_NAME}`,
-    description: 'ETF 자산을 한입에 관리하세요.',
+    description: 'ETF 자산을 한 화면에서 관리하세요.',
   },
 };
 

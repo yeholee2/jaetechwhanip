@@ -27,13 +27,13 @@ export function HomeHero({ authed, userName }: Props) {
   return (
     <section className={styles.heroGuest}>
       <div className={styles.heroGuestMain}>
-        <Badge tone="primary">ETF 한입</Badge>
+        <Badge tone="primary">ETF 정보</Badge>
         <h1>
-          ETF, <em>한 입</em>씩 시작해요.
+          ETF, <em>지금</em> 사도 될까?
         </h1>
         <p>
-          한국 사람을 위한 <strong>국내 + 미국 ETF 1,066개</strong> 통합 사전.<br />
-          토스보다 깊고, 펀ETF보다 친절하게 — 매수 전에 한입씩 짚어봐요.
+          국내·미국 ETF <strong>1,066개</strong>를 한 화면에서.<br />
+          가격·보수·환노출·위험까지 정리해드려요.
         </p>
         <div className={styles.heroFacts}>
           <div>

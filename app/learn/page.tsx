@@ -62,12 +62,12 @@ function formatDate(iso?: string): string {
 
 export const metadata: Metadata = {
   title: '배우기 — ETF · 시장 · 칼럼 · Q&A',
-  description: '재테크한입의 칼럼·뉴스·리포트·질문을 한 곳에서. ETF 입문부터 시장 분석까지 한입씩 쉽게.',
+  description: '재테크한입의 칼럼·뉴스·리포트·질문을 한 곳에서. ETF 입문부터 시장 분석까지 쉽게.',
   keywords: ['ETF 배우기', '재테크 칼럼', '시장 분석', '투자 Q&A', SITE_NAME],
   alternates: { canonical: '/learn' },
   openGraph: {
     title: `배우기 | ${SITE_NAME}`,
-    description: 'ETF 입문부터 시장 분석까지 한입씩 쉽게.',
+    description: 'ETF 입문부터 시장 분석까지 한 곳에서.',
     url: `${SITE_URL}/learn`,
     type: 'website',
   },
@@ -104,7 +104,7 @@ export default async function LearnPage({
           <PageHero
             eyebrow={<Badge tone="primary">배우기</Badge>}
             title="ETF · 시장 · 칼럼 · Q&A"
-            lead="재테크한입의 모든 글을 한 곳에서. 한입씩 가볍게 읽고 깊이 들어가요."
+            lead="재테크한입의 모든 글을 한 곳에서. 가볍게 읽고, 필요하면 깊이 들어가요."
             aside={<Badge tone="neutral">{filtered.length}개</Badge>}
           />
 

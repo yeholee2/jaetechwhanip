@@ -265,7 +265,7 @@ export default async function SearchPage({
         {/* 칼럼 */}
         {articleMatches.length > 0 && (
           <section className={styles.group}>
-            <h2>한입 칼럼 <span>{articleMatches.length}</span></h2>
+            <h2>칼럼 <span>{articleMatches.length}</span></h2>
             <ul>
               {articleMatches.map(a => (
                 <li key={a.slug}>

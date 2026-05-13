@@ -113,7 +113,7 @@ export default async function FeedPage({
         <PageHero
           eyebrow="피드"
           title="질문 · 뉴스 · 리포트 · 칼럼"
-          lead="ETF 한 입에 필요한 모든 글을 한 흐름으로 모았어요."
+          lead="ETF 매수 전 필요한 글을 한 흐름으로 모았어요."
           aside={
             <>
               <Badge tone="neutral">글 {articleCount}</Badge>
@@ -220,13 +220,13 @@ function ColumnFeedCard({ item }: { item: Extract<FeedItem, { type: 'column' }> 
         <h2>{item.title}</h2>
         <p className={styles.digestLead}>{digest.oneLine}</p>
         <div className={styles.insightLine}>
-          <strong>한입 포인트</strong>
+          <strong>핵심 포인트</strong>
           <span>{digest.why}</span>
         </div>
         <div className={styles.byline}>
           <span className={styles.author}>
-            <span className={styles.avatar}>한</span>
-            <span>에디터 한입 · {formatRelativeDate(item.publishedAt)}</span>
+            <span className={styles.avatar}>E</span>
+            <span>에디터 · {formatRelativeDate(item.publishedAt)}</span>
           </span>
           <span className={styles.metrics}>
             <span><FaIcon name="heart" variant="regular" size={13} /> {metrics.likes}</span>

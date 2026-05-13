@@ -77,7 +77,7 @@ export function createFeedDigest(item: FeedItem): FeedDigest {
   const secondPoint = `${item.readingTime} 안에 질문 전에 필요한 판단 기준을 먼저 잡기 좋아요.`;
 
   return {
-    kicker: '한입 칼럼 정리',
+    kicker: '칼럼 정리',
     oneLine: firstPoint || '핵심만 먼저 보고, 자세한 내용은 원문에서 이어서 확인해요.',
     why: guide.why,
     points: [

@@ -116,7 +116,7 @@ export default function TemplateDetailPage({
         {/* 강점 · 주의 */}
         <Card pad="lg">
           <div className={styles.sectionHead}>
-            <h2>한입 평가</h2>
+            <h2>이 포트폴리오는</h2>
           </div>
           <div className={styles.takeaway}>
             <div className={styles.takeawayItem}>
