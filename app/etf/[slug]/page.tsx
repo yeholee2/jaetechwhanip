@@ -5,7 +5,7 @@ import { AppShell } from '@/components/AppShell';
 import { FaIcon } from '@/components/FaIcon';
 import { getEtfsWithMarketData } from '@/lib/etf-live-data';
 import { ETF_HOME_PATH, etfPath, etfUrl, etfs, getEtfBySlug } from '@/lib/etfs';
-import { fetchEtfs } from '@/lib/etfsDb';
+import { fetchEtfs, fetchEtfBySlug, fetchEtfByCode } from '@/lib/etfsDb';
 import { findSimilarEtfs, buildIssuerSummary } from '@/lib/etfSimilar';
 import { findTemplatesByEtfCode } from '@/lib/templateLookup';
 import { IssuerCard } from '../IssuerCard';
@@ -47,7 +47,10 @@ export function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const etf = getEtfBySlug(params.slug);
+  const decodedSlug = decodeURIComponent(params.slug);
+  const etf = getEtfBySlug(decodedSlug)
+    || await fetchEtfBySlug(decodedSlug)
+    || await fetchEtfByCode(decodedSlug);
   if (!etf) return { title: 'ETF를 찾을 수 없어요', robots: { index: false, follow: true } };
 
   const description = truncateDescription(`${etf.name}: ${etf.summary} 현재가, 순자산, 총보수, 분배금, 환헤지, 구성종목과 관련 질문을 함께 봅니다.`, 150);
@@ -74,11 +77,21 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function EtfDetailPage({ params }: Props) {
+  const decodedSlug = decodeURIComponent(params.slug);
+
+  // 1) DB 시도 (1,066 ETF 풀 — 시드에 없는 VOO 등도 매칭)
+  const dbEtfBySlug = await fetchEtfBySlug(decodedSlug);
+  const dbEtfByCode = dbEtfBySlug || await fetchEtfByCode(decodedSlug);
+
+  // 2) 시드 + 시장 라이브 (KRX 시드 8개)
   const marketEtfs = await getEtfsWithMarketData();
-  const staticEtf = getEtfBySlug(params.slug);
-  const etf = marketEtfs.find(item => item.slug === decodeURIComponent(params.slug)) || (staticEtf
-    ? { ...staticEtf, dataNotice: '공식 API 키 등록 전 예시 데이터' }
-    : null);
+  const staticEtf = getEtfBySlug(decodedSlug);
+  const liveEtf = marketEtfs.find(item => item.slug === decodedSlug);
+
+  const etf = liveEtf
+    || (staticEtf ? { ...staticEtf, dataNotice: '공식 API 키 등록 전 예시 데이터' } : null)
+    || (dbEtfByCode ? { ...dbEtfByCode, dataNotice: '실데이터' } : null);
+
   if (!etf) notFound();
 
   const etfNav = 'nav' in etf ? etf.nav : undefined;
