@@ -259,7 +259,7 @@ export default async function EtfDetailPage({ params }: Props) {
 
         <div className={styles.layout}>
           <div className={styles.mainColumn}>
-            {/* ──────────── 1단: 가격 (펀ETF/토스 톤) ──────────── */}
+            {/* ──────────── 1단: 가격 ──────────── */}
             <section className={styles.priceCard}>
               <span className={styles.priceLabel}>현재가</span>
               <div className={styles.priceRow}>
@@ -276,11 +276,21 @@ export default async function EtfDetailPage({ params }: Props) {
               </span>
             </section>
 
-            <section className={styles.takeaway} aria-label="한 줄 요약">
-              <p>{insight.oneLiner}</p>
-            </section>
+            {/* ──────────── 2단: 차트 (펀ETF/토스 표준 — 가격 직후) ──────────── */}
+            <EtfChart
+              code={etf.code}
+              price={etf.price}
+              changeTone={etf.changeTone}
+              history={priceHistory}
+              benchmark={benchHistory.length > 0 ? { name: benchName, history: benchHistory } : undefined}
+            />
 
-            {/* ──────────── 2단: 핵심 5 정보 ──────────── */}
+            {/* ──────────── 3단: 기간별 수익률 + 적립식 계산기 ──────────── */}
+            <Suspense fallback={null}>
+              <EtfReturns code={etf.code} etfName={etf.shortName} lastUpdated={etfBaseDate} history={priceHistory} />
+            </Suspense>
+
+            {/* ──────────── 4단: 핵심 5 그리드 (보수·순자산·분배·환헤지·추종지수) ──────────── */}
             <section aria-label="핵심 정보">
               <DataCell.Grid columns={4}>
                 <DataCell
@@ -307,48 +317,6 @@ export default async function EtfDetailPage({ params }: Props) {
                   tone={insight.tags.hedge?.tone === 'good' ? 'good' : insight.tags.hedge?.tone === 'warn' ? 'warn' : 'default'}
                 />
               </DataCell.Grid>
-            </section>
-
-            {/* ──────────── 3단: 위험 등급 + 투자 포인트 ──────────── */}
-            <section aria-label="위험 등급과 투자 포인트">
-              <RiskMeter
-                level={risk.level}
-                label={risk.label}
-                tone={risk.tone}
-                reasons={risk.reasons}
-                points={risk.points}
-              />
-            </section>
-
-            {/* ──────────── 4단: 차트 ──────────── */}
-            <EtfChart
-              code={etf.code}
-              price={etf.price}
-              changeTone={etf.changeTone}
-              history={priceHistory}
-              benchmark={benchHistory.length > 0 ? { name: benchName, history: benchHistory } : undefined}
-            />
-
-            {/* 기간별 수익률 + 적립식 계산기 (Yahoo) */}
-            <Suspense fallback={null}>
-              <EtfReturns code={etf.code} etfName={etf.shortName} lastUpdated={etfBaseDate} history={priceHistory} />
-            </Suspense>
-
-            {/* ──────────── 5단: 보조 정보 (거래량/기준일/NAV/추종지수) ──────────── */}
-            <section aria-label="보조 정보">
-              <DataCell.Grid columns={3}>
-                <DataCell label="거래량" value={etf.volume || '—'} sub="유동성 참고" />
-                <DataCell
-                  label={etfBaseDate ? '기준일' : '상장일'}
-                  value={etfBaseDate || etf.listedAt || '—'}
-                  sub={etfBaseDate ? '시세 기준' : '운용 기간'}
-                />
-                {etfNav ? (
-                  <DataCell label="NAV" value={etfNav} sub="공식 API 기준" />
-                ) : (
-                  <DataCell label="운용사" value={etf.issuer} sub={etf.category} />
-                )}
-              </DataCell.Grid>
               {etf.trackingIndex && (
                 <div style={{ marginTop: 'var(--space-2)' }}>
                   <DataCell
@@ -360,7 +328,17 @@ export default async function EtfDetailPage({ params }: Props) {
               )}
             </section>
 
-            {/* 한 줄 요약은 hero 아래 takeaway에 이미 표시됨 — 중복 제거 */}
+            {/* ──────────── 5단: 위험 등급 + 한 줄 요약 (합침) ──────────── */}
+            <section aria-label="위험 등급과 한 줄 요약" className={styles.riskWrap}>
+              <p className={styles.riskOneLiner}>{insight.oneLiner}</p>
+              <RiskMeter
+                level={risk.level}
+                label={risk.label}
+                tone={risk.tone}
+                reasons={risk.reasons}
+                points={risk.points}
+              />
+            </section>
 
             <EtfChat
               etf={{
@@ -613,6 +591,24 @@ export default async function EtfDetailPage({ params }: Props) {
                   <strong>
                     {etf.underlyingCountry === 'KR' ? '없음' : countryInfo(etf.underlyingCountry).label}
                   </strong>
+                </div>
+                <div>
+                  <span>거래량</span>
+                  <strong>{etf.volume || '—'}</strong>
+                </div>
+                <div>
+                  <span>{etfBaseDate ? '기준일' : '상장일'}</span>
+                  <strong>{etfBaseDate || etf.listedAt || '—'}</strong>
+                </div>
+                {etfNav && (
+                  <div>
+                    <span>NAV</span>
+                    <strong>{etfNav}</strong>
+                  </div>
+                )}
+                <div>
+                  <span>운용사</span>
+                  <strong>{etf.issuer}</strong>
                 </div>
               </div>
             </div>

@@ -681,3 +681,21 @@
   .priceBig { font-size: 32px; letter-spacing: -1px; }
   .priceDelta { font-size: 15px; }
 }
+
+/* 위험 + 한 줄 요약 합친 카드 */
+.riskWrap {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+.riskOneLiner {
+  margin: 0;
+  padding: var(--space-3) var(--space-4);
+  background: var(--rw-card-muted);
+  border-radius: var(--rw-radius-sm);
+  font-size: var(--type-body);
+  font-weight: 800;
+  color: var(--rw-text-strong);
+  line-height: 1.55;
+  letter-spacing: -0.2px;
+}
