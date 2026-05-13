@@ -4,6 +4,7 @@ import { fetchEtfs } from '@/lib/etfsDb';
 import { FEED_URL, hanipArticles } from '@/lib/feed';
 import { fetchQuestionsForSitemap, questionUrl, SITE_URL } from '@/lib/seo';
 import { TOPICS, topicUrl } from '@/lib/topics';
+import { PORTFOLIO_TEMPLATES } from '@/lib/portfolioTemplates';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
@@ -19,6 +20,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: ETF_HOME_URL, lastModified: now, changeFrequency: 'daily', priority: 0.92 },
     { url: `${SITE_URL}/etf/all`, lastModified: now, changeFrequency: 'daily', priority: 0.9 },
     { url: `${SITE_URL}/portfolio`, lastModified: now, changeFrequency: 'weekly', priority: 0.85 },
+    { url: `${SITE_URL}/portfolio/templates`, lastModified: now, changeFrequency: 'weekly', priority: 0.88 },
     { url: `${SITE_URL}/learn`, lastModified: now, changeFrequency: 'daily', priority: 0.88 },
     { url: FEED_URL, lastModified: now, changeFrequency: 'daily', priority: 0.85 },
     { url: `${SITE_URL}/sparring`, lastModified: now, changeFrequency: 'daily', priority: 0.8 },
@@ -28,6 +30,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: now,
       changeFrequency: 'daily' as const,
       priority: 0.82,
+    })),
+    // 대가 포트폴리오 템플릿 상세
+    ...PORTFOLIO_TEMPLATES.map(t => ({
+      url: `${SITE_URL}/portfolio/templates/${t.slug}`,
+      lastModified: now,
+      changeFrequency: 'weekly' as const,
+      priority: 0.85,
     })),
     // 칼럼
     ...hanipArticles.map(article => ({

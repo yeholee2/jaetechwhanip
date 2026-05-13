@@ -21,21 +21,8 @@ type Props = {
 };
 
 export function HomeHero({ authed, userName }: Props) {
-  if (authed) {
-    return (
-      <section className={styles.heroAuth}>
-        <div>
-          <span className={styles.eyebrow}>오늘 한입</span>
-          <h1>{userName || '안녕하세요'}님, 포트폴리오 진단 받으러 가실래요?</h1>
-          <p>비중·환노출·섹터 집중도 — 한입이 30초 안에 정리해드려요.</p>
-        </div>
-        <div className={styles.heroActions}>
-          <Button href="/portfolio" variant="primary" size="md">MY 포트폴리오</Button>
-          <Button href="/etf" variant="ghost" size="md">ETF 둘러보기</Button>
-        </div>
-      </section>
-    );
-  }
+  // 로그인 사용자에게는 hero 안 보임 (피드로 바로 진입, 인지부담 ↓)
+  if (authed) return null;
 
   return (
     <section className={styles.heroGuest}>

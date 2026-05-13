@@ -287,7 +287,6 @@ export function AppShell({
               </div>
             )}
           </div>
-          <DarkModeToggle />
           {user ? (
             <NotificationBell />
           ) : (
@@ -324,6 +323,10 @@ export function AppShell({
                   <Link href={profileHref} onClick={() => setShowProfile(false)} role="menuitem">
                     내 정보 보기
                   </Link>
+                  <div style={{ padding: '8px 12px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }} role="menuitem">
+                    <span style={{ fontSize: 13, color: 'var(--rw-text-body)', fontWeight: 600 }}>화면 테마</span>
+                    <DarkModeToggle />
+                  </div>
                   <button className={styles.signOut} onClick={handleSignOut} role="menuitem" type="button">
                     로그아웃
                   </button>
@@ -331,9 +334,12 @@ export function AppShell({
               )}
             </div>
           ) : (
-            <Link className={styles.iconBtn} href="/auth" aria-label="내 정보" title="내 정보">
-              <FaIcon name="user" size={18} />
-            </Link>
+            <>
+              <DarkModeToggle />
+              <Link className={styles.iconBtn} href="/auth" aria-label="내 정보" title="내 정보">
+                <FaIcon name="user" size={18} />
+              </Link>
+            </>
           )}
           <button className={styles.askBtn} onClick={ask}>나도 질문하기</button>
         </div>
