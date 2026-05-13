@@ -464,6 +464,41 @@ export default async function EtfDetailPage({ params }: Props) {
           </div>
 
           <aside className={styles.sideColumn}>
+            {/* 한 입 카드 — 한 화면에 핵심 5만 */}
+            <div className={styles.sideQuickCard}>
+              <div className={styles.sideQuickHead}>
+                <span>한 입</span>
+                <span className={styles.sideQuickCode}>{etf.code}</span>
+              </div>
+              <h3 className={styles.sideQuickTitle}>{etf.shortName}</h3>
+              <p className={styles.sideQuickOneLiner}>{insight.oneLiner}</p>
+              <div className={styles.sideQuickFacts}>
+                <div>
+                  <span>총보수</span>
+                  <strong>{etf.fee || '—'}</strong>
+                </div>
+                <div>
+                  <span>순자산</span>
+                  <strong>{etf.aum || '—'}</strong>
+                </div>
+                <div>
+                  <span>위험</span>
+                  <strong style={{
+                    color: risk.tone === 'good' ? 'var(--rw-green50)' :
+                           risk.tone === 'warn' ? 'var(--rw-red60)' : 'var(--rw-text-strong)'
+                  }}>
+                    {risk.label}
+                  </strong>
+                </div>
+                <div>
+                  <span>환노출</span>
+                  <strong>
+                    {etf.underlyingCountry === 'KR' ? '없음' : countryInfo(etf.underlyingCountry).label}
+                  </strong>
+                </div>
+              </div>
+            </div>
+
             <RelatedContent
               heading={`${etf.shortName} 관련 콘텐츠`}
               questions={relatedQs.map(q => ({ slug: q.slug, title: q.title, ans: q.ans }))}

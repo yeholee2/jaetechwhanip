@@ -17,6 +17,7 @@ import { AppShell } from './AppShell';
 import { Chip, Badge } from '@/components/ui';
 import SparringMiniCard from './sparring/SparringMiniCard';
 import { HomeWatchWidget } from './HomeWatchWidget';
+import { HomeHero } from './HomeHero';
 import { etfs, etfPath } from '@/lib/etfs';
 import styles from './HomeClient.module.css';
 
@@ -306,7 +307,8 @@ export default function HomeClient({
 
   return (
     <AppShell active="home" wide hideSlogan>
-      {/* 비로그인 환영 hero는 하단 BottomPromoBar 로 통합 (페이지 상단 중복 제거) */}
+      {/* 정체성 hero — 비로그인은 진입 유도, 로그인은 진단 안내 */}
+      <HomeHero authed={!!user} userName={userName} />
 
       {/* PC 본문 */}
       <div className={styles.pcBody}>
