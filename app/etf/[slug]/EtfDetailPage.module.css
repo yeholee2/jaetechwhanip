@@ -636,3 +636,48 @@
   color: var(--rw-text-strong);
   letter-spacing: -0.1px;
 }
+
+/* 큰 가격 헤더 (펀ETF/토스 톤) */
+.priceLabel {
+  display: block;
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--rw-text-muted);
+  letter-spacing: -0.1px;
+}
+.priceRow {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  margin-top: 6px;
+}
+.priceBig {
+  font-size: 44px;
+  font-weight: 900;
+  color: var(--rw-text-strong);
+  letter-spacing: -1.5px;
+  line-height: 1;
+  font-feature-settings: 'tnum';
+}
+.priceDelta {
+  font-size: 18px;
+  font-weight: 900;
+  letter-spacing: -0.3px;
+  font-feature-settings: 'tnum';
+}
+.delta_up { color: var(--rw-red60); }
+.delta_down { color: var(--rw-blue70); }
+.delta_flat { color: var(--rw-text-muted); }
+.priceFoot {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--rw-text-muted);
+  margin-top: var(--space-2);
+}
+
+@media (max-width: 600px) {
+  .priceBig { font-size: 32px; letter-spacing: -1px; }
+  .priceDelta { font-size: 15px; }
+}

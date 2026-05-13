@@ -91,10 +91,12 @@ export function ReturnsCalculator({ monthly }: Props) {
       </div>
 
       <div className={styles.calcOutput}>
-        <div className={styles.outRow}>
-          <span>평가액</span>
-          <strong className={styles.outValue}>{fmtKRW(sim.finalValue)}</strong>
+        {/* 큰 평가금액 박스 */}
+        <div className={styles.outHero}>
+          <span>평가금액</span>
+          <strong className={styles.outHeroValue}>{fmtKRW(sim.finalValue)}</strong>
         </div>
+        {/* 손익 + 원금 */}
         <div className={styles.outRow}>
           <span>투자손익</span>
           <span className={`${styles.outDelta} ${tone}`}>
@@ -102,7 +104,7 @@ export function ReturnsCalculator({ monthly }: Props) {
           </span>
         </div>
         <div className={styles.outRow}>
-          <span>투자원금</span>
+          <span>투자금액</span>
           <span className={styles.outPrincipal}>{fmtKRW(sim.totalCost)}</span>
         </div>
       </div>

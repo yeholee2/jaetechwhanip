@@ -28,6 +28,8 @@ type Props = {
   dateFormat?: (d: string) => string;
   yAxisTicks?: number;
   className?: string;
+  /** 보조 라인 (벤치마크 등). dash 스타일로 회색 표시. */
+  overlay?: ChartPoint[];
 };
 
 const defaultValueFormat = (n: number) => n.toLocaleString('ko-KR', { maximumFractionDigits: 0 });
@@ -48,6 +50,7 @@ export function PriceChart({
   dateFormat = defaultDateFormat,
   yAxisTicks = 4,
   className,
+  overlay,
 }: Props) {
   const wrapRef = useRef<HTMLDivElement>(null);
   const [hover, setHover] = useState<{ x: number; y: number; idx: number } | null>(null);
@@ -66,7 +69,7 @@ export function PriceChart({
     if (!data || data.length === 0) {
       return { min: 0, max: 1, niceMin: 0, niceMax: 1, ticks: [] as number[] };
     }
-    const vs = data.map(d => d.value);
+    const vs = [...data.map(d => d.value), ...(overlay?.map(o => o.value) || [])];
     let mn = Math.min(...vs);
     let mx = Math.max(...vs);
     if (mx === mn) { mx += 1; mn -= 1; }
@@ -89,7 +92,7 @@ export function PriceChart({
     const tks: number[] = [];
     for (let t = nMin; t <= nMax + 0.0001; t += step) tks.push(t);
     return { min: mn, max: mx, niceMin: nMin, niceMax: nMax, ticks: tks };
-  }, [data, yAxisTicks]);
+  }, [data, overlay, yAxisTicks]);
 
   if (!data || data.length === 0) return null;
 
@@ -159,6 +162,27 @@ export function PriceChart({
 
         {/* 영역 그라디언트 */}
         <path d={areaPath} fill={`url(#${gradId})`} stroke="none" />
+
+        {/* 벤치마크 overlay (대시 회색 라인) */}
+        {overlay && overlay.length > 1 && (() => {
+          const oPoints: [number, number][] = overlay.map((p, i) => {
+            const x = padL + (i / (overlay.length - 1)) * plotW;
+            const y = padT + ((niceMax - p.value) / (niceMax - niceMin)) * plotH;
+            return [x, y];
+          });
+          const oPath = 'M ' + oPoints.map(([x, y]) => `${x.toFixed(1)},${y.toFixed(1)}`).join(' L ');
+          return (
+            <path
+              d={oPath}
+              fill="none"
+              stroke="var(--rw-text-muted)"
+              strokeWidth={1.5}
+              strokeDasharray="5 4"
+              strokeLinejoin="round"
+              strokeLinecap="round"
+            />
+          );
+        })()}
 
         {/* 라인 */}
         <path d={linePath} fill="none" stroke={colorVar} strokeWidth={2.2} strokeLinejoin="round" strokeLinecap="round" />

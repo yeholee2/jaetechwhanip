@@ -9,6 +9,7 @@
  * - 서버에서 받아온 PricePoint[] (Yahoo max range) 그대로 사용
  */
 
+import Link from 'next/link';
 import { useMemo, useState } from 'react';
 import { PriceChart, type ChartPoint } from '@/components/ui';
 import type { PricePoint } from '@/lib/etfPriceHistory';
@@ -30,17 +31,20 @@ type Props = {
   code: string;
   price?: string;
   changeTone?: 'up' | 'down' | 'flat';
-  /** 서버에서 받아온 일별 종가 시계열 (Yahoo max). 없으면 빈 상태 */
+  /** 서버에서 받아온 일별 종가 시계열 (Yahoo max). */
   history?: PricePoint[];
+  /** 비교 벤치마크 시계열 (KOSPI 또는 S&P500) */
+  benchmark?: { name: string; history: PricePoint[] };
 };
 
-export function EtfChart({ history = [], changeTone = 'flat' }: Props) {
+export function EtfChart({ code, history = [], benchmark, changeTone = 'flat' }: Props) {
   const [periodKey, setPeriodKey] = useState<PeriodKey>('m1');
+  const [showBench, setShowBench] = useState(!!benchmark);
 
-  const { points, returnPct, tone, periodLabel } = useMemo(() => {
+  const { points, returnPct, tone, periodLabel, benchPoints, benchReturnPct } = useMemo(() => {
     const period = PERIODS.find(p => p.key === periodKey)!;
     if (history.length < 2) {
-      return { points: [] as ChartPoint[], returnPct: 0, tone: changeTone, periodLabel: period.label };
+      return { points: [] as ChartPoint[], returnPct: 0, tone: changeTone, periodLabel: period.label, benchPoints: [] as ChartPoint[], benchReturnPct: 0 };
     }
     const lastDate = new Date(history[history.length - 1].date);
 
@@ -58,7 +62,7 @@ export function EtfChart({ history = [], changeTone = 'flat' }: Props) {
 
     const sliced = history.slice(startIdx);
     if (sliced.length < 2) {
-      return { points: [], returnPct: 0, tone: changeTone, periodLabel: period.label };
+      return { points: [], returnPct: 0, tone: changeTone, periodLabel: period.label, benchPoints: [] as ChartPoint[], benchReturnPct: 0 };
     }
     const basePrice = sliced[0].close;
     const finalPrice = sliced[sliced.length - 1].close;
@@ -75,13 +79,34 @@ export function EtfChart({ history = [], changeTone = 'flat' }: Props) {
       decimated.push({ date: p.date, value: ((p.close - basePrice) / basePrice) * 100 });
     }
 
+    // 벤치마크 시계열도 같은 기간으로 슬라이스
+    let bPoints: ChartPoint[] = [];
+    let bRet = 0;
+    if (benchmark && benchmark.history.length > 1) {
+      const bSliced = benchmark.history.filter(p => {
+        const d = new Date(p.date).getTime();
+        return d >= new Date(sliced[0].date).getTime() && d <= new Date(sliced[sliced.length - 1].date).getTime();
+      });
+      if (bSliced.length > 1) {
+        const bBase = bSliced[0].close;
+        bRet = (bSliced[bSliced.length - 1].close - bBase) / bBase;
+        const bStride = Math.max(1, Math.floor(bSliced.length / 120));
+        for (let i = 0; i < bSliced.length; i += bStride) {
+          const p = bSliced[i];
+          bPoints.push({ date: p.date, value: ((p.close - bBase) / bBase) * 100 });
+        }
+      }
+    }
+
     return {
       points: decimated,
       returnPct: total,
       tone: total > 0 ? 'up' as const : total < 0 ? 'down' as const : 'flat' as const,
       periodLabel: period.label,
+      benchPoints: bPoints,
+      benchReturnPct: bRet,
     };
-  }, [history, periodKey, changeTone]);
+  }, [history, benchmark, periodKey, changeTone]);
 
   const fmtPct = (n: number) => `${n >= 0 ? '+' : ''}${n.toFixed(2)}%`;
   const fmtAxis = (n: number) => `${n >= 0 ? '+' : ''}${n.toFixed(1)}%`;
@@ -95,11 +120,16 @@ export function EtfChart({ history = [], changeTone = 'flat' }: Props) {
             <span className={styles.headSub}>{history[history.length - 1].date} 기준</span>
           )}
         </div>
-        <div className={styles.returnNow}>
-          <span className={`${styles.returnPct} ${styles[tone]}`}>
-            {points.length > 0 ? fmtPct(returnPct * 100) : '—'}
-          </span>
-          <span className={styles.returnLabel}>{periodLabel}</span>
+        <div className={styles.headRight}>
+          <Link href={`/etf/compare?a=${code}`} className={styles.compareLink}>
+            + 상품 비교
+          </Link>
+          <div className={styles.returnNow}>
+            <span className={`${styles.returnPct} ${styles[tone]}`}>
+              {points.length > 0 ? fmtPct(returnPct * 100) : '—'}
+            </span>
+            <span className={styles.returnLabel}>{periodLabel}</span>
+          </div>
         </div>
       </div>
 
@@ -119,13 +149,33 @@ export function EtfChart({ history = [], changeTone = 'flat' }: Props) {
       </div>
 
       {points.length > 1 ? (
-        <PriceChart
-          data={points}
-          tone={tone}
-          height={240}
-          valueFormat={fmtAxis}
-          yAxisTicks={5}
-        />
+        <>
+          <PriceChart
+            data={points}
+            tone={tone}
+            height={240}
+            valueFormat={fmtAxis}
+            yAxisTicks={5}
+            overlay={showBench && benchPoints.length > 1 ? benchPoints : undefined}
+          />
+          {benchmark && benchPoints.length > 1 && (
+            <div className={styles.legend}>
+              <label className={styles.legendChip}>
+                <input
+                  type="checkbox"
+                  checked={showBench}
+                  onChange={e => setShowBench(e.target.checked)}
+                />
+                <span className={styles.legendDotBench} aria-hidden="true" />
+                <span>{benchmark.name}</span>
+                <em className={`${styles.legendPct} ${benchReturnPct >= 0 ? styles.up : styles.down}`}>
+                  {benchReturnPct >= 0 ? '+' : ''}{(benchReturnPct * 100).toFixed(2)}%
+                </em>
+              </label>
+              <span className={styles.legendNote}>이 ETF와 같은 기간 누적 수익률 비교</span>
+            </div>
+          )}
+        </>
       ) : (
         <div className={styles.empty}>이 기간 데이터를 불러올 수 없어요.</div>
       )}

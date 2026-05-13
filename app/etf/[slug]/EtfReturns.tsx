@@ -73,7 +73,8 @@ export async function EtfReturns({ code, etfName, lastUpdated, history: passed }
 
         <p className={styles.note}>
           <strong>참고</strong>
-          종가 수익률은 시장 거래 가격 기준이며, 분배금은 포함되지 않습니다.
+          시장가격(종가) 기준 누적 수익률입니다. 분배금 재투자는 미반영.
+          기준가격(NAV)은 운용사 공시 데이터가 필요해 차후 제공 예정이에요.
           5년·3년 등 일부 기간은 상장일 이전이면 표시되지 않을 수 있어요.
         </p>
       </Card>

@@ -100,12 +100,17 @@ export default async function EtfDetailPage({ params }: Props) {
 
   // 분절 해소: ETF 키워드로 4페이지 + 리포트 연결 + DB 풀(유사/운용사용)
   const baseEtf = staticEtf || etf;
-  const [sparringRes, articles, reports, dbPool, priceHistory] = await Promise.all([
+  // 벤치마크: KRX 상장 → 코스피, 미국 상장 → S&P 500
+  const benchSymbol = etf.country === 'US' ? '^GSPC' : '^KS11';
+  const benchName = etf.country === 'US' ? 'S&P 500' : '코스피';
+
+  const [sparringRes, articles, reports, dbPool, priceHistory, benchHistory] = await Promise.all([
     listSparrings(),
     fetchGhostArticles(),
     fetchRecentReportsWithFallback(),
     fetchEtfs(2000),
     fetchMaxHistory(etf.code),
+    fetchMaxHistory(benchSymbol),
   ]);
   // DB 기반 유사 ETF + 같은 운용사
   const similarResults = findSimilarEtfs(etf as any, dbPool, 6);
@@ -248,16 +253,21 @@ export default async function EtfDetailPage({ params }: Props) {
 
         <div className={styles.layout}>
           <div className={styles.mainColumn}>
-            {/* ──────────── 1단: 가격 + 한줄평 ──────────── */}
+            {/* ──────────── 1단: 가격 (펀ETF/토스 톤) ──────────── */}
             <section className={styles.priceCard}>
-              <Stat
-                label="현재가"
-                value={etf.price || '—'}
-                delta={etf.change}
-                tone={etf.changeTone}
-                size="xl"
-                foot={etf.dataNotice}
-              />
+              <span className={styles.priceLabel}>현재가</span>
+              <div className={styles.priceRow}>
+                <strong className={styles.priceBig}>{etf.price || '—'}</strong>
+                {etf.change && (
+                  <span className={`${styles.priceDelta} ${styles[`delta_${etf.changeTone}`]}`}>
+                    {etf.change}
+                  </span>
+                )}
+              </div>
+              <span className={styles.priceFoot}>
+                {etfBaseDate ? `${etfBaseDate} 기준` : etf.dataNotice}
+                {etfNav && ` · NAV ${etfNav}`}
+              </span>
             </section>
 
             <section className={styles.takeaway} aria-label="한 줄 요약">
@@ -305,7 +315,13 @@ export default async function EtfDetailPage({ params }: Props) {
             </section>
 
             {/* ──────────── 4단: 차트 ──────────── */}
-            <EtfChart code={etf.code} price={etf.price} changeTone={etf.changeTone} history={priceHistory} />
+            <EtfChart
+              code={etf.code}
+              price={etf.price}
+              changeTone={etf.changeTone}
+              history={priceHistory}
+              benchmark={benchHistory.length > 0 ? { name: benchName, history: benchHistory } : undefined}
+            />
 
             {/* 기간별 수익률 + 적립식 계산기 (Yahoo) */}
             <Suspense fallback={null}>
