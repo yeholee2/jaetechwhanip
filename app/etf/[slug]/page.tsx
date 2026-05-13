@@ -28,6 +28,7 @@ import { buildEtfRisk } from '@/lib/etfRisk';
 import { buildDistributionHistory } from '@/lib/etfDistribution';
 import { countryInfo } from '@/lib/etfCountry';
 import { WatchButton } from '../WatchButton';
+import { AlertButton } from '../AlertButton';
 import { ShareButton } from '../ShareButton';
 import { RecordEtfView } from '../RecordEtfView';
 import { EtfChart } from '../EtfChart';
@@ -219,6 +220,7 @@ export default async function EtfDetailPage({ params }: Props) {
           </div>
           <div className={styles.actions}>
             <WatchButton code={etf.code} shortName={etf.shortName} mode="icon" />
+            <AlertButton etfCode={etf.code} etfName={etf.shortName} currentPrice={etf.price} />
             <Button href={`/etf/compare?a=${etf.code}`} variant="ghost" size="md">비교</Button>
             <Button href="/?ask=1" variant="primary" size="md">질문하기</Button>
           </div>

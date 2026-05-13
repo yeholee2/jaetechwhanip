@@ -13,6 +13,7 @@ import { FaIcon } from './FaIcon';
 import { Footer } from './Footer';
 import { BottomPromoBar } from './BottomPromoBar';
 import { DarkModeToggle } from './DarkModeToggle';
+import { NotificationBell } from './NotificationBell';
 import styles from './AppShell.module.css';
 
 export type AppNavKey = 'home' | 'etf' | 'portfolio' | 'topics' | 'sparring' | 'feed' | 'mission' | 'my';
@@ -287,14 +288,18 @@ export function AppShell({
             )}
           </div>
           <DarkModeToggle />
-          <button
-            className={styles.iconBtn}
-            aria-label="알림 (준비 중)"
-            type="button"
-            onClick={showBellNotice}
-          >
-            <FaIcon name="bell" size={18} />
-          </button>
+          {user ? (
+            <NotificationBell />
+          ) : (
+            <button
+              className={styles.iconBtn}
+              aria-label="알림 (로그인 필요)"
+              type="button"
+              onClick={showBellNotice}
+            >
+              <FaIcon name="bell" size={18} />
+            </button>
+          )}
           {user ? (
             <div className={styles.profileWrap} ref={profileRef}>
               <button
@@ -346,14 +351,18 @@ export function AppShell({
             >
               <FaIcon name="magnifying-glass" size={19} />
             </button>
-            <button
-              className={styles.moIcon}
-              aria-label="알림 (준비 중)"
-              type="button"
-              onClick={showBellNotice}
-            >
-              <FaIcon name="bell" size={19} />
-            </button>
+            {user ? (
+              <NotificationBell />
+            ) : (
+              <button
+                className={styles.moIcon}
+                aria-label="알림 (로그인 필요)"
+                type="button"
+                onClick={showBellNotice}
+              >
+                <FaIcon name="bell" size={19} />
+              </button>
+            )}
             {user ? (
               <Link className={styles.moAvatar} href={profileHref} aria-label="내 정보">
                 {userAvatar ? (
