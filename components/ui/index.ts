@@ -37,3 +37,4 @@ export type { BarPoint } from './MiniBarChart';
 
 export { Stat } from './Stat';
 export { DataCell } from './DataCell';
+export { Tooltip } from './Tooltip';

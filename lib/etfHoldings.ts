@@ -23,6 +23,12 @@ export type SectorWeight = {
 export type EtfHoldingsData = {
   holdings: HoldingItem[];
   sectors: SectorWeight[];
+  /** 운용보수 (예: 0.0007 = 0.07%) */
+  expenseRatio?: number;
+  /** 배당수익률 (예: 0.0123 = 1.23%) */
+  dividendYield?: number;
+  /** AUM (총 자산, USD) */
+  totalAssets?: number;
 };
 
 const UA = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 14_0) AppleWebKit/605.1.15';
@@ -68,7 +74,9 @@ export async function fetchEtfHoldings(code: string): Promise<EtfHoldingsData | 
   const auth = await getCrumbAndCookie();
   if (!auth) return null;
   const symbol = toYahooSymbol(code);
-  const url = `https://query1.finance.yahoo.com/v10/finance/quoteSummary/${encodeURIComponent(symbol)}?modules=topHoldings&crumb=${encodeURIComponent(auth.crumb)}`;
+  // 여러 모듈 한 번에 (topHoldings + fundProfile + summaryDetail + defaultKeyStatistics)
+  const modules = 'topHoldings,fundProfile,summaryDetail,defaultKeyStatistics';
+  const url = `https://query1.finance.yahoo.com/v10/finance/quoteSummary/${encodeURIComponent(symbol)}?modules=${modules}&crumb=${encodeURIComponent(auth.crumb)}`;
   try {
     const r = await fetch(url, {
       headers: { 'User-Agent': UA, Cookie: auth.cookie },
@@ -76,9 +84,14 @@ export async function fetchEtfHoldings(code: string): Promise<EtfHoldingsData | 
     });
     if (!r.ok) return null;
     const j = await r.json();
-    const th = j?.quoteSummary?.result?.[0]?.topHoldings;
-    if (!th) return null;
-    const holdings: HoldingItem[] = (th.holdings || [])
+    const result = j?.quoteSummary?.result?.[0];
+    if (!result) return null;
+    const th = result.topHoldings;
+    const fp = result.fundProfile;
+    const sd = result.summaryDetail;
+    const dks = result.defaultKeyStatistics;
+    if (!th && !fp && !sd) return null;
+    const holdings: HoldingItem[] = (th?.holdings || [])
       .filter((h: any) => h.holdingPercent?.raw != null)
       .map((h: any) => ({
         symbol: h.symbol || '',
@@ -86,7 +99,7 @@ export async function fetchEtfHoldings(code: string): Promise<EtfHoldingsData | 
         weight: h.holdingPercent.raw,
       }))
       .slice(0, 10);
-    const sectors: SectorWeight[] = (th.sectorWeightings || [])
+    const sectors: SectorWeight[] = (th?.sectorWeightings || [])
       .map((s: any) => {
         const entries = Object.entries(s as Record<string, any>);
         const [name, val] = entries[0] || ['', {}];
@@ -94,7 +107,23 @@ export async function fetchEtfHoldings(code: string): Promise<EtfHoldingsData | 
         return { sector: prettySector(name), weight: typeof weight === 'number' ? weight : 0 };
       })
       .filter((s: SectorWeight) => s.weight > 0);
-    return { holdings, sectors };
+
+    // 운용보수 — fundProfile.feesExpensesInvestment.annualReportExpenseRatio
+    const expenseRatio = fp?.feesExpensesInvestment?.annualReportExpenseRatio?.raw
+      ?? sd?.netExpenseRatio?.raw
+      ?? undefined;
+
+    // 배당수익률
+    const dividendYield = sd?.yield?.raw
+      ?? sd?.dividendYield?.raw
+      ?? undefined;
+
+    // 총 자산
+    const totalAssets = sd?.totalAssets?.raw
+      ?? dks?.totalAssets?.raw
+      ?? undefined;
+
+    return { holdings, sectors, expenseRatio, dividendYield, totalAssets };
   } catch {
     return null;
   }

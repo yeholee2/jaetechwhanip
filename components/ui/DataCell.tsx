@@ -12,6 +12,7 @@
  */
 
 import styles from './DataCell.module.css';
+import { Tooltip } from './Tooltip';
 
 type Tone = 'default' | 'good' | 'warn' | 'info';
 
@@ -21,6 +22,8 @@ type Props = {
   sub?: React.ReactNode;
   tone?: Tone;
   className?: string;
+  /** 라벨 옆 i 아이콘에 띄울 툴팁 본문 */
+  help?: React.ReactNode;
 };
 
 const TONE_CLASS: Record<Tone, string> = {
@@ -30,10 +33,17 @@ const TONE_CLASS: Record<Tone, string> = {
   info: styles.toneInfo,
 };
 
-function DataCellRoot({ label, value, sub, tone = 'default', className }: Props) {
+function DataCellRoot({ label, value, sub, tone = 'default', className, help }: Props) {
   return (
     <div className={`${styles.cell} ${className || ''}`}>
-      <span className={styles.label}>{label}</span>
+      <span className={styles.label}>
+        {label}
+        {help && (
+          <Tooltip label={typeof label === 'string' ? label : '도움말'}>
+            {help}
+          </Tooltip>
+        )}
+      </span>
       <span className={`${styles.value} ${TONE_CLASS[tone]}`}>{value}</span>
       {sub && <span className={styles.sub}>{sub}</span>}
     </div>

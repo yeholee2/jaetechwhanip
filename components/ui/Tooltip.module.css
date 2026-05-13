@@ -1,0 +1,81 @@
+.wrap {
+  display: inline-flex;
+  align-items: center;
+  position: relative;
+}
+
+.trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  margin-left: 4px;
+  border-radius: 50%;
+  background: var(--rw-subtle-bg, rgba(2, 32, 71, 0.05));
+  color: var(--rw-text-hint, rgba(3, 24, 50, 0.46));
+  font-size: 10px;
+  font-weight: 800;
+  cursor: help;
+  border: none;
+  padding: 0;
+  line-height: 1;
+  user-select: none;
+}
+
+.trigger:hover {
+  background: rgba(2, 32, 71, 0.1);
+  color: var(--rw-text-body);
+}
+
+.bubble {
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: #191F28;
+  color: #fff;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.5;
+  white-space: normal;
+  width: max-content;
+  max-width: 240px;
+  text-align: left;
+  letter-spacing: -0.1px;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 120ms ease, visibility 120ms ease;
+  z-index: 100;
+}
+
+.bubble::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-top-color: #191F28;
+}
+
+.wrap:hover .bubble,
+.wrap:focus-within .bubble {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* 좌측 정렬 (i 아이콘이 컬럼 우측에 있을 때 — 오른쪽 끝 절단 방지) */
+.bubbleLeft {
+  left: auto;
+  right: 0;
+  transform: none;
+}
+.bubbleLeft::after {
+  left: auto;
+  right: 6px;
+  transform: none;
+}

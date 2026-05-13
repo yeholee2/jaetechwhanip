@@ -293,29 +293,76 @@ export default async function EtfDetailPage({ params }: Props) {
             {/* ──────────── 4단: 핵심 5 그리드 (보수·순자산·분배·환헤지·추종지수) ──────────── */}
             <section aria-label="핵심 정보">
               <DataCell.Grid columns={4}>
-                <DataCell
-                  label="총보수"
-                  value={etf.fee || '—'}
-                  sub={insight.tags.fee?.label}
-                  tone={insight.tags.fee?.tone === 'good' ? 'good' : insight.tags.fee?.tone === 'warn' ? 'warn' : 'default'}
-                />
-                <DataCell
-                  label="순자산"
-                  value={etf.aum || '—'}
-                  sub={insight.tags.aum?.label}
-                  tone={insight.tags.aum?.tone === 'good' ? 'good' : insight.tags.aum?.tone === 'warn' ? 'warn' : 'default'}
-                />
-                <DataCell
-                  label="분배"
-                  value={etf.distribution || '—'}
-                  sub={insight.tags.distribution?.label}
-                />
-                <DataCell
-                  label="환헤지"
-                  value={etf.hedge || '—'}
-                  sub={insight.tags.hedge?.label}
-                  tone={insight.tags.hedge?.tone === 'good' ? 'good' : insight.tags.hedge?.tone === 'warn' ? 'warn' : 'default'}
-                />
+                {(() => {
+                  // 라이브 운용보수 (Yahoo) → 시드 fallback
+                  const liveFee = liveHoldings?.expenseRatio;
+                  const feeValue = liveFee != null
+                    ? `연 ${(liveFee * 100).toFixed(2)}%`
+                    : (etf.fee || '운용사 공시 확인');
+                  const liveYield = liveHoldings?.dividendYield;
+                  const distValue = liveYield != null
+                    ? `연 ${(liveYield * 100).toFixed(2)}%`
+                    : (etf.distribution || '분배 미확정');
+                  return (
+                    <>
+                      <DataCell
+                        label="총보수"
+                        value={feeValue}
+                        sub={liveFee != null
+                          ? (liveFee <= 0.005 ? '아주 낮음' : liveFee <= 0.01 ? '낮은 편' : liveFee <= 0.005 ? '평균' : '높은 편')
+                          : insight.tags.fee?.label || '데이터 준비 중'}
+                        tone={liveFee != null
+                          ? (liveFee <= 0.005 ? 'good' : liveFee <= 0.015 ? 'default' : 'warn')
+                          : (insight.tags.fee?.tone === 'good' ? 'good' : insight.tags.fee?.tone === 'warn' ? 'warn' : 'default')}
+                        help={
+                          <>
+                            운용사가 받는 연간 수수료. <strong>1년 운용 시 자동 차감</strong>됩니다.
+                            <br /><br />
+                            기준: <strong>0.5% 이하 = 낮음</strong> · 1% 이상 = 높음 (한국 ETF 평균 ~0.3%)
+                          </>
+                        }
+                      />
+                      <DataCell
+                        label="순자산"
+                        value={etf.aum || '—'}
+                        sub={insight.tags.aum?.label}
+                        tone={insight.tags.aum?.tone === 'good' ? 'good' : insight.tags.aum?.tone === 'warn' ? 'warn' : 'default'}
+                        help={
+                          <>
+                            ETF에 모인 총 운용 자산. <strong>클수록 유동성·안정성 ↑</strong>.
+                            <br /><br />
+                            기준: <strong>1조원+ 대형</strong> · 100억 미만은 상장폐지 위험.
+                          </>
+                        }
+                      />
+                      <DataCell
+                        label={liveYield != null ? '분배수익률' : '분배'}
+                        value={distValue}
+                        sub={insight.tags.distribution?.label}
+                        help={
+                          <>
+                            ETF가 보유 종목 배당을 모아 투자자에게 지급하는 비율.
+                            <br /><br />
+                            <strong>높다고 무조건 좋은 건 아님</strong> — 분배금만큼 NAV가 빠지고, 15.4% 배당소득세 부담.
+                          </>
+                        }
+                      />
+                      <DataCell
+                        label="환헤지"
+                        value={etf.hedge || (etf.country === 'US' ? '환 노출' : '원화')}
+                        sub={insight.tags.hedge?.label}
+                        tone={insight.tags.hedge?.tone === 'good' ? 'good' : insight.tags.hedge?.tone === 'warn' ? 'warn' : 'default'}
+                        help={
+                          <>
+                            <strong>환헤지(H)</strong> — 달러 변동을 차단해 순수 자산 수익만 가져감.
+                            <br />
+                            <strong>환 노출</strong> — 달러 가격 변동이 손익에 추가로 영향.
+                          </>
+                        }
+                      />
+                    </>
+                  );
+                })()}
               </DataCell.Grid>
               {etf.trackingIndex && (
                 <div style={{ marginTop: 'var(--space-2)' }}>

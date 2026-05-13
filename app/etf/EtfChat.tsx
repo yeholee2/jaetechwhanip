@@ -22,10 +22,11 @@ type EtfChatContext = {
 };
 
 const SUGGESTIONS = [
-  '이 ETF 처음 사도 괜찮을까요?',
-  '월배당 ETF인가요? 분배 주기를 알려주세요.',
-  '비슷한 ETF가 있다면 추천해주세요.',
-  '세금은 어떻게 매겨지나요?',
+  '내 포트폴리오에 이 ETF가 어울릴까요?',
+  '한 줄로 이 ETF가 뭔지 설명해주세요.',
+  '비슷한데 보수가 더 낮은 ETF 알려주세요.',
+  '지금 사기 좋은 타이밍인가요?',
+  '세금·환전 비용은 어떻게 나오나요?',
 ];
 
 export function EtfChat({ etf }: { etf: EtfChatContext }) {
@@ -77,8 +78,8 @@ export function EtfChat({ etf }: { etf: EtfChatContext }) {
         <span className={styles.toggleLeft}>
           <span className={`${styles.aiIcon} tf`} aria-hidden="true">🤖</span>
           <div>
-            <strong>이 ETF에 대해 AI에게 물어보기</strong>
-            <span>{etf.name} 컨텍스트로 답변해요</span>
+            <strong>내 포트폴리오랑 잘 맞는지 AI에게 물어보기</strong>
+            <span>{etf.name} 기준 · 보유 종목 컨텍스트로 답변</span>
           </div>
         </span>
         <span className={styles.toggleRight}>
@@ -92,7 +93,7 @@ export function EtfChat({ etf }: { etf: EtfChatContext }) {
           <div ref={scrollRef} className={styles.messages}>
             {messages.length === 0 && (
               <div className={styles.empty}>
-                <p>이 ETF에 대해 궁금한 점을 물어보세요.</p>
+                <p>내 포트폴리오나 이 ETF에 대해 자유롭게 물어보세요.</p>
                 <div className={styles.suggestions}>
                   {SUGGESTIONS.map(s => (
                     <button
