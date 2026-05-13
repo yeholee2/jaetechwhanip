@@ -15,6 +15,7 @@ import styles from './PortfolioDiagnostic.module.css';
 import { HoldingAddModal } from './HoldingAddModal';
 import { BulkPasteModal } from './BulkPasteModal';
 import { buildPortfolioInsight, type WeightedHolding } from '@/lib/etfPortfolioInsights';
+import { PORTFOLIO_TEMPLATES } from '@/lib/portfolioTemplates';
 
 function buildPriceMap(): Record<string, number> {
   const map: Record<string, number> = {};
@@ -134,6 +135,35 @@ export function PortfolioDiagnostic() {
                 {screenshotToast}
               </p>
             )}
+          </div>
+        </Card>
+
+        {/* 빈 상태에서 대가 포트폴리오 큰 노출 (가입 동기 유발) */}
+        <Card pad="lg" className={styles.section}>
+          <div className={styles.sectionHead}>
+            <h3>아니면 — 대가가 추천한 포트폴리오로 바로 시작</h3>
+            <Link href="/portfolio/templates" style={{ fontSize: 12, fontWeight: 800, color: 'var(--rw-primary)', textDecoration: 'none' }}>전체 →</Link>
+          </div>
+          <p style={{ fontSize: 13, color: 'var(--rw-text-body)', fontWeight: 600, lineHeight: 1.5, margin: '0 0 var(--space-3)' }}>
+            버핏 · 달리오 · 보글의 검증된 자산배분. 따라하기 한 번에 등록.
+          </p>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 'var(--space-2)' }}>
+            {PORTFOLIO_TEMPLATES.map(t => (
+              <Link
+                key={t.slug}
+                href={`/portfolio/templates/${t.slug}`}
+                style={{
+                  display: 'block', padding: 'var(--space-3)',
+                  background: 'var(--rw-card-muted)', borderRadius: 'var(--rw-radius-sm)',
+                  textDecoration: 'none', color: 'inherit',
+                  transition: 'transform 120ms ease',
+                }}
+              >
+                <div style={{ fontSize: 11, color: 'var(--rw-text-muted)', fontWeight: 700, marginBottom: 4 }}>{t.author}</div>
+                <div style={{ fontSize: 14, fontWeight: 900, color: 'var(--rw-text-strong)', letterSpacing: '-0.2px', marginBottom: 4 }}>{t.name}</div>
+                <div style={{ fontSize: 11, color: 'var(--rw-text-body)', fontWeight: 600, lineHeight: 1.4 }}>{t.tagline}</div>
+              </Link>
+            ))}
           </div>
         </Card>
 
