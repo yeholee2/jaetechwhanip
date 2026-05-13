@@ -717,7 +717,7 @@
   }
 }
 
-/* 사이드 컬럼 — 핵심 요약 카드 (flat) */
+/* 사이드 컬럼 — Sticky 가격/액션 + 핵심 요약 카드 */
 .sideQuickCard {
   background: var(--rw-card);
   border: 1px solid var(--rw-border);
@@ -725,7 +725,74 @@
   padding: var(--space-4);
   display: flex;
   flex-direction: column;
-  gap: var(--space-2);
+  gap: var(--space-3);
+}
+
+/* Sticky 가격 블록 (사이드 상단) */
+.stickyPrice {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--rw-hairline);
+}
+.stickyPriceLabel {
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--rw-text-muted);
+  letter-spacing: 0.2px;
+  text-transform: uppercase;
+}
+.stickyPriceRow {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+.stickyPriceBig {
+  font-size: 24px;
+  font-weight: 900;
+  color: var(--rw-text-strong);
+  letter-spacing: -0.5px;
+  line-height: 1.15;
+  font-feature-settings: 'tnum';
+}
+.stickyPriceDelta {
+  font-size: 13px;
+  font-weight: 900;
+  font-feature-settings: 'tnum';
+}
+
+/* 4-action 그리드 (관심/알림/비교/질문) */
+.stickyActions {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--rw-hairline);
+}
+.stickyActBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 36px;
+  border-radius: var(--rw-radius-sm);
+  background: var(--rw-card-muted);
+  color: var(--rw-text-body);
+  text-decoration: none;
+  transition: background-color 120ms ease, color 120ms ease, transform 120ms ease;
+}
+.stickyActBtn:hover {
+  background: var(--rw-primary-bg);
+  color: var(--rw-primary);
+  transform: translateY(-1px);
+}
+.stickyActPrimary {
+  background: var(--rw-primary);
+  color: #fff;
+}
+.stickyActPrimary:hover {
+  background: var(--rw-primary-hover);
+  color: #fff;
 }
 
 .sideQuickHead {

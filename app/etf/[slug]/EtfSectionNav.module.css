@@ -1,0 +1,86 @@
+/* 섹션 앵커 nav — sticky 가로 5탭 (PC), 모바일에선 가로 스크롤 */
+.nav {
+  position: sticky;
+  top: 64px;
+  z-index: 20;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 4px;
+  padding: 6px;
+  background: var(--rw-card);
+  border: 1px solid var(--rw-border);
+  border-radius: var(--rw-radius-lg);
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04);
+  margin: 0 0 var(--space-section-sm);
+}
+
+.tab {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  padding: 10px 8px;
+  border-radius: var(--rw-radius-md);
+  text-decoration: none;
+  color: var(--rw-text-muted);
+  text-align: center;
+  transition: background-color 140ms ease, color 140ms ease;
+  position: relative;
+}
+
+.tab:hover {
+  background: var(--rw-card-muted);
+  color: var(--rw-text-body);
+}
+
+.tab.active {
+  background: var(--rw-primary-bg);
+  color: var(--rw-primary);
+}
+
+.tab.active::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: -8px;
+  transform: translateX(-50%);
+  width: 28px;
+  height: 3px;
+  background: var(--rw-primary);
+  border-radius: 999px;
+}
+
+.tabLabel {
+  font-size: 13px;
+  font-weight: 900;
+  letter-spacing: -0.2px;
+  line-height: 1.2;
+  font-feature-settings: 'tnum';
+}
+
+.tabSub {
+  font-size: 11px;
+  font-weight: 700;
+  opacity: 0.65;
+  letter-spacing: -0.1px;
+}
+
+/* 모바일: 가로 스크롤 + 컴팩트 */
+@media (max-width: 720px) {
+  .nav {
+    grid-template-columns: none;
+    display: flex;
+    overflow-x: auto;
+    scrollbar-width: none;
+    top: 56px;
+  }
+  .nav::-webkit-scrollbar { display: none; }
+  .tab {
+    flex: 0 0 auto;
+    min-width: 90px;
+    padding: 8px 10px;
+  }
+  .tabLabel { font-size: 12px; }
+  .tabSub { font-size: 10px; }
+}

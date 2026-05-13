@@ -33,6 +33,7 @@ import { WatchButton } from '../WatchButton';
 import { AlertButton } from '../AlertButton';
 import { Suspense } from 'react';
 import { EtfReturns } from './EtfReturns';
+import { EtfSectionNav } from './EtfSectionNav';
 import { fetchMaxHistory } from '@/lib/etfPriceHistory';
 import { fetchEtfHoldings } from '@/lib/etfHoldings';
 import { ShareButton } from '../ShareButton';
@@ -287,8 +288,10 @@ export default async function EtfDetailPage({ params }: Props) {
 
         <div className={styles.layout}>
           <div className={styles.mainColumn}>
-            {/* ──────────── 1단: 가격 ──────────── */}
-            <section className={styles.priceCard}>
+            <EtfSectionNav />
+
+            {/* ──────────── ① 시세: 가격 + 차트 + 수익률 ──────────── */}
+            <section id="sec-quote" className={styles.priceCard}>
               <span className={styles.priceLabel}>현재가</span>
               <div className={styles.priceRow}>
                 <strong className={styles.priceBig}>{etf.price || '—'}</strong>
@@ -318,8 +321,8 @@ export default async function EtfDetailPage({ params }: Props) {
               <EtfReturns code={etf.code} etfName={etf.shortName} lastUpdated={etfBaseDate} history={priceHistory} />
             </Suspense>
 
-            {/* ──────────── 4단: 핵심 5 그리드 (보수·순자산·분배·환헤지·추종지수) ──────────── */}
-            <section aria-label="핵심 정보">
+            {/* ──────────── ② 건전성: 핵심 5 그리드 + 위험 등급 ──────────── */}
+            <section id="sec-health" aria-label="핵심 정보">
               <DataCell.Grid columns={4}>
                 {(() => {
                   // 라이브 운용보수 (Yahoo) → 시드 fallback
@@ -398,6 +401,14 @@ export default async function EtfDetailPage({ params }: Props) {
                     label="추종 지수"
                     value={etf.trackingIndex}
                     sub="이 ETF가 따라가는 기초지수"
+                    help={
+                      <>
+                        이 ETF가 따라가도록 설계된 <strong>기초 지수</strong>예요.
+                        <br /><br />
+                        성과는 이 지수의 움직임을 거의 그대로 따라가도록 설계됐고,
+                        실제와의 차이를 <strong>괴리율</strong>로 측정해요.
+                      </>
+                    }
                   />
                 </div>
               )}
@@ -415,6 +426,8 @@ export default async function EtfDetailPage({ params }: Props) {
               />
             </section>
 
+            {/* ──────────── ④ 궁합: AI 매칭 ──────────── */}
+            <div id="sec-match">
             <EtfChat
               etf={{
                 code: etf.code,
@@ -428,8 +441,10 @@ export default async function EtfDetailPage({ params }: Props) {
               }}
             />
 
-            {/* 구성종목 — 라이브 (Yahoo) 우선, 없으면 시드, 둘 다 없으면 안내 */}
-            <section className={styles.section}>
+            </div>
+
+            {/* ──────────── ③ 속살: 구성종목 + 섹터 + 분배금 ──────────── */}
+            <section id="sec-inside" className={styles.section}>
               <div className={styles.sectionHead}>
                 <h2>구성종목 Top 10</h2>
                 <span>
@@ -581,9 +596,10 @@ export default async function EtfDetailPage({ params }: Props) {
               </section>
             )}
 
+            {/* ──────────── ⑤ 사회적 증거: 유사·대가·운용사 ──────────── */}
             {/* 유사 ETF (점수 기반: 추종지수/추종국가/카테고리/테마/운용사 매칭) */}
             {similarResults.length > 0 && (
-              <section className={styles.section}>
+              <section id="sec-social" className={styles.section}>
                 <div className={styles.sectionHead}>
                   <h2>이거 보는 사람들이 본 ETF</h2>
                   <span>{similarResults.length}개</span>
@@ -689,8 +705,29 @@ export default async function EtfDetailPage({ params }: Props) {
           </div>
 
           <aside className={styles.sideColumn}>
-            {/* 핵심 요약 카드 — 한 화면에 5개 지표 */}
+            {/* Sticky 가격/액션 카드 — PC 상품성 */}
             <div className={styles.sideQuickCard}>
+              <div className={styles.stickyPrice}>
+                <span className={styles.stickyPriceLabel}>지금 가격</span>
+                <div className={styles.stickyPriceRow}>
+                  <strong className={styles.stickyPriceBig}>{etf.price || '—'}</strong>
+                  {etf.change && (
+                    <span className={`${styles.stickyPriceDelta} ${styles[`delta_${etf.changeTone}`]}`}>
+                      {etf.change}
+                    </span>
+                  )}
+                </div>
+              </div>
+              <div className={styles.stickyActions}>
+                <WatchButton code={etf.code} shortName={etf.shortName} mode="icon" />
+                <AlertButton etfCode={etf.code} etfName={etf.shortName} currentPrice={etf.price} />
+                <Link href={`/etf/compare?a=${etf.code}`} className={styles.stickyActBtn} aria-label="비교">
+                  <FaIcon name="scale-balanced" size={14} />
+                </Link>
+                <Link href="/?ask=1" className={`${styles.stickyActBtn} ${styles.stickyActPrimary}`} aria-label="질문하기">
+                  <FaIcon name="comment-dots" size={14} />
+                </Link>
+              </div>
               <div className={styles.sideQuickHead}>
                 <span>핵심 요약</span>
                 <span className={styles.sideQuickCode}>{etf.code}</span>

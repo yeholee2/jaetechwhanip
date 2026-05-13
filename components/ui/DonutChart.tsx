@@ -14,17 +14,18 @@ export type DonutSegment = {
   color?: string;
 };
 
+// Toss 톤 — 초록 미사용. 블루 패밀리 중심 + 보조 워머/뉴트럴
 const DEFAULT_COLORS = [
-  'var(--rw-primary)',
-  '#4593fc',
-  '#7e57c2',
-  '#03b26c',
-  '#ffa927',
-  '#e42939',
-  '#6b7684',
-  '#15c47e',
-  '#fe9800',
-  '#b0b8c1',
+  'var(--rw-primary)',  // primary blue
+  '#4593fc',            // bright blue
+  '#1b64da',            // deep blue
+  '#7e57c2',            // purple
+  '#5d7df5',            // periwinkle
+  '#ffa927',            // orange
+  '#e42939',            // red
+  '#fe9800',            // amber
+  '#6b7684',            // neutral
+  '#b0b8c1',            // light neutral
 ];
 
 export function DonutChart({
