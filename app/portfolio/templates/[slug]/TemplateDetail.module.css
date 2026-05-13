@@ -292,3 +292,35 @@
   color: var(--rw-text-strong);
   box-shadow: 0 1px 3px rgba(0,0,0,0.08);
 }
+
+/* KR 대체 종목 (allocItem 안에 자체 줄) */
+.allocItem {
+  grid-template-columns: minmax(0, 1.4fr) minmax(120px, 2fr) 56px;
+  grid-template-rows: auto auto;
+}
+.krAlt {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-top: 8px;
+  margin-top: 4px;
+  border-top: 1px dashed var(--rw-border);
+}
+.krAltLabel {
+  font-size: 10px;
+  font-weight: 800;
+  color: var(--rw-text-muted);
+  letter-spacing: 0.3px;
+  flex-shrink: 0;
+}
+.krAltLink {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--rw-primary);
+  text-decoration: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.krAltLink:hover { text-decoration: underline; }

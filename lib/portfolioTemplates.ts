@@ -15,6 +15,8 @@ export type TemplateAllocation = {
   weight: number;
   /** 역할 (예: "미국 주식 코어", "장기채") */
   role: string;
+  /** 국내 상장 대체 ETF — KRX 6자리 코드 + 짧은 이름 */
+  krAlternative?: { code: string; name: string };
 };
 
 export type PortfolioTemplate = {
@@ -49,8 +51,14 @@ export const PORTFOLIO_TEMPLATES: PortfolioTemplate[] = [
     caution: '주식 비중 90%라 단기 변동성이 큼. 1년 -30%도 각오해야 함.',
     source: '버크셔 해서웨이 2013년 주주 서한',
     allocations: [
-      { ticker: 'VOO', label: 'S&P 500', weight: 0.90, role: '미국 주식 코어' },
-      { ticker: 'BIL', label: '초단기국채', weight: 0.10, role: '현금성' },
+      {
+        ticker: 'VOO', label: 'S&P 500', weight: 0.90, role: '미국 주식 코어',
+        krAlternative: { code: '360750', name: 'TIGER 미국S&P500' },
+      },
+      {
+        ticker: 'BIL', label: '초단기국채', weight: 0.10, role: '현금성',
+        krAlternative: { code: '153130', name: 'KODEX 단기채권액티브' },
+      },
     ],
   },
   {
@@ -65,11 +73,26 @@ export const PORTFOLIO_TEMPLATES: PortfolioTemplate[] = [
     caution: '강세장에서 수익률이 S&P500보다 한참 낮음. 인내 필요.',
     source: 'Tony Robbins 『MONEY: Master The Game』 + Dalio 공개 인터뷰',
     allocations: [
-      { ticker: 'VTI', label: '미국 전체주식', weight: 0.30, role: '주식' },
-      { ticker: 'TLT', label: '미국 장기국채', weight: 0.40, role: '장기 채권' },
-      { ticker: 'IEF', label: '미국 중기국채', weight: 0.15, role: '중기 채권' },
-      { ticker: 'GLD', label: '금', weight: 0.075, role: '인플레 헷지' },
-      { ticker: 'USO', label: '원유', weight: 0.075, role: '원자재' },
+      {
+        ticker: 'VTI', label: '미국 전체주식', weight: 0.30, role: '주식',
+        krAlternative: { code: '360750', name: 'TIGER 미국S&P500' },
+      },
+      {
+        ticker: 'TLT', label: '미국 장기국채', weight: 0.40, role: '장기 채권',
+        krAlternative: { code: '304660', name: 'KODEX 미국채울트라30년선물(H)' },
+      },
+      {
+        ticker: 'IEF', label: '미국 중기국채', weight: 0.15, role: '중기 채권',
+        krAlternative: { code: '305080', name: 'TIGER 미국채10년선물' },
+      },
+      {
+        ticker: 'GLD', label: '금', weight: 0.075, role: '인플레 헷지',
+        krAlternative: { code: '132030', name: 'KODEX 골드선물(H)' },
+      },
+      {
+        ticker: 'USO', label: '원유', weight: 0.075, role: '원자재',
+        krAlternative: { code: '261220', name: 'KODEX WTI원유선물(H)' },
+      },
     ],
   },
   {
@@ -84,9 +107,18 @@ export const PORTFOLIO_TEMPLATES: PortfolioTemplate[] = [
     caution: '미국 비중이 60%로 여전히 미국 의존도 높음.',
     source: 'Bogleheads 공식 위키 (Three-fund portfolio)',
     allocations: [
-      { ticker: 'VTI',  label: '미국 전체주식', weight: 0.60, role: '미국 주식' },
-      { ticker: 'VXUS', label: '미국 제외 해외주식', weight: 0.30, role: '해외 주식' },
-      { ticker: 'BND',  label: '미국 종합채권', weight: 0.10, role: '채권' },
+      {
+        ticker: 'VTI', label: '미국 전체주식', weight: 0.60, role: '미국 주식',
+        krAlternative: { code: '360750', name: 'TIGER 미국S&P500' },
+      },
+      {
+        ticker: 'VXUS', label: '미국 제외 해외주식', weight: 0.30, role: '해외 주식',
+        krAlternative: { code: '195930', name: 'TIGER 유로스탁스50(합성 H)' },
+      },
+      {
+        ticker: 'BND', label: '미국 종합채권', weight: 0.10, role: '채권',
+        krAlternative: { code: '273130', name: 'KODEX 종합채권(AA-이상)액티브' },
+      },
     ],
   },
   {
@@ -101,8 +133,14 @@ export const PORTFOLIO_TEMPLATES: PortfolioTemplate[] = [
     caution: '2022년처럼 주식·채권이 동시에 빠지는 해에는 둘 다 손실.',
     source: 'Markowitz 1952 현대포트폴리오이론 + 미국 연기금 표준 (Vanguard Balanced Index 기준)',
     allocations: [
-      { ticker: 'VOO', label: 'S&P 500', weight: 0.60, role: '주식' },
-      { ticker: 'AGG', label: '미국 종합채권', weight: 0.40, role: '채권' },
+      {
+        ticker: 'VOO', label: 'S&P 500', weight: 0.60, role: '주식',
+        krAlternative: { code: '360750', name: 'TIGER 미국S&P500' },
+      },
+      {
+        ticker: 'AGG', label: '미국 종합채권', weight: 0.40, role: '채권',
+        krAlternative: { code: '273130', name: 'KODEX 종합채권(AA-이상)액티브' },
+      },
     ],
   },
   {
@@ -117,10 +155,22 @@ export const PORTFOLIO_TEMPLATES: PortfolioTemplate[] = [
     caution: '강세장에서는 수익률 평범. 현금 25%로 인플레 손실 가능.',
     source: 'Harry Browne 1981 『Why The Best-Laid Investment Plans Usually Go Wrong』',
     allocations: [
-      { ticker: 'VTI', label: '미국 전체주식', weight: 0.25, role: '주식' },
-      { ticker: 'TLT', label: '미국 장기국채', weight: 0.25, role: '장기 채권' },
-      { ticker: 'GLD', label: '금', weight: 0.25, role: '금' },
-      { ticker: 'BIL', label: '초단기국채', weight: 0.25, role: '현금성' },
+      {
+        ticker: 'VTI', label: '미국 전체주식', weight: 0.25, role: '주식',
+        krAlternative: { code: '360750', name: 'TIGER 미국S&P500' },
+      },
+      {
+        ticker: 'TLT', label: '미국 장기국채', weight: 0.25, role: '장기 채권',
+        krAlternative: { code: '304660', name: 'KODEX 미국채울트라30년선물(H)' },
+      },
+      {
+        ticker: 'GLD', label: '금', weight: 0.25, role: '금',
+        krAlternative: { code: '132030', name: 'KODEX 골드선물(H)' },
+      },
+      {
+        ticker: 'BIL', label: '초단기국채', weight: 0.25, role: '현금성',
+        krAlternative: { code: '153130', name: 'KODEX 단기채권액티브' },
+      },
     ],
   },
   {
@@ -135,12 +185,30 @@ export const PORTFOLIO_TEMPLATES: PortfolioTemplate[] = [
     caution: '구성이 복잡함. 리밸런싱 신경써야 함.',
     source: 'David Swensen 『Unconventional Success』 (개인투자자용 권장 비중)',
     allocations: [
-      { ticker: 'VTI', label: '미국 주식',   weight: 0.30, role: '미국 주식' },
-      { ticker: 'VEA', label: '선진국 해외', weight: 0.15, role: '해외 주식' },
-      { ticker: 'VWO', label: '신흥국',     weight: 0.05, role: '이머징' },
-      { ticker: 'VNQ', label: '미국 리츠',  weight: 0.20, role: '부동산' },
-      { ticker: 'TLT', label: '장기국채',   weight: 0.15, role: '장기 채권' },
-      { ticker: 'TIP', label: '물가연동채', weight: 0.15, role: '인플레 헷지' },
+      {
+        ticker: 'VTI', label: '미국 주식', weight: 0.30, role: '미국 주식',
+        krAlternative: { code: '360750', name: 'TIGER 미국S&P500' },
+      },
+      {
+        ticker: 'VEA', label: '선진국 해외', weight: 0.15, role: '해외 주식',
+        krAlternative: { code: '195930', name: 'TIGER 유로스탁스50(합성 H)' },
+      },
+      {
+        ticker: 'VWO', label: '신흥국', weight: 0.05, role: '이머징',
+        krAlternative: { code: '253160', name: 'TIGER 차이나CSI300' },
+      },
+      {
+        ticker: 'VNQ', label: '미국 리츠', weight: 0.20, role: '부동산',
+        krAlternative: { code: '351320', name: 'KODEX 미국부동산리츠(H)' },
+      },
+      {
+        ticker: 'TLT', label: '장기국채', weight: 0.15, role: '장기 채권',
+        krAlternative: { code: '304660', name: 'KODEX 미국채울트라30년선물(H)' },
+      },
+      {
+        ticker: 'TIP', label: '물가연동채', weight: 0.15, role: '인플레 헷지',
+        krAlternative: { code: '273130', name: 'KODEX 종합채권(AA-이상)액티브' },
+      },
     ],
   },
 ];

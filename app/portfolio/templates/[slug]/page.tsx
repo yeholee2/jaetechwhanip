@@ -144,18 +144,18 @@ export default async function TemplateDetailPage({
           </Card>
         )}
 
-        {/* 구성 */}
+        {/* 구성 — 미국·국내 매핑 표 */}
         <Card pad="lg">
           <div className={styles.sectionHead}>
-            <h2>구성 종목</h2>
-            <span>{template.allocations.length}개 ETF</span>
+            <h2>구성 종목 · 미국 ↔ 국내 대체</h2>
+            <span>{template.allocations.length}개 자산</span>
           </div>
           <ul className={styles.allocList}>
             {template.allocations.map(a => (
               <li key={a.ticker} className={styles.allocItem}>
                 <div className={styles.allocMain}>
                   <Link href={`/etf/${encodeURIComponent(a.ticker)}`} className={styles.allocTicker}>
-                    {a.ticker}
+                    🇺🇸 {a.ticker}
                   </Link>
                   <div>
                     <strong>{a.label}</strong>
@@ -168,6 +168,14 @@ export default async function TemplateDetailPage({
                   </span>
                 </div>
                 <div className={styles.allocPct}>{(a.weight * 100).toFixed(1)}%</div>
+                {a.krAlternative && (
+                  <div className={styles.krAlt}>
+                    <span className={styles.krAltLabel}>🇰🇷 국내 대체</span>
+                    <Link href={`/etf/${a.krAlternative.code}`} className={styles.krAltLink}>
+                      {a.krAlternative.code} · {a.krAlternative.name}
+                    </Link>
+                  </div>
+                )}
               </li>
             ))}
           </ul>
