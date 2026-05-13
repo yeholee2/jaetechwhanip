@@ -4,7 +4,7 @@ import { AppShell } from '@/components/AppShell';
 import { PageHero, Badge } from '@/components/ui';
 import { PortfolioDiagnostic } from '../etf/PortfolioDiagnostic';
 import { PORTFOLIO_TEMPLATES } from '@/lib/portfolioTemplates';
-import { WHALE_PORTFOLIOS } from '@/lib/portfolioWhales';
+import { fetchWhales } from '@/lib/portfolioWhalesDb';
 import { SITE_NAME, SITE_URL } from '@/lib/seo';
 import styles from './PortfolioPage.module.css';
 
@@ -27,7 +27,8 @@ export const metadata: Metadata = {
   },
 };
 
-export default function PortfolioPage() {
+export default async function PortfolioPage() {
+  const WHALE_PORTFOLIOS = await fetchWhales();
   return (
     <AppShell active="portfolio" wide hideSlogan>
       <main className={styles.page}>

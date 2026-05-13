@@ -9,7 +9,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { AppShell } from '@/components/AppShell';
 import { PageHero, Badge, Card } from '@/components/ui';
-import { WHALE_PORTFOLIOS } from '@/lib/portfolioWhales';
+import { fetchWhales } from '@/lib/portfolioWhalesDb';
 import { SITE_NAME, SITE_URL } from '@/lib/seo';
 import styles from './Whales.module.css';
 
@@ -33,7 +33,8 @@ function formatBillion(n: number): string {
   return `$${n.toFixed(0)}M`;
 }
 
-export default function WhalesPage() {
+export default async function WhalesPage() {
+  const WHALE_PORTFOLIOS = await fetchWhales();
   return (
     <AppShell active="portfolio" hideSlogan>
       <main className={styles.page}>

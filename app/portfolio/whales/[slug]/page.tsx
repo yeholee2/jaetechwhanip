@@ -8,7 +8,8 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { AppShell } from '@/components/AppShell';
 import { Badge, Card, DataCell } from '@/components/ui';
-import { CHANGE_LABEL, getWhaleBySlug, WHALE_PORTFOLIOS } from '@/lib/portfolioWhales';
+import { CHANGE_LABEL, WHALE_PORTFOLIOS } from '@/lib/portfolioWhales';
+import { fetchWhaleBySlug } from '@/lib/portfolioWhalesDb';
 import { SITE_NAME, SITE_URL } from '@/lib/seo';
 import styles from './WhaleDetail.module.css';
 
@@ -19,7 +20,7 @@ export function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
-  const w = getWhaleBySlug(params.slug);
+  const w = await fetchWhaleBySlug(params.slug);
   if (!w) return { title: '대가를 찾을 수 없어요' };
   return {
     title: `${w.manager} · ${w.name} 실시간 보유 — ${w.quarter}`,
@@ -47,8 +48,8 @@ const CHANGE_TONE_COLOR: Record<'good' | 'warn' | 'neutral', string> = {
   neutral: 'var(--rw-text-muted)',
 };
 
-export default function WhaleDetailPage({ params }: { params: { slug: string } }) {
-  const w = getWhaleBySlug(params.slug);
+export default async function WhaleDetailPage({ params }: { params: { slug: string } }) {
+  const w = await fetchWhaleBySlug(params.slug);
   if (!w) notFound();
 
   const topWeight = w.topHoldings.reduce((s, h) => s + h.weight, 0);
