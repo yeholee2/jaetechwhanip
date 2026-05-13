@@ -17,7 +17,7 @@ import {
   findRelatedReportsForEtf,
 } from '@/lib/relatedContent';
 import { RelatedContent } from '@/components/RelatedContent';
-import { Button, Chip, Badge } from '@/components/ui';
+import { Button, Chip, Badge, Stat, DataCell } from '@/components/ui';
 import { buildEtfInsight, computeFeeStats, type EtfTag } from '@/lib/etfInsights';
 import { buildSectorBreakdown } from '@/lib/etfBreakdown';
 import { DonutChart, CompareBar, RiskMeter, MiniBarChart } from '@/components/ui';
@@ -204,24 +204,53 @@ export default async function EtfDetailPage({ params }: Props) {
 
         <div className={styles.layout}>
           <div className={styles.mainColumn}>
+            {/* ──────────── 1단: 가격 + 한줄평 ──────────── */}
             <section className={styles.priceCard}>
-              <div className={styles.priceHead}>
-                <div>
-                  <span>현재가</span>
-                  <strong>{etf.price}</strong>
-                  <em className={etf.changeTone === 'down' ? styles.down : styles.up}>{etf.change}</em>
-                </div>
-                <p>{etf.issuer} · {etf.category}<br />{etf.dataNotice}</p>
-              </div>
+              <Stat
+                label="현재가"
+                value={etf.price || '—'}
+                delta={etf.change}
+                tone={etf.changeTone}
+                size="xl"
+                foot={etf.dataNotice}
+              />
             </section>
 
-            {/* 한입 한줄평 (자동 생성) */}
             <section className={styles.takeaway} aria-label="한입 한줄평">
               <Badge tone="primary">한입 한줄평</Badge>
               <p>{insight.oneLiner}</p>
             </section>
 
-            {/* 위험 등급 + 투자 포인트 (Toss 스타일) */}
+            {/* ──────────── 2단: 핵심 5 정보 ──────────── */}
+            <section aria-label="핵심 정보">
+              <DataCell.Grid columns={4}>
+                <DataCell
+                  label="총보수"
+                  value={etf.fee || '—'}
+                  sub={insight.tags.fee?.label}
+                  tone={insight.tags.fee?.tone === 'good' ? 'good' : insight.tags.fee?.tone === 'warn' ? 'warn' : 'default'}
+                />
+                <DataCell
+                  label="순자산"
+                  value={etf.aum || '—'}
+                  sub={insight.tags.aum?.label}
+                  tone={insight.tags.aum?.tone === 'good' ? 'good' : insight.tags.aum?.tone === 'warn' ? 'warn' : 'default'}
+                />
+                <DataCell
+                  label="분배"
+                  value={etf.distribution || '—'}
+                  sub={insight.tags.distribution?.label}
+                />
+                <DataCell
+                  label="환헤지"
+                  value={etf.hedge || '—'}
+                  sub={insight.tags.hedge?.label}
+                  tone={insight.tags.hedge?.tone === 'good' ? 'good' : insight.tags.hedge?.tone === 'warn' ? 'warn' : 'default'}
+                />
+              </DataCell.Grid>
+            </section>
+
+            {/* ──────────── 3단: 위험 등급 + 투자 포인트 ──────────── */}
             <section aria-label="위험 등급과 투자 포인트">
               <RiskMeter
                 level={risk.level}
@@ -232,34 +261,32 @@ export default async function EtfDetailPage({ params }: Props) {
               />
             </section>
 
+            {/* ──────────── 4단: 차트 ──────────── */}
             <EtfChart code={etf.code} price={etf.price} changeTone={etf.changeTone} />
 
-            <section className={styles.factGrid} aria-label="ETF 핵심 정보">
-              <div>
-                <span>순자산</span><strong>{etf.aum}</strong>
-                <Badge tone={tagBadgeTone(insight.tags.aum)}>{insight.tags.aum?.label}</Badge>
-              </div>
-              {etfNav && <div><span>NAV</span><strong>{etfNav}</strong><p>공식 API 기준</p></div>}
-              <div>
-                <span>총보수</span><strong>{etf.fee}</strong>
-                <Badge tone={tagBadgeTone(insight.tags.fee)}>{insight.tags.fee?.label}</Badge>
-              </div>
-              <div>
-                <span>분배금</span><strong>{etf.distribution}</strong>
-                <Badge tone={tagBadgeTone(insight.tags.distribution)}>{insight.tags.distribution?.label}</Badge>
-              </div>
-              <div>
-                <span>환헤지</span><strong>{etf.hedge}</strong>
-                <Badge tone={tagBadgeTone(insight.tags.hedge)}>{insight.tags.hedge?.label}</Badge>
-              </div>
-              <div><span>거래량</span><strong>{etf.volume}</strong><p>유동성 참고</p></div>
-              <div><span>{etfBaseDate ? '기준일' : '상장일'}</span><strong>{etfBaseDate || etf.listedAt}</strong><p>{etfBaseDate ? '시세 기준' : '운용 기간'}</p></div>
+            {/* ──────────── 5단: 보조 정보 (거래량/기준일/NAV) ──────────── */}
+            <section aria-label="보조 정보">
+              <DataCell.Grid columns={3}>
+                <DataCell label="거래량" value={etf.volume || '—'} sub="유동성 참고" />
+                <DataCell
+                  label={etfBaseDate ? '기준일' : '상장일'}
+                  value={etfBaseDate || etf.listedAt || '—'}
+                  sub={etfBaseDate ? '시세 기준' : '운용 기간'}
+                />
+                {etfNav ? (
+                  <DataCell label="NAV" value={etfNav} sub="공식 API 기준" />
+                ) : (
+                  <DataCell label="운용사" value={etf.issuer} sub={etf.category} />
+                )}
+              </DataCell.Grid>
             </section>
 
-            <section className={styles.summaryBox}>
-              <span>한입 요약</span>
-              <p>{etf.oneLine}</p>
-            </section>
+            {etf.oneLine && (
+              <section className={styles.summaryBox}>
+                <span>한입 요약</span>
+                <p>{etf.oneLine}</p>
+              </section>
+            )}
 
             <EtfChat
               etf={{

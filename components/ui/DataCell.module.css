@@ -1,0 +1,41 @@
+/**
+ * <DataCell> — 작은 라벨 + 강조 값 + 보조 한 줄.
+ * ETF 상세의 "핵심 5" 그리드, 포트폴리오 요약 metric 등에 사용.
+ */
+.cell {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: var(--space-3);
+  background: var(--rw-card-muted);
+  border-radius: var(--rw-radius-md);
+  min-width: 0;
+}
+
+.label {
+  font-size: 11px;
+  font-weight: var(--weight-bold);
+  color: var(--rw-text-muted);
+  letter-spacing: 0.2px;
+  text-transform: uppercase;
+}
+
+.value {
+  font-size: var(--type-body);
+  font-weight: var(--weight-black);
+  color: var(--rw-text-strong);
+  letter-spacing: -0.2px;
+  line-height: 1.2;
+  font-feature-settings: 'tnum';
+}
+
+.sub {
+  font-size: 11px;
+  font-weight: var(--weight-semibold);
+  color: var(--rw-text-muted);
+  margin-top: 2px;
+}
+
+.toneGood  { color: var(--rw-green50); }
+.toneWarn  { color: var(--rw-red60); }
+.toneInfo  { color: var(--rw-primary); }

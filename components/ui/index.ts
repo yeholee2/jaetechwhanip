@@ -34,3 +34,6 @@ export { RiskMeter } from './RiskMeter';
 
 export { MiniBarChart } from './MiniBarChart';
 export type { BarPoint } from './MiniBarChart';
+
+export { Stat } from './Stat';
+export { DataCell } from './DataCell';

@@ -9,7 +9,7 @@ import {
   summarizePortfolio,
 } from '@/lib/etfPortfolio';
 import { etfs, getEtfByCode } from '@/lib/etfs';
-import { Card, Badge, Button } from '@/components/ui';
+import { Card, Badge, Button, Stat, DataCell } from '@/components/ui';
 import styles from './PortfolioDiagnostic.module.css';
 import { HoldingAddModal } from './HoldingAddModal';
 import { BulkPasteModal } from './BulkPasteModal';
@@ -202,32 +202,31 @@ export function PortfolioDiagnostic() {
           <Badge tone="primary">진단</Badge>
           <h2>포트폴리오 요약</h2>
         </div>
-        <div className={styles.metricsGrid}>
-          <div className={styles.metric}>
-            <span>평가액</span>
-            <strong>
-              {summary.total_market_value > 0
+        {/* 평가액 + 손익 (큰 숫자) */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-3)', marginBottom: 'var(--space-3)' }}>
+          <Stat
+            label="평가액"
+            value={
+              summary.total_market_value > 0
                 ? formatKRW(summary.total_market_value)
-                : formatKRW(summary.total_cost)}
-            </strong>
-            {summary.has_unknown_price && <em>일부 시세 미반영</em>}
-          </div>
-          <div className={styles.metric}>
-            <span>매입금액</span>
-            <strong>{formatKRW(summary.total_cost)}</strong>
-          </div>
-          <div className={`${styles.metric} ${summary.total_pnl >= 0 ? styles.up : styles.down}`}>
-            <span>손익</span>
-            <strong>
-              {summary.total_pnl >= 0 ? '+' : ''}{formatKRW(Math.abs(summary.total_pnl))}
-            </strong>
-            <em>{formatPct(summary.total_pnl_pct)}</em>
-          </div>
-          <div className={styles.metric}>
-            <span>보유 종목</span>
-            <strong>{summary.count}개</strong>
-          </div>
+                : formatKRW(summary.total_cost)
+            }
+            size="lg"
+            foot={summary.has_unknown_price ? '일부 시세 미반영' : undefined}
+          />
+          <Stat
+            label="손익"
+            value={`${summary.total_pnl >= 0 ? '+' : '-'}${formatKRW(Math.abs(summary.total_pnl))}`}
+            delta={formatPct(summary.total_pnl_pct)}
+            tone={summary.total_pnl >= 0 ? 'up' : 'down'}
+            size="lg"
+          />
         </div>
+        {/* 매입금액 + 보유 종목 */}
+        <DataCell.Grid columns={2}>
+          <DataCell label="매입금액" value={formatKRW(summary.total_cost)} />
+          <DataCell label="보유 종목" value={`${summary.count}개`} />
+        </DataCell.Grid>
       </Card>
 
       {/* 한입 진단 인사이트 (가중평균 보수/위험/환노출/섹터 중복도) */}
