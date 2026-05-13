@@ -1,0 +1,204 @@
+.tabs {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin: var(--space-3) 0 var(--space-4);
+  padding-bottom: var(--space-2);
+  border-bottom: 1px solid var(--rw-border);
+}
+
+.tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: transparent;
+  border: 1px solid transparent;
+  font-size: var(--type-caption);
+  font-weight: var(--weight-bold);
+  color: var(--rw-text-muted);
+  text-decoration: none;
+  transition: background 120ms ease, color 120ms ease, border-color 120ms ease;
+}
+
+.tab:hover {
+  background: var(--rw-card-muted);
+  color: var(--rw-text-body);
+}
+
+.tab small {
+  font-size: 11px;
+  font-weight: var(--weight-bold);
+  color: var(--rw-text-muted);
+}
+
+.tabOn {
+  background: var(--rw-primary);
+  color: #fff !important;
+  border-color: var(--rw-primary);
+}
+
+.tabOn small {
+  color: rgba(255,255,255,0.85);
+}
+
+/* 카드 그리드 */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--space-3);
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  background: var(--rw-card);
+  border: 1px solid var(--rw-border);
+  border-radius: var(--rw-radius-md);
+  overflow: hidden;
+  text-decoration: none;
+  color: inherit;
+  transition: transform 120ms ease, border-color 120ms ease;
+}
+
+.card:hover {
+  border-color: var(--rw-primary);
+  transform: translateY(-2px);
+}
+
+.thumb {
+  aspect-ratio: 16/9;
+  background: var(--rw-card-muted);
+  overflow: hidden;
+}
+
+.thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.body {
+  padding: var(--space-3) var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+}
+
+.cardHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.cardDate {
+  font-size: 11px;
+  color: var(--rw-text-muted);
+  font-weight: var(--weight-semibold);
+}
+
+.cardTitle {
+  font-size: var(--type-body);
+  font-weight: var(--weight-black);
+  color: var(--rw-text-strong);
+  letter-spacing: -0.3px;
+  line-height: 1.35;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.cardDesc {
+  font-size: 13px;
+  color: var(--rw-text-body);
+  line-height: 1.5;
+  margin: 0;
+  font-weight: var(--weight-semibold);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.cardFoot {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: auto;
+  padding-top: 4px;
+}
+
+.cardFoot span {
+  font-size: 11px;
+  color: var(--rw-text-muted);
+  font-weight: var(--weight-semibold);
+}
+
+.empty {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: var(--space-6);
+  color: var(--rw-text-muted);
+}
+
+/* 스파링 strip */
+.sparringStrip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  margin-top: var(--space-5);
+  background: linear-gradient(135deg, rgba(126, 87, 194, 0.08), var(--rw-card));
+  border: 1px solid var(--rw-border);
+  border-radius: var(--rw-radius-md);
+  flex-wrap: wrap;
+}
+
+.sparringStrip h3 {
+  margin: var(--space-2) 0 4px;
+  font-size: var(--type-title);
+  font-weight: var(--weight-black);
+  color: var(--rw-text-strong);
+  letter-spacing: -0.3px;
+}
+
+.sparringStrip p {
+  margin: 0;
+  font-size: var(--type-caption);
+  color: var(--rw-text-body);
+  font-weight: var(--weight-semibold);
+}
+
+.sparringCta {
+  font-size: var(--type-caption);
+  font-weight: var(--weight-black);
+  color: var(--rw-primary);
+  text-decoration: none;
+  padding: 10px 16px;
+  border: 1px solid var(--rw-primary);
+  border-radius: var(--rw-radius-sm);
+  transition: background 120ms ease, color 120ms ease;
+}
+
+.sparringCta:hover {
+  background: var(--rw-primary);
+  color: #fff;
+}
+
+@media (max-width: 600px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+  .sparringStrip {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
