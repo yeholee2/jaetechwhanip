@@ -55,18 +55,22 @@
   --rw-red50: #f66570;
   --rw-red60: #e42939;        /* 등락 빨강 (한국 증시 관습: 상승) */
   --rw-red70: #d22030;
-  --rw-green40: #15c47e;
-  --rw-green50: #03b26c;
+  /*
+   * 초록 미사용 정책 (토스 톤) — 변수명은 호환을 위해 유지하되 값은 파란 계열로 리다이렉트.
+   * tone="good" 은 "긍정/낮음" 의미로 파란색으로 표시.
+   */
+  --rw-green40: #4593fc;      /* = blue40 (밝은 액센트) */
+  --rw-green50: #1b64da;      /* = blue70 (강조 액센트) */
   --rw-orange40: #ffa927;
   --rw-orange50: #fe9800;
   --rw-purple50: #7e57c2;     /* 리포트 */
 
-  /* Risk 톤 */
-  --rw-risk-green: #34bb7a;
+  /* Risk 톤 — 초록 → 파랑으로 (낮은 위험 = 토스 블루) */
+  --rw-risk-green: #3182F6;
   --rw-risk-yellow: #f99f01;
   --rw-risk-orange: #ff4d00;
   --rw-risk-red: #df1525;
-  --rw-risk-bg-green: #e6f5f0;
+  --rw-risk-bg-green: #e8f3ff;
   --rw-risk-bg-yellow: #fef5e6;
   --rw-risk-bg-orange: #ffe4d9;
   --rw-risk-bg-red: #ffecef;
@@ -93,7 +97,7 @@
   --rw-primary-bg: rgba(49, 130, 246, 0.08);
   --rw-red60: #F04452;                 /* 상승 빨강 (한국) */
   --rw-blue70: #3182F6;                /* 하락 — 토스는 primary blue로 */
-  --rw-green50: #15C47E;               /* 차트 보조 (좋음 아이콘) */
+  --rw-green50: #1b64da;               /* 초록 미사용: 파란 계열로 리다이렉트 */
   --rw-up: #e42939;
   --rw-down: #3182f6;
 
@@ -110,6 +114,18 @@
   --space-10: 40px;
   --space-12: 48px;
   --space-16: 64px;
+
+  /* ─────────────────────────────────────────────────────────
+   * 의미적 여백 — Toss/FunETF 톤 검증
+   * (raw --space-N 보다 우선 사용)
+   * ───────────────────────────────────────────────────────── */
+  --space-section: 48px;       /* mainColumn 섹션 사이 (top-level rhythm) */
+  --space-section-sm: 32px;    /* 모바일에서 축소 */
+  --space-card-pad: 24px;      /* 카드 내부 기본 padding */
+  --space-card-pad-sm: 16px;   /* 컴팩트 카드 padding */
+  --space-head-gap: 16px;      /* 섹션 헤더 → 본문 */
+  --space-title-sub: 6px;      /* 타이틀 → 부타이틀 (stacked) */
+  --space-card-gap: 8px;       /* 리스트형 카드 (보유종목·관련) 사이 */
 
   /* ─────────────────────────────────────────────────────────
    * Typography scale (1.125 modular, 14px 베이스)

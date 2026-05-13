@@ -53,6 +53,43 @@
 }
 .note strong { color: var(--rw-text-body); margin-right: 4px; font-weight: 800; }
 
+/* 표 위 워터마크 한 줄 — "과거 수익률 != 미래" */
+.watermark {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--rw-text-muted);
+  background: var(--rw-card-muted);
+  padding: 8px 12px;
+  border-radius: var(--rw-radius-sm);
+  margin: 0 0 var(--space-3);
+  letter-spacing: -0.1px;
+}
+
+/* 표 아래 5줄 면책 (FunETF 톤) */
+.noteList {
+  list-style: none;
+  padding: 0;
+  margin: var(--space-3) 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.noteList li {
+  font-size: 11px;
+  color: var(--rw-text-muted);
+  font-weight: 600;
+  line-height: 1.55;
+  padding-left: 10px;
+  position: relative;
+}
+.noteList li::before {
+  content: '·';
+  position: absolute;
+  left: 2px;
+  color: var(--rw-text-muted);
+  font-weight: 900;
+}
+
 /* 수익률 계산기 */
 .calc {
   display: grid;

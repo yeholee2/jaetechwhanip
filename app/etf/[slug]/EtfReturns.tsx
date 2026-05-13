@@ -39,7 +39,7 @@ export async function EtfReturns({ code, etfName, lastUpdated, history: passed }
   return (
     <div className={styles.section}>
       <Card pad="lg">
-        <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 'var(--space-3)' }}>
+        <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 4 }}>
           <h2 style={{ margin: 0, fontSize: 'var(--type-title)', fontWeight: 900, letterSpacing: '-0.3px' }}>
             기간별 수익률
           </h2>
@@ -47,6 +47,9 @@ export async function EtfReturns({ code, etfName, lastUpdated, history: passed }
             {lastUpdated || history[history.length - 1].date} 기준
           </span>
         </div>
+        <p className={styles.watermark}>
+          ※ 과거 수익률은 미래를 보장하지 않아요.
+        </p>
 
         <div className={styles.tableWrap}>
           <table className={styles.table}>
@@ -71,12 +74,13 @@ export async function EtfReturns({ code, etfName, lastUpdated, history: passed }
           </table>
         </div>
 
-        <p className={styles.note}>
-          <strong>참고</strong>
-          시장가격(종가) 기준 누적 수익률입니다. 분배금 재투자는 미반영.
-          기준가격(NAV)은 운용사 공시 데이터가 필요해 차후 제공 예정이에요.
-          5년·3년 등 일부 기간은 상장일 이전이면 표시되지 않을 수 있어요.
-        </p>
+        <ul className={styles.noteList}>
+          <li>시장가격(종가) 기준 누적 수익률이에요.</li>
+          <li>분배금 재투자는 반영하지 않았어요.</li>
+          <li>기준가격(NAV)은 운용사 공시가 필요해 차후 제공 예정이에요.</li>
+          <li>상장일 이전 구간(예: 5년)은 데이터가 없어 표시되지 않을 수 있어요.</li>
+          <li>위 수익률은 누적 기준이며, 거래·세금 비용은 제외돼 있어요.</li>
+        </ul>
       </Card>
 
       <Card pad="lg">
@@ -85,7 +89,7 @@ export async function EtfReturns({ code, etfName, lastUpdated, history: passed }
             적립식 수익률 계산기
           </h2>
           <p style={{ margin: '4px 0 0', fontSize: 12, color: 'var(--rw-text-muted)', fontWeight: 600 }}>
-            매월 정액 매수했다면 지금 얼마가 됐을지 시뮬레이션.
+            현실적인 시작 금액(매월 10만원)으로 미리 잡아뒀어요. 자유롭게 바꿔보세요.
           </p>
         </div>
         <ReturnsCalculator monthly={monthly} etfName={etfName} />

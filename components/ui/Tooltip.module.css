@@ -21,6 +21,7 @@
   padding: 0;
   line-height: 1;
   user-select: none;
+  transition: background-color 120ms ease, color 120ms ease;
 }
 
 .trigger:hover {
@@ -28,18 +29,35 @@
   color: var(--rw-text-body);
 }
 
+/* 임의 요소(태그 칩 등)를 hover host 로 쓸 때 */
+.triggerInline {
+  display: inline-flex;
+  align-items: center;
+  cursor: help;
+  outline: none;
+}
+.triggerInline:focus-visible {
+  outline: 2px solid var(--rw-primary);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+/* 토스 톤 — 진한 네이비-그레이 풍선, 화살표 없음, 부드러운 그림자 */
 .bubble {
   position: absolute;
-  bottom: calc(100% + 6px);
+  bottom: calc(100% + 8px);
   left: 50%;
-  transform: translateX(-50%);
-  background: #191F28;
-  color: #fff;
-  padding: 8px 12px;
-  border-radius: 8px;
+  transform: translateX(-50%) translateY(2px);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: #3D4754;
+  color: rgba(255, 255, 255, 0.86);
+  padding: 12px 14px;
+  border-radius: 10px;
   font-size: 12px;
   font-weight: 600;
-  line-height: 1.5;
+  line-height: 1.55;
   white-space: normal;
   width: max-content;
   max-width: 240px;
@@ -48,34 +66,45 @@
   pointer-events: none;
   opacity: 0;
   visibility: hidden;
-  transition: opacity 120ms ease, visibility 120ms ease;
+  box-shadow: 0 8px 22px rgba(15, 23, 42, 0.18), 0 2px 6px rgba(15, 23, 42, 0.10);
+  transition: opacity 140ms ease, visibility 140ms ease, transform 140ms ease;
   z-index: 100;
 }
 
-.bubble::after {
-  content: '';
-  position: absolute;
-  top: 100%;
-  left: 50%;
-  transform: translateX(-50%);
-  border: 5px solid transparent;
-  border-top-color: #191F28;
+.bubbleTitle {
+  font-size: 13px;
+  font-weight: 900;
+  color: #fff;
+  letter-spacing: -0.2px;
+  line-height: 1.3;
+}
+
+.bubbleBody {
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.78);
+  line-height: 1.55;
+}
+
+.bubbleBody strong {
+  color: #fff;
+  font-weight: 800;
 }
 
 .wrap:hover .bubble,
 .wrap:focus-within .bubble {
   opacity: 1;
   visibility: visible;
+  transform: translateX(-50%) translateY(0);
 }
 
 /* 좌측 정렬 (i 아이콘이 컬럼 우측에 있을 때 — 오른쪽 끝 절단 방지) */
 .bubbleLeft {
   left: auto;
   right: 0;
-  transform: none;
+  transform: translateX(0) translateY(2px);
 }
-.bubbleLeft::after {
-  left: auto;
-  right: 6px;
-  transform: none;
+.wrap:hover .bubbleLeft,
+.wrap:focus-within .bubbleLeft {
+  transform: translateX(0) translateY(0);
 }

@@ -21,7 +21,8 @@ import {
   findRelatedReportsForEtf,
 } from '@/lib/relatedContent';
 import { RelatedContent } from '@/components/RelatedContent';
-import { Button, Chip, Badge, Stat, DataCell } from '@/components/ui';
+import { Button, Chip, Badge, Stat, DataCell, Tooltip } from '@/components/ui';
+import { lookupGlossary } from '@/lib/etfGlossary';
 import { buildEtfInsight, computeFeeStats, type EtfTag } from '@/lib/etfInsights';
 import { buildSectorBreakdown } from '@/lib/etfBreakdown';
 import { DonutChart, CompareBar, RiskMeter, MiniBarChart } from '@/components/ui';
@@ -238,14 +239,41 @@ export default async function EtfDetailPage({ params }: Props) {
                 <span className={styles.heroIndex}> · 추종: {etf.trackingIndex}</span>
               )}
             </p>
-            {etf.summary && etf.summary !== `${etf.name} (${etf.code}) — ${etf.issuer} 운용 ${etf.category}.` && (
-              <p className={styles.heroSummary}>{etf.summary}</p>
-            )}
+            {(() => {
+              const generic = etf.summary === `${etf.name} (${etf.code}) — ${etf.issuer} 운용 ${etf.category}.`;
+              if (etf.summary && !generic) {
+                return <p className={styles.heroSummary}>{etf.summary}</p>;
+              }
+              // 자동 1줄 설명 — 테마·추종지수·헤지 조합
+              const parts: string[] = [];
+              if (etf.theme) parts.push(`${etf.theme} 테마`);
+              if (etf.trackingIndex) parts.push(`${etf.trackingIndex} 추적`);
+              const hedge = etf.hedge || '';
+              if (/헤지|H\b/i.test(hedge)) parts.push('환헤지');
+              else if (etf.country === 'US' || /\bUS\b|미국/i.test(etf.category || '')) parts.push('환 노출');
+              const auto = parts.length > 0
+                ? `${parts.join(' · ')} 상품이에요.`
+                : `${etf.issuer}가 운용하는 ${etf.category} ETF예요.`;
+              return <p className={styles.heroSummary}>{auto}</p>;
+            })()}
             {etf.tags && etf.tags.length > 0 && (
               <div className={styles.tags}>
-                {etf.tags.slice(0, 4).map(tag => (
-                  <Chip key={tag} subtle size="sm">#{tag}</Chip>
-                ))}
+                {etf.tags.slice(0, 4).map(tag => {
+                  const entry = lookupGlossary(tag);
+                  const chip = <Chip subtle size="sm">#{tag}</Chip>;
+                  return entry ? (
+                    <Tooltip
+                      key={tag}
+                      label={`${tag} 설명`}
+                      title={entry.title}
+                      trigger={chip}
+                    >
+                      {entry.body}
+                    </Tooltip>
+                  ) : (
+                    <span key={tag}>{chip}</span>
+                  );
+                })}
               </div>
             )}
           </div>
@@ -455,11 +483,28 @@ export default async function EtfDetailPage({ params }: Props) {
                     </div>
                   );
                 }
+                const isKR = /^[0-9]{6}$/.test(etf.code);
+                const disclosureUrl = isKR
+                  ? `https://finance.naver.com/item/coinfo.naver?code=${etf.code}`
+                  : `https://www.google.com/search?q=${encodeURIComponent(`${etf.shortName || etf.name} ETF holdings`)}`;
+                const disclosureLabel = isKR ? '네이버 증권에서 구성종목 보기' : '운용사 공시 검색하기';
                 return (
-                  <p style={{ margin: 0, fontSize: 13, color: 'var(--rw-text-muted)', fontWeight: 600, lineHeight: 1.55 }}>
-                    이 ETF의 구성종목 데이터를 아직 불러올 수 없어요. <br />
-                    운용사 공식 공시(매월 갱신)에서 확인할 수 있습니다.
-                  </p>
+                  <div className={styles.emptyHoldings}>
+                    <FaIcon name="folder-open" size={22} />
+                    <p className={styles.emptyHoldingsTitle}>구성종목 데이터를 아직 불러올 수 없어요</p>
+                    <p className={styles.emptyHoldingsBody}>
+                      운용사 공식 공시(보통 매월 갱신)에서 전체 보유 종목을 확인할 수 있어요.
+                    </p>
+                    <a
+                      href={disclosureUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={styles.emptyHoldingsCta}
+                    >
+                      <FaIcon name="arrow-up-right-from-square" size={11} />
+                      {disclosureLabel}
+                    </a>
+                  </div>
                 );
               })()}
             </section>
@@ -479,9 +524,18 @@ export default async function EtfDetailPage({ params }: Props) {
               </section>
             )}
 
-            {/* 분배금 히스토리 mini bar (Toss 스타일) */}
+            {/* 분배금 히스토리 mini bar — 현재 mock, KRX 연동 전 반투명 오버레이 */}
             {distHistory.points.length > 0 && (
-              <section className={styles.section}>
+              <section className={`${styles.section} ${styles.mockSection}`}>
+                <div className={styles.mockOverlay}>
+                  <span className={styles.mockBadge}>
+                    <FaIcon name="flask" size={10} />
+                    예시 데이터
+                  </span>
+                  <span className={styles.mockBody}>
+                    KRX 분배금 API 연동 전이라 운용사 평균값으로 표시했어요.
+                  </span>
+                </div>
                 <div className={styles.sectionHead}>
                   <h2>분배금 히스토리</h2>
                   <span>
@@ -535,19 +589,47 @@ export default async function EtfDetailPage({ params }: Props) {
                   <span>{similarResults.length}개</span>
                 </div>
                 <div className={styles.relatedList}>
-                  {similarResults.map(({ etf: item, reasons }) => (
+                  {similarResults.map(({ etf: item, reasons }) => {
+                    // 추천 이유 칩 — 기본 reasons + 보수/순자산 비교 강화
+                    type Chip = { label: string; good?: boolean };
+                    const chips: Chip[] = reasons.map(r => ({ label: r }));
+                    const feeBase = parseFloat(String(etf.fee || '').replace(/[^\d.]/g, ''));
+                    const feeItem = parseFloat(String(item.fee || '').replace(/[^\d.]/g, ''));
+                    if (feeBase > 0 && feeItem > 0 && feeItem < feeBase) {
+                      chips.push({ label: '보수 더 낮음', good: true });
+                    }
+                    const aumNum = (s?: string) => {
+                      if (!s) return 0;
+                      const m = s.match(/([\d.]+)\s*(조|억)/);
+                      if (!m) return 0;
+                      const n = parseFloat(m[1]);
+                      return m[2] === '조' ? n * 10000 : n;
+                    };
+                    if (aumNum(item.aum) > aumNum(etf.aum) * 1.5) {
+                      chips.push({ label: '순자산 더 큼', good: true });
+                    }
+                    return (
                     <Link href={etfPath(item.slug)} key={item.slug}>
                       <div>
                         <strong>{item.shortName || item.name}</strong>
+                        <div className={styles.reasonChips}>
+                          {chips.slice(0, 3).map((c, i) => (
+                            <span
+                              key={`${item.slug}-${i}`}
+                              className={`${styles.reasonChip} ${c.good ? styles.reasonChipGood : ''}`}
+                            >
+                              {c.label}
+                            </span>
+                          ))}
+                        </div>
                         <p>
-                          {reasons[0]}
-                          {item.fee && ` · 보수 ${item.fee}`}
-                          {item.aum && ` · ${item.aum}`}
+                          {item.fee && `보수 ${item.fee}`}
+                          {item.aum && (item.fee ? ` · ${item.aum}` : item.aum)}
                         </p>
                       </div>
                       <span className={item.changeTone === 'down' ? styles.down : styles.up}>{item.change}</span>
-                    </Link>
-                  ))}
+                    </Link>);
+                  })}
                 </div>
               </section>
             )}

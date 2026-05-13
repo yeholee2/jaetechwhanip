@@ -127,9 +127,9 @@
   display: block;
 }
 
-.thumbMoney { background: linear-gradient(135deg, #1e59da 0%, #10b981 100%); }
+.thumbMoney { background: linear-gradient(135deg, #1e59da 0%, #4593fc 100%); }
 .thumbStock { background: linear-gradient(135deg, #123b8d 0%, #1e59da 55%, #60a5fa 100%); }
-.thumbGlobal { background: linear-gradient(135deg, #071b5f 0%, #4f46e5 52%, #14b8a6 100%); }
+.thumbGlobal { background: linear-gradient(135deg, #071b5f 0%, #4f46e5 52%, #60a5fa 100%); }
 .thumbTax { background: linear-gradient(135deg, #0f766e 0%, #1e59da 100%); }
 .thumbInsurance { background: linear-gradient(135deg, #155e75 0%, #2563eb 58%, #93c5fd 100%); }
 .thumbDebt { background: linear-gradient(135deg, #7f1d1d 0%, #f04251 52%, #f59e0b 100%); }

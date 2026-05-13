@@ -33,7 +33,7 @@ const AMOUNT_OPTIONS = [
 
 export function ReturnsCalculator({ monthly }: Props) {
   const [periodIdx, setPeriodIdx] = useState(3); // 1년
-  const [amountIdx, setAmountIdx] = useState(2); // 50만원
+  const [amountIdx, setAmountIdx] = useState(0); // 10만원 (한입 톤: 부담 없이 시작)
 
   const period = PERIOD_OPTIONS[periodIdx];
   const amount = AMOUNT_OPTIONS[amountIdx];

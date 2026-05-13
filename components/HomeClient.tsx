@@ -14,10 +14,10 @@ import { getAuthNickname, syncFinanceNickname } from '@/lib/nicknames';
 import { useAutoTranslation } from '@/lib/useAutoTranslation';
 import { FaIcon } from './FaIcon';
 import { AppShell } from './AppShell';
-import { Chip, Badge } from '@/components/ui';
+import { Chip, Badge, Tooltip } from '@/components/ui';
+import { lookupGlossary } from '@/lib/etfGlossary';
 import SparringMiniCard from './sparring/SparringMiniCard';
 import { HomeWatchWidget } from './HomeWatchWidget';
-import { HomeHero } from './HomeHero';
 import { etfs, etfPath } from '@/lib/etfs';
 import styles from './HomeClient.module.css';
 
@@ -307,9 +307,6 @@ export default function HomeClient({
 
   return (
     <AppShell active="home" wide hideSlogan>
-      {/* 정체성 hero — 비로그인은 진입 유도, 로그인은 진단 안내 */}
-      <HomeHero authed={!!user} userName={userName} />
-
       {/* PC 본문 */}
       <div className={styles.pcBody}>
         <div className={styles.pcFeed}>
@@ -395,11 +392,26 @@ export default function HomeClient({
           <div className={styles.sideWidget}>
             <div className={styles.sideHead}>인기 키워드</div>
             <div className={styles.keywordChips}>
-              {HOME_KEYWORDS.map(kw => (
-                <Link key={kw} className={styles.keywordChip} href={`/etf?q=${encodeURIComponent(kw)}`}>
-                  #{kw}
-                </Link>
-              ))}
+              {HOME_KEYWORDS.map(kw => {
+                const entry = lookupGlossary(kw);
+                const link = (
+                  <Link className={styles.keywordChip} href={`/etf?q=${encodeURIComponent(kw)}`}>
+                    #{kw}
+                  </Link>
+                );
+                return entry ? (
+                  <Tooltip
+                    key={kw}
+                    label={`${kw} 설명`}
+                    title={entry.title}
+                    trigger={link}
+                  >
+                    {entry.body}
+                  </Tooltip>
+                ) : (
+                  <span key={kw}>{link}</span>
+                );
+              })}
             </div>
           </div>
         </aside>

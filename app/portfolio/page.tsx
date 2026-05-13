@@ -6,6 +6,8 @@ import { PortfolioDiagnostic } from '../etf/PortfolioDiagnostic';
 import { PORTFOLIO_TEMPLATES } from '@/lib/portfolioTemplates';
 import { fetchWhales } from '@/lib/portfolioWhalesDb';
 import { SITE_NAME, SITE_URL } from '@/lib/seo';
+import { PortfolioTabs, type PortfolioTab } from './PortfolioTabs';
+import { LabSection } from './LabSection';
 import styles from './PortfolioPage.module.css';
 
 export const revalidate = 300;
@@ -27,37 +29,63 @@ export const metadata: Metadata = {
   },
 };
 
-export default async function PortfolioPage() {
-  const WHALE_PORTFOLIOS = await fetchWhales();
+type Props = { searchParams?: { tab?: string } };
+
+const TAB_HERO: Record<PortfolioTab, { title: string; lead: string }> = {
+  build: {
+    title: '내 ETF, 한 번에 진단',
+    lead: '섹터 중복도 · 환노출 · 보수 가중평균 · 위험 등급을 한 화면에서.',
+  },
+  copy: {
+    title: '대가의 포트폴리오로 시작하기',
+    lead: '버핏 · 달리오 · 보글 — 검증된 자산배분과 SEC 13F 실시간 보유.',
+  },
+  lab: {
+    title: '실험실 — 더 깊게 놀아보기',
+    lead: '백테스트 · 시뮬레이션 · AI 코치. 가장 필요한 도구부터 만들어요.',
+  },
+};
+
+export default async function PortfolioPage({ searchParams }: Props) {
+  const tab: PortfolioTab =
+    searchParams?.tab === 'copy' ? 'copy' :
+    searchParams?.tab === 'lab'  ? 'lab'  :
+    'build';
+
+  const WHALE_PORTFOLIOS = tab === 'copy' ? await fetchWhales() : [];
+  const hero = TAB_HERO[tab];
+
   return (
     <AppShell active="portfolio" wide hideSlogan>
       <main className={styles.page}>
         <PageHero
           eyebrow={<Badge tone="primary">MY포트폴리오</Badge>}
-          title="내 ETF, 한 번에 진단"
-          lead="섹터 중복도 · 환노출 · 보수 가중평균 · 위험 등급. 대가들의 자산배분으로 시작해도 좋아요."
+          title={hero.title}
+          lead={hero.lead}
         />
 
-        <div className={styles.layout}>
-          {/* 메인: 진단 */}
-          <div className={styles.main}>
+        <PortfolioTabs active={tab} />
+
+        {tab === 'build' && (
+          <div className={styles.buildLayout}>
             <PortfolioDiagnostic />
           </div>
+        )}
 
-          {/* 사이드: 대가 포트폴리오 모델 + 실시간 13F */}
-          <aside className={styles.side}>
+        {tab === 'copy' && (
+          <div className={styles.copyGrid}>
             {/* 모델 포트폴리오 */}
-            <div className={styles.sideCard}>
-              <div className={styles.sideHead}>
+            <section className={styles.copyCard}>
+              <div className={styles.copyHead}>
                 <Badge tone="primary">모델 포트폴리오</Badge>
-                <Link href="/portfolio/templates" className={styles.sideMore}>전체 →</Link>
+                <Link href="/portfolio/templates" className={styles.copyMore}>전체 →</Link>
               </div>
-              <h3 className={styles.sideTitle}>어디서 시작할지 모르겠다면</h3>
-              <p className={styles.sideLead}>
-                버핏 · 달리오 · 보글 — 검증된 자산배분 6가지. 따라하고 백테스트까지.
+              <h3 className={styles.copyTitle}>검증된 자산배분 따라하기</h3>
+              <p className={styles.copyLead}>
+                버핏 · 달리오 · 보글이 추천한 자산배분 6가지. 따라 만들고 백테스트까지 한 번에.
               </p>
               <ul className={styles.tplList}>
-                {PORTFOLIO_TEMPLATES.slice(0, 4).map(t => (
+                {PORTFOLIO_TEMPLATES.slice(0, 6).map(t => (
                   <li key={t.slug}>
                     <Link href={`/portfolio/templates/${t.slug}`} className={styles.tplItem}>
                       <div className={styles.tplItemMain}>
@@ -69,34 +97,38 @@ export default async function PortfolioPage() {
                   </li>
                 ))}
               </ul>
-            </div>
+            </section>
 
             {/* 실시간 13F */}
-            <div className={styles.sideCard} style={{ background: 'linear-gradient(135deg, rgba(126, 87, 194, 0.08), var(--rw-card))' }}>
-              <div className={styles.sideHead}>
+            <section className={`${styles.copyCard} ${styles.copyCardAlt}`}>
+              <div className={styles.copyHead}>
                 <Badge tone="purple">실시간 13F</Badge>
-                <Link href="/portfolio/whales" className={styles.sideMore}>전체 →</Link>
+                <Link href="/portfolio/whales" className={styles.copyMore}>전체 →</Link>
               </div>
-              <h3 className={styles.sideTitle}>대가가 지금 갖고 있는 것</h3>
-              <p className={styles.sideLead}>
+              <h3 className={styles.copyTitle}>대가가 지금 갖고 있는 것</h3>
+              <p className={styles.copyLead}>
                 버핏·버리·애크먼이 SEC에 분기마다 공시하는 실제 보유 종목.
               </p>
               <ul className={styles.tplList}>
-                {WHALE_PORTFOLIOS.slice(0, 4).map(w => (
+                {WHALE_PORTFOLIOS.slice(0, 6).map(w => (
                   <li key={w.slug}>
                     <Link href={`/portfolio/whales/${w.slug}`} className={styles.tplItem}>
                       <div className={styles.tplItemMain}>
                         <strong>{w.manager}</strong>
-                        <span>{w.topHoldings[0].ticker} {(w.topHoldings[0].weight * 100).toFixed(0)}% · Top {w.positionCount}개</span>
+                        <span>
+                          {w.topHoldings[0].ticker} {(w.topHoldings[0].weight * 100).toFixed(0)}% · Top {w.positionCount}개
+                        </span>
                       </div>
                       <span className={styles.tplAuthor}>{w.quarter}</span>
                     </Link>
                   </li>
                 ))}
               </ul>
-            </div>
-          </aside>
-        </div>
+            </section>
+          </div>
+        )}
+
+        {tab === 'lab' && <LabSection />}
       </main>
     </AppShell>
   );

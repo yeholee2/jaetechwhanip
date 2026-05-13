@@ -39,7 +39,10 @@ function DataCellRoot({ label, value, sub, tone = 'default', className, help }: 
       <span className={styles.label}>
         {label}
         {help && (
-          <Tooltip label={typeof label === 'string' ? label : '도움말'}>
+          <Tooltip
+            label={typeof label === 'string' ? label : '도움말'}
+            title={typeof label === 'string' ? label : undefined}
+          >
             {help}
           </Tooltip>
         )}

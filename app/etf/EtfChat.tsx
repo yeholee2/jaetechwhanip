@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { FaIcon } from '@/components/FaIcon';
-import { Badge } from '@/components/ui';
 import styles from './EtfChat.module.css';
 
 type Message = {
@@ -76,14 +75,16 @@ export function EtfChat({ etf }: { etf: EtfChatContext }) {
         aria-expanded={open}
       >
         <span className={styles.toggleLeft}>
-          <span className={`${styles.aiIcon} tf`} aria-hidden="true">🤖</span>
-          <div>
-            <strong>내 포트폴리오랑 잘 맞는지 AI에게 물어보기</strong>
+          <div className={styles.toggleStack}>
+            <span className={styles.aiBadge}>
+              <span className={`${styles.aiSparkle} tf`} aria-hidden="true">✨</span>
+              한입 AI
+            </span>
+            <strong>내 포트폴리오랑 잘 맞는지 물어보기</strong>
             <span>{etf.name} 기준 · 보유 종목 컨텍스트로 답변</span>
           </div>
         </span>
         <span className={styles.toggleRight}>
-          <Badge tone="purple">β</Badge>
           <FaIcon name="chevron-down" size={12} />
         </span>
       </button>
@@ -121,7 +122,7 @@ export function EtfChat({ etf }: { etf: EtfChatContext }) {
               >
                 {m.role !== 'user' && (
                   <span className={`${styles.msgIcon} tf`} aria-hidden="true">
-                    {m.role === 'error' ? '⚠️' : '🤖'}
+                    {m.role === 'error' ? '⚠️' : '✨'}
                   </span>
                 )}
                 <div className={styles.msgBubble}>{m.content}</div>
@@ -129,7 +130,7 @@ export function EtfChat({ etf }: { etf: EtfChatContext }) {
             ))}
             {pending && (
               <div className={`${styles.msg} ${styles.msgAi}`}>
-                <span className={`${styles.msgIcon} tf`} aria-hidden="true">🤖</span>
+                <span className={`${styles.msgIcon} tf`} aria-hidden="true">✨</span>
                 <div className={styles.msgBubble}>
                   <span className={styles.dots}><span /><span /><span /></span>
                 </div>

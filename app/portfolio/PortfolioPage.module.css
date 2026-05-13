@@ -1,44 +1,45 @@
 .page {
-  padding: var(--space-4) 0 var(--space-6);
+  padding: var(--space-4) 0 var(--space-12);
   display: flex;
   flex-direction: column;
-  gap: var(--space-4);
+  gap: var(--space-section-sm);
 }
 
-.layout {
+/* ────────────── 직접 만들기 (build) ────────────── */
+.buildLayout {
+  min-width: 0;
+}
+
+/* ────────────── 대가 따라하기 (copy) ────────────── */
+.copyGrid {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 300px;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
   gap: var(--space-4);
   align-items: start;
 }
 
-.main {
-  min-width: 0;
-}
-
-.side {
-  position: sticky;
-  top: 80px;
-}
-
-.sideCard {
-  padding: var(--space-4);
-  background: linear-gradient(135deg, rgba(49, 130, 246, 0.08), var(--rw-card));
+.copyCard {
+  padding: var(--space-card-pad);
+  background: linear-gradient(135deg, var(--rw-primary-bg), var(--rw-card) 55%);
   border: 1px solid var(--rw-border);
-  border-radius: var(--rw-radius-md);
+  border-radius: var(--rw-radius-lg);
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
 }
 
-.sideHead {
+.copyCardAlt {
+  background: linear-gradient(135deg, rgba(126, 87, 194, 0.08), var(--rw-card) 55%);
+}
+
+.copyHead {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--space-2);
 }
 
-.sideMore {
+.copyMore {
   font-size: 12px;
   color: var(--rw-primary);
   font-weight: var(--weight-bold);
@@ -46,23 +47,24 @@
   white-space: nowrap;
 }
 
-.sideTitle {
+.copyTitle {
   margin: var(--space-1) 0 0;
-  font-size: var(--type-body);
+  font-size: 18px;
   font-weight: var(--weight-black);
   color: var(--rw-text-strong);
   letter-spacing: -0.3px;
   line-height: 1.3;
 }
 
-.sideLead {
-  margin: 0 0 var(--space-2);
-  font-size: 12px;
+.copyLead {
+  margin: 0 0 var(--space-3);
+  font-size: 13px;
   color: var(--rw-text-body);
   font-weight: var(--weight-semibold);
-  line-height: 1.5;
+  line-height: 1.55;
 }
 
+/* 템플릿/13F 공용 리스트 */
 .tplList {
   list-style: none;
   margin: 0;
@@ -77,7 +79,7 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--space-2);
-  padding: var(--space-2) var(--space-3);
+  padding: var(--space-3) var(--space-3);
   background: var(--rw-card);
   border: 1px solid transparent;
   border-radius: var(--rw-radius-sm);
@@ -121,12 +123,7 @@
   white-space: nowrap;
 }
 
-/* 모바일/태블릿: 1-col, 사이드 카드를 메인 아래로 */
-@media (max-width: 960px) {
-  .layout {
-    grid-template-columns: 1fr;
-  }
-  .side {
-    position: static;
-  }
+@media (max-width: 640px) {
+  .copyCard { padding: var(--space-card-pad-sm); }
+  .copyTitle { font-size: 16px; }
 }

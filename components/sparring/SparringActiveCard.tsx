@@ -9,10 +9,10 @@ import { getEtfByCode } from '@/lib/etfs';
 import styles from './SparringCards.module.css';
 
 const gradients: Record<string, string> = {
-  재테크: 'linear-gradient(135deg, #1e59da 0%, #10b981 100%)',
+  재테크: 'linear-gradient(135deg, #1e59da 0%, #4593fc 100%)',
   '국내주식·ETF': 'linear-gradient(135deg, #123b8d 0%, #1e59da 56%, #61a5ff 100%)',
-  '해외주식·ETF': 'linear-gradient(135deg, #071b5f 0%, #4f46e5 52%, #14b8a6 100%)',
-  절세: 'linear-gradient(135deg, #0f766e 0%, #1e59da 100%)',
+  '해외주식·ETF': 'linear-gradient(135deg, #071b5f 0%, #4f46e5 52%, #60a5fa 100%)',
+  절세: 'linear-gradient(135deg, #1e3a8a 0%, #3182f6 100%)',
   보험: 'linear-gradient(135deg, #155e75 0%, #2563eb 58%, #93c5fd 100%)',
   '대출·부채': 'linear-gradient(135deg, #172554 0%, #1e59da 58%, #64748b 100%)',
 };
