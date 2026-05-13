@@ -139,3 +139,34 @@
 @media (max-width: 600px) {
   .grid { grid-template-columns: 1fr; }
 }
+
+/* 카드 내 백테스트 미니 */
+.btMini {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--rw-border);
+}
+
+.btMiniItem {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.btMiniItem span {
+  font-size: 10px;
+  font-weight: 800;
+  color: var(--rw-text-muted);
+  letter-spacing: 0.2px;
+}
+
+.btMiniItem strong {
+  font-size: 13px;
+  font-weight: 900;
+  color: var(--rw-text-strong);
+  letter-spacing: -0.2px;
+  font-feature-settings: 'tnum';
+}

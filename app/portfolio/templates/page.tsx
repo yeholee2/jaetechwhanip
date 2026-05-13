@@ -10,6 +10,7 @@ import Link from 'next/link';
 import { AppShell } from '@/components/AppShell';
 import { PageHero, Badge, Card } from '@/components/ui';
 import { PORTFOLIO_TEMPLATES } from '@/lib/portfolioTemplates';
+import { backtestTemplate } from '@/lib/backtest';
 import { SITE_NAME, SITE_URL } from '@/lib/seo';
 import styles from './Templates.module.css';
 
@@ -36,7 +37,13 @@ const RISK_LABEL: Record<number, { label: string; tone: 'success' | 'neutral' | 
   5: { label: '높음',       tone: 'fresh' },
 };
 
-export default function TemplatesPage() {
+export default async function TemplatesPage() {
+  // 카드별 1년 백테스트 미리 계산 (병렬, Yahoo cache 1일)
+  const backtests = await Promise.all(
+    PORTFOLIO_TEMPLATES.map(t => backtestTemplate(t, '1y').catch(() => null))
+  );
+  const btMap = new Map(PORTFOLIO_TEMPLATES.map((t, i) => [t.slug, backtests[i]]));
+
   return (
     <AppShell active="portfolio" hideSlogan>
       <main style={{ padding: 'var(--space-4) 0 var(--space-6)', display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
@@ -84,8 +91,31 @@ export default function TemplatesPage() {
                   ))}
                 </div>
 
+                {(() => {
+                  const bt = btMap.get(t.slug);
+                  if (!bt) return null;
+                  const fmt = (n: number) => `${n >= 0 ? '+' : ''}${(n * 100).toFixed(1)}%`;
+                  const tone = bt.totalReturn >= 0 ? 'var(--rw-red60)' : 'var(--rw-blue70)';
+                  return (
+                    <div className={styles.btMini}>
+                      <div className={styles.btMiniItem}>
+                        <span>1년</span>
+                        <strong style={{ color: tone }}>{fmt(bt.totalReturn)}</strong>
+                      </div>
+                      <div className={styles.btMiniItem}>
+                        <span>최악</span>
+                        <strong style={{ color: 'var(--rw-red60)' }}>{fmt(bt.maxDrawdown)}</strong>
+                      </div>
+                      <div className={styles.btMiniItem}>
+                        <span>변동성</span>
+                        <strong>±{(bt.volatility * 100).toFixed(0)}%</strong>
+                      </div>
+                    </div>
+                  );
+                })()}
+
                 <div className={styles.cardFoot}>
-                  <span className={styles.cardCta}>1년 백테스트 보기 →</span>
+                  <span className={styles.cardCta}>구성·백테스트 자세히 →</span>
                 </div>
               </Link>
             );
