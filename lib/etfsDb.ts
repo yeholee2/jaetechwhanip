@@ -105,10 +105,26 @@ export async function fetchEtfs(limit = 1000): Promise<EtfInfo[]> {
 
 export async function fetchEtfBySlug(slug: string): Promise<EtfInfo | undefined> {
   const all = await fetchEtfs();
-  return all.find(e => e.slug === decodeURIComponent(slug));
+  const decoded = decodeURIComponent(slug);
+  // 1) 정확 매칭
+  let hit = all.find(e => e.slug === decoded);
+  if (hit) return hit;
+  // 2) slug 첫 토큰이 ticker — '/etf/voo' 같은 입력 허용
+  const lower = decoded.toLowerCase();
+  hit = all.find(e => e.slug.split('-')[0] === lower);
+  if (hit) return hit;
+  return undefined;
 }
 
 export async function fetchEtfByCode(code: string): Promise<EtfInfo | undefined> {
   const all = await fetchEtfs();
-  return all.find(e => e.code === code);
+  const norm = code.trim();
+  // 정확 매칭 우선 (KRX 6자리)
+  let hit = all.find(e => e.code === norm);
+  if (hit) return hit;
+  // 미국 티커는 보통 대문자로 저장됨 → 소문자 입력도 매칭
+  const upper = norm.toUpperCase();
+  hit = all.find(e => e.code === upper);
+  if (hit) return hit;
+  return undefined;
 }
