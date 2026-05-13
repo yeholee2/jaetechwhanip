@@ -33,6 +33,7 @@ import { AlertButton } from '../AlertButton';
 import { Suspense } from 'react';
 import { EtfReturns } from './EtfReturns';
 import { fetchMaxHistory } from '@/lib/etfPriceHistory';
+import { fetchEtfHoldings } from '@/lib/etfHoldings';
 import { ShareButton } from '../ShareButton';
 import { RecordEtfView } from '../RecordEtfView';
 import { EtfChart } from '../EtfChart';
@@ -104,13 +105,14 @@ export default async function EtfDetailPage({ params }: Props) {
   const benchSymbol = etf.country === 'US' ? '^GSPC' : '^KS11';
   const benchName = etf.country === 'US' ? 'S&P 500' : '코스피';
 
-  const [sparringRes, articles, reports, dbPool, priceHistory, benchHistory] = await Promise.all([
+  const [sparringRes, articles, reports, dbPool, priceHistory, benchHistory, liveHoldings] = await Promise.all([
     listSparrings(),
     fetchGhostArticles(),
     fetchRecentReportsWithFallback(),
     fetchEtfs(2000),
     fetchMaxHistory(etf.code),
     fetchMaxHistory(benchSymbol),
+    fetchEtfHoldings(etf.code),
   ]);
   // DB 기반 유사 ETF + 같은 운용사
   const similarResults = findSimilarEtfs(etf as any, dbPool, 6);
@@ -132,7 +134,11 @@ export default async function EtfDetailPage({ params }: Props) {
     t?.tone === 'good' ? 'success' : t?.tone === 'warn' ? 'fresh' : 'neutral';
 
   // 섹터 도넛 차트용 비중 추출
-  const sectorBreakdown = buildSectorBreakdown(etf.holdings);
+  // 섹터: 라이브 (Yahoo) 우선, 없으면 시드 holdings 분석
+  const liveSectors = liveHoldings?.sectors || [];
+  const sectorBreakdown = liveSectors.length > 0
+    ? liveSectors.map(s => ({ label: s.sector, value: s.weight * 100 })).sort((a, b) => b.value - a.value)
+    : buildSectorBreakdown(etf.holdings);
   const topSector = sectorBreakdown[0];
 
   // 동종 카테고리 보수 비교
@@ -369,33 +375,68 @@ export default async function EtfDetailPage({ params }: Props) {
               }}
             />
 
+            {/* 구성종목 — 라이브 (Yahoo) 우선, 없으면 시드, 둘 다 없으면 안내 */}
             <section className={styles.section}>
               <div className={styles.sectionHead}>
-                <h2>주요 구성종목</h2>
-                <span>예시 비중</span>
+                <h2>구성종목 Top 10</h2>
+                <span>
+                  {liveHoldings?.holdings?.length
+                    ? 'Yahoo Finance · 실데이터'
+                    : etf.holdings?.length
+                      ? '예시 비중'
+                      : '운용사 공시'}
+                </span>
               </div>
-              <div className={styles.holdingList}>
-                {(() => {
-                  // 비중을 숫자로 파싱해서 정렬 + 바 너비 계산용 max 추출
+              {(() => {
+                if (liveHoldings?.holdings?.length) {
+                  const max = Math.max(...liveHoldings.holdings.map(h => h.weight), 0.01);
+                  return (
+                    <div className={styles.holdingList}>
+                      {liveHoldings.holdings.map(h => (
+                        <div key={h.symbol || h.name} className={styles.holdingRow}>
+                          <div className={styles.holdingInfo}>
+                            <strong>{h.name}</strong>
+                            <p>{h.symbol}</p>
+                          </div>
+                          <div className={styles.holdingBar} aria-hidden="true">
+                            <span style={{ width: `${(h.weight / max) * 100}%` }} />
+                          </div>
+                          <b className={styles.holdingPct}>{(h.weight * 100).toFixed(2)}%</b>
+                        </div>
+                      ))}
+                    </div>
+                  );
+                }
+                if (etf.holdings?.length) {
                   const parsed = etf.holdings.map(h => ({
                     ...h,
                     pct: parseFloat(String(h.weight).replace(/[^\d.]/g, '')) || 0,
                   })).sort((a, b) => b.pct - a.pct);
                   const max = Math.max(...parsed.map(p => p.pct), 1);
-                  return parsed.map(holding => (
-                    <div key={holding.name} className={styles.holdingRow}>
-                      <div className={styles.holdingInfo}>
-                        <strong>{holding.name}</strong>
-                        <p>{holding.note}</p>
-                      </div>
-                      <div className={styles.holdingBar} aria-hidden="true">
-                        <span style={{ width: `${(holding.pct / max) * 100}%` }} />
-                      </div>
-                      <b className={styles.holdingPct}>{holding.weight}</b>
+                  return (
+                    <div className={styles.holdingList}>
+                      {parsed.map(holding => (
+                        <div key={holding.name} className={styles.holdingRow}>
+                          <div className={styles.holdingInfo}>
+                            <strong>{holding.name}</strong>
+                            <p>{holding.note}</p>
+                          </div>
+                          <div className={styles.holdingBar} aria-hidden="true">
+                            <span style={{ width: `${(holding.pct / max) * 100}%` }} />
+                          </div>
+                          <b className={styles.holdingPct}>{holding.weight}</b>
+                        </div>
+                      ))}
                     </div>
-                  ));
-                })()}
-              </div>
+                  );
+                }
+                return (
+                  <p style={{ margin: 0, fontSize: 13, color: 'var(--rw-text-muted)', fontWeight: 600, lineHeight: 1.55 }}>
+                    이 ETF의 구성종목 데이터를 아직 불러올 수 없어요. <br />
+                    운용사 공식 공시(매월 갱신)에서 확인할 수 있습니다.
+                  </p>
+                );
+              })()}
             </section>
 
             {/* 섹터 비중 도넛 (Toss / FunETF 스타일) */}
