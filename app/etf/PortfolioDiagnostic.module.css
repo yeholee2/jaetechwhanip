@@ -385,3 +385,16 @@
     display: none;
   }
 }
+
+/* 종목 비중 + 운용사 분산 — PC 2-col */
+.twoCol {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  gap: var(--space-3);
+}
+
+@media (max-width: 768px) {
+  .twoCol {
+    grid-template-columns: 1fr;
+  }
+}

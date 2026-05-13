@@ -5,14 +5,15 @@
 
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { Suspense } from 'react';
 import { notFound } from 'next/navigation';
 import { AppShell } from '@/components/AppShell';
-import { Badge, Card, DataCell, Stat, Button } from '@/components/ui';
-import { BacktestChart } from '@/components/BacktestChart';
+import { Badge, Card } from '@/components/ui';
 import { getTemplateBySlug, PORTFOLIO_TEMPLATES } from '@/lib/portfolioTemplates';
-import { backtestTemplate } from '@/lib/backtest';
+import type { BacktestRange } from '@/lib/backtest';
 import { SITE_NAME, SITE_URL } from '@/lib/seo';
 import { ApplyTemplateButton } from './ApplyTemplateButton';
+import { BacktestPanel, BacktestSkeleton } from './BacktestPanel';
 import styles from './TemplateDetail.module.css';
 
 export const revalidate = 3600;
@@ -38,14 +39,9 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   };
 }
 
-const RANGE_TABS: { key: 'r3mo' | 'r6mo' | 'r1y' | 'r5y'; label: string; api: '3mo' | '6mo' | '1y' | '5y' }[] = [
-  { key: 'r3mo', label: '3개월', api: '3mo' },
-  { key: 'r6mo', label: '6개월', api: '6mo' },
-  { key: 'r1y',  label: '1년',   api: '1y' },
-  { key: 'r5y',  label: '5년',   api: '5y' },
-];
+const VALID_RANGES: BacktestRange[] = ['3mo', '6mo', '1y', '5y', '10y'];
 
-export default async function TemplateDetailPage({
+export default function TemplateDetailPage({
   params,
   searchParams,
 }: {
@@ -55,11 +51,8 @@ export default async function TemplateDetailPage({
   const template = getTemplateBySlug(params.slug);
   if (!template) notFound();
 
-  const rangeKey = searchParams?.range || '1y';
-  const matchedTab = RANGE_TABS.find(t => t.api === rangeKey) || RANGE_TABS[2];
-  const backtest = await backtestTemplate(template, matchedTab.api);
-
-  const fmtPct = (n: number) => `${n >= 0 ? '+' : ''}${(n * 100).toFixed(2)}%`;
+  const rangeParam = (searchParams?.range || '1y') as BacktestRange;
+  const range: BacktestRange = VALID_RANGES.includes(rangeParam) ? rangeParam : '1y';
 
   return (
     <AppShell active="portfolio" hideSlogan>
@@ -78,71 +71,10 @@ export default async function TemplateDetailPage({
           </p>
         </section>
 
-        {/* 백테스트 */}
-        {backtest ? (
-          <Card pad="lg">
-            <div className={styles.sectionHead}>
-              <h2>{matchedTab.label} 백테스트</h2>
-              <span>실데이터 · Yahoo Finance</span>
-            </div>
-            <div className={styles.rangeTabs} role="tablist" aria-label="백테스트 기간">
-              {RANGE_TABS.map(t => (
-                <Link
-                  key={t.key}
-                  href={`/portfolio/templates/${template.slug}?range=${t.api}`}
-                  className={`${styles.rangeTab} ${t.api === matchedTab.api ? styles.rangeTabOn : ''}`}
-                  role="tab"
-                  aria-selected={t.api === matchedTab.api}
-                >
-                  {t.label}
-                </Link>
-              ))}
-            </div>
-            <BacktestChart points={backtest.points} />
-            <div className={styles.statsGrid}>
-              <Stat
-                label="총 수익률"
-                value={fmtPct(backtest.totalReturn)}
-                tone={backtest.totalReturn >= 0 ? 'up' : 'down'}
-                size="lg"
-              />
-              <DataCell
-                label="연환산 수익률"
-                value={fmtPct(backtest.annualizedReturn)}
-                tone={backtest.annualizedReturn >= 0 ? 'good' : 'warn'}
-              />
-              <DataCell
-                label="최악의 시기"
-                value={fmtPct(backtest.maxDrawdown)}
-                sub="가장 크게 빠진 구간"
-                tone="warn"
-              />
-              <DataCell
-                label="변동성"
-                value={`±${(backtest.volatility * 100).toFixed(1)}%`}
-                sub="연환산 표준편차"
-              />
-            </div>
-            {backtest.vsBenchmark && (
-              <div className={styles.benchmark}>
-                <span>S&P500 단독 비교</span>
-                <strong>
-                  {fmtPct(backtest.vsBenchmark.totalReturn)} ·
-                  {' '}이 포트폴리오 <em style={{
-                    color: backtest.vsBenchmark.outperformance >= 0 ? 'var(--rw-red60)' : 'var(--rw-blue70)'
-                  }}>
-                    {backtest.vsBenchmark.outperformance >= 0 ? '+' : ''}
-                    {(backtest.vsBenchmark.outperformance * 100).toFixed(2)}%p
-                  </em>
-                </strong>
-              </div>
-            )}
-          </Card>
-        ) : (
-          <Card pad="lg" className={styles.noBacktest}>
-            <p>백테스트 데이터를 불러올 수 없어요. 잠시 후 다시 시도해주세요.</p>
-          </Card>
-        )}
+        {/* 백테스트 — Suspense로 fetch 동안 skeleton */}
+        <Suspense key={range} fallback={<BacktestSkeleton />}>
+          <BacktestPanel template={template} range={range} />
+        </Suspense>
 
         {/* 구성 — 미국·국내 매핑 표 */}
         <Card pad="lg">

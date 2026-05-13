@@ -314,54 +314,55 @@ export function PortfolioDiagnostic() {
         </Card>
       )}
 
-      {/* 종목 비중 */}
-      <Card pad="lg" className={styles.section}>
-        <div className={styles.sectionHead}>
-          <h3>종목 비중</h3>
-          <span>큰 순으로</span>
-        </div>
-        <ul className={styles.weightList}>
-          {weighed.map(({ d, weight }) => {
-            const etf = getEtfByCode(d.etf_code);
-            return (
-              <li key={d.id || d.etf_code} className={styles.weightItem}>
-                <div className={styles.weightLabel}>
-                  <strong>{etf?.shortName || d.etf_code}</strong>
-                  <span>{etf?.code || d.etf_code} · {etf?.issuer || '—'}</span>
-                </div>
-                <div className={styles.weightBar} aria-hidden="true">
-                  <span style={{ width: `${(weight * 100).toFixed(1)}%` }} />
-                </div>
-                <div className={styles.weightValue}>{(weight * 100).toFixed(1)}%</div>
-              </li>
-            );
-          })}
-        </ul>
-      </Card>
+      {/* 종목 비중 + 운용사 분산 — PC 2-col */}
+      <div className={styles.twoCol}>
+        <Card pad="lg" className={styles.section}>
+          <div className={styles.sectionHead}>
+            <h3>종목 비중</h3>
+            <span>큰 순으로</span>
+          </div>
+          <ul className={styles.weightList}>
+            {weighed.map(({ d, weight }) => {
+              const etf = getEtfByCode(d.etf_code);
+              return (
+                <li key={d.id || d.etf_code} className={styles.weightItem}>
+                  <div className={styles.weightLabel}>
+                    <strong>{etf?.shortName || d.etf_code}</strong>
+                    <span>{etf?.code || d.etf_code} · {etf?.issuer || '—'}</span>
+                  </div>
+                  <div className={styles.weightBar} aria-hidden="true">
+                    <span style={{ width: `${(weight * 100).toFixed(1)}%` }} />
+                  </div>
+                  <div className={styles.weightValue}>{(weight * 100).toFixed(1)}%</div>
+                </li>
+              );
+            })}
+          </ul>
+        </Card>
 
-      {/* 운용사 분산 */}
-      <Card pad="lg" className={styles.section}>
-        <div className={styles.sectionHead}>
-          <h3>운용사 분산</h3>
-          <span>{issuerWeights.length}개사</span>
-        </div>
-        <ul className={styles.issuerList}>
-          {issuerWeights.map(i => (
-            <li key={i.name}>
-              <span className={styles.issuerName}>{i.name}</span>
-              <div className={styles.issuerBar} aria-hidden="true">
-                <span style={{ width: `${(i.weight * 100).toFixed(1)}%` }} />
-              </div>
-              <span className={styles.issuerPct}>{(i.weight * 100).toFixed(0)}%</span>
-            </li>
-          ))}
-        </ul>
-        {issuerWeights.length === 1 && (
-          <p className={styles.note}>
-            한 운용사에 집중돼 있어요. 다양화를 고려해 보세요.
-          </p>
-        )}
-      </Card>
+        <Card pad="lg" className={styles.section}>
+          <div className={styles.sectionHead}>
+            <h3>운용사 분산</h3>
+            <span>{issuerWeights.length}개사</span>
+          </div>
+          <ul className={styles.issuerList}>
+            {issuerWeights.map(i => (
+              <li key={i.name}>
+                <span className={styles.issuerName}>{i.name}</span>
+                <div className={styles.issuerBar} aria-hidden="true">
+                  <span style={{ width: `${(i.weight * 100).toFixed(1)}%` }} />
+                </div>
+                <span className={styles.issuerPct}>{(i.weight * 100).toFixed(0)}%</span>
+              </li>
+            ))}
+          </ul>
+          {issuerWeights.length === 1 && (
+            <p className={styles.note}>
+              한 운용사에 집중돼 있어요. 다양화를 고려해 보세요.
+            </p>
+          )}
+        </Card>
+      </div>
     </div>
   );
 }
