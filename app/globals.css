@@ -8,7 +8,8 @@
 
 /* 토스페이스 */
 @import url('https://cdn.jsdelivr.net/gh/toss/tossface/dist/tossface.css');
-/* Pretendard */
+/* Pretendard — Variable (토스 톤 weight 450/550/650/700/800/900 활용) + static fallback */
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/variable/pretendardvariable.css');
 @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
 
 @font-face {
@@ -116,18 +117,26 @@
    * 의미적 4단계 — 권장 사용. 새 코드는 이 4개만 사용.
    * 기존 --text-* 는 호환용 alias.
    */
-  --type-caption: 13px;  /* 메타·라벨·캡션·뱃지 본문 */
-  --type-body: 15px;     /* 본문 */
-  --type-title: 20px;    /* 카드 제목 / h2-h3 */
-  --type-display: 28px;  /* 페이지 hero h1 */
+  /* 토스 토큰 정렬 (Toss Product Sans = Pretendard 베이스) */
+  --type-caption: 13px;   /* 메타·라벨·캡션 (토스 13px) */
+  --type-body: 15px;      /* 본문 (토스 15px) */
+  --type-title: 19px;     /* 섹션 헤드 (토스 19px) */
+  --type-display: 28px;   /* 페이지 hero h1 */
 
-  --leading-tight: 1.25;
-  --leading-snug: 1.4;
+  /* 토스 line-height — 한국어 본문 1.5 ~ 1.6 */
+  --leading-tight: 1.2;
+  --leading-snug: 1.35;
   --leading-normal: 1.55;
   --leading-relaxed: 1.7;
 
-  --weight-regular: 400;
-  --weight-medium: 500;
+  /* 토스 letter-spacing — 큰 텍스트에 negative */
+  --tracking-tight: -0.5px;
+  --tracking-snug:  -0.3px;
+  --tracking-normal: -0.1px;
+
+  /* 토스 weight 스케일 (Pretendard Variable) */
+  --weight-regular: 450;
+  --weight-medium: 550;
   --weight-semibold: 650;
   --weight-bold: 700;
   --weight-heavy: 800;
@@ -222,8 +231,11 @@ html, body {
 
 body {
   /*
-   * 한글/영문: Pretendard. 이모지: Tossface (unicode-range로 자동 매칭).
-   * Tossface가 시스템 이모지 폰트들보다 먼저 와야 토스 톤으로 우선 적용됨.
+   * 토스 폰트 시스템:
+   * - 한글/영문: Pretendard Variable (Toss Product Sans = Pretendard 기반)
+   * - 이모지: Tossface (unicode-range로 자동)
+   * - font-feature-settings: ss17 (Pretendard 한글 변형), cv11 (숫자 대체 글리프), tnum (고정폭 숫자)
+   *   → 토스의 깔끔한 숫자 정렬 + 한글 변형 글리프 동일 적용
    */
   font-family:
     'Pretendard Variable', Pretendard,
@@ -233,12 +245,28 @@ body {
     'Tossface',
     'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
     sans-serif;
+  font-feature-settings: 'ss17', 'cv11', 'tnum';
   background: var(--rw-screen);
   color: var(--rw-text-strong);
   font-size: var(--text-base);
   line-height: var(--leading-normal);
+  letter-spacing: -0.1px;
+  font-weight: var(--weight-regular);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* 헤더는 더 강한 letter-spacing */
+h1, h2, h3, h4 {
+  letter-spacing: var(--tracking-snug);
+}
+
+/* 숫자 전용 utility — 가격·수익률 등 */
+.tnum,
+[data-tnum] {
+  font-feature-settings: 'tnum';
+  font-variant-numeric: tabular-nums;
 }
 
 /* ─────────────────────────────────────────────────────────
