@@ -134,11 +134,24 @@ export default function TemplateDetailPage({
           </div>
         </Card>
 
-        {/* 따라하기 CTA */}
+        {/* 따라하기 + 비교 CTA */}
         <Card pad="lg" className={styles.ctaCard}>
           <h3>이 포트폴리오로 시작하기</h3>
           <p>구성 ETF를 내 포트폴리오에 한 번에 추가해요. 가입은 무료, 시작은 1분.</p>
-          <ApplyTemplateButton template={template} />
+          <div style={{ display: 'flex', gap: 'var(--space-2)', justifyContent: 'center', flexWrap: 'wrap' }}>
+            <ApplyTemplateButton template={template} />
+            <Link
+              href={`/portfolio/compare/${template.slug}`}
+              style={{
+                display: 'inline-flex', alignItems: 'center', padding: '10px 16px',
+                fontSize: 14, fontWeight: 800, color: 'var(--rw-text-strong)',
+                background: 'var(--rw-card)', border: '1px solid var(--rw-border)',
+                borderRadius: 'var(--rw-radius-sm)', textDecoration: 'none',
+              }}
+            >
+              내 포트폴리오와 비교
+            </Link>
+          </div>
         </Card>
       </main>
     </AppShell>

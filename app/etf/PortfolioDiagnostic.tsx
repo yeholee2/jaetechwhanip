@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 import {
   type UserEtfHolding,
@@ -234,7 +235,12 @@ export function PortfolioDiagnostic() {
         <Card pad="lg" className={styles.section}>
           <div className={styles.sectionHead}>
             <h3>한입 진단</h3>
-            <span>비중 가중 평균</span>
+            <Link
+              href="/portfolio/compare/all-weather"
+              style={{ fontSize: 12, color: 'var(--rw-primary)', fontWeight: 800, textDecoration: 'none' }}
+            >
+              올웨더와 비교 →
+            </Link>
           </div>
 
           <p className={styles.insightOneLiner}>{insight.oneLiner}</p>
