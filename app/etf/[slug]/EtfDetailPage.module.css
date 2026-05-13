@@ -32,28 +32,29 @@
 .sideCard,
 .sparringCard,
 .takeaway {
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  background: var(--white);
+  border: 1px solid var(--rw-border);
+  border-radius: var(--rw-radius-md);
+  background: var(--rw-card);
 }
 
-/* 한입 한줄평 카드 (hero 바로 아래, primary 톤) */
+/* 한 줄 요약 — flat, 본문 일부처럼 */
 .takeaway {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: var(--space-3);
   padding: var(--space-4) var(--space-5);
   margin-bottom: var(--space-3);
-  background: linear-gradient(135deg, var(--rw-blue5) 0%, var(--rw-card) 80%);
-  border-color: var(--rw-primary-bg);
+  background: var(--rw-card-muted);
+  border-color: var(--rw-border);
 }
 
 .takeaway p {
   margin: 0;
   font-size: var(--type-body);
-  font-weight: var(--weight-semibold);
+  font-weight: var(--weight-heavy);
   color: var(--rw-text-strong);
-  line-height: var(--leading-relaxed);
+  line-height: 1.55;
+  letter-spacing: -0.2px;
 }
 
 .hero {
@@ -221,7 +222,7 @@
 }
 
 .priceCard {
-  padding: 18px;
+  padding: var(--space-5) var(--space-5) var(--space-4);
 }
 
 .priceHead {
@@ -351,18 +352,21 @@
 
 .sectionHead {
   display: flex;
-  align-items: center;
+  align-items: baseline;
   justify-content: space-between;
   gap: 12px;
-  margin-bottom: 12px;
+  margin-bottom: var(--space-3);
 }
 
 .sectionHead h2,
+.sectionHead h3,
 .sideCard h2 {
-  color: var(--t1);
-  font-size: 20px;
-  line-height: 1.35;
-  font-weight: 850;
+  color: var(--rw-text-strong);
+  font-size: 17px;
+  line-height: 1.3;
+  font-weight: 900;
+  letter-spacing: -0.3px;
+  margin: 0;
   letter-spacing: 0;
 }
 
@@ -560,9 +564,9 @@
   }
 }
 
-/* 사이드 컬럼 — 한 입 빠른 카드 */
+/* 사이드 컬럼 — 핵심 요약 카드 (flat) */
 .sideQuickCard {
-  background: linear-gradient(135deg, var(--rw-primary-soft, rgba(49, 130, 246, 0.08)), var(--rw-card));
+  background: var(--rw-card);
   border: 1px solid var(--rw-border);
   border-radius: var(--rw-radius-md);
   padding: var(--space-4);

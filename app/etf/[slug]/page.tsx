@@ -246,7 +246,6 @@ export default async function EtfDetailPage({ params }: Props) {
             </section>
 
             <section className={styles.takeaway} aria-label="한 줄 요약">
-              <Badge tone="primary">이 ETF는</Badge>
               <p>{insight.oneLiner}</p>
             </section>
 
@@ -324,12 +323,7 @@ export default async function EtfDetailPage({ params }: Props) {
               )}
             </section>
 
-            {etf.oneLine && (
-              <section className={styles.summaryBox}>
-                <span>한 줄 요약</span>
-                <p>{etf.oneLine}</p>
-              </section>
-            )}
+            {/* 한 줄 요약은 hero 아래 takeaway에 이미 표시됨 — 중복 제거 */}
 
             <EtfChat
               etf={{
