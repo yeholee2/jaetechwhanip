@@ -65,17 +65,19 @@
   margin-bottom: var(--space-3);
 }
 
-.heroEyebrow {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-  margin-bottom: var(--space-3);
+.heroMain {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  flex: 1;
+  min-width: 0;
 }
 
-.heroIssuer {
-  font-size: var(--text-sm);
-  font-weight: var(--weight-bold);
-  color: var(--rw-text-muted);
+.heroBadges {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
 }
 
 .hero h1 {
@@ -83,9 +85,49 @@
   font-size: var(--text-2xl);
   line-height: var(--leading-tight);
   font-weight: var(--weight-black);
-  letter-spacing: -0.2px;
+  letter-spacing: -0.5px;
+  margin: 0;
 }
 
+.heroMeta {
+  font-size: var(--type-caption);
+  color: var(--rw-text-muted);
+  line-height: 1.5;
+  margin: 0;
+  font-weight: var(--weight-semibold);
+}
+
+.heroMeta strong {
+  color: var(--rw-text-strong);
+  font-weight: var(--weight-bold);
+}
+
+.heroIndex {
+  display: inline-block;
+  margin-top: 2px;
+  color: var(--rw-text-muted);
+}
+
+.heroSummary {
+  max-width: 620px;
+  color: var(--rw-text-body);
+  font-size: var(--type-body);
+  line-height: 1.55;
+  font-weight: var(--weight-semibold);
+  margin: 0;
+}
+
+/* legacy fallback */
+.heroEyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+.heroIssuer {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+  color: var(--rw-text-muted);
+}
 .hero p {
   margin-top: var(--space-3);
   max-width: 620px;

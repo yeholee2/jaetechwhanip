@@ -38,6 +38,7 @@ type RawRow = {
   country: string | null;
   currency: string | null;
   underlying_country: string | null;
+  tracking_index: string | null;
 };
 
 function rowToInfo(row: RawRow): EtfInfo {
@@ -69,6 +70,7 @@ function rowToInfo(row: RawRow): EtfInfo {
     country: row.country || 'KR',
     currency: row.currency || 'KRW',
     underlyingCountry: row.underlying_country || 'KR',
+    trackingIndex: row.tracking_index || '',
   };
 }
 

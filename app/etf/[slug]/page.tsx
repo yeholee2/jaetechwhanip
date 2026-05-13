@@ -177,23 +177,38 @@ export default async function EtfDetailPage({ params }: Props) {
         </div>
 
         <section className={styles.hero}>
-          <div>
-            <span className={styles.heroEyebrow}>
+          <div className={styles.heroMain}>
+            <div className={styles.heroBadges}>
               <Badge tone="neutral">{etf.code}</Badge>
-              {etf.underlyingCountry && (
-                <Badge tone={countryInfo(etf.underlyingCountry).isOverseas ? 'fresh' : 'success'}>
-                  {countryInfo(etf.underlyingCountry).flag} {countryInfo(etf.underlyingCountry).label}
+              {etf.country === 'US' ? (
+                <Badge tone="fresh">🇺🇸 미국상장</Badge>
+              ) : (
+                <Badge tone="success">🇰🇷 국내상장</Badge>
+              )}
+              {etf.underlyingCountry && countryInfo(etf.underlyingCountry).isOverseas && (
+                <Badge tone="neutral">
+                  추종 {countryInfo(etf.underlyingCountry).flag} {countryInfo(etf.underlyingCountry).label}
                 </Badge>
               )}
-              <span className={styles.heroIssuer}>{etf.issuer} · {etf.category}</span>
-            </span>
-            <h1>{etf.name}</h1>
-            <p>{etf.summary}</p>
-            <div className={styles.tags}>
-              {etf.tags.map(tag => (
-                <Chip key={tag} subtle size="sm">#{tag}</Chip>
-              ))}
             </div>
+            <h1>{etf.name}</h1>
+            <p className={styles.heroMeta}>
+              <strong>{etf.issuer}</strong>
+              <span> · {etf.category}</span>
+              {etf.trackingIndex && (
+                <span className={styles.heroIndex}> · 추종: {etf.trackingIndex}</span>
+              )}
+            </p>
+            {etf.summary && etf.summary !== `${etf.name} (${etf.code}) — ${etf.issuer} 운용 ${etf.category}.` && (
+              <p className={styles.heroSummary}>{etf.summary}</p>
+            )}
+            {etf.tags && etf.tags.length > 0 && (
+              <div className={styles.tags}>
+                {etf.tags.slice(0, 4).map(tag => (
+                  <Chip key={tag} subtle size="sm">#{tag}</Chip>
+                ))}
+              </div>
+            )}
           </div>
           <div className={styles.actions}>
             <WatchButton code={etf.code} shortName={etf.shortName} mode="icon" />
@@ -264,7 +279,7 @@ export default async function EtfDetailPage({ params }: Props) {
             {/* ──────────── 4단: 차트 ──────────── */}
             <EtfChart code={etf.code} price={etf.price} changeTone={etf.changeTone} />
 
-            {/* ──────────── 5단: 보조 정보 (거래량/기준일/NAV) ──────────── */}
+            {/* ──────────── 5단: 보조 정보 (거래량/기준일/NAV/추종지수) ──────────── */}
             <section aria-label="보조 정보">
               <DataCell.Grid columns={3}>
                 <DataCell label="거래량" value={etf.volume || '—'} sub="유동성 참고" />
@@ -279,6 +294,15 @@ export default async function EtfDetailPage({ params }: Props) {
                   <DataCell label="운용사" value={etf.issuer} sub={etf.category} />
                 )}
               </DataCell.Grid>
+              {etf.trackingIndex && (
+                <div style={{ marginTop: 'var(--space-2)' }}>
+                  <DataCell
+                    label="추종 지수"
+                    value={etf.trackingIndex}
+                    sub="이 ETF가 따라가는 기초지수"
+                  />
+                </div>
+              )}
             </section>
 
             {etf.oneLine && (

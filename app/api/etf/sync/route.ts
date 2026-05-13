@@ -237,6 +237,7 @@ function rowToEtf(row: PublicRow) {
     country: 'KR',
     currency: 'KRW',
     underlying_country: underlyingCountry,
+    tracking_index: readField(row, 'bssIdxIdxNm').trim() || null,
   };
 }
 

@@ -44,6 +44,8 @@ export type EtfInfo = {
   currency?: string;
   /** 추종 자산 국가 — 'KR', 'US', 'CN', 'JP', 'IN', 'EU', 'GLOBAL', 'EM' 등. */
   underlyingCountry?: string;
+  /** 추종 지수명 (예: 'KRX 바이오 TOP 10 지수', 'S&P 500 Index'). */
+  trackingIndex?: string;
 };
 
 export const ETF_HOME_PATH = '/etf';
