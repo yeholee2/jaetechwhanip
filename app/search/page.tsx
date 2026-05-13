@@ -10,6 +10,8 @@ import { PageHero, Badge, Card } from '@/components/ui';
 import { PageSidebar } from '@/components/PageSidebar';
 import Link from 'next/link';
 import { EtfLogo } from '../etf/EtfLogo';
+import { PORTFOLIO_TEMPLATES } from '@/lib/portfolioTemplates';
+import { WHALE_PORTFOLIOS } from '@/lib/portfolioWhales';
 import styles from './Search.module.css';
 
 export const revalidate = 60;
@@ -101,7 +103,27 @@ export default async function SearchPage({
         ))
         .slice(0, 4);
 
-  const totalHits = etfMatches.length + questionMatches.length + sparringMatches.length + articleMatches.length + reportMatches.length;
+  // 대가 포트폴리오 모델
+  const templateMatches = !nq
+    ? []
+    : PORTFOLIO_TEMPLATES.filter(t =>
+        normalize(t.name).includes(nq) ||
+        normalize(t.author).includes(nq) ||
+        normalize(t.tagline).includes(nq) ||
+        normalize(t.description).includes(nq)
+      ).slice(0, 4);
+
+  // 실시간 13F 펀드
+  const whaleMatches = !nq
+    ? []
+    : WHALE_PORTFOLIOS.filter(w =>
+        normalize(w.manager).includes(nq) ||
+        normalize(w.name).includes(nq) ||
+        normalize(w.philosophy || '').includes(nq)
+      ).slice(0, 4);
+
+  const totalHits = etfMatches.length + questionMatches.length + sparringMatches.length
+    + articleMatches.length + reportMatches.length + templateMatches.length + whaleMatches.length;
 
   return (
     <AppShell active="home" wide hideSlogan>
@@ -140,6 +162,50 @@ export default async function SearchPage({
                       <span>{etf.code} · {etf.issuer}</span>
                     </div>
                     <span className={etf.changeTone === 'down' ? styles.down : styles.up}>{etf.change}</span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+
+        {/* 대가 모델 포트폴리오 */}
+        {templateMatches.length > 0 && (
+          <section className={styles.group}>
+            <h2>대가 모델 <span>{templateMatches.length}</span></h2>
+            <ul>
+              {templateMatches.map(t => (
+                <li key={t.slug}>
+                  <Link className={styles.etfItem} href={`/portfolio/templates/${t.slug}`}>
+                    <div>
+                      <strong>{t.name}</strong>
+                      <span>{t.author} · {t.tagline}</span>
+                    </div>
+                    <span style={{ fontSize: 11, color: 'var(--rw-text-muted)', fontWeight: 700 }}>
+                      위험 {t.risk}/5
+                    </span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+
+        {/* 실시간 13F 펀드 */}
+        {whaleMatches.length > 0 && (
+          <section className={styles.group}>
+            <h2>실시간 13F <span>{whaleMatches.length}</span></h2>
+            <ul>
+              {whaleMatches.map(w => (
+                <li key={w.slug}>
+                  <Link className={styles.etfItem} href={`/portfolio/whales/${w.slug}`}>
+                    <div>
+                      <strong>{w.manager}</strong>
+                      <span>{w.name} · {w.quarter}</span>
+                    </div>
+                    <span style={{ fontSize: 11, color: 'var(--rw-text-muted)', fontWeight: 700 }}>
+                      {w.positionCount}개 보유
+                    </span>
                   </Link>
                 </li>
               ))}

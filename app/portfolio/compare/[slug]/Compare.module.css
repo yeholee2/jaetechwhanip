@@ -213,6 +213,22 @@
   gap: 6px;
 }
 
+@media (max-width: 600px) {
+  .switcherChips {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    margin: 0 calc(var(--space-2) * -1);
+    padding-left: var(--space-2);
+    padding-right: var(--space-2);
+    scrollbar-width: none;
+  }
+  .switcherChips::-webkit-scrollbar { display: none; }
+  .switcherChip {
+    flex-shrink: 0;
+  }
+}
+
 .switcherChip {
   display: inline-flex;
   align-items: center;
