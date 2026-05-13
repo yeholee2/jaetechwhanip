@@ -7,6 +7,7 @@ import { getEtfsWithMarketData } from '@/lib/etf-live-data';
 import { ETF_HOME_PATH, etfPath, etfUrl, etfs, getEtfBySlug } from '@/lib/etfs';
 import { fetchEtfs } from '@/lib/etfsDb';
 import { findSimilarEtfs, buildIssuerSummary } from '@/lib/etfSimilar';
+import { findTemplatesByEtfCode } from '@/lib/templateLookup';
 import { IssuerCard } from '../IssuerCard';
 import { SITE_NAME, truncateDescription } from '@/lib/seo';
 import { sampleQuestions } from '@/lib/sampleData';
@@ -93,6 +94,8 @@ export default async function EtfDetailPage({ params }: Props) {
   const similarResults = findSimilarEtfs(etf as any, dbPool, 6);
   const relatedEtfs = similarResults.map(r => r.etf).slice(0, 5);
   const issuerSummary = buildIssuerSummary(etf as any, dbPool);
+  // 이 ETF가 들어간 대가 포트폴리오 (역방향)
+  const templateMentions = findTemplatesByEtfCode(etf.code);
   const relatedQs = findRelatedQuestionsForEtf(baseEtf as any, sampleQuestions as any, 3);
   const relatedSparrings = findRelatedSparringsForEtf(baseEtf as any, sparringRes.sparrings, 2);
   const relatedArticles = findRelatedArticlesForEtf(baseEtf as any, articles, 3);
@@ -445,6 +448,46 @@ export default async function EtfDetailPage({ params }: Props) {
                         </p>
                       </div>
                       <span className={item.changeTone === 'down' ? styles.down : styles.up}>{item.change}</span>
+                    </Link>
+                  ))}
+                </div>
+              </section>
+            )}
+
+            {/* 이 ETF를 추천한 대가 포트폴리오 (역방향 매핑) */}
+            {templateMentions.length > 0 && (
+              <section className={styles.section}>
+                <div className={styles.sectionHead}>
+                  <h2>이 ETF가 들어간 대가 포트폴리오</h2>
+                  <span>{templateMentions.length}곳</span>
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 'var(--space-2)' }}>
+                  {templateMentions.map(({ template: tpl, weight, role, via }) => (
+                    <Link
+                      key={tpl.slug}
+                      href={`/portfolio/templates/${tpl.slug}`}
+                      style={{
+                        display: 'block', padding: 'var(--space-3)',
+                        background: 'var(--rw-card-muted)', borderRadius: 'var(--rw-radius-sm)',
+                        textDecoration: 'none', color: 'inherit',
+                        border: '1px solid var(--rw-border)',
+                        transition: 'border-color 120ms ease, transform 120ms ease',
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+                        <span style={{ fontSize: 11, fontWeight: 800, color: 'var(--rw-text-muted)' }}>
+                          {tpl.author}
+                        </span>
+                        <span style={{ fontSize: 11, fontWeight: 900, color: 'var(--rw-primary)' }}>
+                          {(weight * 100).toFixed(0)}%
+                        </span>
+                      </div>
+                      <div style={{ fontSize: 14, fontWeight: 900, color: 'var(--rw-text-strong)', letterSpacing: '-0.2px', marginBottom: 4 }}>
+                        {tpl.name}
+                      </div>
+                      <div style={{ fontSize: 11, color: 'var(--rw-text-muted)', fontWeight: 600 }}>
+                        역할: {role} · {via === 'us' ? '미국 직접 매칭' : '국내 대체로 매칭'}
+                      </div>
                     </Link>
                   ))}
                 </div>
