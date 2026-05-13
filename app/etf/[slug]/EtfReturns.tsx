@@ -22,10 +22,11 @@ const fmtClass = (n: number | null, styles: Record<string, string>) => {
   return styles.neutral;
 };
 
-type Props = { code: string; etfName: string; lastUpdated?: string };
+type Props = { code: string; etfName: string; lastUpdated?: string; history?: PricePoint[] };
 
-export async function EtfReturns({ code, etfName, lastUpdated }: Props) {
-  const history = await fetchMaxHistory(code);
+export async function EtfReturns({ code, etfName, lastUpdated, history: passed }: Props) {
+  // 페이지에서 이미 fetch했으면 재사용, 아니면 직접 fetch
+  const history = passed ?? await fetchMaxHistory(code);
   if (history.length < 30) {
     return null; // 데이터 너무 적으면 섹션 숨김
   }

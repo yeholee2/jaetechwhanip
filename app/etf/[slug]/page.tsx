@@ -32,6 +32,7 @@ import { WatchButton } from '../WatchButton';
 import { AlertButton } from '../AlertButton';
 import { Suspense } from 'react';
 import { EtfReturns } from './EtfReturns';
+import { fetchMaxHistory } from '@/lib/etfPriceHistory';
 import { ShareButton } from '../ShareButton';
 import { RecordEtfView } from '../RecordEtfView';
 import { EtfChart } from '../EtfChart';
@@ -99,11 +100,12 @@ export default async function EtfDetailPage({ params }: Props) {
 
   // 분절 해소: ETF 키워드로 4페이지 + 리포트 연결 + DB 풀(유사/운용사용)
   const baseEtf = staticEtf || etf;
-  const [sparringRes, articles, reports, dbPool] = await Promise.all([
+  const [sparringRes, articles, reports, dbPool, priceHistory] = await Promise.all([
     listSparrings(),
     fetchGhostArticles(),
     fetchRecentReportsWithFallback(),
     fetchEtfs(2000),
+    fetchMaxHistory(etf.code),
   ]);
   // DB 기반 유사 ETF + 같은 운용사
   const similarResults = findSimilarEtfs(etf as any, dbPool, 6);
@@ -303,11 +305,11 @@ export default async function EtfDetailPage({ params }: Props) {
             </section>
 
             {/* ──────────── 4단: 차트 ──────────── */}
-            <EtfChart code={etf.code} price={etf.price} changeTone={etf.changeTone} />
+            <EtfChart code={etf.code} price={etf.price} changeTone={etf.changeTone} history={priceHistory} />
 
             {/* 기간별 수익률 + 적립식 계산기 (Yahoo) */}
             <Suspense fallback={null}>
-              <EtfReturns code={etf.code} etfName={etf.shortName} lastUpdated={etfBaseDate} />
+              <EtfReturns code={etf.code} etfName={etf.shortName} lastUpdated={etfBaseDate} history={priceHistory} />
             </Suspense>
 
             {/* ──────────── 5단: 보조 정보 (거래량/기준일/NAV/추종지수) ──────────── */}

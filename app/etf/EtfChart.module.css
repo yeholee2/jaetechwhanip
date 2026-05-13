@@ -1,100 +1,107 @@
-.chart {
+.wrap {
   background: var(--rw-card);
-  border: 1px solid var(--rw-hairline);
+  border: 1px solid var(--rw-border);
   border-radius: var(--rw-radius-md);
   padding: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
 }
 
 .head {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   gap: var(--space-3);
-  margin-bottom: var(--space-4);
-  flex-wrap: wrap;
 }
 
-.summary {
+.headLeft {
   display: flex;
-  align-items: baseline;
-  gap: var(--space-3);
+  flex-direction: column;
+  gap: 2px;
 }
 
-.summaryLabel {
-  font-size: var(--text-sm);
-  font-weight: var(--weight-bold);
+.title {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 900;
+  color: var(--rw-text-strong);
+  letter-spacing: -0.3px;
+}
+
+.headSub {
+  font-size: 11px;
+  color: var(--rw-text-muted);
+  font-weight: 700;
+}
+
+.returnNow {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.returnPct {
+  font-size: 22px;
+  font-weight: 900;
+  letter-spacing: -0.4px;
+  font-feature-settings: 'tnum';
+  line-height: 1.1;
+}
+
+.returnLabel {
+  font-size: 11px;
+  font-weight: 700;
   color: var(--rw-text-muted);
 }
 
-.summary strong {
-  font-size: var(--text-xl);
-  font-weight: var(--weight-black);
-  letter-spacing: -0.2px;
-}
-
-.summary span:last-child {
-  font-size: var(--text-base);
-  font-weight: var(--weight-heavy);
-}
-
-.up { color: var(--rw-up); }
-.down { color: var(--rw-down); }
+.up { color: var(--rw-red60); }
+.down { color: var(--rw-blue70); }
 .flat { color: var(--rw-text-muted); }
 
-.upSmall { color: var(--rw-up); }
-.downSmall { color: var(--rw-down); }
-.flatSmall { color: var(--rw-text-muted); }
-
-.periodRow {
+/* 기간 토글 — 펀ETF 스타일 segmented control */
+.tabs {
   display: flex;
   gap: 4px;
-  flex-shrink: 0;
-}
-
-.periodBtn {
-  height: 30px;
-  padding: 0 12px;
-  border-radius: 6px;
-  background: transparent;
-  color: var(--rw-text-muted);
-  font-size: 12px;
-  font-weight: var(--weight-bold);
-  cursor: pointer;
-  transition: background var(--duration-instant) var(--ease-in-out),
-              color var(--duration-instant) var(--ease-in-out);
-}
-.periodBtn:hover {
-  color: var(--rw-text-body);
+  padding: 3px;
   background: var(--rw-card-muted);
+  border-radius: var(--rw-radius-sm);
+  width: 100%;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.tabs::-webkit-scrollbar { display: none; }
+
+.tab {
+  flex: 1;
+  min-width: 52px;
+  padding: 8px 6px;
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--rw-text-muted);
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 120ms ease, color 120ms ease;
+  white-space: nowrap;
 }
 
-.periodActive {
-  background: var(--rw-primary-bg);
-  color: var(--rw-blue70);
-}
-.periodActive:hover {
-  background: var(--rw-primary-bg);
-  color: var(--rw-blue70);
+.tab:hover {
+  color: var(--rw-text-body);
 }
 
-.notice {
-  margin-top: var(--space-3);
-  font-size: 11px;
-  color: var(--rw-text-disabled);
-  font-weight: var(--weight-medium);
-  text-align: right;
+.tabOn {
+  background: var(--rw-card);
+  color: var(--rw-text-strong);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 }
 
-@media (max-width: 600px) {
-  .head {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-  .periodRow {
-    width: 100%;
-    overflow-x: auto;
-  }
-  .summary strong {
-    font-size: var(--text-lg);
-  }
+.empty {
+  padding: var(--space-6);
+  text-align: center;
+  font-size: 13px;
+  color: var(--rw-text-muted);
+  font-weight: 700;
 }

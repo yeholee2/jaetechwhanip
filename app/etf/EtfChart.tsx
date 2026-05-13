@@ -1,163 +1,134 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+/**
+ * ETF 수익률 차트 (펀ETF 스타일).
+ *
+ * - 7 기간 토글: 1주 / 1개월 / 3개월 / 연초후 / 1년 / 3년 / 전체
+ * - Y축: 누적 수익률 (%)
+ * - 0% 기준점, 기간별 누적 변화
+ * - 서버에서 받아온 PricePoint[] (Yahoo max range) 그대로 사용
+ */
+
+import { useMemo, useState } from 'react';
 import { PriceChart, type ChartPoint } from '@/components/ui';
+import type { PricePoint } from '@/lib/etfPriceHistory';
 import styles from './EtfChart.module.css';
 
-type Period = '1M' | '3M' | '6M' | '1Y' | '5Y';
+type PeriodKey = 'w1' | 'm1' | 'm3' | 'ytd' | 'y1' | 'y3' | 'all';
 
-const PERIODS: { key: Period; label: string; points: number; stepDays: number }[] = [
-  { key: '1M', label: '1개월', points: 22, stepDays: 1 },
-  { key: '3M', label: '3개월', points: 64, stepDays: 1 },
-  { key: '6M', label: '6개월', points: 128, stepDays: 1 },
-  { key: '1Y', label: '1년', points: 250, stepDays: 1 },
-  { key: '5Y', label: '5년', points: 60, stepDays: 30 },
+const PERIODS: { key: PeriodKey; label: string; days: number }[] = [
+  { key: 'w1',  label: '1주', days: 7 },
+  { key: 'm1',  label: '1개월', days: 30 },
+  { key: 'm3',  label: '3개월', days: 90 },
+  { key: 'ytd', label: '연초후', days: 0 },
+  { key: 'y1',  label: '1년', days: 365 },
+  { key: 'y3',  label: '3년', days: 1095 },
+  { key: 'all', label: '전체', days: 999999 },
 ];
 
-/** 실데이터 없을 때 fallback: seeded random walk */
-function generateMockSeries(
-  seed: string,
-  points: number,
-  stepDays: number,
-  endPrice: number,
-  tone: 'up' | 'down' | 'flat',
-): ChartPoint[] {
-  let h = 0;
-  for (let i = 0; i < seed.length; i++) h = ((h << 5) - h + seed.charCodeAt(i)) | 0;
-  const rand = () => {
-    h = (h * 1664525 + 1013904223) | 0;
-    return ((h >>> 0) % 10000) / 10000;
-  };
-  const drift = tone === 'up' ? 0.0018 : tone === 'down' ? -0.0018 : 0;
-  const values: number[] = new Array(points);
-  let v = endPrice;
-  values[points - 1] = v;
-  for (let i = points - 2; i >= 0; i--) {
-    const change = (rand() - 0.5) * 0.03 - drift;
-    v = v / (1 + change);
-    values[i] = v;
-  }
-  const now = new Date();
-  return values.map((value, i) => {
-    const d = new Date(now);
-    const daysBack = (points - 1 - i) * stepDays;
-    d.setDate(d.getDate() - daysBack);
-    return { date: d.toISOString().slice(0, 10), value: Math.round(value) };
-  });
-}
-
-function parsePrice(str: string): number {
-  const m = str.replace(/,/g, '').match(/-?\d+(\.\d+)?/);
-  return m ? parseFloat(m[0]) : 0;
-}
-
-function formatKRW(n: number): string {
-  return n.toLocaleString('ko-KR') + '원';
-}
-
-function formatDateLabel(d: string): string {
-  const date = new Date(d);
-  return `${date.getMonth() + 1}.${date.getDate()}`;
-}
-
-export function EtfChart({
-  code,
-  price,
-  changeTone,
-}: {
+type Props = {
   code: string;
-  price: string;
-  changeTone: 'up' | 'down' | 'flat';
-}) {
-  const [period, setPeriod] = useState<Period>('3M');
-  const [liveSeries, setLiveSeries] = useState<ChartPoint[] | null>(null);
-  const [liveSource, setLiveSource] = useState<'cache' | 'api' | 'fallback' | null>(null);
-  const [loading, setLoading] = useState(false);
+  price?: string;
+  changeTone?: 'up' | 'down' | 'flat';
+  /** 서버에서 받아온 일별 종가 시계열 (Yahoo max). 없으면 빈 상태 */
+  history?: PricePoint[];
+};
 
-  const cfg = PERIODS.find(p => p.key === period)!;
-  const endPrice = useMemo(() => parsePrice(price), [price]);
+export function EtfChart({ history = [], changeTone = 'flat' }: Props) {
+  const [periodKey, setPeriodKey] = useState<PeriodKey>('m1');
 
-  // 기간 변경 시 /api/etf/history fetch
-  useEffect(() => {
-    let cancelled = false;
-    setLoading(true);
-    setLiveSeries(null);
-    setLiveSource(null);
-    fetch(`/api/etf/history?code=${code}&period=${period}`)
-      .then(res => res.ok ? res.json() : null)
-      .then(data => {
-        if (cancelled) return;
-        if (data?.items && Array.isArray(data.items) && data.items.length > 5) {
-          const pts: ChartPoint[] = data.items
-            .filter((it: any) => typeof it.close === 'number')
-            .map((it: any) => ({ date: it.date, value: Math.round(Number(it.close)) }));
-          if (pts.length > 5) {
-            setLiveSeries(pts);
-            setLiveSource(data.source || 'api');
-          }
-        }
-        setLoading(false);
-      })
-      .catch(() => setLoading(false));
-    return () => { cancelled = true; };
-  }, [code, period]);
+  const { points, returnPct, tone, periodLabel } = useMemo(() => {
+    const period = PERIODS.find(p => p.key === periodKey)!;
+    if (history.length < 2) {
+      return { points: [] as ChartPoint[], returnPct: 0, tone: changeTone, periodLabel: period.label };
+    }
+    const lastDate = new Date(history[history.length - 1].date);
 
-  const series = useMemo(() => {
-    if (liveSeries && liveSeries.length > 5) return liveSeries;
-    return generateMockSeries(`${code}-${period}`, cfg.points, cfg.stepDays, endPrice, changeTone);
-  }, [liveSeries, code, period, cfg, endPrice, changeTone]);
+    let startIdx = 0;
+    if (period.key === 'ytd') {
+      const yearStart = new Date(lastDate.getFullYear(), 0, 1).getTime();
+      startIdx = history.findIndex(p => new Date(p.date).getTime() >= yearStart);
+      if (startIdx === -1) startIdx = 0;
+    } else if (period.key !== 'all') {
+      const cutoff = new Date(lastDate);
+      cutoff.setDate(cutoff.getDate() - period.days);
+      startIdx = history.findIndex(p => new Date(p.date).getTime() >= cutoff.getTime());
+      if (startIdx === -1) startIdx = 0;
+    }
 
-  const startPrice = series[0].value;
-  const lastPrice = series[series.length - 1].value;
-  const periodChange = lastPrice - startPrice;
-  const periodPct = startPrice > 0 ? (periodChange / startPrice) * 100 : 0;
-  const periodTone: 'up' | 'down' | 'flat' = periodChange > 0 ? 'up' : periodChange < 0 ? 'down' : 'flat';
+    const sliced = history.slice(startIdx);
+    if (sliced.length < 2) {
+      return { points: [], returnPct: 0, tone: changeTone, periodLabel: period.label };
+    }
+    const basePrice = sliced[0].close;
+    const finalPrice = sliced[sliced.length - 1].close;
+    const total = (finalPrice - basePrice) / basePrice;
 
-  const isLive = liveSeries !== null && (liveSource === 'cache' || liveSource === 'api');
+    const stride = Math.max(1, Math.floor(sliced.length / 120));
+    const decimated: ChartPoint[] = [];
+    for (let i = 0; i < sliced.length; i += stride) {
+      const p = sliced[i];
+      decimated.push({ date: p.date, value: ((p.close - basePrice) / basePrice) * 100 });
+    }
+    if (decimated[decimated.length - 1]?.date !== sliced[sliced.length - 1].date) {
+      const p = sliced[sliced.length - 1];
+      decimated.push({ date: p.date, value: ((p.close - basePrice) / basePrice) * 100 });
+    }
+
+    return {
+      points: decimated,
+      returnPct: total,
+      tone: total > 0 ? 'up' as const : total < 0 ? 'down' as const : 'flat' as const,
+      periodLabel: period.label,
+    };
+  }, [history, periodKey, changeTone]);
+
+  const fmtPct = (n: number) => `${n >= 0 ? '+' : ''}${n.toFixed(2)}%`;
+  const fmtAxis = (n: number) => `${n >= 0 ? '+' : ''}${n.toFixed(1)}%`;
 
   return (
-    <section className={styles.chart} aria-label="가격 차트">
+    <section className={styles.wrap} aria-label="수익률 차트">
       <div className={styles.head}>
-        <div className={styles.summary}>
-          <span className={styles.summaryLabel}>{cfg.label} 변동</span>
-          <strong className={periodTone === 'down' ? styles.down : periodTone === 'up' ? styles.up : styles.flat}>
-            {periodChange >= 0 ? '+' : ''}{periodPct.toFixed(2)}%
-          </strong>
-          <span className={periodTone === 'down' ? styles.downSmall : periodTone === 'up' ? styles.upSmall : styles.flatSmall}>
-            {periodChange >= 0 ? '+' : ''}{formatKRW(Math.round(Math.abs(periodChange)))}
-          </span>
+        <div className={styles.headLeft}>
+          <h2 className={styles.title}>수익률</h2>
+          {history.length > 1 && (
+            <span className={styles.headSub}>{history[history.length - 1].date} 기준</span>
+          )}
         </div>
-        <div className={styles.periodRow} role="tablist">
-          {PERIODS.map(p => (
-            <button
-              key={p.key}
-              role="tab"
-              aria-selected={p.key === period}
-              className={`${styles.periodBtn} ${p.key === period ? styles.periodActive : ''}`}
-              onClick={() => setPeriod(p.key)}
-              type="button"
-            >
-              {p.key}
-            </button>
-          ))}
+        <div className={styles.returnNow}>
+          <span className={`${styles.returnPct} ${styles[tone]}`}>
+            {points.length > 0 ? fmtPct(returnPct * 100) : '—'}
+          </span>
+          <span className={styles.returnLabel}>{periodLabel}</span>
         </div>
       </div>
 
-      <PriceChart
-        data={series}
-        tone={periodTone}
-        height={240}
-        valueFormat={formatKRW}
-        dateFormat={formatDateLabel}
-      />
+      <div className={styles.tabs} role="tablist" aria-label="기간 선택">
+        {PERIODS.map(p => (
+          <button
+            key={p.key}
+            type="button"
+            role="tab"
+            aria-selected={p.key === periodKey}
+            className={`${styles.tab} ${p.key === periodKey ? styles.tabOn : ''}`}
+            onClick={() => setPeriodKey(p.key)}
+          >
+            {p.label}
+          </button>
+        ))}
+      </div>
 
-      <p className={styles.notice}>
-        {loading
-          ? '※ 데이터를 불러오는 중...'
-          : isLive
-            ? `※ KRX 일별가격 (${liveSource === 'cache' ? '캐시' : '실시간'}) · ${series.length}일치`
-            : '※ 시연용 임시 데이터예요. KRX API 키 등록 시 자동으로 실데이터 차트.'}
-      </p>
+      {points.length > 1 ? (
+        <PriceChart
+          data={points}
+          tone={tone}
+          height={240}
+          valueFormat={fmtAxis}
+          yAxisTicks={5}
+        />
+      ) : (
+        <div className={styles.empty}>이 기간 데이터를 불러올 수 없어요.</div>
+      )}
     </section>
   );
 }
