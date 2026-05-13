@@ -1,0 +1,143 @@
+.page {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: var(--space-4) 0 var(--space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: var(--space-3);
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  background: var(--rw-card);
+  border: 1px solid var(--rw-border);
+  border-radius: var(--rw-radius-md);
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 120ms ease, transform 120ms ease, box-shadow 120ms ease;
+}
+
+.card:hover {
+  border-color: var(--rw-primary);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+}
+
+.cardHead {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.cardName {
+  margin: 0;
+  font-size: var(--type-title);
+  font-weight: var(--weight-black);
+  color: var(--rw-text-strong);
+  letter-spacing: -0.4px;
+  line-height: 1.2;
+}
+
+.cardManager {
+  margin: 4px 0 0;
+  font-size: 12px;
+  color: var(--rw-primary);
+  font-weight: var(--weight-bold);
+}
+
+.cardTagline {
+  margin: 0;
+  font-size: 13px;
+  color: var(--rw-text-body);
+  font-weight: var(--weight-semibold);
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.cardStats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-2);
+  padding: var(--space-3);
+  background: var(--rw-card-muted);
+  border-radius: var(--rw-radius-sm);
+}
+
+.cardStats > div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.cardStats span {
+  font-size: 10px;
+  color: var(--rw-text-muted);
+  font-weight: var(--weight-bold);
+  letter-spacing: 0.2px;
+}
+
+.cardStats strong {
+  font-size: var(--type-caption);
+  color: var(--rw-text-strong);
+  font-weight: var(--weight-black);
+  font-feature-settings: 'tnum';
+}
+
+.topHoldings {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.holdingChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  background: var(--rw-card-muted);
+  border-radius: 999px;
+  font-size: 11px;
+}
+
+.holdingChip strong {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-weight: var(--weight-black);
+  color: var(--rw-text-strong);
+}
+
+.holdingChip em {
+  font-style: normal;
+  font-weight: var(--weight-semibold);
+  color: var(--rw-text-muted);
+}
+
+.holdingMore {
+  font-size: 11px;
+  color: var(--rw-text-muted);
+  font-weight: var(--weight-bold);
+  padding: 3px 6px;
+}
+
+.cardCta {
+  font-size: var(--type-caption);
+  font-weight: var(--weight-bold);
+  color: var(--rw-primary);
+  margin-top: auto;
+}
+
+@media (max-width: 600px) {
+  .grid { grid-template-columns: 1fr; }
+}

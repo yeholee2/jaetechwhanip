@@ -5,6 +5,7 @@ import { FEED_URL, hanipArticles } from '@/lib/feed';
 import { fetchQuestionsForSitemap, questionUrl, SITE_URL } from '@/lib/seo';
 import { TOPICS, topicUrl } from '@/lib/topics';
 import { PORTFOLIO_TEMPLATES } from '@/lib/portfolioTemplates';
+import { WHALE_PORTFOLIOS } from '@/lib/portfolioWhales';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
@@ -21,6 +22,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${SITE_URL}/etf/all`, lastModified: now, changeFrequency: 'daily', priority: 0.9 },
     { url: `${SITE_URL}/portfolio`, lastModified: now, changeFrequency: 'weekly', priority: 0.85 },
     { url: `${SITE_URL}/portfolio/templates`, lastModified: now, changeFrequency: 'weekly', priority: 0.88 },
+    { url: `${SITE_URL}/portfolio/whales`,    lastModified: now, changeFrequency: 'weekly', priority: 0.86 },
     { url: `${SITE_URL}/learn`, lastModified: now, changeFrequency: 'daily', priority: 0.88 },
     { url: FEED_URL, lastModified: now, changeFrequency: 'daily', priority: 0.85 },
     { url: `${SITE_URL}/sparring`, lastModified: now, changeFrequency: 'daily', priority: 0.8 },
@@ -34,6 +36,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // 대가 포트폴리오 템플릿 상세
     ...PORTFOLIO_TEMPLATES.map(t => ({
       url: `${SITE_URL}/portfolio/templates/${t.slug}`,
+      lastModified: now,
+      changeFrequency: 'weekly' as const,
+      priority: 0.85,
+    })),
+    // 대가 실시간 보유 (13F) 상세
+    ...WHALE_PORTFOLIOS.map(w => ({
+      url: `${SITE_URL}/portfolio/whales/${w.slug}`,
       lastModified: now,
       changeFrequency: 'weekly' as const,
       priority: 0.85,
