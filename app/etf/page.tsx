@@ -116,7 +116,7 @@ export default async function EtfPage({
   );
 }
 
-function DiscoverTab({ allEtfs }: { allEtfs: import('@/lib/etfs').EtfInfo[] }) {
+async function DiscoverTab({ allEtfs }: { allEtfs: import('@/lib/etfs').EtfInfo[] }) {
   // 발견 탭은 핵심만. 뉴스/전략/큐레이션은 /etf/themes, /etf/news 페이지로 분리.
   return (
     <>

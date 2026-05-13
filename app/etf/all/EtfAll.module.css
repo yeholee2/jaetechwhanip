@@ -270,3 +270,14 @@
     display: none;
   }
 }
+
+/* 추종 지수 한 줄 */
+.itemIndex {
+  font-size: 11px;
+  color: var(--rw-text-muted);
+  font-weight: var(--weight-semibold);
+  margin-top: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

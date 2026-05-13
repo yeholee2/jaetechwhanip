@@ -193,16 +193,19 @@ export function EtfAllClient({ initialEtfs }: { initialEtfs: EtfInfo[] }) {
                   <strong>{etf.shortName}</strong>
                   <Badge tone="neutral">{etf.code}</Badge>
                   {(etf.country || 'KR').toUpperCase() === 'US' && (
-                    <Badge tone="fresh">🇺🇸 미국상장</Badge>
+                    <Badge tone="fresh">🇺🇸</Badge>
                   )}
                 </div>
                 <div className={styles.itemMeta}>
                   <span>{etf.issuer}</span>
-                  <span>·</span>
-                  <span>총보수 {etf.fee}</span>
-                  <span>·</span>
-                  <span>{etf.aum}</span>
+                  {etf.fee && <><span>·</span><span>보수 {etf.fee}</span></>}
+                  {etf.aum && <><span>·</span><span>{etf.aum}</span></>}
                 </div>
+                {etf.trackingIndex && (
+                  <div className={styles.itemIndex}>
+                    추종: {etf.trackingIndex}
+                  </div>
+                )}
               </div>
               <div className={styles.itemRight}>
                 <span className={styles.price}>{etf.price}</span>

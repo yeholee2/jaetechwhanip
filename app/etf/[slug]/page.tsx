@@ -4,7 +4,10 @@ import { notFound } from 'next/navigation';
 import { AppShell } from '@/components/AppShell';
 import { FaIcon } from '@/components/FaIcon';
 import { getEtfsWithMarketData } from '@/lib/etf-live-data';
-import { ETF_HOME_PATH, etfPath, etfUrl, etfs, getEtfBySlug, getRelatedEtfs } from '@/lib/etfs';
+import { ETF_HOME_PATH, etfPath, etfUrl, etfs, getEtfBySlug } from '@/lib/etfs';
+import { fetchEtfs } from '@/lib/etfsDb';
+import { findSimilarEtfs, buildIssuerSummary } from '@/lib/etfSimilar';
+import { IssuerCard } from '../IssuerCard';
 import { SITE_NAME, truncateDescription } from '@/lib/seo';
 import { sampleQuestions } from '@/lib/sampleData';
 import { listSparrings } from '@/lib/sparring';
@@ -76,15 +79,19 @@ export default async function EtfDetailPage({ params }: Props) {
 
   const etfNav = 'nav' in etf ? etf.nav : undefined;
   const etfBaseDate = 'baseDate' in etf ? etf.baseDate : undefined;
-  const relatedEtfs = getRelatedEtfs(etf.slug, 3);
 
-  // 분절 해소: ETF 키워드로 4페이지 + 리포트 연결
+  // 분절 해소: ETF 키워드로 4페이지 + 리포트 연결 + DB 풀(유사/운용사용)
   const baseEtf = staticEtf || etf;
-  const [sparringRes, articles, reports] = await Promise.all([
+  const [sparringRes, articles, reports, dbPool] = await Promise.all([
     listSparrings(),
     fetchGhostArticles(),
     fetchRecentReportsWithFallback(),
+    fetchEtfs(2000),
   ]);
+  // DB 기반 유사 ETF + 같은 운용사
+  const similarResults = findSimilarEtfs(etf as any, dbPool, 6);
+  const relatedEtfs = similarResults.map(r => r.etf).slice(0, 5);
+  const issuerSummary = buildIssuerSummary(etf as any, dbPool);
   const relatedQs = findRelatedQuestionsForEtf(baseEtf as any, sampleQuestions as any, 3);
   const relatedSparrings = findRelatedSparringsForEtf(baseEtf as any, sparringRes.sparrings, 2);
   const relatedArticles = findRelatedArticlesForEtf(baseEtf as any, articles, 3);
@@ -417,23 +424,43 @@ export default async function EtfDetailPage({ params }: Props) {
               </section>
             )}
 
-            <section className={styles.section}>
-              <div className={styles.sectionHead}>
-                <h2>비슷한 ETF</h2>
-                <span>{relatedEtfs.length}개</span>
-              </div>
-              <div className={styles.relatedList}>
-                {relatedEtfs.map(item => (
-                  <Link href={etfPath(item.slug)} key={item.slug}>
-                    <div>
-                      <strong>{item.name}</strong>
-                      <p>{item.theme} · 총보수 {item.fee} · {item.fit}</p>
-                    </div>
-                    <span>{item.change}</span>
+            {/* 유사 ETF (점수 기반: 추종지수/추종국가/카테고리/테마/운용사 매칭) */}
+            {similarResults.length > 0 && (
+              <section className={styles.section}>
+                <div className={styles.sectionHead}>
+                  <h2>이거 보는 사람들이 본 ETF</h2>
+                  <span>{similarResults.length}개</span>
+                </div>
+                <div className={styles.relatedList}>
+                  {similarResults.map(({ etf: item, reasons }) => (
+                    <Link href={etfPath(item.slug)} key={item.slug}>
+                      <div>
+                        <strong>{item.shortName || item.name}</strong>
+                        <p>
+                          {reasons[0]}
+                          {item.fee && ` · 보수 ${item.fee}`}
+                          {item.aum && ` · ${item.aum}`}
+                        </p>
+                      </div>
+                      <span className={item.changeTone === 'down' ? styles.down : styles.up}>{item.change}</span>
+                    </Link>
+                  ))}
+                </div>
+              </section>
+            )}
+
+            {/* 운용사 정보 카드 */}
+            {issuerSummary && (
+              <section className={styles.section}>
+                <div className={styles.sectionHead}>
+                  <h2>같은 운용사 ETF</h2>
+                  <Link href={`/etf/all?q=${encodeURIComponent(issuerSummary.name)}`} style={{ fontSize: 12, color: 'var(--rw-primary)', fontWeight: 700 }}>
+                    전체 →
                   </Link>
-                ))}
-              </div>
-            </section>
+                </div>
+                <IssuerCard summary={issuerSummary} currentCode={etf.code} />
+              </section>
+            )}
           </div>
 
           <aside className={styles.sideColumn}>
