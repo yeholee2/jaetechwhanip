@@ -38,11 +38,26 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   };
 }
 
-export default async function TemplateDetailPage({ params }: { params: { slug: string } }) {
+const RANGE_TABS: { key: 'r3mo' | 'r6mo' | 'r1y' | 'r5y'; label: string; api: '3mo' | '6mo' | '1y' | '5y' }[] = [
+  { key: 'r3mo', label: '3개월', api: '3mo' },
+  { key: 'r6mo', label: '6개월', api: '6mo' },
+  { key: 'r1y',  label: '1년',   api: '1y' },
+  { key: 'r5y',  label: '5년',   api: '5y' },
+];
+
+export default async function TemplateDetailPage({
+  params,
+  searchParams,
+}: {
+  params: { slug: string };
+  searchParams?: { range?: string };
+}) {
   const template = getTemplateBySlug(params.slug);
   if (!template) notFound();
 
-  const backtest = await backtestTemplate(template, '1y');
+  const rangeKey = searchParams?.range || '1y';
+  const matchedTab = RANGE_TABS.find(t => t.api === rangeKey) || RANGE_TABS[2];
+  const backtest = await backtestTemplate(template, matchedTab.api);
 
   const fmtPct = (n: number) => `${n >= 0 ? '+' : ''}${(n * 100).toFixed(2)}%`;
 
@@ -58,14 +73,30 @@ export default async function TemplateDetailPage({ params }: { params: { slug: s
           <h1>{template.name}</h1>
           <p className={styles.tagline}>{template.tagline}</p>
           <p className={styles.desc}>{template.description}</p>
+          <p className={styles.source}>
+            <strong>출처</strong> · {template.source}
+          </p>
         </section>
 
         {/* 백테스트 */}
         {backtest ? (
           <Card pad="lg">
             <div className={styles.sectionHead}>
-              <h2>1년 백테스트</h2>
+              <h2>{matchedTab.label} 백테스트</h2>
               <span>실데이터 · Yahoo Finance</span>
+            </div>
+            <div className={styles.rangeTabs} role="tablist" aria-label="백테스트 기간">
+              {RANGE_TABS.map(t => (
+                <Link
+                  key={t.key}
+                  href={`/portfolio/templates/${template.slug}?range=${t.api}`}
+                  className={`${styles.rangeTab} ${t.api === matchedTab.api ? styles.rangeTabOn : ''}`}
+                  role="tab"
+                  aria-selected={t.api === matchedTab.api}
+                >
+                  {t.label}
+                </Link>
+              ))}
             </div>
             <BacktestChart points={backtest.points} />
             <div className={styles.statsGrid}>

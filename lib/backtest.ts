@@ -8,7 +8,7 @@
 
 import type { PortfolioTemplate } from './portfolioTemplates';
 
-export type BacktestRange = '1y' | '5y' | '10y';
+export type BacktestRange = '3mo' | '6mo' | '1y' | '5y' | '10y';
 
 export type BacktestPoint = {
   date: string;       // YYYY-MM-DD
@@ -26,13 +26,19 @@ export type BacktestResult = {
 };
 
 const RANGE_DAYS: Record<BacktestRange, number> = {
+  '3mo': 90,
+  '6mo': 180,
   '1y': 365,
   '5y': 1825,
   '10y': 3650,
 };
 
 async function fetchPriceHistory(ticker: string, range: BacktestRange): Promise<{ date: string; close: number }[]> {
-  const yRange = range === '1y' ? '1y' : range === '5y' ? '5y' : '10y';
+  const yRange =
+    range === '3mo' ? '3mo' :
+    range === '6mo' ? '6mo' :
+    range === '1y'  ? '1y'  :
+    range === '5y'  ? '5y'  : '10y';
   const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(ticker)}?interval=1d&range=${yRange}`;
   try {
     const r = await fetch(url, {

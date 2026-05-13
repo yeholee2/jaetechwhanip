@@ -246,3 +246,49 @@
   .allocItem { grid-template-columns: minmax(0, 1fr) 56px; }
   .allocBarWrap { display: none; }
 }
+
+/* 출처 라인 */
+.source {
+  margin: var(--space-2) 0 0;
+  font-size: 12px;
+  color: var(--rw-text-muted);
+  font-weight: var(--weight-semibold);
+}
+.source strong {
+  color: var(--rw-text-body);
+  font-weight: var(--weight-bold);
+  margin-right: 4px;
+}
+
+/* range 탭 */
+.rangeTabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: var(--space-3);
+  padding: 3px;
+  background: var(--rw-card-muted);
+  border-radius: var(--rw-radius-sm);
+  width: fit-content;
+}
+
+.rangeTab {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: var(--weight-bold);
+  color: var(--rw-text-muted);
+  text-decoration: none;
+  transition: background 120ms ease, color 120ms ease;
+}
+
+.rangeTab:hover {
+  color: var(--rw-text-body);
+}
+
+.rangeTabOn {
+  background: var(--rw-card);
+  color: var(--rw-text-strong);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}

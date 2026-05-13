@@ -1,0 +1,132 @@
+.page {
+  padding: var(--space-4) 0 var(--space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 300px;
+  gap: var(--space-4);
+  align-items: start;
+}
+
+.main {
+  min-width: 0;
+}
+
+.side {
+  position: sticky;
+  top: 80px;
+}
+
+.sideCard {
+  padding: var(--space-4);
+  background: linear-gradient(135deg, rgba(49, 130, 246, 0.08), var(--rw-card));
+  border: 1px solid var(--rw-border);
+  border-radius: var(--rw-radius-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.sideHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.sideMore {
+  font-size: 12px;
+  color: var(--rw-primary);
+  font-weight: var(--weight-bold);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.sideTitle {
+  margin: var(--space-1) 0 0;
+  font-size: var(--type-body);
+  font-weight: var(--weight-black);
+  color: var(--rw-text-strong);
+  letter-spacing: -0.3px;
+  line-height: 1.3;
+}
+
+.sideLead {
+  margin: 0 0 var(--space-2);
+  font-size: 12px;
+  color: var(--rw-text-body);
+  font-weight: var(--weight-semibold);
+  line-height: 1.5;
+}
+
+.tplList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.tplItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  background: var(--rw-card);
+  border: 1px solid transparent;
+  border-radius: var(--rw-radius-sm);
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 120ms ease, transform 120ms ease;
+}
+
+.tplItem:hover {
+  border-color: var(--rw-primary);
+  transform: translateX(2px);
+}
+
+.tplItemMain {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.tplItemMain strong {
+  font-size: 13px;
+  font-weight: var(--weight-black);
+  color: var(--rw-text-strong);
+  letter-spacing: -0.2px;
+}
+
+.tplItemMain span {
+  font-size: 11px;
+  color: var(--rw-text-muted);
+  font-weight: var(--weight-semibold);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tplAuthor {
+  font-size: 10px;
+  font-weight: var(--weight-bold);
+  color: var(--rw-text-muted);
+  white-space: nowrap;
+}
+
+/* 모바일/태블릿: 1-col, 사이드 카드를 메인 아래로 */
+@media (max-width: 960px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+  .side {
+    position: static;
+  }
+}

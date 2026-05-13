@@ -32,6 +32,8 @@ export type PortfolioTemplate = {
   strength: string;
   /** 주의 */
   caution: string;
+  /** 출처 — 책/공식 인터뷰. 신뢰 표시 */
+  source: string;
 };
 
 export const PORTFOLIO_TEMPLATES: PortfolioTemplate[] = [
@@ -45,6 +47,7 @@ export const PORTFOLIO_TEMPLATES: PortfolioTemplate[] = [
     risk: 4,
     strength: '구성이 단순하고 비용이 매우 낮음. 50년 백테스트에서 우상향.',
     caution: '주식 비중 90%라 단기 변동성이 큼. 1년 -30%도 각오해야 함.',
+    source: '버크셔 해서웨이 2013년 주주 서한',
     allocations: [
       { ticker: 'VOO', label: 'S&P 500', weight: 0.90, role: '미국 주식 코어' },
       { ticker: 'BIL', label: '초단기국채', weight: 0.10, role: '현금성' },
@@ -60,6 +63,7 @@ export const PORTFOLIO_TEMPLATES: PortfolioTemplate[] = [
     risk: 2,
     strength: '2008·2020 폭락에서도 다른 포트보다 훨씬 적게 빠짐. 변동성 낮음.',
     caution: '강세장에서 수익률이 S&P500보다 한참 낮음. 인내 필요.',
+    source: 'Tony Robbins 『MONEY: Master The Game』 + Dalio 공개 인터뷰',
     allocations: [
       { ticker: 'VTI', label: '미국 전체주식', weight: 0.30, role: '주식' },
       { ticker: 'TLT', label: '미국 장기국채', weight: 0.40, role: '장기 채권' },
@@ -78,6 +82,7 @@ export const PORTFOLIO_TEMPLATES: PortfolioTemplate[] = [
     risk: 3,
     strength: '관리 부담 0, 보수 매우 낮음, 글로벌 분산.',
     caution: '미국 비중이 60%로 여전히 미국 의존도 높음.',
+    source: 'Bogleheads 공식 위키 (Three-fund portfolio)',
     allocations: [
       { ticker: 'VTI',  label: '미국 전체주식', weight: 0.60, role: '미국 주식' },
       { ticker: 'VXUS', label: '미국 제외 해외주식', weight: 0.30, role: '해외 주식' },
@@ -94,6 +99,7 @@ export const PORTFOLIO_TEMPLATES: PortfolioTemplate[] = [
     risk: 3,
     strength: '주식 상승의 60%를 챙기되 채권이 하락을 완화. 검증된 클래식.',
     caution: '2022년처럼 주식·채권이 동시에 빠지는 해에는 둘 다 손실.',
+    source: 'Markowitz 1952 현대포트폴리오이론 + 미국 연기금 표준 (Vanguard Balanced Index 기준)',
     allocations: [
       { ticker: 'VOO', label: 'S&P 500', weight: 0.60, role: '주식' },
       { ticker: 'AGG', label: '미국 종합채권', weight: 0.40, role: '채권' },
@@ -109,6 +115,7 @@ export const PORTFOLIO_TEMPLATES: PortfolioTemplate[] = [
     risk: 2,
     strength: '대공황·스태그플레이션 같은 극단 상황에서도 손실이 적음.',
     caution: '강세장에서는 수익률 평범. 현금 25%로 인플레 손실 가능.',
+    source: 'Harry Browne 1981 『Why The Best-Laid Investment Plans Usually Go Wrong』',
     allocations: [
       { ticker: 'VTI', label: '미국 전체주식', weight: 0.25, role: '주식' },
       { ticker: 'TLT', label: '미국 장기국채', weight: 0.25, role: '장기 채권' },
@@ -126,6 +133,7 @@ export const PORTFOLIO_TEMPLATES: PortfolioTemplate[] = [
     risk: 3,
     strength: '주식·해외·신흥국·부동산·채권까지 다층 분산.',
     caution: '구성이 복잡함. 리밸런싱 신경써야 함.',
+    source: 'David Swensen 『Unconventional Success』 (개인투자자용 권장 비중)',
     allocations: [
       { ticker: 'VTI', label: '미국 주식',   weight: 0.30, role: '미국 주식' },
       { ticker: 'VEA', label: '선진국 해외', weight: 0.15, role: '해외 주식' },
