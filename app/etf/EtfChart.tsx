@@ -143,6 +143,10 @@ export function EtfChart({ code, history = [], benchmarks = [], changeTone = 'fl
 
   const fmtPct = (n: number) => `${n >= 0 ? '+' : ''}${n.toFixed(2)}%`;
   const fmtAxis = (n: number) => `${n >= 0 ? '+' : ''}${n.toFixed(2)}%`;
+  const arrow = tone === 'up' ? '▲' : tone === 'down' ? '▼' : '–';
+
+  // NAV 단독(다른 시리즈 없음)이면 area fill 살리기 (시각 풍부함)
+  const showArea = active.nav && extraSeries.length === 0;
 
   const onChip = (k: PeriodKey) => {
     setPeriodKey(k);
@@ -166,12 +170,15 @@ export function EtfChart({ code, history = [], benchmarks = [], changeTone = 'fl
           )}
         </div>
         <div className={styles.headRight}>
-          <div className={styles.returnNow}>
-            <span className={`${styles.returnPct} ${styles[tone]}`}>
-              {navPoints.length > 1 ? fmtPct(returnPct) : '—'}
-            </span>
-            <span className={styles.returnLabel}>{periodLabel}</span>
-          </div>
+          <span className={styles.returnLabel}>{periodLabel} 누적</span>
+          <span className={`${styles.returnHero} ${styles[tone]}`}>
+            {navPoints.length > 1 ? (
+              <>
+                <span className={styles.returnArrow}>{arrow}</span>
+                {fmtPct(Math.abs(returnPct))}
+              </>
+            ) : '—'}
+          </span>
         </div>
       </div>
 
@@ -263,7 +270,7 @@ export function EtfChart({ code, history = [], benchmarks = [], changeTone = 'fl
           valueFormat={fmtAxis}
           yAxisTicks={5}
           mainColor={NAV_COLOR}
-          noArea
+          noArea={!showArea}
           extraSeries={extraSeries}
         />
       ) : extraSeries.length > 0 && extraSeries[0].points.length > 1 ? (
@@ -282,11 +289,11 @@ export function EtfChart({ code, history = [], benchmarks = [], changeTone = 'fl
         <div className={styles.empty}>표시할 시리즈를 1개 이상 선택해주세요.</div>
       )}
 
-      {/* 하단 disclaimer (FunETF 톤) */}
+      {/* 하단 disclaimer + 데이터 출처 */}
       <p className={styles.footnote}>
-        ▪ 수익률(NAV) 그래프는 분배금 재투자를 가정한 수정기준가로 제공합니다.
+        ▪ NAV는 분배금을 재투자한 수정기준가 기준이고, <strong>실비용(총보수·기타비용·수수료)이 이미 반영</strong>돼 있어요.
         <br />
-        <span className={styles.footnoteEmph}>▪ 수익률에는 실비용(총보수 + 기타비용 + 매매중개수수료)이 이미 반영되어 있습니다.</span>
+        ▪ 데이터는 Yahoo Finance 종가 기준으로, NAV ≈ 종가로 표시돼요. (정확한 NAV/괴리율은 운용사 공시 참고)
       </p>
     </section>
   );

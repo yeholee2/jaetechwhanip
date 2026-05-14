@@ -30,6 +30,13 @@
   color: var(--rw-text-body);
   font-family: inherit;
   font-feature-settings: 'tnum';
+  transition: border-color 120ms ease, box-shadow 120ms ease;
+}
+.dateInput:hover { border-color: var(--rw-text-muted); }
+.dateInput:focus {
+  outline: none;
+  border-color: var(--rw-primary);
+  box-shadow: 0 0 0 3px var(--rw-primary-bg);
 }
 .dateSep { color: var(--rw-text-muted); font-weight: 800; }
 .applyBtn {
@@ -78,6 +85,13 @@
   font-size: 12px;
   font-weight: 700;
   user-select: none;
+  padding: 4px 8px;
+  margin: -4px -8px;
+  border-radius: var(--rw-radius-sm);
+  transition: background-color 120ms ease;
+}
+.legendChip:hover:not(.legendChipDisabled) {
+  background: rgba(49, 130, 246, 0.05);
 }
 .legendChip input[type="checkbox"] {
   position: absolute;
@@ -141,25 +155,34 @@
   font-weight: 700;
 }
 
-.returnNow {
+.headRight {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
   gap: 2px;
 }
 
-.returnPct {
-  font-size: 22px;
-  font-weight: 900;
-  letter-spacing: -0.4px;
-  font-feature-settings: 'tnum';
-  line-height: 1.1;
-}
-
 .returnLabel {
   font-size: 11px;
-  font-weight: 700;
+  font-weight: 800;
   color: var(--rw-text-muted);
+  letter-spacing: 0.2px;
+}
+
+/* 누적 수익률 hero — FunETF 톤 큰 숫자 + 화살표 */
+.returnHero {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+  font-size: 28px;
+  font-weight: 900;
+  letter-spacing: -0.6px;
+  font-feature-settings: 'tnum';
+  line-height: 1.05;
+}
+.returnArrow {
+  font-size: 18px;
+  line-height: 1;
 }
 
 .up { color: var(--rw-red60); }
