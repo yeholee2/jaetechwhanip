@@ -353,8 +353,19 @@ export default function HomeClient({
           )}
         </div>
         <aside className={styles.pcSide}>
-          {/* 1. 핫 스파링 (기존) */}
-          <SparringMiniCard sparring={featuredSparring} />
+          {/* 1. 시장 지수 — 항상 유용한 정보 최상단 */}
+          <div className={styles.sideWidget}>
+            <div className={styles.sideHead}>시장 지수</div>
+            <ul className={styles.indexList}>
+              {HOME_INDICES.map(i => (
+                <li key={i.name} className={styles.indexRow}>
+                  <span className={styles.indexName}>{i.name}</span>
+                  <span className={styles.indexVal}>{i.val}</span>
+                  <span className={i.up ? styles.sideUp : styles.sideDown}>{i.chg}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
 
           {/* 2. 내 관심 ETF */}
           <HomeWatchWidget />
@@ -374,20 +385,6 @@ export default function HomeClient({
               <span className={styles.sideMore}>전체 ETF 보기 →</span>
             </Link>
           )}
-
-          {/* 3. 시장 지수 */}
-          <div className={styles.sideWidget}>
-            <div className={styles.sideHead}>시장 지수</div>
-            <ul className={styles.indexList}>
-              {HOME_INDICES.map(i => (
-                <li key={i.name} className={styles.indexRow}>
-                  <span className={styles.indexName}>{i.name}</span>
-                  <span className={styles.indexVal}>{i.val}</span>
-                  <span className={i.up ? styles.sideUp : styles.sideDown}>{i.chg}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
 
           {/* 4. 인기 키워드 */}
           <div className={styles.sideWidget}>
@@ -415,6 +412,9 @@ export default function HomeClient({
               })}
             </div>
           </div>
+
+          {/* 5. 스파링 — 보조 콘텐츠로 하단 배치 */}
+          <SparringMiniCard sparring={featuredSparring} />
         </aside>
       </div>
 
