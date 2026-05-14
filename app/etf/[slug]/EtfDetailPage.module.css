@@ -960,3 +960,31 @@
   line-height: 1.55;
   letter-spacing: -0.2px;
 }
+
+/* ─── 페이지 하단 CTA ─── */
+.bottomCta {
+  margin-top: var(--space-8);
+  padding: var(--space-6) var(--space-5);
+  background: var(--rw-card-muted);
+  border-radius: var(--rw-radius);
+  text-align: center;
+}
+.bottomCtaTitle {
+  margin: 0 0 var(--space-2);
+  font-size: var(--type-lg);
+  font-weight: 800;
+  color: var(--rw-text-strong);
+  letter-spacing: -0.3px;
+}
+.bottomCtaBody {
+  margin: 0 0 var(--space-5);
+  font-size: var(--type-body);
+  color: var(--rw-text-muted);
+  line-height: 1.6;
+}
+.bottomCtaActions {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}

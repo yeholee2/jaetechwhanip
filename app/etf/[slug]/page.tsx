@@ -728,6 +728,16 @@ export default async function EtfDetailPage({ params }: Props) {
                 <IssuerCard summary={issuerSummary} currentCode={etf.code} />
               </section>
             )}
+
+            {/* ── 페이지 하단 CTA ── */}
+            <section className={styles.bottomCta}>
+              <p className={styles.bottomCtaTitle}>{etf.shortName}에 대해 궁금한 게 있다면?</p>
+              <p className={styles.bottomCtaBody}>이 ETF를 사도 될지, 내 포트폴리오에 맞는지 — 전문가에게 질문해보세요.</p>
+              <div className={styles.bottomCtaActions}>
+                <Button href={`/?ask=1&about=${encodeURIComponent(etf.name)}`} variant="primary" size="md">질문하기</Button>
+                <Button href="/etf/compare" variant="outline" size="md">ETF 비교</Button>
+              </div>
+            </section>
           </div>
 
           <aside className={styles.sideColumn}>
