@@ -1,64 +1,72 @@
 'use client';
 
 /**
- * "요즘 뜨는 ETF 테마" — RiskWeather "요즘 뜨는 산업" 패턴.
- * 가로 토글 + 종목 리스트. 클릭으로 활성 테마 전환.
+ * "요즘 뜨는 ETF 테마" — 테마 토글 + 종목 리스트.
+ * allEtfs prop을 받아 theme/category/name 기반으로 동적 필터링.
+ * 데이터 없는 테마 탭은 자동으로 숨김.
  */
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
-import { etfPath, etfs } from '@/lib/etfs';
+import { etfPath, type EtfInfo } from '@/lib/etfs';
 import { EtfLogo } from './EtfLogo';
-import { Chip, Badge } from '@/components/ui';
+import { Chip } from '@/components/ui';
 import sec from './sectionStyles.module.css';
 import styles from './ThemeToggle.module.css';
 
-const THEMES = ['반도체', 'AI', '배당', '월배당', 'S&P500', '리츠', '원자재'] as const;
+const THEME_CONFIG = [
+  { key: '반도체', test: (e: EtfInfo) => /반도체|필라델피아|SOX/i.test(e.theme + e.name) },
+  { key: 'AI',    test: (e: EtfInfo) => /\bAI\b|인공지능|글로벌AI/i.test(e.theme + e.name) },
+  { key: '배당',  test: (e: EtfInfo) => /배당|다우존스배당|고배당/i.test(e.theme + e.name) && !/월배당/.test(e.theme + e.name) },
+  { key: '월배당',test: (e: EtfInfo) => /월배당|월분배|커버드콜/i.test(e.theme + e.name) },
+  { key: 'S&P500',test: (e: EtfInfo) => /S&P500|S&P 500/i.test(e.theme + e.name) },
+  { key: '리츠',  test: (e: EtfInfo) => /리츠|REITs|부동산/i.test(e.theme + e.name + e.category) },
+  { key: '원자재',test: (e: EtfInfo) => /원자재|코모디티/i.test(e.theme + e.name + e.category) },
+] as const;
 
-type ThemeKey = typeof THEMES[number];
+type ThemeKey = typeof THEME_CONFIG[number]['key'];
 
-// 테마별 매핑 시드 — Phase F에서 etfs.tags 기반 동적 필터로 대체.
-const SEED: Record<ThemeKey, string[]> = {
-  '반도체': ['TIGER 미국필라델피아반도체나스닥', 'KODEX 미국S&P500TR'],
-  'AI': ['KODEX 미국나스닥100TR', 'TIGER 미국S&P500'],
-  '배당': ['ACE 미국배당다우존스'],
-  '월배당': ['ACE 미국배당다우존스'],
-  'S&P500': ['TIGER 미국S&P500', 'KODEX 미국S&P500TR'],
-  '리츠': [],
-  '원자재': [],
-};
+export function ThemeToggle({ allEtfs = [] }: { allEtfs?: EtfInfo[] }) {
+  // 데이터 있는 테마만 탭으로 표시
+  const availableThemes = useMemo(
+    () => THEME_CONFIG.filter(t => allEtfs.some(t.test)),
+    [allEtfs],
+  );
 
-export function ThemeToggle() {
-  const [activeTheme, setActiveTheme] = useState<ThemeKey>('반도체');
+  const [activeTheme, setActiveTheme] = useState<ThemeKey | null>(null);
+
+  // 첫 번째 유효 테마를 기본값으로
+  const resolvedTheme = activeTheme ?? availableThemes[0]?.key ?? null;
 
   const items = useMemo(() => {
-    const targetNames = SEED[activeTheme];
-    return etfs
-      .filter(e => targetNames.some(n => e.shortName.includes(n) || e.name.includes(n)))
-      .slice(0, 5);
-  }, [activeTheme]);
+    if (!resolvedTheme) return [];
+    const config = THEME_CONFIG.find(t => t.key === resolvedTheme);
+    if (!config) return [];
+    return allEtfs.filter(config.test).slice(0, 5);
+  }, [resolvedTheme, allEtfs]);
+
+  if (availableThemes.length === 0) return null;
 
   return (
     <section className={sec.card} aria-label="요즘 뜨는 ETF 테마">
       <div className={sec.head}>
         <h3 className={sec.title}>요즘 뜨는 테마</h3>
-        <Badge tone="neutral">샘플</Badge>
       </div>
 
       <div className={`${sec.bleedScroller} ${styles.toggleRow}`}>
-        {THEMES.map(theme => (
+        {availableThemes.map(t => (
           <Chip
-            key={theme}
-            active={theme === activeTheme}
+            key={t.key}
+            active={t.key === resolvedTheme}
             size="sm"
-            onClick={() => setActiveTheme(theme)}
+            onClick={() => setActiveTheme(t.key)}
           >
-            {theme}
+            {t.key}
           </Chip>
         ))}
       </div>
 
       <ul className={styles.list}>
-        {items.length > 0 ? items.map(etf => (
+        {items.map(etf => (
           <li key={etf.slug}>
             <Link className={styles.item} href={etfPath(etf.slug)}>
               <EtfLogo name={etf.shortName} size={36} />
@@ -71,9 +79,7 @@ export function ThemeToggle() {
               </span>
             </Link>
           </li>
-        )) : (
-          <li className={styles.empty}>'{activeTheme}' 테마 ETF를 곧 보강할게요.</li>
-        )}
+        ))}
       </ul>
     </section>
   );

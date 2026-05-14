@@ -133,7 +133,7 @@ async function DiscoverTab({ allEtfs }: { allEtfs: import('@/lib/etfs').EtfInfo[
       <DiscoverMoreCards />
 
       {/* 5. 요즘 뜨는 테마 (mini) */}
-      <ThemeToggle />
+      <ThemeToggle allEtfs={allEtfs} />
 
       {/* 6. ETF 입문 가이드 (첫 사용자용) */}
       <EtfLearnCard />
