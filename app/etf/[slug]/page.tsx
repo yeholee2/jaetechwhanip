@@ -244,8 +244,11 @@ export default async function EtfDetailPage({ params }: Props) {
               )}
             </p>
             {(() => {
-              const generic = etf.summary === `${etf.name} (${etf.code}) — ${etf.issuer} 운용 ${etf.category}.`;
-              if (etf.summary && !generic) {
+              // 기계적 DB 생성 패턴 감지 — "ETF명 (코드) — 운용사 운용 카테고리."
+              const isGeneric = !etf.summary
+                || etf.summary.startsWith(`${etf.name} (${etf.code})`)
+                || etf.summary === `${etf.name} (${etf.code}) — ${etf.issuer} 운용 ${etf.category}.`;
+              if (etf.summary && !isGeneric) {
                 return <p className={styles.heroSummary}>{etf.summary}</p>;
               }
               // 자동 1줄 설명 — 테마·추종지수·헤지 조합
