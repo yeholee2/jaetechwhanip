@@ -109,6 +109,13 @@
   line-height: 1.4;
   margin: 0;
 }
+.heroPricePremium {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--rw-text-muted);
+  text-align: right;
+  margin: 0;
+}
 
 .heroMain {
   display: flex;
@@ -403,6 +410,25 @@
   justify-content: space-between;
   gap: var(--space-3);
   margin-bottom: var(--space-head-gap);
+}
+
+/* 섹션 내부 서브 헤더 — 작은 레이블 + 우측 메타 */
+.sectionSubHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-2);
+}
+.sectionSubHead span:first-child {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--rw-text-body);
+  letter-spacing: -0.1px;
+}
+.sectionSubHead span:last-child {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--rw-text-muted);
 }
 
 /* 스택형 헤더 (Toss 톤) — 타이틀 + 그 아래 작은 부타이틀 */

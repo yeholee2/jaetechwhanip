@@ -301,6 +301,21 @@ export default async function EtfDetailPage({ params }: Props) {
               {etfBaseDate ? `${etfBaseDate} 기준` : etf.dataNotice}
               {etfNav && ` · NAV ${etfNav}`}
             </p>
+            {/* NAV 괴리율 — 현재가와 NAV 모두 있을 때만 표시 */}
+            {etfNav && etf.price && (() => {
+              const pNum = parseFloat(String(etf.price).replace(/[^\d.]/g, ''));
+              const nNum = parseFloat(String(etfNav).replace(/[^\d.]/g, ''));
+              if (!pNum || !nNum) return null;
+              const pct = ((pNum - nNum) / nNum) * 100;
+              if (Math.abs(pct) < 0.05) return null; // 무시할 수준
+              const sign = pct > 0 ? '+' : '';
+              const tone = pct > 0.5 ? styles.delta_up : pct < -0.5 ? styles.delta_down : '';
+              return (
+                <p className={`${styles.heroPricePremium} ${tone}`}>
+                  괴리율 {sign}{pct.toFixed(2)}%
+                </p>
+              );
+            })()}
           </div>
         </section>
 
@@ -416,6 +431,25 @@ export default async function EtfDetailPage({ params }: Props) {
                         실제와의 차이를 <strong>괴리율</strong>로 측정해요.
                       </>
                     }
+                  />
+                </div>
+              )}
+
+              {/* 동종 ETF 보수 비교 — 건전성 섹션 내에 배치 */}
+              {feeStats && (
+                <div style={{ marginTop: 'var(--space-4)' }}>
+                  <div className={styles.sectionSubHead}>
+                    <span>동종 ETF 대비</span>
+                    <span>{etf.category} {feeStats.peerCount}개</span>
+                  </div>
+                  <CompareBar
+                    label="총보수"
+                    current={feeStats.current}
+                    min={feeStats.min}
+                    max={feeStats.max}
+                    avg={feeStats.avg}
+                    unit="%"
+                    lowerIsBetter
                   />
                 </div>
               )}
@@ -601,25 +635,6 @@ export default async function EtfDetailPage({ params }: Props) {
                       : 'KRX 분배금 API 연동 전 단계예요. 실제 분배 이력은 운용사 공식 페이지에서 확인 가능해요.'}
                   </p>
                 </div>
-              </section>
-            )}
-
-            {/* 동종 카테고리 보수 비교 (Toss 스타일) */}
-            {feeStats && (
-              <section className={styles.section}>
-                <div className={styles.sectionHead}>
-                  <h2>동종 ETF 대비</h2>
-                  <span>{etf.category} {feeStats.peerCount}개</span>
-                </div>
-                <CompareBar
-                  label="총보수"
-                  current={feeStats.current}
-                  min={feeStats.min}
-                  max={feeStats.max}
-                  avg={feeStats.avg}
-                  unit="%"
-                  lowerIsBetter
-                />
               </section>
             )}
 
