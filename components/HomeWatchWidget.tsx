@@ -2,10 +2,24 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { etfPath, getEtfByCode } from '@/lib/etfs';
+import { etfPath } from '@/lib/etfs';
 import { listWatchedEtfCodes, subscribeWatchChanges, syncEtfWatchFromServer } from '@/lib/etfWatch';
 import { fetchEtfLivePrices, buildLivePriceMap, type EtfLivePrice } from '@/lib/etfLivePrices';
 import styles from './HomeWatchWidget.module.css';
+
+type EtfMeta = { code: string; shortName: string; slug: string; issuer: string };
+
+async function fetchEtfMeta(codes: string[]): Promise<EtfMeta[]> {
+  if (codes.length === 0) return [];
+  try {
+    const res = await fetch(`/api/etf/meta?codes=${codes.join(',')}`, { cache: 'no-store' });
+    if (!res.ok) return [];
+    const data = await res.json() as { items: EtfMeta[] };
+    return data.items ?? [];
+  } catch {
+    return [];
+  }
+}
 
 /**
  * 홈 우 사이드바: 내 관심 ETF 미니 리스트.
@@ -15,16 +29,43 @@ export function HomeWatchWidget() {
   const [codes, setCodes] = useState<string[]>([]);
   const [mounted, setMounted] = useState(false);
   const [priceMap, setPriceMap] = useState<Record<string, EtfLivePrice>>({});
+  const [metaMap, setMetaMap] = useState<Record<string, EtfMeta>>({});
 
   useEffect(() => {
     setMounted(true);
-    setCodes(listWatchedEtfCodes());
+    const initial = listWatchedEtfCodes();
+    setCodes(initial);
     void syncEtfWatchFromServer();
     void fetchEtfLivePrices().then(res => {
       if (res?.items) setPriceMap(buildLivePriceMap(res.items));
     });
-    return subscribeWatchChanges(setCodes);
-  }, []);
+    return subscribeWatchChanges(next => {
+      setCodes(next);
+      // 새 코드에 대한 메타 조회
+      const unknown = next.filter(c => !metaMap[c]);
+      if (unknown.length > 0) {
+        void fetchEtfMeta(next).then(items => {
+          setMetaMap(prev => {
+            const m = { ...prev };
+            for (const item of items) m[item.code] = item;
+            return m;
+          });
+        });
+      }
+    });
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // 마운트 시 최초 메타 로드
+  useEffect(() => {
+    if (!mounted || codes.length === 0) return;
+    void fetchEtfMeta(codes).then(items => {
+      setMetaMap(prev => {
+        const m = { ...prev };
+        for (const item of items) m[item.code] = item;
+        return m;
+      });
+    });
+  }, [mounted]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!mounted) {
     return (
@@ -45,11 +86,30 @@ export function HomeWatchWidget() {
   }
 
   const items = codes
-    .map(c => getEtfByCode(c))
-    .filter((e): e is NonNullable<typeof e> => Boolean(e))
+    .map(c => metaMap[c])
+    .filter((e): e is EtfMeta => Boolean(e))
     .slice(0, 5);
 
-  if (items.length === 0) {
+  // 코드는 있는데 메타가 아직 로드 중이면 스켈레톤 유지
+  if (codes.length > 0 && items.length === 0) {
+    return (
+      <div className={styles.widget} aria-busy="true">
+        <div className={styles.head}>
+          <span className={styles.title}>내 관심 ETF</span>
+        </div>
+        <ul className={styles.list}>
+          {codes.slice(0, 3).map(c => (
+            <li key={c} className={styles.skelRow}>
+              <span className={styles.skelName} />
+              <span className={styles.skelChange} />
+            </li>
+          ))}
+        </ul>
+      </div>
+    );
+  }
+
+  if (codes.length === 0) {
     return (
       <Link href="/etf/all" className={styles.empty}>
         <div className={styles.emptyHead}>내 관심 ETF</div>
@@ -68,8 +128,8 @@ export function HomeWatchWidget() {
       <ul className={styles.list}>
         {items.map(etf => {
           const live = priceMap[etf.code];
-          const change = live?.change || etf.change;
-          const tone = live?.changeTone || etf.changeTone;
+          const change = live?.change ?? '—';
+          const tone = live?.changeTone ?? 'flat';
           return (
             <li key={etf.code}>
               <Link className={styles.item} href={etfPath(etf.slug)}>

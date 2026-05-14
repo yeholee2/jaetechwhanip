@@ -2,14 +2,16 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { etfPath, etfs, getEtfByCode } from '@/lib/etfs';
+import { etfPath, etfs, type EtfInfo } from '@/lib/etfs';
 import { listWatchedEtfCodes, subscribeWatchChanges, removeEtfWatch, syncEtfWatchFromServer } from '@/lib/etfWatch';
 import { fetchEtfLivePrices, buildLivePriceMap, type EtfLivePrice } from '@/lib/etfLivePrices';
 import { EtfLogo } from './EtfLogo';
 import { Card, Button, Badge } from '@/components/ui';
 import styles from './WatchList.module.css';
 
-export function WatchList() {
+export function WatchList({ allEtfs }: { allEtfs?: EtfInfo[] }) {
+  const pool = allEtfs ?? etfs;
+  const getEtfByCode = (code: string) => pool.find(e => e.code === code);
   const [codes, setCodes] = useState<string[]>([]);
   const [mounted, setMounted] = useState(false);
   const [priceMap, setPriceMap] = useState<Record<string, EtfLivePrice>>({});

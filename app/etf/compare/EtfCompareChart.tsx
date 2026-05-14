@@ -251,7 +251,7 @@ export function EtfCompareChart({ etfA, etfB }: { etfA: EtfInfo; etfB: EtfInfo }
             ({(Math.abs(finalA - finalB)).toFixed(2)}%p 차이).
           </p>
         )}
-        <p className={styles.notice}>※ 시연용 임시 데이터. KRX 일별가격 연결 후 실제 데이터로 교체됩니다.</p>
+        <p className={styles.notice}>※ 수익률은 추정치이며 실제와 다를 수 있습니다.</p>
       </div>
     </section>
   );

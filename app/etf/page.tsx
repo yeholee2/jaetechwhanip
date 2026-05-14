@@ -105,7 +105,7 @@ export default async function EtfPage({
           <EtfPageTabs active={active} />
 
           {active === 'discover' && <DiscoverTab allEtfs={etfs} />}
-          {active === 'watch' && <WatchTabPlaceholder />}
+          {active === 'watch' && <WatchTabPlaceholder allEtfs={etfs} />}
           {active === 'diagnostic' && <DiagnosticTabPlaceholder allEtfs={etfs} />}
           {active === 'feed' && <FeedTabPlaceholder />}
         </div>
@@ -189,8 +189,8 @@ function ComingSoonCard({
   );
 }
 
-function WatchTabPlaceholder() {
-  return <WatchList />;
+function WatchTabPlaceholder({ allEtfs }: { allEtfs: import('@/lib/etfs').EtfInfo[] }) {
+  return <WatchList allEtfs={allEtfs} />;
 }
 
 function DiagnosticTabPlaceholder({ allEtfs }: { allEtfs: import('@/lib/etfs').EtfInfo[] }) {
