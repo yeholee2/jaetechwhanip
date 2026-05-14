@@ -56,11 +56,8 @@ function DataCellRoot({ label, value, sub, tone = 'default', className, help }: 
 function Grid({ children, columns = 4 }: { children: React.ReactNode; columns?: 2 | 3 | 4 | 5 }) {
   return (
     <div
-      style={{
-        display: 'grid',
-        gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))`,
-        gap: 'var(--space-2)',
-      }}
+      className={styles.grid}
+      style={{ '--grid-cols': columns } as React.CSSProperties}
     >
       {children}
     </div>

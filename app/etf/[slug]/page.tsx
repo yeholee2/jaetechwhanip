@@ -429,23 +429,6 @@ export default async function EtfDetailPage({ params }: Props) {
               />
             </section>
 
-            {/* ──────────── ④ 궁합: AI 매칭 ──────────── */}
-            <div id="sec-match">
-            <EtfChat
-              etf={{
-                code: etf.code,
-                name: etf.name,
-                summary: etf.summary,
-                theme: etf.theme,
-                fee: etf.fee,
-                distribution: etf.distribution,
-                hedge: etf.hedge,
-                aum: etf.aum,
-              }}
-            />
-
-            </div>
-
             {/* ──────────── ③ 속살: 구성종목 + 섹터 + 분배금 ──────────── */}
             <section id="sec-inside" className={styles.section}>
               <div className={styles.sectionHead}>
@@ -621,6 +604,22 @@ export default async function EtfDetailPage({ params }: Props) {
                 />
               </section>
             )}
+
+            {/* ──────────── ④ 궁합: AI 매칭 ──────────── */}
+            <div id="sec-match">
+              <EtfChat
+                etf={{
+                  code: etf.code,
+                  name: etf.name,
+                  summary: etf.summary,
+                  theme: etf.theme,
+                  fee: etf.fee,
+                  distribution: etf.distribution,
+                  hedge: etf.hedge,
+                  aum: etf.aum,
+                }}
+              />
+            </div>
 
             {/* ──────────── ⑤ 사회적 증거: 유사·대가·운용사 ──────────── */}
             {/* 유사 ETF (점수 기반: 추종지수/추종국가/카테고리/테마/운용사 매칭) */}

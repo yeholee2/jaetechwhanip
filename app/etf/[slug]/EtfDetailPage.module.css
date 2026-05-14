@@ -713,7 +713,7 @@
 
 @media (max-width: 768px) {
   .page {
-    padding: 18px 0 48px;
+    padding: 18px 16px 48px;
   }
 
   .hero {
@@ -738,9 +738,13 @@
     text-align: left;
   }
 
-  .factGrid,
-  .sideColumn {
+  .factGrid {
     grid-template-columns: 1fr;
+  }
+
+  /* 사이드 컬럼 — 모바일에서 숨김 (메인 컬럼에 동일 정보 있음) */
+  .sideColumn {
+    display: none;
   }
 
   .sectionHead h2,
