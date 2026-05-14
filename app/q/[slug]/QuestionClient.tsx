@@ -596,7 +596,7 @@ export default function QuestionClient({
                 onClick={dislikeQuestion}
               >
                 <Heart size={15} style={{ transform: 'rotate(180deg)' }} />
-                {q.dislike_count > 0 ? q.dislike_count : ''}
+                별로예요 {q.dislike_count > 0 ? q.dislike_count : ''}
               </button>
               <button
                 className={styles.qActionBtn}
@@ -623,7 +623,7 @@ export default function QuestionClient({
           <section>
             <div className={styles.answersHead}>
               <h2 style={{ fontSize: 16, fontWeight: 700 }}>
-                {answerCount > answers.length ? `주요 답변 ${answers.length}개` : `${answers.length}개의 답변`}
+                답변 {answerCount}개
               </h2>
               {answers.length > 1 && (
                 <div className={styles.sortTabs}>
@@ -735,25 +735,18 @@ export default function QuestionClient({
             <RelatedContent heading="이 질문과 관련된 ETF" etfs={mentionedEtfs} />
           )}
 
-          {/* 유사 질문 */}
-          <div className={styles.widget}>
-            <div className={styles.widgetHead}>유사한 질문이 있어요.</div>
-            {related.length > 0 ? related.map(r => (
-              <Link key={r.id} className={styles.relatedItem} href={`/q/${r.slug || r.id}`}>
-                <span>{r.title}</span>
-                <em>답변 {r.answer_count || 0}개</em>
-              </Link>
-            )) : (
-              <p style={{ padding: '12px 15px', fontSize: 13, color: 'var(--t3)' }}>같은 카테고리의 질문을 모으는 중이에요.</p>
-            )}
-          </div>
-
-          {/* 앱 알림 */}
-          <div className={styles.widget} style={{ padding: '14px 15px', textAlign: 'center' }}>
-            <div style={{ fontSize: 22, marginBottom: 6 }}>🎁</div>
-            <p style={{ fontSize: 13, fontWeight: 700 }}>재테크한입 앱 알림 준비 중</p>
-            <p style={{ fontSize: 12, color: 'var(--t3)', marginTop: 4 }}>관심 질문 답변을 놓치지 않게 알려드릴게요.</p>
-          </div>
+          {/* 유사 질문 — 데이터 있을 때만 노출 */}
+          {related.length > 0 && (
+            <div className={styles.widget}>
+              <div className={styles.widgetHead}>같은 주제의 질문</div>
+              {related.map(r => (
+                <Link key={r.id} className={styles.relatedItem} href={`/q/${r.slug || r.id}`}>
+                  <span>{r.title}</span>
+                  <em>답변 {r.answer_count || 0}개</em>
+                </Link>
+              ))}
+            </div>
+          )}
         </aside>
       </div>
 

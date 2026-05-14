@@ -19,10 +19,9 @@ import styles from './AppShell.module.css';
 export type AppNavKey = 'home' | 'etf' | 'portfolio' | 'topics' | 'sparring' | 'feed' | 'mission' | 'my';
 
 const NAV_ITEMS: { key: AppNavKey; label: string; href: string }[] = [
-  { key: 'home', label: '홈', href: '/' },
+  { key: 'home', label: 'Q&A', href: '/' },
   { key: 'etf', label: 'ETF', href: '/etf' },
   { key: 'portfolio', label: 'MY포트폴리오', href: '/portfolio' },
-  { key: 'feed', label: '피드', href: '/feed' },
   { key: 'sparring', label: '스파링', href: '/sparring' },
 ];
 
@@ -159,7 +158,7 @@ export function AppShell({
   return (
     <div className={styles.shell}>
       <nav className={styles.pcNav}>
-        <Link className={`${styles.logo} logo-font`} href="/">ETF<em>한입</em></Link>
+        <Link className={`${styles.logo} logo-font`} href="/">재테크<em>한입</em></Link>
         <ul className={styles.pcMenu}>
           {NAV_ITEMS.map(item => (
             <li key={item.key}>
@@ -380,7 +379,7 @@ export function AppShell({
 
       <header className={styles.moHeader}>
         <div className={styles.moTop}>
-          <Link className={`${styles.moLogo} logo-font`} href="/">ETF<em>한입</em></Link>
+          <Link className={`${styles.moLogo} logo-font`} href="/">재테크<em>한입</em></Link>
           <div className={styles.moIcons}>
             <button
               className={styles.moIcon}
@@ -479,9 +478,9 @@ export function AppShell({
         <Link className={`${styles.bnav} ${active === 'etf' ? styles.active : ''}`} href="/etf">
           <FaIcon name="chart-line" size={21} /><span>ETF</span>
         </Link>
-        <Link className={`${styles.bnav} ${styles.bnavAsk} ${active === 'feed' ? styles.active : ''}`} href="/feed">
+        <Link className={`${styles.bnav} ${styles.bnavAsk} ${active === 'home' ? styles.active : ''}`} href="/">
           <span className={styles.bnavAskIcon}><FaIcon name="comments" size={22} /></span>
-          <span>피드</span>
+          <span>Q&amp;A</span>
         </Link>
         <Link className={`${styles.bnav} ${active === 'sparring' ? styles.active : ''}`} href="/sparring">
           <Swords size={22} /><span>스파링</span>
@@ -497,7 +496,7 @@ export function AppShell({
 export function Slogan() {
   return (
     <p className={styles.slogan}>
-      <strong>ETF 자산을 한입에 관리해요</strong> · 시장 흐름·내 포트폴리오·토론까지 한 곳에서.
+      <strong>재테크 고민, 여기서 해결해요</strong> · Q&A·ETF·포트폴리오·토론까지 한 곳에서.
     </p>
   );
 }

@@ -51,7 +51,7 @@ export function BottomPromoBar() {
           <span>ETF로 한입씩 건강하게 시작해보세요.</span>
         </p>
         <Link href="/auth" className={styles.cta}>
-          ETF한입 무료 시작 →
+          재테크한입 무료 시작 →
         </Link>
         <button
           type="button"
