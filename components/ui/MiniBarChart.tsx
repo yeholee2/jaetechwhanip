@@ -39,12 +39,15 @@ export function MiniBarChart({ label, caption, data, unit = '원', formatValue, 
           const h = Math.max(4, (d.value / max) * 100);
           return (
             <div key={`${d.label}-${idx}`} className={styles.col}>
-              <span
-                className={`${styles.bar} ${idx === latestIdx ? styles.barLatest : ''}`}
-                style={{ height: `${h}%` }}
-                title={d.tooltip || `${d.label} ${fmt(d.value)}`}
-                aria-label={`${d.label} ${fmt(d.value)}`}
-              />
+              {/* barWrap — flex:1 so it occupies all column space except tick */}
+              <div className={styles.barWrap}>
+                <span
+                  className={`${styles.bar} ${idx === latestIdx ? styles.barLatest : ''}`}
+                  style={{ height: `${h}%` }}
+                  title={d.tooltip || `${d.label} ${fmt(d.value)}`}
+                  aria-label={`${d.label} ${fmt(d.value)}`}
+                />
+              </div>
               <span className={styles.tick}>{d.label}</span>
             </div>
           );

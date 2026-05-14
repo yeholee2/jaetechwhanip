@@ -28,7 +28,7 @@
 
 .chart {
   display: flex;
-  align-items: flex-end;
+  align-items: stretch; /* columns stretch to full 80px height */
   gap: 6px;
   height: 80px;
   width: 100%;
@@ -43,13 +43,23 @@
   min-width: 0;
 }
 
+/* 바 영역: flex:1 로 tick 제외 공간을 차지 + 바를 하단 정렬 */
+.barWrap {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  width: 100%;
+}
+
 .bar {
   width: 100%;
   max-width: 18px;
   border-radius: 4px 4px 0 0;
   background: var(--rw-primary);
   opacity: 0.55;
-  transition: opacity 120ms ease;
+  transition: opacity 120ms ease, height 200ms ease;
 }
 
 .barLatest {
