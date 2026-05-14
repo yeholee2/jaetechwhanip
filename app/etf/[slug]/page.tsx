@@ -903,10 +903,26 @@ export default async function EtfDetailPage({ params }: Props) {
                     <span className={styles.factValue}>{etfNav}</span>
                   </div>
                 )}
-                <div>
-                  <span className={styles.factLabel}>운용사</span>
-                  <span className={styles.factValue}>{etf.issuer}</span>
+              </div>
+
+              {/* 메타 footer — 운용사 + 추종지수 (그리드 밖) */}
+              <div className={styles.sideQuickMeta}>
+                <div className={styles.sideMetaRow}>
+                  <span className={styles.sideMetaLabel}>운용사</span>
+                  <span className={styles.sideMetaValue}>{etf.issuer}</span>
                 </div>
+                {etf.trackingIndex && (
+                  <div className={styles.sideMetaRow}>
+                    <span className={styles.sideMetaLabel}>추종 지수</span>
+                    <span className={styles.sideMetaValue} title={etf.trackingIndex}>{etf.trackingIndex}</span>
+                  </div>
+                )}
+                {etf.category && (
+                  <div className={styles.sideMetaRow}>
+                    <span className={styles.sideMetaLabel}>카테고리</span>
+                    <span className={styles.sideMetaValue}>{etf.category}</span>
+                  </div>
+                )}
               </div>
             </div>
 

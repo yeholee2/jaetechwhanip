@@ -87,9 +87,9 @@ function buildOneLiner(
   // 1) 강한 긍정 — 보수 낮음 + 대형
   if (fee.tone === 'good' && aum.tone === 'good') {
     if (dist.label === '월 분배') {
-      return `보수가 ${fee.label}이고 매월 분배까지 받을 수 있는 안정형 ETF예요.`;
+      return `보수가 낮고 매월 분배까지 들어오는 안정형 ETF예요.`;
     }
-    return `보수가 ${fee.label}이고 순자산도 ${aum.label} 수준이라 장기 보유에 부담이 적어요.`;
+    return `보수가 낮고 순자산도 큰 편이라 장기 보유 부담이 적어요.`;
   }
   // 2) 환 위험 강조
   if (hedge.tone === 'warn') {
@@ -97,18 +97,18 @@ function buildOneLiner(
   }
   // 3) 작은 규모 주의
   if (aum.tone === 'warn') {
-    return `순자산이 ${aum.label}이라 유동성·상장폐지 리스크를 같이 살펴보세요.`;
+    return `순자산이 작은 편이라 유동성·상장폐지 리스크를 같이 살펴보는 게 좋아요.`;
   }
   // 4) 보수 높음
   if (fee.tone === 'warn') {
-    return `총보수가 ${fee.label}이라 장기 보유 시 비용 부담이 누적될 수 있어요.`;
+    return `총보수가 높은 편이라 장기 보유 시 비용 부담이 누적될 수 있어요.`;
   }
   // 5) 기본 — 분배 톤 강조
   if (dist.label === '월 분배') {
     return `매월 분배금이 들어와 현금흐름을 만들고 싶은 분께 잘 맞아요.`;
   }
   // 6) 평이한 평균
-  return `보수 ${fee.label} · 순자산 ${aum.label} — 비슷한 카테고리에서 평이한 편이에요.`;
+  return `같은 카테고리 평균과 비슷한 보수·순자산 수준이에요.`;
 }
 
 /**
