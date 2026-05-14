@@ -47,10 +47,6 @@ export async function EtfReturns({ code, etfName, lastUpdated, history: passed }
             {lastUpdated || history[history.length - 1].date} 기준
           </span>
         </div>
-        <p className={styles.watermark}>
-          ※ 과거 수익률은 미래를 보장하지 않아요.
-        </p>
-
         <div className={styles.tableWrap}>
           <table className={styles.table}>
             <thead>

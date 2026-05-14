@@ -555,6 +555,17 @@ export default async function EtfDetailPage({ params }: Props) {
                   </div>
                 );
               })()}
+              {/* 전체 구성종목 링크 — 데이터 있을 때만 */}
+              {(liveHoldings?.holdings?.length || etf.holdings?.length) && /^[0-9]{6}$/.test(etf.code) && (
+                <a
+                  href={`https://finance.naver.com/item/coinfo.naver?code=${etf.code}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={styles.holdingAllLink}
+                >
+                  네이버 증권에서 전체 구성종목 보기 →
+                </a>
+              )}
             </section>
 
             {/* 섹터 비중 도넛 (Toss / FunETF 스타일) */}

@@ -520,6 +520,23 @@
   color: var(--rw-text-strong);
 }
 
+/* 구성종목 섹션 하단 — 전체 보기 링크 */
+.holdingAllLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: var(--space-3);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--rw-primary);
+  text-decoration: none;
+  letter-spacing: -0.1px;
+  transition: opacity 120ms ease;
+}
+.holdingAllLink:hover {
+  opacity: 0.75;
+}
+
 /* 구성종목 빈 화면 — 운용사 공시 CTA */
 .emptyHoldings {
   display: flex;
