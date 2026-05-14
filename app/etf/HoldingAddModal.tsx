@@ -5,18 +5,21 @@
  * ETF 자동완성(etfs.ts) + 수량/평단/계좌라벨 입력.
  */
 import { useMemo, useState } from 'react';
-import { etfs } from '@/lib/etfs';
+import { etfs, type EtfInfo } from '@/lib/etfs';
 import { addHolding, type UserEtfHolding } from '@/lib/etfPortfolio';
 import styles from './HoldingAddModal.module.css';
 
 type Props = {
   onClose: () => void;
   onAdded: (row: UserEtfHolding) => void;
+  /** DB 전체 ETF — 없으면 정적 샘플 5개 fallback */
+  candidates?: EtfInfo[];
 };
 
 const ACCOUNT_LABELS = ['일반', 'ISA', '연금저축', 'IRP'] as const;
 
-export function HoldingAddModal({ onClose, onAdded }: Props) {
+export function HoldingAddModal({ onClose, onAdded, candidates }: Props) {
+  const pool = candidates ?? etfs;
   const [search, setSearch] = useState('');
   const [picked, setPicked] = useState<{ code: string; name: string } | null>(null);
   const [quantity, setQuantity] = useState('');
@@ -28,14 +31,14 @@ export function HoldingAddModal({ onClose, onAdded }: Props) {
   const suggestions = useMemo(() => {
     const q = search.trim().toLowerCase();
     if (!q) return [];
-    return etfs
+    return pool
       .filter(e =>
         e.name.toLowerCase().includes(q) ||
         e.code.includes(q) ||
         e.shortName.toLowerCase().includes(q),
       )
       .slice(0, 6);
-  }, [search]);
+  }, [search, pool]);
 
   const submit = async () => {
     setError('');

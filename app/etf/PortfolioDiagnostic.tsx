@@ -9,7 +9,7 @@ import {
   buildHoldingDisplays,
   summarizePortfolio,
 } from '@/lib/etfPortfolio';
-import { etfs, getEtfByCode } from '@/lib/etfs';
+import { etfs, getEtfByCode, type EtfInfo } from '@/lib/etfs';
 import { Card, Badge, Button, Stat, DataCell } from '@/components/ui';
 import styles from './PortfolioDiagnostic.module.css';
 import { HoldingAddModal } from './HoldingAddModal';
@@ -17,9 +17,9 @@ import { BulkPasteModal } from './BulkPasteModal';
 import { buildPortfolioInsight, type WeightedHolding } from '@/lib/etfPortfolioInsights';
 import { PORTFOLIO_TEMPLATES } from '@/lib/portfolioTemplates';
 
-function buildPriceMap(): Record<string, number> {
+function buildPriceMap(pool: EtfInfo[]): Record<string, number> {
   const map: Record<string, number> = {};
-  etfs.forEach(e => {
+  pool.forEach(e => {
     const m = e.price.match(/[\d,]+/);
     if (m) map[e.code] = parseInt(m[0].replace(/,/g, ''), 10);
   });
@@ -29,13 +29,14 @@ function buildPriceMap(): Record<string, number> {
 const formatKRW = (n: number) => n.toLocaleString('ko-KR') + '원';
 const formatPct = (n: number) => `${n >= 0 ? '+' : ''}${(n * 100).toFixed(2)}%`;
 
-export function PortfolioDiagnostic() {
+export function PortfolioDiagnostic({ allEtfs }: { allEtfs?: EtfInfo[] }) {
+  const pool = allEtfs ?? etfs;
   const [authState, setAuthState] = useState<'loading' | 'unauth' | 'auth'>('loading');
   const [holdings, setHoldings] = useState<UserEtfHolding[]>([]);
   const [modal, setModal] = useState<null | 'manual' | 'bulk' | 'screenshot'>(null);
   const [screenshotToast, setScreenshotToast] = useState('');
 
-  const priceMap = useMemo(buildPriceMap, []);
+  const priceMap = useMemo(() => buildPriceMap(pool), [pool]);
 
   useEffect(() => {
     let cancelled = false;
@@ -160,6 +161,7 @@ export function PortfolioDiagnostic() {
 
         {modal === 'manual' && (
           <HoldingAddModal
+            candidates={pool}
             onClose={() => setModal(null)}
             onAdded={(row) => {
               setHoldings(prev => [row, ...prev]);
@@ -169,6 +171,7 @@ export function PortfolioDiagnostic() {
         )}
         {modal === 'bulk' && (
           <BulkPasteModal
+            candidates={pool}
             onClose={() => setModal(null)}
             onAdded={(rows) => {
               setHoldings(prev => [...rows, ...prev]);

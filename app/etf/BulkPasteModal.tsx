@@ -13,7 +13,7 @@
  */
 
 import { useMemo, useState } from 'react';
-import { etfs } from '@/lib/etfs';
+import { etfs, type EtfInfo } from '@/lib/etfs';
 import { addHolding, type UserEtfHolding } from '@/lib/etfPortfolio';
 import { Button, Badge } from '@/components/ui';
 import styles from './BulkPasteModal.module.css';
@@ -21,21 +21,23 @@ import styles from './BulkPasteModal.module.css';
 type Props = {
   onClose: () => void;
   onAdded: (rows: UserEtfHolding[]) => void;
+  /** DB 전체 ETF — 없으면 정적 샘플 5개 fallback */
+  candidates?: EtfInfo[];
 };
 
 type ParsedRow =
   | { ok: true; code: string; name: string; quantity: number; avgPrice: number; raw: string }
   | { ok: false; raw: string; reason: string };
 
-function findEtf(query: string): { code: string; name: string } | null {
+function findEtf(query: string, pool: EtfInfo[]): { code: string; name: string } | null {
   const q = query.trim();
   if (!q) return null;
   // 1) code exact
-  const byCode = etfs.find(e => e.code === q);
+  const byCode = pool.find(e => e.code === q);
   if (byCode) return { code: byCode.code, name: byCode.name };
   // 2) name contains
   const lower = q.toLowerCase();
-  const byName = etfs.find(e =>
+  const byName = pool.find(e =>
     e.name.toLowerCase().includes(lower) ||
     e.shortName.toLowerCase().includes(lower)
   );
@@ -43,7 +45,7 @@ function findEtf(query: string): { code: string; name: string } | null {
   return null;
 }
 
-function parseLine(raw: string): ParsedRow {
+function parseLine(raw: string, pool: EtfInfo[]): ParsedRow {
   const line = raw.trim();
   if (!line) return { ok: false, raw, reason: '빈 줄' };
   // 숫자 토큰 추출
@@ -63,14 +65,15 @@ function parseLine(raw: string): ParsedRow {
     .replace(/[\d,]+(?:\.\d+)?\s*(주|원|krw)?/gi, ' ')
     .replace(/[,\t|]+/g, ' ')
     .trim();
-  const etf = findEtf(nameQuery);
+  const etf = findEtf(nameQuery, pool);
   if (!etf) {
     return { ok: false, raw, reason: `'${nameQuery}' 매칭 실패` };
   }
   return { ok: true, code: etf.code, name: etf.name, quantity, avgPrice, raw };
 }
 
-export function BulkPasteModal({ onClose, onAdded }: Props) {
+export function BulkPasteModal({ onClose, onAdded, candidates }: Props) {
+  const pool = candidates ?? etfs;
   const [text, setText] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
@@ -79,8 +82,8 @@ export function BulkPasteModal({ onClose, onAdded }: Props) {
     return text
       .split(/\r?\n/)
       .filter(l => l.trim())
-      .map(parseLine);
-  }, [text]);
+      .map(line => parseLine(line, pool));
+  }, [text, pool]);
 
   const validCount = parsed.filter(p => p.ok).length;
   const invalidCount = parsed.length - validCount;
