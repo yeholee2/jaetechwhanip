@@ -98,6 +98,7 @@ export default async function EtfDetailPage({ params }: Props) {
 
   const etfNav = 'nav' in etf ? etf.nav : undefined;
   const etfBaseDate = 'baseDate' in etf ? etf.baseDate : undefined;
+  const etfPremium = 'premium' in etf ? (etf as any).premium as number | undefined : undefined;
 
   // 분절 해소: ETF 키워드로 4페이지 + 리포트 연결 + DB 풀(유사/운용사용)
   const baseEtf = staticEtf || etf;
@@ -852,6 +853,28 @@ export default async function EtfDetailPage({ params }: Props) {
                       </Tooltip>
                     </span>
                     <span className={styles.factValue}>{etfNav}</span>
+                  </div>
+                )}
+                {typeof etfPremium === 'number' && Math.abs(etfPremium) > 0.001 && (
+                  <div>
+                    <span className={styles.factLabel}>
+                      괴리율
+                      <Tooltip label="괴리율" title="괴리율 (Premium/Discount)" align="left">
+                        현재가가 NAV(순자산가치)보다 얼마나 더 비싸거나 싸게 거래되는지. <strong>±0.5% 이내가 정상</strong>이고, 너무 크면 LP가 잘 작동 안 한다는 신호예요.
+                      </Tooltip>
+                    </span>
+                    <span
+                      className={styles.factValue}
+                      style={{
+                        color: Math.abs(etfPremium) > 0.5
+                          ? 'var(--rw-red60)'
+                          : Math.abs(etfPremium) > 0.2
+                            ? 'var(--rw-text-strong)'
+                            : 'var(--rw-green50)',
+                      }}
+                    >
+                      {etfPremium > 0 ? '+' : ''}{etfPremium.toFixed(2)}%
+                    </span>
                   </div>
                 )}
               </div>

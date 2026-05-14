@@ -2,40 +2,76 @@ import { etfs, type EtfInfo } from '@/lib/etfs';
 
 type PublicEtfPriceRow = Record<string, string | number | null | undefined>;
 
-export type EtfDataSource = 'public-api' | 'fallback';
+export type EtfDataSource = 'public-api' | 'fallback' | 'us-market';
 
 export type EtfInfoWithMarketData = EtfInfo & {
   dataSource: EtfDataSource;
   baseDate?: string;
   nav?: string;
   tradeValue?: string;
+  premium?: number;    // 괴리율 % (price vs NAV)
   dataNotice: string;
 };
 
 const FSC_ETF_PRICE_ENDPOINT =
   'https://apis.data.go.kr/1160100/service/GetSecuritiesProductInfoService/getETFPriceInfo';
 
+// 시장 마감 시간 (KST) — 마감 후엔 캐시 길게
+function isMarketHours(): boolean {
+  const now = new Date();
+  // KST = UTC+9
+  const kstNow = new Date(now.getTime() + 9 * 60 * 60 * 1000);
+  const day = kstNow.getUTCDay(); // 0=일, 6=토
+  if (day === 0 || day === 6) return false;
+  const hour = kstNow.getUTCHours();
+  const minute = kstNow.getUTCMinutes();
+  const mins = hour * 60 + minute;
+  return mins >= 9 * 60 && mins <= 15 * 60 + 30; // 9:00–15:30 KST
+}
+
 export async function getEtfsWithMarketData(): Promise<EtfInfoWithMarketData[]> {
-  const publicRows = await fetchPublicEtfPriceRows();
-  if (publicRows.length === 0) {
-    return etfs.map(etf => ({
-      ...etf,
-      dataSource: 'fallback',
-      dataNotice: '공식 API 키 등록 전 예시 데이터',
-    }));
+  const publicRows = await fetchAllPublicEtfPriceRows();
+
+  // 공공 API 결과 매핑용 인덱스 (O(n²) 회피)
+  const rowByCode = new Map<string, PublicEtfPriceRow>();
+  for (const row of publicRows) {
+    const code = normalizeCode(readField(row, 'srtnCd'));
+    if (code) rowByCode.set(code, row);
   }
 
   return etfs.map(etf => {
-    const row = publicRows.find(item => normalizeCode(readField(item, 'srtnCd')) === etf.code);
+    // 1) 미국 상장 ETF — 한국 공공 API 대상 아님. Yahoo Finance가 다른 경로에서 처리.
+    if (etf.country === 'US') {
+      return {
+        ...etf,
+        dataSource: 'us-market',
+        dataNotice: '미국 시장 — Yahoo Finance 데이터 사용',
+      };
+    }
+
+    // 2) 키 미등록 → 전체 fallback
+    if (publicRows.length === 0) {
+      return {
+        ...etf,
+        dataSource: 'fallback',
+        dataNotice: '공공데이터 API 키 등록 전 예시 데이터',
+      };
+    }
+
+    // 3) 한국 ETF — 공공 API 매칭
+    const row = rowByCode.get(etf.code);
     if (!row) {
       return {
         ...etf,
         dataSource: 'fallback',
-        dataNotice: '공식 API에 없는 항목은 예시 데이터',
+        dataNotice: '거래정지 또는 신규 상장으로 시세 미수신',
       };
     }
 
     const changeRate = parseNumber(readField(row, 'fltRt'));
+    const priceNum = parseNumber(readField(row, 'clpr'));
+    const navNum = parseNumber(readField(row, 'nav'));
+    const premium = navNum > 0 ? ((priceNum - navNum) / navNum) * 100 : undefined;
 
     return {
       ...etf,
@@ -47,13 +83,15 @@ export async function getEtfsWithMarketData(): Promise<EtfInfoWithMarketData[]> 
       nav: formatWon(readField(row, 'nav')),
       tradeValue: formatLargeWon(readField(row, 'trPrc')),
       baseDate: formatBaseDate(readField(row, 'basDt')),
+      premium,
       dataSource: 'public-api',
       dataNotice: '금융위원회 증권상품시세정보 기준',
     };
   });
 }
 
-async function fetchPublicEtfPriceRows(): Promise<PublicEtfPriceRow[]> {
+/** 페이지네이션 자동 — totalCount 보고 모든 페이지 호출 */
+async function fetchAllPublicEtfPriceRows(): Promise<PublicEtfPriceRow[]> {
   const serviceKey =
     process.env.DATA_GO_KR_SERVICE_KEY ||
     process.env.PUBLIC_DATA_SERVICE_KEY ||
@@ -61,25 +99,46 @@ async function fetchPublicEtfPriceRows(): Promise<PublicEtfPriceRow[]> {
 
   if (!serviceKey) return [];
 
-  try {
-    const params = new URLSearchParams({
-      pageNo: '1',
-      numOfRows: '1000',
-      resultType: 'json',
-    });
-    const encodedServiceKey = serviceKey.includes('%') ? serviceKey : encodeURIComponent(serviceKey);
-    const url = `${FSC_ETF_PRICE_ENDPOINT}?serviceKey=${encodedServiceKey}&${params.toString()}`;
+  const PAGE_SIZE = 1000;
+  const MAX_PAGES = 5; // 안전 상한 (5000개) — KRX ETF 약 900개 (2026 기준)
+  const encodedServiceKey = serviceKey.includes('%') ? serviceKey : encodeURIComponent(serviceKey);
+  // 영업시간엔 5분, 마감 후엔 1시간 캐시
+  const revalidate = isMarketHours() ? 300 : 3600;
 
-    const response = await fetch(url, { next: { revalidate: 300 } });
-    if (!response.ok) return [];
-
-    const payload = await response.json();
-    const item = payload?.response?.body?.items?.item;
-    if (!item) return [];
-    return Array.isArray(item) ? item : [item];
-  } catch {
-    return [];
+  const collected: PublicEtfPriceRow[] = [];
+  for (let pageNo = 1; pageNo <= MAX_PAGES; pageNo++) {
+    try {
+      const params = new URLSearchParams({
+        pageNo: String(pageNo),
+        numOfRows: String(PAGE_SIZE),
+        resultType: 'json',
+      });
+      const url = `${FSC_ETF_PRICE_ENDPOINT}?serviceKey=${encodedServiceKey}&${params.toString()}`;
+      const response = await fetch(url, { next: { revalidate } });
+      if (!response.ok) {
+        console.error(`[etf-live-data] HTTP ${response.status} on page ${pageNo}`);
+        break;
+      }
+      const payload = await response.json();
+      // 일부 응답은 에러 형식이 다름 (resultCode/resultMsg)
+      const resultCode = payload?.response?.header?.resultCode;
+      if (resultCode && resultCode !== '00') {
+        console.error(`[etf-live-data] API error ${resultCode}: ${payload?.response?.header?.resultMsg}`);
+        break;
+      }
+      const items = payload?.response?.body?.items?.item;
+      if (!items) break;
+      const arr = Array.isArray(items) ? items : [items];
+      collected.push(...arr);
+      // 다 받았는지 확인 — totalCount 또는 받은 개수
+      const totalCount = Number(payload?.response?.body?.totalCount ?? 0);
+      if (collected.length >= totalCount || arr.length < PAGE_SIZE) break;
+    } catch (err) {
+      console.error(`[etf-live-data] fetch failed on page ${pageNo}:`, err);
+      break;
+    }
   }
+  return collected;
 }
 
 function readField(row: PublicEtfPriceRow, key: string) {
