@@ -50,9 +50,6 @@ function EtfNavWidget() {
     <div className={styles.widget}>
       <div className={styles.head}>ETF 메뉴</div>
       <ul className={styles.navList}>
-        <li><Link href="/etf">발견</Link></li>
-        <li><Link href="/etf?tab=watch">관심 ETF</Link></li>
-        <li><Link href="/etf?tab=diagnostic">포트폴리오 진단</Link></li>
         <li><Link href="/etf/all">전체 검색</Link></li>
         <li><Link href="/etf/compare">ETF 비교</Link></li>
         <li><Link href="/etf/themes">테마 · 전략</Link></li>

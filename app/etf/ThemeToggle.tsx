@@ -13,12 +13,15 @@ import { Chip } from '@/components/ui';
 import sec from './sectionStyles.module.css';
 import styles from './ThemeToggle.module.css';
 
+/** 레버리지/인버스 ETF는 테마 섹션에서 제외 */
+const NOT_LEVERAGE = (e: EtfInfo) => !/레버리지|인버스|곱버스/i.test(e.name);
+
 const THEME_CONFIG = [
-  { key: '반도체', test: (e: EtfInfo) => /반도체|필라델피아|SOX/i.test(e.theme + e.name) },
-  { key: 'AI',    test: (e: EtfInfo) => /\bAI\b|인공지능|글로벌AI/i.test(e.theme + e.name) },
+  { key: '반도체', test: (e: EtfInfo) => /반도체|필라델피아|SOX/i.test(e.theme + e.name) && NOT_LEVERAGE(e) },
+  { key: 'AI',    test: (e: EtfInfo) => /\bAI\b|인공지능|글로벌AI/i.test(e.theme + e.name) && NOT_LEVERAGE(e) },
   { key: '배당',  test: (e: EtfInfo) => /배당|다우존스배당|고배당/i.test(e.theme + e.name) && !/월배당/.test(e.theme + e.name) },
   { key: '월배당',test: (e: EtfInfo) => /월배당|월분배|커버드콜/i.test(e.theme + e.name) },
-  { key: 'S&P500',test: (e: EtfInfo) => /S&P500|S&P 500/i.test(e.theme + e.name) },
+  { key: 'S&P500',test: (e: EtfInfo) => /S&P500|S&P 500/i.test(e.theme + e.name) && NOT_LEVERAGE(e) },
   { key: '리츠',  test: (e: EtfInfo) => /리츠|REITs|부동산/i.test(e.theme + e.name + e.category) },
   { key: '원자재',test: (e: EtfInfo) => /원자재|코모디티/i.test(e.theme + e.name + e.category) },
 ] as const;
