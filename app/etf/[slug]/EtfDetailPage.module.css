@@ -63,10 +63,7 @@
 }
 
 .hero {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: var(--space-4);
+  display: block;
   padding: var(--space-6) var(--space-2);
   margin-bottom: var(--space-3);
 }
@@ -153,17 +150,15 @@
 .actions {
   display: flex;
   gap: var(--space-2);
-  flex-shrink: 0;
-  align-items: center;
   flex-wrap: wrap;
+  align-items: center;
+  margin-top: var(--space-2);
 }
 
 /* 모바일: 액션 영역 전체 너비, 가로 분배 */
 @media (max-width: 600px) {
-  /* hero: 세로 스택 */
+  /* hero: 항상 block — flex-direction 불필요 */
   .hero {
-    flex-direction: column;
-    gap: var(--space-3);
     padding: var(--space-4) 0 var(--space-3);
   }
   .hero h1 {
@@ -179,7 +174,6 @@
   /* 액션: 전체 너비, 한 줄 균등 */
   .actions {
     width: 100%;
-    margin-top: 0;
     gap: 8px;
   }
   .actions > * {

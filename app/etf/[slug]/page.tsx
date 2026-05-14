@@ -280,12 +280,12 @@ export default async function EtfDetailPage({ params }: Props) {
                 })}
               </div>
             )}
-          </div>
-          <div className={styles.actions}>
-            <WatchButton code={etf.code} shortName={etf.shortName} mode="icon" />
-            <AlertButton etfCode={etf.code} etfName={etf.shortName} currentPrice={etf.price} />
-            <Button href={`/etf/compare?a=${etf.code}`} variant="ghost" size="md">비교</Button>
-            <Button href="/?ask=1" variant="primary" size="md">질문하기</Button>
+            <div className={styles.actions}>
+              <WatchButton code={etf.code} shortName={etf.shortName} mode="icon" />
+              <AlertButton etfCode={etf.code} etfName={etf.shortName} currentPrice={etf.price} />
+              <Button href={`/etf/compare?a=${etf.code}`} variant="ghost" size="md">비교</Button>
+              <Button href="/?ask=1" variant="primary" size="md">질문하기</Button>
+            </div>
           </div>
         </section>
 
@@ -432,7 +432,13 @@ export default async function EtfDetailPage({ params }: Props) {
             {/* ──────────── ③ 속살: 구성종목 + 섹터 + 분배금 ──────────── */}
             <section id="sec-inside" className={styles.section}>
               <div className={styles.sectionHead}>
-                <h2>구성종목 Top 10</h2>
+                <h2>
+                  {liveHoldings?.holdings?.length
+                    ? `구성종목 Top ${Math.min(liveHoldings.holdings.length, 10)}`
+                    : etf.holdings?.length
+                      ? `구성종목 Top ${etf.holdings.length}`
+                      : '구성종목'}
+                </h2>
                 <span>
                   {liveHoldings?.holdings?.length
                     ? 'Yahoo Finance · 실데이터'
@@ -511,19 +517,24 @@ export default async function EtfDetailPage({ params }: Props) {
             </section>
 
             {/* 섹터 비중 도넛 (Toss / FunETF 스타일) */}
-            {sectorBreakdown.length > 1 && (
-              <section className={styles.section}>
-                <div className={styles.sectionHead}>
-                  <h2>섹터 비중</h2>
-                  <span>{displayTopSector ? `${displayTopSector.label} ${displayTopSector.value.toFixed(1)}%` : ''}</span>
-                </div>
-                <DonutChart
-                  segments={sectorBreakdown}
-                  centerLabel="주요 섹터"
-                  centerValue={displayTopSector ? displayTopSector.label : ''}
-                />
-              </section>
-            )}
+            {/* 기타 비중이 60% 초과면 실질 섹터 분산 데이터가 없는 것 — 차트 숨김 */}
+            {(() => {
+              const otherPct = sectorBreakdown.find(s => s.label.startsWith('기타'))?.value ?? 0;
+              if (sectorBreakdown.length <= 1 || otherPct > 60) return null;
+              return (
+                <section className={styles.section}>
+                  <div className={styles.sectionHead}>
+                    <h2>섹터 비중</h2>
+                    <span>{displayTopSector ? `${displayTopSector.label} ${displayTopSector.value.toFixed(1)}%` : ''}</span>
+                  </div>
+                  <DonutChart
+                    segments={sectorBreakdown}
+                    centerLabel="주요 섹터"
+                    centerValue={displayTopSector ? displayTopSector.label : ''}
+                  />
+                </section>
+              );
+            })()}
 
             {/* 분배금 히스토리 mini bar — 현재 mock, KRX 연동 전 반투명 오버레이 */}
             {distHistory.points.length > 0 && (

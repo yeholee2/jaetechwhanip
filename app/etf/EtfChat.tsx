@@ -29,7 +29,7 @@ const SUGGESTIONS = [
 ];
 
 export function EtfChat({ etf }: { etf: EtfChatContext }) {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(true);
   const [input, setInput] = useState('');
   const [messages, setMessages] = useState<Message[]>([]);
   const [pending, setPending] = useState(false);

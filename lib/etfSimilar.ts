@@ -59,8 +59,9 @@ export function findSimilarEtfs(target: EtfInfo, pool: EtfInfo[], limit = 6): Si
       score += 4;
       reasons.push('같은 추종 지수');
     }
-    // 같은 추종 국가
-    if (tUC && (e.underlyingCountry || 'KR').toUpperCase() === tUC) {
+    // 같은 추종 국가 — 양쪽 다 명시된 경우에만 점수
+    if (target.underlyingCountry && e.underlyingCountry &&
+        e.underlyingCountry.toUpperCase() === tUC) {
       score += 3;
       reasons.push(`같은 추종 국가`);
     }
