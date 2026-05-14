@@ -17,7 +17,8 @@ import {
   buildHoldingDisplays,
   summarizePortfolio,
 } from '@/lib/etfPortfolio';
-import { etfs, etfPath } from '@/lib/etfs';
+import { etfPath } from '@/lib/etfs';
+import { fetchEtfLivePrices } from '@/lib/etfLivePrices';
 import { HoldingAddModal } from './HoldingAddModal';
 import styles from './MyEtfSection.module.css';
 
@@ -29,13 +30,13 @@ const ACTIONS = [
   { key: 'allocation', label: '비중', icon: '🥧' },
 ] as const;
 
-// 시세 캐시 (etf_code → 현재가 숫자) — etfs.ts의 price 문자열 파싱.
-function buildPriceMap(): Record<string, number> {
+/** live prices API 응답 → code: number 맵 */
+function parseLivePriceMap(items: { code: string; price: string }[]): Record<string, number> {
   const map: Record<string, number> = {};
-  etfs.forEach(e => {
-    const m = e.price.match(/[\d,]+/);
-    if (m) map[e.code] = parseInt(m[0].replace(/,/g, ''), 10);
-  });
+  for (const item of items) {
+    const m = item.price.replace(/,/g, '').match(/\d+(\.\d+)?/);
+    if (m) map[item.code] = parseFloat(m[0]);
+  }
   return map;
 }
 
@@ -44,11 +45,15 @@ export function MyEtfSection() {
   const [holdings, setHoldings] = useState<UserEtfHolding[]>([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [viewMode, setViewMode] = useState<'price' | 'valuation'>('price');
+  const [priceMap, setPriceMap] = useState<Record<string, number>>({});
 
-  // 시세 매핑 (Phase E: 실제 API로 대체)
-  const priceMap = useMemo(buildPriceMap, []);
+  // live prices API로 시세 로드
+  useEffect(() => {
+    void fetchEtfLivePrices().then(res => {
+      if (res?.items) setPriceMap(parseLivePriceMap(res.items));
+    });
+  }, []);
 
-  // 표시용 row + summary
   const displays = useMemo(
     () => buildHoldingDisplays(holdings, priceMap),
     [holdings, priceMap],
