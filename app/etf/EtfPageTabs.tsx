@@ -15,7 +15,7 @@ const TABS: { key: EtfPageTab; label: string; href: string; dot?: boolean }[] = 
   { key: 'discover', label: '발견', href: '/etf' },
   { key: 'watch', label: '관심', href: '/etf?tab=watch' },
   { key: 'diagnostic', label: '진단', href: '/etf?tab=diagnostic' },
-  { key: 'feed', label: '피드', href: '/etf?tab=feed', dot: true },
+  { key: 'feed', label: '피드', href: '/etf?tab=feed' },
 ];
 
 export function EtfPageTabs({ active = 'discover' }: { active?: EtfPageTab }) {

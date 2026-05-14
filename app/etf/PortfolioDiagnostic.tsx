@@ -118,16 +118,7 @@ export function PortfolioDiagnostic() {
                 <span className={styles.entryBadge}>가장 빠름</span>
               </button>
 
-              <button
-                type="button"
-                className={styles.entryCard}
-                onClick={recordScreenshotInterest}
-              >
-                <span className={styles.entryIcon}>📸</span>
-                <span className={styles.entryTitle}>스크린샷 업로드</span>
-                <span className={styles.entryDesc}>잔고 화면 캡처 → OCR로 자동 인식. 준비 중.</span>
-                <span className={styles.entryBadge}>곧 출시</span>
-              </button>
+              {/* 스크린샷 OCR 출시 전까지 숨김 */}
             </div>
 
             {screenshotToast && (

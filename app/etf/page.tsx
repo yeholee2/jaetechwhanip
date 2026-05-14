@@ -110,7 +110,7 @@ export default async function EtfPage({
           {active === 'feed' && <FeedTabPlaceholder />}
         </div>
 
-        <PageSidebar widgets={['sparring', 'watch', 'etf-nav', 'help']} featuredSparring={featured} />
+        <PageSidebar widgets={['watch', 'etf-nav', 'help', 'sparring']} featuredSparring={featured} />
       </main>
     </AppShell>
   );

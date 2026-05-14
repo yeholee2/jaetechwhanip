@@ -504,7 +504,6 @@ function FeedSummary({
   return (
     <div className={styles.feedSummary}>
       <div>
-        <strong>{activeTabLabel}</strong>
         <span>{currentCat === '전체' ? '전체 토픽' : getCategoryLabel(currentCat)} · {count}개 질문</span>
       </div>
       {searchQuery && (
@@ -575,7 +574,7 @@ function FeedList({ questions, mobile, router }: { questions: Question[], mobile
             <div className={styles.qinfo}>
               <div className={styles.qmeta}>
                 <Badge tone="neutral">{getCategoryLabel(q.cat)}</Badge>
-                {q.topic && <Badge tone="success">{q.topic}</Badge>}
+                {q.topic && q.topic !== '일반' && <Badge tone="success">{q.topic}</Badge>}
                 <span style={{fontSize:12,color:'var(--rw-text-body)',fontWeight:500}}>{q.author}</span>
                 <span style={{fontSize:10,color:'var(--rw-text-muted)'}}>·</span>
                 <span style={{fontSize:12,color:'var(--rw-text-muted)'}}>{q.time}</span>

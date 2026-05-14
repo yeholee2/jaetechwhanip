@@ -577,7 +577,7 @@ export default function QuestionClient({
                   {ft(q.created_at)} · 조회 {q.view_count || 0}
                 </div>
               </div>
-              <button className={styles.iconBtn} aria-label="더보기"><FaIcon name="ellipsis" size={18} /></button>
+              {/* 더보기 메뉴: 기능 구현 전까지 숨김 */}
             </div>
 
             <h1 className={styles.qTitle}>{qTitle}</h1>
