@@ -4,9 +4,9 @@ import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
-  Bookmark, CheckCircle2, ChevronLeft,
-  MessageCircle, Share2,
-  Sparkles, Swords, ThumbsUp, X,
+  ArrowDownUp, Bookmark, CheckCircle2, ChevronLeft,
+  Heart, MessageCircle, Share2,
+  Swords, ThumbsUp, X, Zap,
 } from 'lucide-react';
 import { createClient, hasSupabase } from '@/lib/supabase/client';
 import { CATEGORY_DEFINITIONS, getCategoryLabel } from '@/lib/categories';
@@ -124,7 +124,10 @@ export default function QuestionClient({
   const [toast, setToast] = useState('');
   const [bookmarked, setBookmarked] = useState(false);
   const [likedQuestion, setLikedQuestion] = useState(false);
+  const [dislikedQuestion, setDislikedQuestion] = useState(false);
   const [likedAnswers, setLikedAnswers] = useState<Set<string>>(new Set());
+  const [cheeredAnswers, setCheeredAnswers] = useState<Set<string>>(new Set());
+  const [answerSort, setAnswerSort] = useState<'recommend' | 'latest'>('recommend');
   const [openComments, setOpenComments] = useState<Set<string>>(new Set());
   const [comments, setComments] = useState<Record<string, any[]>>({});
   const [commentInput, setCommentInput] = useState<Record<string, string>>({});
@@ -207,15 +210,28 @@ export default function QuestionClient({
 
       if (sessionUser) {
         try {
-          const lqRes = await supabase.from('liked_questions').select('question_id')
-            .eq('user_id', sessionUser.id).eq('question_id', qData.id).maybeSingle();
+          const [lqRes, bRes, dqRes] = await Promise.all([
+            supabase.from('liked_questions').select('question_id')
+              .eq('user_id', sessionUser.id).eq('question_id', qData.id).maybeSingle(),
+            supabase.from('bookmarks').select('question_id')
+              .eq('user_id', sessionUser.id).eq('question_id', qData.id).maybeSingle(),
+            supabase.from('disliked_questions').select('question_id')
+              .eq('user_id', sessionUser.id).eq('question_id', qData.id).maybeSingle(),
+          ]);
           if (lqRes.data) setLikedQuestion(true);
+          if (bRes.data) setBookmarked(true);
+          if (dqRes.data) setDislikedQuestion(true);
 
           if (loadedAnswers.length > 0) {
-            const laRes = await supabase.from('liked_answers').select('answer_id')
-              .eq('user_id', sessionUser.id)
-              .in('answer_id', loadedAnswers.map((a: any) => a.id));
+            const ids = loadedAnswers.map((a: any) => a.id);
+            const [laRes, cheerRes] = await Promise.all([
+              supabase.from('liked_answers').select('answer_id')
+                .eq('user_id', sessionUser.id).in('answer_id', ids),
+              supabase.from('cheered_answers').select('answer_id')
+                .eq('user_id', sessionUser.id).in('answer_id', ids),
+            ]);
             if (laRes.data) setLikedAnswers(new Set((laRes.data as any[]).map((r: any) => r.answer_id)));
+            if (cheerRes.data) setCheeredAnswers(new Set((cheerRes.data as any[]).map((r: any) => r.answer_id)));
           }
         } catch { /* 테이블 없으면 무시 */ }
       }
@@ -328,6 +344,82 @@ export default function QuestionClient({
     }
   };
 
+  // 질문 싫어요 (토글)
+  const dislikeQuestion = async () => {
+    if (!user) { showT('로그인 후 할 수 있어요.'); return; }
+    if (q.is_sample) { setDislikedQuestion(v => !v); return; }
+    const supabase = createClient();
+    try {
+      if (dislikedQuestion) {
+        await supabase.from('disliked_questions').delete().eq('user_id', user.id).eq('question_id', q.id);
+        const cnt = Math.max(0, (q.dislike_count || 0) - 1);
+        await supabase.from('questions').update({ dislike_count: cnt }).eq('id', q.id);
+        setQ((p: any) => ({ ...p, dislike_count: cnt }));
+        setDislikedQuestion(false);
+      } else {
+        await supabase.from('disliked_questions').insert({ user_id: user.id, question_id: q.id });
+        const cnt = (q.dislike_count || 0) + 1;
+        await supabase.from('questions').update({ dislike_count: cnt }).eq('id', q.id);
+        setQ((p: any) => ({ ...p, dislike_count: cnt }));
+        setDislikedQuestion(true);
+        // 좋아요 상태면 취소
+        if (likedQuestion) {
+          await supabase.from('liked_questions').delete().eq('user_id', user.id).eq('question_id', q.id);
+          setLikedQuestion(false);
+        }
+      }
+    } catch { setDislikedQuestion(v => !v); }
+  };
+
+  // 북마크 DB 토글
+  const toggleBookmark = async () => {
+    if (!user) { showT('로그인 후 저장할 수 있어요.'); router.push(`/auth?next=/q/${slug}`); return; }
+    if (q.is_sample) { setBookmarked(v => !v); showT(bookmarked ? '저장을 취소했어요.' : '질문을 저장했어요.'); return; }
+    const supabase = createClient();
+    try {
+      if (bookmarked) {
+        await supabase.from('bookmarks').delete().eq('user_id', user.id).eq('question_id', q.id);
+        setBookmarked(false);
+        showT('저장을 취소했어요.');
+      } else {
+        await supabase.from('bookmarks').insert({ user_id: user.id, question_id: q.id });
+        setBookmarked(true);
+        showT('질문을 저장했어요.');
+      }
+    } catch {
+      setBookmarked(v => !v);
+      showT(!bookmarked ? '질문을 저장했어요.' : '저장을 취소했어요.');
+    }
+  };
+
+  // 답변 응원하기 (토글)
+  const cheerAnswer = async (answerId: string, currentCheer: number) => {
+    if (!user) { showT('로그인 후 응원할 수 있어요.'); return; }
+    const supabase = createClient();
+    const already = cheeredAnswers.has(answerId);
+    try {
+      if (already) {
+        await supabase.from('cheered_answers').delete().eq('user_id', user.id).eq('answer_id', answerId);
+        const cnt = Math.max(0, currentCheer - 1);
+        await supabase.from('answers').update({ cheer_count: cnt }).eq('id', answerId);
+        setAnswers(prev => prev.map(a => a.id === answerId ? { ...a, cheer_count: cnt } : a));
+        setCheeredAnswers(prev => { const s = new Set(prev); s.delete(answerId); return s; });
+        showT('응원을 취소했어요.');
+      } else {
+        const { error } = await supabase.from('cheered_answers').insert({ user_id: user.id, answer_id: answerId });
+        if (!error) {
+          const cnt = currentCheer + 1;
+          await supabase.from('answers').update({ cheer_count: cnt }).eq('id', answerId);
+          setAnswers(prev => prev.map(a => a.id === answerId ? { ...a, cheer_count: cnt } : a));
+          setCheeredAnswers(prev => new Set([...prev, answerId]));
+          showT('💪 답변을 응원했어요!');
+        }
+      }
+    } catch {
+      if (!already) setCheeredAnswers(prev => new Set([...prev, answerId]));
+    }
+  };
+
   // 댓글 토글 + DB 로드
   const toggleComments = async (answerId: string) => {
     const next = new Set(openComments);
@@ -412,7 +504,7 @@ export default function QuestionClient({
 
   const userName = getUserName(user);
   const answerCount = q?.answer_count ?? answers.length;
-  const minLen = 20;
+  const minLen = 30;
   const remaining = Math.max(0, minLen - answerBody.trim().length);
   const rawSeoSummary = q ? buildSeoDescription(q, answers) : '';
   const translation = useAutoTranslation([
@@ -500,6 +592,13 @@ export default function QuestionClient({
                 도움돼요 {q.like_count > 0 ? q.like_count : ''}
               </button>
               <button
+                className={`${styles.qActionBtn} ${dislikedQuestion ? styles.activeDanger : ''}`}
+                onClick={dislikeQuestion}
+              >
+                <Heart size={15} style={{ transform: 'rotate(180deg)' }} />
+                {q.dislike_count > 0 ? q.dislike_count : ''}
+              </button>
+              <button
                 className={styles.qActionBtn}
                 onClick={() => document.getElementById('answer-editor')?.scrollIntoView({ behavior: 'smooth' })}
               >
@@ -508,7 +607,7 @@ export default function QuestionClient({
               </button>
               <button
                 className={`${styles.qActionBtn} ${bookmarked ? styles.active : ''}`}
-                onClick={() => { setBookmarked(v => !v); showT(bookmarked ? '저장 해제했어요.' : '질문을 저장했어요.'); }}
+                onClick={toggleBookmark}
               >
                 <Bookmark size={15} fill={bookmarked ? 'currentColor' : 'none'} />
                 저장
@@ -526,7 +625,22 @@ export default function QuestionClient({
               <h2 style={{ fontSize: 16, fontWeight: 700 }}>
                 {answerCount > answers.length ? `주요 답변 ${answers.length}개` : `${answers.length}개의 답변`}
               </h2>
-              {/* AI 요약 버튼 제거 (ui-principles v2: AI 요약 박스 본문 위 박기 금지) */}
+              {answers.length > 1 && (
+                <div className={styles.sortTabs}>
+                  <button
+                    className={`${styles.sortTab} ${answerSort === 'recommend' ? styles.sortTabOn : ''}`}
+                    onClick={() => setAnswerSort('recommend')}
+                  >
+                    <ArrowDownUp size={11} /> 추천순
+                  </button>
+                  <button
+                    className={`${styles.sortTab} ${answerSort === 'latest' ? styles.sortTabOn : ''}`}
+                    onClick={() => setAnswerSort('latest')}
+                  >
+                    최신순
+                  </button>
+                </div>
+              )}
             </div>
 
             {answers.length === 0 ? (
@@ -536,7 +650,14 @@ export default function QuestionClient({
                 <p style={{ fontSize: 13, color: 'var(--t3)', marginTop: 4 }}>첫 번째 답변을 남겨보세요.</p>
               </div>
             ) : (
-              answers.map(a => (
+              [...answers]
+                .sort((a, b) => {
+                  if (a.is_adopted && !b.is_adopted) return -1;
+                  if (!a.is_adopted && b.is_adopted) return 1;
+                  if (answerSort === 'recommend') return (b.like_count || 0) - (a.like_count || 0);
+                  return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+                })
+                .map(a => (
                 <AnswerCard
                   key={a.id}
                   answer={a}
@@ -544,7 +665,9 @@ export default function QuestionClient({
                   isMyQuestion={user?.id === q.author_id}
                   isAnswered={q.is_answered}
                   liked={likedAnswers.has(a.id)}
+                  cheered={cheeredAnswers.has(a.id)}
                   onLike={() => likeAnswer(a.id, a.like_count || 0)}
+                  onCheer={() => cheerAnswer(a.id, a.cheer_count || 0)}
                   onAdopt={() => adoptAnswer(a.id)}
                   onDelete={() => deleteAnswer(a.id)}
                   onCommentToggle={() => toggleComments(a.id)}
@@ -643,7 +766,7 @@ export default function QuestionClient({
 }
 
 // ── 답변 카드 ──
-function AnswerCard({ answer: a, currentUserId, isMyQuestion, isAnswered, liked, onLike, onAdopt, onDelete, onCommentToggle, showComments, comments, commentInput, commentSubmitting, onCommentChange, onCommentSubmit, onCommentDelete, translateText, isTranslated, router, styles }: any) {
+function AnswerCard({ answer: a, currentUserId, isMyQuestion, isAnswered, liked, cheered, onLike, onCheer, onAdopt, onDelete, onCommentToggle, showComments, comments, commentInput, commentSubmitting, onCommentChange, onCommentSubmit, onCommentDelete, translateText, isTranslated, router, styles }: any) {
   const name = a.users?.name || '익명';
   const isMyAnswer = currentUserId && a.author_id === currentUserId;
   const answerBodyId = `answer:${a.id}:body`;
@@ -678,6 +801,10 @@ function AnswerCard({ answer: a, currentUserId, isMyQuestion, isAnswered, liked,
         <button className={`${styles.answerBtn} ${showComments ? styles.answerBtnActive : ''}`} onClick={onCommentToggle}>
           <MessageCircle size={13} />
           댓글 {comments !== null && comments.length > 0 ? comments.length : ''}
+        </button>
+        <button className={`${styles.cheerBtn} ${cheered ? styles.cheerBtnActive : ''}`} onClick={onCheer}>
+          <Zap size={13} />
+          응원하기 {a.cheer_count > 0 ? a.cheer_count : ''}
         </button>
         {isMyQuestion && !isAnswered && (
           <button className={styles.adoptBtn} onClick={onAdopt}>

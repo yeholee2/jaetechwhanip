@@ -131,6 +131,7 @@
 }
 .qActionBtn:hover { border-color: var(--blue); color: var(--blue); }
 .qActionBtn.active { border-color: var(--blue); color: var(--blue); background: var(--blue-bg); font-weight: 700; }
+.qActionBtn.activeDanger { border-color: #e03131; color: #e03131; background: #fff5f5; font-weight: 700; }
 
 /* ── 답변 에디터 ── */
 .editorBox {
@@ -232,6 +233,29 @@
 }
 .answerBtn:hover { border-color: var(--blue); color: var(--blue); }
 .answerBtnActive { border-color: var(--blue); color: var(--blue); background: var(--blue-bg); font-weight: 700; }
+
+/* 응원하기 버튼 */
+.cheerBtn {
+  display: flex; align-items: center; gap: 4px;
+  height: 30px; padding: 0 10px; border-radius: 20px;
+  border: 1.5px solid #FF6B35; background: #FFF5F0;
+  font-size: 12px; font-weight: 700; color: #FF6B35;
+  transition: all .12s;
+}
+.cheerBtn:hover { background: #FF6B35; color: white; }
+.cheerBtnActive { background: #FF6B35; color: white; }
+
+/* 답변 정렬 탭 */
+.sortTabs { display: flex; gap: 4px; }
+.sortTab {
+  display: flex; align-items: center; gap: 3px;
+  height: 26px; padding: 0 10px; border-radius: 20px;
+  border: 1px solid var(--line); font-size: 11px; color: var(--t3);
+  background: var(--white); transition: all .12s; cursor: pointer;
+}
+.sortTab:hover { border-color: var(--blue); color: var(--blue); }
+.sortTabOn { border-color: var(--blue) !important; color: var(--blue) !important; background: var(--blue-bg) !important; font-weight: 700; }
+
 .adoptBtn {
   display: flex; align-items: center; gap: 4px;
   height: 30px; padding: 0 12px; border-radius: 20px;

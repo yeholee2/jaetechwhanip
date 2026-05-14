@@ -26,6 +26,7 @@ export default function ProfileClient({ userId }: { userId: string }) {
   const [tab, setTab] = useState<'questions' | 'answers'>('questions');
   const [loading, setLoading] = useState(true);
   const [isMe, setIsMe] = useState(false);
+  const [totalLikesReceived, setTotalLikesReceived] = useState(0);
 
   useEffect(() => {
     if (!hasSupabase()) return;
@@ -46,11 +47,16 @@ export default function ProfileClient({ userId }: { userId: string }) {
       .then(({ data }) => { setQuestions(data || []); setLoading(false); });
 
     supabase.from('answers')
-      .select('id, body, is_adopted, like_count, created_at, question_id, questions:question_id(id, title, slug)')
+      .select('id, body, is_adopted, like_count, cheer_count, created_at, question_id, questions:question_id(id, title, slug)')
       .eq('author_id', userId)
       .order('created_at', { ascending: false })
       .limit(20)
-      .then(({ data }) => { setAnswers(data || []); });
+      .then(({ data }) => {
+        const list = data || [];
+        setAnswers(list);
+        const total = list.reduce((sum: number, a: any) => sum + (a.like_count || 0), 0);
+        setTotalLikesReceived(total);
+      });
   }, [userId]);
 
   if (loading) {
@@ -81,9 +87,22 @@ export default function ProfileClient({ userId }: { userId: string }) {
           <div className={styles.headerBody}>
             <h1 className={styles.name}>{name}</h1>
             <div className={styles.statRow}>
-              <span><b>{questions.length}</b> 질문</span>
-              <span><b>{answers.length}</b> 답변</span>
-              <span><b>{adoptedCount}</b> 채택</span>
+              <div className={styles.statItem}>
+                <span className={styles.statNum}>{questions.length}</span>
+                <span className={styles.statLabel}>질문</span>
+              </div>
+              <div className={styles.statItem}>
+                <span className={styles.statNum}>{answers.length}</span>
+                <span className={styles.statLabel}>답변</span>
+              </div>
+              <div className={styles.statItem}>
+                <span className={styles.statNum}>{adoptedCount}</span>
+                <span className={styles.statLabel}>채택</span>
+              </div>
+              <div className={styles.statItem}>
+                <span className={styles.statNum}>{totalLikesReceived}</span>
+                <span className={styles.statLabel}>받은 추천</span>
+              </div>
             </div>
           </div>
         </header>

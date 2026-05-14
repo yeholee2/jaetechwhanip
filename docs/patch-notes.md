@@ -1,5 +1,35 @@
 # 패치노트
 
+## [2026-05-14] 아하(a-ha.io) 벤치마킹 — Q&A UX 전면 보강 — Claude
+**작업자:** Claude
+**태그:** #QnA #UX #Benchmarking #Aha #Migration
+
+### 신규 기능
+- **질문 싫어요** — 싫어요 버튼(ThumbsDown) + `disliked_questions` DB 테이블, 빨간 active 상태
+- **북마크(저장)** — Bookmark 버튼 → `bookmarks` DB 테이블 영구 저장 (이전: 로컬 state만)
+- **답변 응원하기** — Zap 아이콘 + `cheered_answers` DB 테이블, 오렌지 active 상태
+- **답변 정렬 토글** — 추천순 / 최신순 전환 (ArrowDownUp 아이콘), 채택된 답변은 항상 최상단 고정
+- **작성자 실명 표시** — HomeClient 피드 카드에 `users` 테이블 join → 실제 작성자 이름 노출
+- **조회수 표시** — 피드 카드 메타 영역에 👁 조회수 추가
+
+### DB 마이그레이션 (migration_v2.sql)
+- `bookmarks` 테이블 (user_id + question_id PK, RLS)
+- `disliked_questions` 테이블 (user_id + question_id PK, RLS)
+- `cheered_answers` 테이블 (user_id + answer_id PK, RLS)
+- `answers.cheer_count` 컬럼 추가 (integer default 0)
+- `questions.dislike_count` 컬럼 추가 (integer default 0)
+
+### 프로필 페이지 개선
+- 통계 4개 레이아웃: 질문 / 답변 / 채택 / 받은추천
+- 받은 추천 = 본인 답변 전체의 like_count 합산
+
+### UX 개선
+- 피드 카드: 답변 0개일 때 "첫 번째 답변을 남겨보세요" 표시
+- 피드 카드 우측: 조회수 + 👍수만 표시 (공유 버튼 제거로 단순화)
+- 답변 입력 최소 글자수 20 → 30자로 상향
+
+---
+
 ## [2026-05-10] UI v3 — RiskWeather Design System Standard 채택 — Claude
 **작업자:** Claude
 **태그:** #UIPrinciples #DesignTokens #RiskWeather #ETFv2

@@ -130,7 +130,7 @@ export default function HomeClient({
     // 패킷 최적화: 홈 피드에 필요한 컬럼만 select
     let query = supabase
       .from('questions')
-      .select('id, title, body, category, slug, answer_count, like_count, is_answered, created_at, author_id')
+      .select('id, title, body, category, slug, answer_count, like_count, view_count, is_answered, created_at, author_id, users:author_id(name)')
       .range(pageNum * PAGE_SIZE, (pageNum + 1) * PAGE_SIZE - 1);
 
     // 카테고리 필터는 DB에서 — 클라이언트 필터 X
@@ -157,7 +157,7 @@ export default function HomeClient({
         id: i + pageNum * PAGE_SIZE,
         cat: seed?.cat || q.category || '재테크입문',
         topic: seed?.topic || '일반',
-        author: seed?.author || '익명',
+        author: seed?.author || (q.users as any)?.name || '익명',
         time: seed?.createdAt ? formatTime(seed.createdAt) : formatTime(q.created_at),
         em: seed?.em || EMOJI[(i + pageNum * PAGE_SIZE) % EMOJI.length],
         lv: seed?.lv ?? 0,
@@ -168,6 +168,7 @@ export default function HomeClient({
         slug: q.slug || seed?.slug || q.id,
         dbId: q.id,
         likeCount: seed?.likeCount ?? q.like_count ?? 0,
+        viewCount: q.view_count ?? 0,
         createdAt: seed?.createdAt || q.created_at,
       };
     });
@@ -575,6 +576,8 @@ function FeedList({ questions, mobile, router }: { questions: Question[], mobile
               <div className={styles.qmeta}>
                 <Badge tone="neutral">{getCategoryLabel(q.cat)}</Badge>
                 {q.topic && <Badge tone="success">{q.topic}</Badge>}
+                <span style={{fontSize:12,color:'var(--rw-text-body)',fontWeight:500}}>{q.author}</span>
+                <span style={{fontSize:10,color:'var(--rw-text-muted)'}}>·</span>
                 <span style={{fontSize:12,color:'var(--rw-text-muted)'}}>{q.time}</span>
                 {q.adopted && <Badge tone="warning">✅ 채택됨</Badge>}
                 {translated && <Badge tone="primary">Translated</Badge>}
@@ -595,14 +598,22 @@ function FeedList({ questions, mobile, router }: { questions: Question[], mobile
                       <div key={i} className={`${styles.av} tf`}>{EMOJI[i]}</div>
                     ))}
                   </div>
-                  <span style={{fontSize:12,color:'var(--t2)'}}><b>{q.ans}명</b>이 답변했어요</span>
+                  {q.ans > 0
+                    ? <span style={{fontSize:12,color:'var(--t2)'}}><b>{q.ans}명</b>이 답변했어요</span>
+                    : <span style={{fontSize:12,color:'var(--rw-text-muted)'}}>첫 번째 답변을 남겨보세요</span>
+                  }
                 </div>
-                <div style={{display:'flex',gap:2}}>
-                  <button className={styles.qbtn}><FaIcon name="thumbs-up" size={14}/></button>
-                  <button className={styles.qbtn}><FaIcon name="message" size={14}/></button>
-                  <button className={styles.qbtn} onClick={() => {
+                <div style={{display:'flex',alignItems:'center',gap:6}}>
+                  {(q as any).viewCount > 0 && (
+                    <span style={{fontSize:11,color:'var(--rw-text-muted)'}}>조회 {(q as any).viewCount}</span>
+                  )}
+                  {((q as any).likeCount ?? 0) > 0 && (
+                    <span style={{fontSize:11,color:'var(--rw-text-muted)'}}>👍 {(q as any).likeCount}</span>
+                  )}
+                  <button className={styles.qbtn} onClick={(e) => {
+                    e.stopPropagation();
                     navigator.clipboard?.writeText(`${window.location.origin}/q/${questionPath}`);
-                  }}><FaIcon name="share-nodes" size={14}/></button>
+                  }}><FaIcon name="share-nodes" size={13}/></button>
                 </div>
               </div>
             </div>
