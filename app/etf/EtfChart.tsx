@@ -1,23 +1,29 @@
 'use client';
 
 /**
- * ETF 수익률 차트 (펀ETF 스타일).
+ * ETF 수익률 차트 (FunETF 스타일 멀티 시리즈).
  *
- * - 7 기간 토글: 1주 / 1개월 / 3개월 / 연초후 / 1년 / 3년 / 전체
- * - Y축: 누적 수익률 (%)
- * - 0% 기준점, 기간별 누적 변화
- * - 서버에서 받아온 PricePoint[] (Yahoo max range) 그대로 사용
+ * 시리즈:
+ *  - NAV (= 종가, 분홍 굵은 라인)
+ *  - 종가 (초록 얇은 라인, 시각 구분용 살짝 alpha)
+ *  - 순자산[우측] (현재 데이터 없음 — 비활성)
+ *  - KOSPI / S&P500(H) / 나스닥100(H)
+ *
+ * 컨트롤:
+ *  - 기간 칩: 1주 / 1개월 / 3개월 / 연초후 / 1년 / 3년 / 전체
+ *  - 날짜 범위 (조회 버튼으로 적용)
+ *  - "+상품 추가" — /etf/compare 로 이동
  */
 
 import Link from 'next/link';
 import { useMemo, useState } from 'react';
-import { PriceChart, type ChartPoint } from '@/components/ui';
+import { PriceChart, type ChartPoint, type ExtraSeries } from '@/components/ui';
 import type { PricePoint } from '@/lib/etfPriceHistory';
 import styles from './EtfChart.module.css';
 
-type PeriodKey = 'w1' | 'm1' | 'm3' | 'ytd' | 'y1' | 'y3' | 'all';
+type PeriodKey = 'w1' | 'm1' | 'm3' | 'ytd' | 'y1' | 'y3' | 'all' | 'custom';
 
-const PERIODS: { key: PeriodKey; label: string; days: number }[] = [
+const PERIODS: { key: Exclude<PeriodKey, 'custom'>; label: string; days: number }[] = [
   { key: 'w1',  label: '1주', days: 7 },
   { key: 'm1',  label: '1개월', days: 30 },
   { key: 'm3',  label: '3개월', days: 90 },
@@ -27,89 +33,128 @@ const PERIODS: { key: PeriodKey; label: string; days: number }[] = [
   { key: 'all', label: '전체', days: 999999 },
 ];
 
+const NAV_COLOR = '#F0295A';
+const CLOSE_COLOR = '#00987D';
+
+type Benchmark = { key: string; name: string; color: string; history: PricePoint[] };
+
+type SeriesKey = 'nav' | 'close' | 'aum' | string; // benchmark.key
+
 type Props = {
   code: string;
   price?: string;
   changeTone?: 'up' | 'down' | 'flat';
-  /** 서버에서 받아온 일별 종가 시계열 (Yahoo max). */
   history?: PricePoint[];
-  /** 비교 벤치마크 시계열 (KOSPI 또는 S&P500) */
-  benchmark?: { name: string; history: PricePoint[] };
+  /** 멀티 벤치마크 시리즈 */
+  benchmarks?: Benchmark[];
 };
 
-export function EtfChart({ code, history = [], benchmark, changeTone = 'flat' }: Props) {
+/** 시계열을 시작점=0 기준 누적 % 로 정규화 + 점 수 다운샘플 */
+function toReturnSeries(history: PricePoint[], startDate: string, endDate: string): ChartPoint[] {
+  if (history.length < 2) return [];
+  const startTs = new Date(startDate).getTime();
+  const endTs = new Date(endDate).getTime();
+  const sliced = history.filter(p => {
+    const t = new Date(p.date).getTime();
+    return t >= startTs && t <= endTs;
+  });
+  if (sliced.length < 2) return [];
+  const base = sliced[0].close;
+  if (!base) return [];
+  const stride = Math.max(1, Math.floor(sliced.length / 140));
+  const out: ChartPoint[] = [];
+  for (let i = 0; i < sliced.length; i += stride) {
+    const p = sliced[i];
+    out.push({ date: p.date, value: ((p.close - base) / base) * 100 });
+  }
+  // 마지막 점 강제 포함
+  const last = sliced[sliced.length - 1];
+  if (out[out.length - 1]?.date !== last.date) {
+    out.push({ date: last.date, value: ((last.close - base) / base) * 100 });
+  }
+  return out;
+}
+
+export function EtfChart({ code, history = [], benchmarks = [], changeTone = 'flat' }: Props) {
   const [periodKey, setPeriodKey] = useState<PeriodKey>('m1');
-  const [showBench, setShowBench] = useState(!!benchmark);
+  const [pendingStart, setPendingStart] = useState<string>('');
+  const [pendingEnd, setPendingEnd] = useState<string>('');
+  const [customRange, setCustomRange] = useState<{ start: string; end: string } | null>(null);
 
-  const { points, returnPct, tone, periodLabel, benchPoints, benchReturnPct } = useMemo(() => {
-    const period = PERIODS.find(p => p.key === periodKey)!;
+  // 시리즈 표시 상태 — 기본: NAV + 종가 (FunETF 스크린샷 톤)
+  const [active, setActive] = useState<Record<SeriesKey, boolean>>({
+    nav: true,
+    close: true,
+    aum: false, // 데이터 없음 — 비활성
+    ...Object.fromEntries(benchmarks.map(b => [b.key, false])),
+  });
+
+  // 현재 기간의 시작/끝 날짜 계산
+  const { startDate, endDate, periodLabel } = useMemo(() => {
     if (history.length < 2) {
-      return { points: [] as ChartPoint[], returnPct: 0, tone: changeTone, periodLabel: period.label, benchPoints: [] as ChartPoint[], benchReturnPct: 0 };
+      const today = new Date().toISOString().slice(0, 10);
+      return { startDate: today, endDate: today, periodLabel: '—' };
     }
-    const lastDate = new Date(history[history.length - 1].date);
-
-    let startIdx = 0;
+    const lastDate = history[history.length - 1].date;
+    if (periodKey === 'custom' && customRange) {
+      return { startDate: customRange.start, endDate: customRange.end, periodLabel: '기간 지정' };
+    }
+    const period = PERIODS.find(p => p.key === periodKey) || PERIODS[1];
+    const end = new Date(lastDate);
+    let start: Date;
     if (period.key === 'ytd') {
-      const yearStart = new Date(lastDate.getFullYear(), 0, 1).getTime();
-      startIdx = history.findIndex(p => new Date(p.date).getTime() >= yearStart);
-      if (startIdx === -1) startIdx = 0;
-    } else if (period.key !== 'all') {
-      const cutoff = new Date(lastDate);
-      cutoff.setDate(cutoff.getDate() - period.days);
-      startIdx = history.findIndex(p => new Date(p.date).getTime() >= cutoff.getTime());
-      if (startIdx === -1) startIdx = 0;
+      start = new Date(end.getFullYear(), 0, 1);
+    } else if (period.key === 'all') {
+      start = new Date(history[0].date);
+    } else {
+      start = new Date(end);
+      start.setDate(start.getDate() - period.days);
     }
+    return {
+      startDate: start.toISOString().slice(0, 10),
+      endDate: end.toISOString().slice(0, 10),
+      periodLabel: period.label,
+    };
+  }, [history, periodKey, customRange]);
 
-    const sliced = history.slice(startIdx);
-    if (sliced.length < 2) {
-      return { points: [], returnPct: 0, tone: changeTone, periodLabel: period.label, benchPoints: [] as ChartPoint[], benchReturnPct: 0 };
-    }
-    const basePrice = sliced[0].close;
-    const finalPrice = sliced[sliced.length - 1].close;
-    const total = (finalPrice - basePrice) / basePrice;
+  // 메인 NAV 시리즈 계산 (= 종가 데이터로 동일)
+  const navPoints = useMemo(() => toReturnSeries(history, startDate, endDate), [history, startDate, endDate]);
+  const returnPct = navPoints.length > 1 ? navPoints[navPoints.length - 1].value : 0;
+  const tone: 'up' | 'down' | 'flat' = returnPct > 0 ? 'up' : returnPct < 0 ? 'down' : 'flat';
 
-    const stride = Math.max(1, Math.floor(sliced.length / 120));
-    const decimated: ChartPoint[] = [];
-    for (let i = 0; i < sliced.length; i += stride) {
-      const p = sliced[i];
-      decimated.push({ date: p.date, value: ((p.close - basePrice) / basePrice) * 100 });
+  // 멀티 시리즈 배열
+  const extraSeries = useMemo<ExtraSeries[]>(() => {
+    const arr: ExtraSeries[] = [];
+    // 종가 — NAV 와 동일 데이터 (NAV ≈ 거래종가), 시각 구분 위해 alpha 다르게
+    if (active.close && navPoints.length > 1) {
+      arr.push({ key: 'close', color: CLOSE_COLOR, points: navPoints, width: 1.4 });
     }
-    if (decimated[decimated.length - 1]?.date !== sliced[sliced.length - 1].date) {
-      const p = sliced[sliced.length - 1];
-      decimated.push({ date: p.date, value: ((p.close - basePrice) / basePrice) * 100 });
-    }
-
-    // 벤치마크 시계열도 같은 기간으로 슬라이스
-    let bPoints: ChartPoint[] = [];
-    let bRet = 0;
-    if (benchmark && benchmark.history.length > 1) {
-      const bSliced = benchmark.history.filter(p => {
-        const d = new Date(p.date).getTime();
-        return d >= new Date(sliced[0].date).getTime() && d <= new Date(sliced[sliced.length - 1].date).getTime();
-      });
-      if (bSliced.length > 1) {
-        const bBase = bSliced[0].close;
-        bRet = (bSliced[bSliced.length - 1].close - bBase) / bBase;
-        const bStride = Math.max(1, Math.floor(bSliced.length / 120));
-        for (let i = 0; i < bSliced.length; i += bStride) {
-          const p = bSliced[i];
-          bPoints.push({ date: p.date, value: ((p.close - bBase) / bBase) * 100 });
+    // 벤치마크
+    for (const b of benchmarks) {
+      if (active[b.key] && b.history.length > 1) {
+        const bPts = toReturnSeries(b.history, startDate, endDate);
+        if (bPts.length > 1) {
+          arr.push({ key: b.key, color: b.color, points: bPts, width: 1.5 });
         }
       }
     }
-
-    return {
-      points: decimated,
-      returnPct: total,
-      tone: total > 0 ? 'up' as const : total < 0 ? 'down' as const : 'flat' as const,
-      periodLabel: period.label,
-      benchPoints: bPoints,
-      benchReturnPct: bRet,
-    };
-  }, [history, benchmark, periodKey, changeTone]);
+    return arr;
+  }, [active, navPoints, benchmarks, startDate, endDate]);
 
   const fmtPct = (n: number) => `${n >= 0 ? '+' : ''}${n.toFixed(2)}%`;
-  const fmtAxis = (n: number) => `${n >= 0 ? '+' : ''}${n.toFixed(1)}%`;
+  const fmtAxis = (n: number) => `${n >= 0 ? '+' : ''}${n.toFixed(2)}%`;
+
+  const onChip = (k: PeriodKey) => {
+    setPeriodKey(k);
+    if (k !== 'custom') setCustomRange(null);
+  };
+
+  const applyDateRange = () => {
+    if (pendingStart && pendingEnd && pendingStart <= pendingEnd) {
+      setCustomRange({ start: pendingStart, end: pendingEnd });
+      setPeriodKey('custom');
+    }
+  };
 
   return (
     <section className={styles.wrap} aria-label="수익률 차트">
@@ -121,64 +166,157 @@ export function EtfChart({ code, history = [], benchmark, changeTone = 'flat' }:
           )}
         </div>
         <div className={styles.headRight}>
-          <Link href={`/etf/compare?a=${code}`} className={styles.compareLink}>
-            + 상품 비교
-          </Link>
           <div className={styles.returnNow}>
             <span className={`${styles.returnPct} ${styles[tone]}`}>
-              {points.length > 0 ? fmtPct(returnPct * 100) : '—'}
+              {navPoints.length > 1 ? fmtPct(returnPct) : '—'}
             </span>
             <span className={styles.returnLabel}>{periodLabel}</span>
           </div>
         </div>
       </div>
 
-      <div className={styles.tabs} role="tablist" aria-label="기간 선택">
-        {PERIODS.map(p => (
+      {/* 컨트롤 — 기간 칩 + 날짜 범위 + 상품 추가 */}
+      <div className={styles.controls}>
+        <div className={styles.tabs} role="tablist" aria-label="기간 선택">
+          {PERIODS.map(p => (
+            <button
+              key={p.key}
+              type="button"
+              role="tab"
+              aria-selected={p.key === periodKey}
+              className={`${styles.tab} ${p.key === periodKey ? styles.tabOn : ''}`}
+              onClick={() => onChip(p.key)}
+            >
+              {p.label}
+            </button>
+          ))}
+        </div>
+        <div className={styles.dateRange}>
+          <input
+            type="date"
+            value={pendingStart}
+            onChange={e => setPendingStart(e.target.value)}
+            aria-label="시작일"
+            className={styles.dateInput}
+          />
+          <span className={styles.dateSep}>~</span>
+          <input
+            type="date"
+            value={pendingEnd}
+            onChange={e => setPendingEnd(e.target.value)}
+            aria-label="종료일"
+            className={styles.dateInput}
+          />
           <button
-            key={p.key}
             type="button"
-            role="tab"
-            aria-selected={p.key === periodKey}
-            className={`${styles.tab} ${p.key === periodKey ? styles.tabOn : ''}`}
-            onClick={() => setPeriodKey(p.key)}
+            onClick={applyDateRange}
+            className={styles.applyBtn}
+            disabled={!pendingStart || !pendingEnd || pendingStart > pendingEnd}
           >
-            {p.label}
+            조회
           </button>
+        </div>
+        <Link href={`/etf/compare?a=${code}`} className={styles.addBtn}>
+          + 상품 추가
+        </Link>
+      </div>
+
+      {/* 시리즈 체크박스 범례 (FunETF 톤) */}
+      <div className={styles.legend} role="group" aria-label="표시할 시리즈">
+        <Checkbox
+          color={NAV_COLOR}
+          label="NAV"
+          checked={active.nav}
+          onChange={v => setActive(s => ({ ...s, nav: v }))}
+        />
+        <Checkbox
+          color={CLOSE_COLOR}
+          label="종가"
+          checked={active.close}
+          onChange={v => setActive(s => ({ ...s, close: v }))}
+        />
+        <Checkbox
+          color="#1DB5AE"
+          label="순자산[우측]"
+          checked={active.aum}
+          onChange={() => {}}
+          disabled
+          hint="데이터 준비 중"
+        />
+        {benchmarks.map(b => (
+          <Checkbox
+            key={b.key}
+            color={b.color}
+            label={b.name}
+            checked={!!active[b.key]}
+            onChange={v => setActive(s => ({ ...s, [b.key]: v }))}
+          />
         ))}
       </div>
 
-      {points.length > 1 ? (
-        <>
-          <PriceChart
-            data={points}
-            tone={tone}
-            height={240}
-            valueFormat={fmtAxis}
-            yAxisTicks={5}
-            overlay={showBench && benchPoints.length > 1 ? benchPoints : undefined}
-          />
-          {benchmark && benchPoints.length > 1 && (
-            <div className={styles.legend}>
-              <label className={styles.legendChip}>
-                <input
-                  type="checkbox"
-                  checked={showBench}
-                  onChange={e => setShowBench(e.target.checked)}
-                />
-                <span className={styles.legendDotBench} aria-hidden="true" />
-                <span>{benchmark.name}</span>
-                <em className={`${styles.legendPct} ${benchReturnPct >= 0 ? styles.up : styles.down}`}>
-                  {benchReturnPct >= 0 ? '+' : ''}{(benchReturnPct * 100).toFixed(2)}%
-                </em>
-              </label>
-              <span className={styles.legendNote}>이 ETF와 같은 기간 누적 수익률 비교</span>
-            </div>
-          )}
-        </>
+      {/* 차트 */}
+      {active.nav && navPoints.length > 1 ? (
+        <PriceChart
+          data={navPoints}
+          tone={tone}
+          height={280}
+          valueFormat={fmtAxis}
+          yAxisTicks={5}
+          mainColor={NAV_COLOR}
+          noArea
+          extraSeries={extraSeries}
+        />
+      ) : extraSeries.length > 0 && extraSeries[0].points.length > 1 ? (
+        // NAV 끄면 첫 활성 시리즈를 메인으로
+        <PriceChart
+          data={extraSeries[0].points}
+          tone={tone}
+          height={280}
+          valueFormat={fmtAxis}
+          yAxisTicks={5}
+          mainColor={extraSeries[0].color}
+          noArea
+          extraSeries={extraSeries.slice(1)}
+        />
       ) : (
-        <div className={styles.empty}>이 기간 데이터를 불러올 수 없어요.</div>
+        <div className={styles.empty}>표시할 시리즈를 1개 이상 선택해주세요.</div>
       )}
+
+      {/* 하단 disclaimer (FunETF 톤) */}
+      <p className={styles.footnote}>
+        ▪ 수익률(NAV) 그래프는 분배금 재투자를 가정한 수정기준가로 제공합니다.
+        <br />
+        <span className={styles.footnoteEmph}>▪ 수익률에는 실비용(총보수 + 기타비용 + 매매중개수수료)이 이미 반영되어 있습니다.</span>
+      </p>
     </section>
+  );
+}
+
+function Checkbox({
+  color, label, checked, onChange, disabled, hint,
+}: {
+  color: string;
+  label: string;
+  checked: boolean;
+  onChange: (v: boolean) => void;
+  disabled?: boolean;
+  hint?: string;
+}) {
+  return (
+    <label
+      className={`${styles.legendChip} ${disabled ? styles.legendChipDisabled : ''} ${checked ? styles.legendChipOn : ''}`}
+      title={hint}
+    >
+      <input
+        type="checkbox"
+        checked={checked}
+        disabled={disabled}
+        onChange={e => onChange(e.target.checked)}
+      />
+      <span className={styles.legendBox} style={{ borderColor: color, background: checked ? color : 'transparent' }} aria-hidden="true">
+        {checked && <span className={styles.legendCheck}>✓</span>}
+      </span>
+      <span style={{ color: disabled ? 'var(--rw-text-muted)' : 'var(--rw-text-strong)' }}>{label}</span>
+    </label>
   );
 }

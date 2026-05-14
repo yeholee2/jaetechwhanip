@@ -119,21 +119,9 @@ export function MyEtfSection() {
     );
   }
 
-  // ── 로그인 + 보유 0: 추가 CTA ──
+  // ── 로그인 + 보유 0: 노출 안 함 (UX 노이즈 제거 — 추가는 우상단 + 버튼으로) ──
   if (holdings.length === 0) {
-    return (
-      <>
-        <button type="button" className={styles.row} onClick={() => setModalOpen(true)}>
-          <span className={styles.entryIcon} aria-hidden="true">➕</span>
-          <div className={styles.body}>
-            <strong>첫 ETF 추가하기</strong>
-            <span>보유 수량과 평단을 입력하면 평가액·수익이 자동 계산돼요</span>
-          </div>
-          <span className={styles.arrow} aria-hidden="true">›</span>
-        </button>
-        {modalOpen && <HoldingAddModal onClose={() => setModalOpen(false)} onAdded={handleAdded} />}
-      </>
-    );
+    return null;
   }
 
   // ── 로그인 + 보유: 도미노 풀 화면 ──

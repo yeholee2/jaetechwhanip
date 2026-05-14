@@ -8,6 +8,112 @@
   gap: var(--space-4);
 }
 
+/* 컨트롤 행 — 기간칩 + 날짜 + 상품추가 */
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+}
+.dateRange {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.dateInput {
+  padding: 7px 10px;
+  font-size: 12px;
+  font-weight: 700;
+  border: 1px solid var(--rw-border);
+  border-radius: var(--rw-radius-sm);
+  background: var(--rw-card);
+  color: var(--rw-text-body);
+  font-family: inherit;
+  font-feature-settings: 'tnum';
+}
+.dateSep { color: var(--rw-text-muted); font-weight: 800; }
+.applyBtn {
+  padding: 7px 14px;
+  font-size: 12px;
+  font-weight: 800;
+  border: 1px solid var(--rw-border);
+  border-radius: var(--rw-radius-sm);
+  background: var(--rw-card-muted);
+  color: var(--rw-text-body);
+  cursor: pointer;
+  transition: background-color 120ms ease, color 120ms ease;
+}
+.applyBtn:hover:not(:disabled) {
+  background: var(--rw-primary-bg);
+  color: var(--rw-primary);
+}
+.applyBtn:disabled { opacity: 0.5; cursor: not-allowed; }
+.addBtn {
+  margin-left: auto;
+  padding: 8px 14px;
+  border-radius: var(--rw-radius-sm);
+  background: var(--rw-primary);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 900;
+  text-decoration: none;
+  transition: background-color 120ms ease;
+}
+.addBtn:hover { background: var(--rw-primary-hover); }
+
+/* 체크박스 범례 (멀티 시리즈) */
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  background: var(--rw-card-muted);
+  border-radius: var(--rw-radius-sm);
+}
+.legendChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 700;
+  user-select: none;
+}
+.legendChip input[type="checkbox"] {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+.legendChipDisabled { cursor: not-allowed; opacity: 0.55; }
+.legendBox {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  border: 1.5px solid;
+  border-radius: 3px;
+  transition: background-color 120ms ease;
+}
+.legendCheck {
+  color: #fff;
+  font-size: 9px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+/* 하단 footnote (FunETF 톤) */
+.footnote {
+  margin: 0;
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--rw-hairline);
+  font-size: 11.5px;
+  color: var(--rw-text-muted);
+  font-weight: 600;
+  line-height: 1.7;
+}
+.footnoteEmph { color: var(--rw-primary); font-weight: 700; }
+
 .head {
   display: flex;
   align-items: flex-start;

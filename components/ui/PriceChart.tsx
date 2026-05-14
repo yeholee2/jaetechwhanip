@@ -20,6 +20,14 @@ import styles from './PriceChart.module.css';
 
 export type ChartPoint = { date: string; value: number };
 
+export type ExtraSeries = {
+  key: string;
+  color: string;
+  points: ChartPoint[];
+  dashed?: boolean;
+  width?: number;
+};
+
 type Props = {
   data: ChartPoint[];
   tone?: 'up' | 'down' | 'flat';
@@ -30,6 +38,12 @@ type Props = {
   className?: string;
   /** 보조 라인 (벤치마크 등). dash 스타일로 회색 표시. */
   overlay?: ChartPoint[];
+  /** 멀티 시리즈 — 색·dash·두께 지정 가능 */
+  extraSeries?: ExtraSeries[];
+  /** 메인 라인 색상 강제 (tone 무시). 멀티 시리즈에서 NAV 색 고정용 */
+  mainColor?: string;
+  /** 메인 라인의 영역 그라디언트 끄기 */
+  noArea?: boolean;
 };
 
 const defaultValueFormat = (n: number) => n.toLocaleString('ko-KR', { maximumFractionDigits: 0 });
@@ -51,6 +65,9 @@ export function PriceChart({
   yAxisTicks = 4,
   className,
   overlay,
+  extraSeries,
+  mainColor,
+  noArea = false,
 }: Props) {
   const wrapRef = useRef<HTMLDivElement>(null);
   const [hover, setHover] = useState<{ x: number; y: number; idx: number } | null>(null);
@@ -69,7 +86,8 @@ export function PriceChart({
     if (!data || data.length === 0) {
       return { min: 0, max: 1, niceMin: 0, niceMax: 1, ticks: [] as number[] };
     }
-    const vs = [...data.map(d => d.value), ...(overlay?.map(o => o.value) || [])];
+    const extraVs = (extraSeries || []).flatMap(s => s.points.map(p => p.value));
+    const vs = [...data.map(d => d.value), ...(overlay?.map(o => o.value) || []), ...extraVs];
     let mn = Math.min(...vs);
     let mx = Math.max(...vs);
     if (mx === mn) { mx += 1; mn -= 1; }
@@ -92,7 +110,7 @@ export function PriceChart({
     const tks: number[] = [];
     for (let t = nMin; t <= nMax + 0.0001; t += step) tks.push(t);
     return { min: mn, max: mx, niceMin: nMin, niceMax: nMax, ticks: tks };
-  }, [data, overlay, yAxisTicks]);
+  }, [data, overlay, extraSeries, yAxisTicks]);
 
   if (!data || data.length === 0) return null;
 
@@ -103,7 +121,7 @@ export function PriceChart({
   const linePath = points.map(([x, y], i) => `${i === 0 ? 'M' : 'L'}${x.toFixed(2)},${y.toFixed(2)}`).join(' ');
   const areaPath = `${linePath} L${points[points.length - 1][0]},${padT + plotH} L${points[0][0]},${padT + plotH} Z`;
 
-  const colorVar = tone === 'down' ? 'var(--rw-down)' : tone === 'flat' ? 'var(--rw-text-muted)' : 'var(--rw-up)';
+  const colorVar = mainColor || (tone === 'down' ? 'var(--rw-down)' : tone === 'flat' ? 'var(--rw-text-muted)' : 'var(--rw-up)');
   const gradId = `pc-grad-${tone}-${Math.floor(Math.random() * 100000)}`;
 
   // 호버 핸들러
@@ -160,8 +178,32 @@ export function PriceChart({
           );
         })}
 
-        {/* 영역 그라디언트 */}
-        <path d={areaPath} fill={`url(#${gradId})`} stroke="none" />
+        {/* 영역 그라디언트 (멀티시리즈일 땐 끄는 게 깔끔) */}
+        {!noArea && <path d={areaPath} fill={`url(#${gradId})`} stroke="none" />}
+
+        {/* extraSeries — 멀티 라인 */}
+        {(extraSeries || []).map(s => {
+          if (s.points.length < 2) return null;
+          const pts: [number, number][] = s.points.map((p, i) => {
+            const x = padL + (i / (s.points.length - 1)) * plotW;
+            const y = padT + ((niceMax - p.value) / (niceMax - niceMin)) * plotH;
+            return [x, y];
+          });
+          const path = pts.map(([x, y], i) => `${i === 0 ? 'M' : 'L'}${x.toFixed(2)},${y.toFixed(2)}`).join(' ');
+          return (
+            <path
+              key={s.key}
+              d={path}
+              fill="none"
+              stroke={s.color}
+              strokeWidth={s.width ?? 1.8}
+              strokeDasharray={s.dashed ? '5 4' : undefined}
+              strokeLinejoin="round"
+              strokeLinecap="round"
+              opacity={0.95}
+            />
+          );
+        })}
 
         {/* 벤치마크 overlay (대시 회색 라인) */}
         {overlay && overlay.length > 1 && (() => {

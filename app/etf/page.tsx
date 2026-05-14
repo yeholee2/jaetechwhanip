@@ -90,18 +90,6 @@ export default async function EtfPage({
       />
       <main className="pc-layout">
         <div className="pc-layout-main">
-          <PageHero
-            eyebrow="ETF"
-            title="시장과 내 자산을 한 화면에"
-            lead="지수·뉴스·랭킹·전략·테마를 한 페이지에서 보고, 내 포트폴리오로 바로 이어가요."
-            aside={
-              <>
-                <Badge tone="primary">{etfs.length}개</Badge>
-                <Button href="/etf/all" variant="outline" size="sm">전체 검색</Button>
-              </>
-            }
-          />
-
           <EtfPageTabs active={active} />
 
           {active === 'discover' && <DiscoverTab allEtfs={etfs} />}

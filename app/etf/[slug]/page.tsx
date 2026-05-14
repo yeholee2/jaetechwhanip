@@ -102,20 +102,29 @@ export default async function EtfDetailPage({ params }: Props) {
 
   // 분절 해소: ETF 키워드로 4페이지 + 리포트 연결 + DB 풀(유사/운용사용)
   const baseEtf = staticEtf || etf;
-  // 벤치마크: KRX 상장 → 코스피, 미국 상장 → S&P 500
-  const benchSymbol = etf.country === 'US' ? '^GSPC' : '^KS11';
-  const benchName = etf.country === 'US' ? 'S&P 500' : '코스피';
 
-  const [sparringRes, articles, reports, dbPool, priceHistory, benchHistory, liveHoldings, relatedQs] = await Promise.all([
+  // 멀티 벤치마크 — 펀ETF 톤: KOSPI · S&P500(H) · 나스닥100(H) 동시 fetch
+  const [
+    sparringRes, articles, reports, dbPool, priceHistory,
+    kospiHistory, sp500History, nasdaq100History,
+    liveHoldings, relatedQs,
+  ] = await Promise.all([
     listSparrings(),
     fetchGhostArticles(),
     fetchRecentReportsWithFallback(),
     fetchEtfs(2000),
     fetchMaxHistory(etf.code),
-    fetchMaxHistory(benchSymbol),
+    fetchMaxHistory('^KS11'),
+    fetchMaxHistory('^GSPC'),
+    fetchMaxHistory('^NDX'),
     fetchEtfHoldings(etf.code),
     fetchEtfRelatedQuestions(etf as any, 3),
   ]);
+  const benchmarks = [
+    { key: 'kospi',    name: 'KOSPI',       color: '#1B64DA', history: kospiHistory },
+    { key: 'sp500',    name: 'S&P500(H)',   color: '#8AD504', history: sp500History },
+    { key: 'nasdaq',   name: '나스닥100(H)', color: '#8B00FF', history: nasdaq100History },
+  ];
   // DB 기반 유사 ETF + 같은 운용사
   const similarResults = findSimilarEtfs(etf as any, dbPool, 6);
   const relatedEtfs = similarResults.map(r => r.etf).slice(0, 5);
@@ -333,7 +342,7 @@ export default async function EtfDetailPage({ params }: Props) {
                 price={etf.price}
                 changeTone={etf.changeTone}
                 history={priceHistory}
-                benchmark={benchHistory.length > 0 ? { name: benchName, history: benchHistory } : undefined}
+                benchmarks={benchmarks}
               />
             </div>
 
