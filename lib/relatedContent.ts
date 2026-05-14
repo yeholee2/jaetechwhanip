@@ -146,3 +146,36 @@ export function findRelatedArticlesForEtf(etf: EtfInfo, articles: HanipArticle[]
     .sort((a, b) => b.score - a.score);
   return scored.slice(0, limit).map(x => x.a);
 }
+
+/**
+ * DB에서 ETF 관련 질문 가져오기.
+ * 국내주식·ETF 카테고리 최신 200개 + keyword 매칭.
+ */
+export async function fetchEtfRelatedQuestions(
+  etf: EtfInfo,
+  limit = 3,
+): Promise<RelatedQuestion[]> {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+  if (!supabaseUrl || !supabaseKey) return [];
+
+  try {
+    const res = await fetch(
+      `${supabaseUrl}/rest/v1/questions?category=eq.${encodeURIComponent('국내주식·ETF')}&select=id,slug,title,body,answer_count&order=created_at.desc&limit=200`,
+      {
+        headers: { apikey: supabaseKey, Authorization: `Bearer ${supabaseKey}` },
+        next: { revalidate: 600 },
+      },
+    );
+    if (!res.ok) return [];
+    const data = (await res.json()) as Array<{ id: number; slug: string; title: string; body?: string; answer_count?: number }>;
+    const questions: RelatedQuestion[] = data
+      .filter(q => q.title && q.slug)
+      .map(q => ({ slug: q.slug, title: q.title, body: q.body, ans: q.answer_count ?? 0, category: '국내주식·ETF' }));
+
+    return findRelatedQuestionsForEtf(etf, questions, limit);
+  } catch {
+    return [];
+  }
+}

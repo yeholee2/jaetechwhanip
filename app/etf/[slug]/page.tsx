@@ -10,12 +10,11 @@ import { findSimilarEtfs, buildIssuerSummary } from '@/lib/etfSimilar';
 import { findTemplatesByEtfCode } from '@/lib/templateLookup';
 import { IssuerCard } from '../IssuerCard';
 import { SITE_NAME, truncateDescription } from '@/lib/seo';
-import { sampleQuestions } from '@/lib/sampleData';
 import { listSparrings } from '@/lib/sparring';
 import { fetchGhostArticles } from '@/lib/feed';
 import { fetchRecentReportsWithFallback } from '@/lib/reports';
 import {
-  findRelatedQuestionsForEtf,
+  fetchEtfRelatedQuestions,
   findRelatedSparringsForEtf,
   findRelatedArticlesForEtf,
   findRelatedReportsForEtf,
@@ -107,7 +106,7 @@ export default async function EtfDetailPage({ params }: Props) {
   const benchSymbol = etf.country === 'US' ? '^GSPC' : '^KS11';
   const benchName = etf.country === 'US' ? 'S&P 500' : '코스피';
 
-  const [sparringRes, articles, reports, dbPool, priceHistory, benchHistory, liveHoldings] = await Promise.all([
+  const [sparringRes, articles, reports, dbPool, priceHistory, benchHistory, liveHoldings, relatedQs] = await Promise.all([
     listSparrings(),
     fetchGhostArticles(),
     fetchRecentReportsWithFallback(),
@@ -115,6 +114,7 @@ export default async function EtfDetailPage({ params }: Props) {
     fetchMaxHistory(etf.code),
     fetchMaxHistory(benchSymbol),
     fetchEtfHoldings(etf.code),
+    fetchEtfRelatedQuestions(etf as any, 3),
   ]);
   // DB 기반 유사 ETF + 같은 운용사
   const similarResults = findSimilarEtfs(etf as any, dbPool, 6);
@@ -122,7 +122,6 @@ export default async function EtfDetailPage({ params }: Props) {
   const issuerSummary = buildIssuerSummary(etf as any, dbPool);
   // 이 ETF가 들어간 대가 포트폴리오 (역방향)
   const templateMentions = findTemplatesByEtfCode(etf.code);
-  const relatedQs = findRelatedQuestionsForEtf(baseEtf as any, sampleQuestions as any, 3);
   const relatedSparrings = findRelatedSparringsForEtf(baseEtf as any, sparringRes.sparrings, 2);
   const relatedArticles = findRelatedArticlesForEtf(baseEtf as any, articles, 3);
   const relatedReports = findRelatedReportsForEtf(baseEtf as any, reports, 3);
