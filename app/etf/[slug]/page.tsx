@@ -331,10 +331,11 @@ export default async function EtfDetailPage({ params }: Props) {
           </div>
         </section>
 
+        {/* 섹션 앵커 nav — 전체 폭 (사이드 카드와 동선 충돌 방지) */}
+        <EtfSectionNav />
+
         <div className={styles.layout}>
           <div className={styles.mainColumn}>
-            <EtfSectionNav />
-
             {/* ──────────── ① 시세: 차트 + 수익률 ──────────── */}
             <div id="sec-quote">
               <EtfChart
