@@ -276,7 +276,8 @@
   align-content: start;
   gap: var(--space-4);
   position: sticky;
-  top: 76px;
+  /* 섹션 nav (top: 64 + 높이 ~76) 아래로 — 두 sticky 가 겹치지 않게 */
+  top: 148px;
 }
 
 .priceCard {

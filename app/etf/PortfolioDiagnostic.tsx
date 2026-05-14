@@ -114,7 +114,7 @@ export function PortfolioDiagnostic({ allEtfs }: { allEtfs?: EtfInfo[] }) {
                 className={styles.entryCard}
                 onClick={() => setModal('bulk')}
               >
-                <span className={styles.entryIcon}>📋</span>
+                <span className={`${styles.entryIcon} tf`}>📋</span>
                 <span className={styles.entryTitle}>한 번에 붙여넣기</span>
                 <span className={styles.entryDesc}>증권사 잔고 텍스트를 복사 → 자동 파싱.</span>
                 <span className={styles.entryBadge}>가장 빠름</span>

@@ -58,7 +58,7 @@ export function LabSection() {
     <div className={styles.lab}>
       <header className={styles.hero}>
         <span className={styles.eyebrow}>
-          <span className={styles.sparkle} aria-hidden="true">✨</span>
+          <span className={`${styles.sparkle} tf`} aria-hidden="true">✨</span>
           실험실 (β)
         </span>
         <h2 className={styles.title}>내 포트폴리오로 더 깊게 놀아보기</h2>
@@ -74,7 +74,7 @@ export function LabSection() {
           const Inner = (
             <>
               <div className={styles.cardHead}>
-                <span className={styles.cardEmoji} aria-hidden="true">{card.emoji}</span>
+                <span className={`${styles.cardEmoji} tf`} aria-hidden="true">{card.emoji}</span>
                 <Badge tone={meta.tone}>{meta.label}</Badge>
               </div>
               <strong className={styles.cardTitle}>{card.title}</strong>

@@ -109,7 +109,7 @@ export function MyEtfSection() {
   if (authState === 'unauth') {
     return (
       <Link className={styles.row} href="/auth?next=/etf">
-        <span className={styles.entryIcon} aria-hidden="true">📊</span>
+        <span className={`${styles.entryIcon} tf`} aria-hidden="true">📊</span>
         <div className={styles.body}>
           <strong>내 ETF 포트폴리오 시작하기</strong>
           <span>수량·평단 입력 → 자산·비중·예상 배당 자동 계산</span>
