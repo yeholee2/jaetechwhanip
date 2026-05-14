@@ -24,9 +24,8 @@ import { Button, Chip, Badge, Stat, DataCell, Tooltip } from '@/components/ui';
 import { lookupGlossary } from '@/lib/etfGlossary';
 import { buildEtfInsight, computeFeeStats, type EtfTag } from '@/lib/etfInsights';
 import { buildSectorBreakdown } from '@/lib/etfBreakdown';
-import { DonutChart, CompareBar, RiskMeter, MiniBarChart } from '@/components/ui';
+import { DonutChart, CompareBar, RiskMeter } from '@/components/ui';
 import { buildEtfRisk } from '@/lib/etfRisk';
-import { buildDistributionHistory } from '@/lib/etfDistribution';
 import { countryInfo } from '@/lib/etfCountry';
 import { WatchButton } from '../WatchButton';
 import { AlertButton } from '../AlertButton';
@@ -128,7 +127,16 @@ export default async function EtfDetailPage({ params }: Props) {
   // DB 기반 유사 ETF + 같은 운용사
   const similarResults = findSimilarEtfs(etf as any, dbPool, 6);
   const relatedEtfs = similarResults.map(r => r.etf).slice(0, 5);
-  const issuerSummary = buildIssuerSummary(etf as any, dbPool);
+  // 같은 운용사 — 비슷한 ETF 와 중복되면 표시 안 함 (정보 가치 낮음)
+  const similarCodes = new Set(similarResults.map(r => r.etf.code));
+  const issuerRaw = buildIssuerSummary(etf as any, dbPool);
+  const issuerSummary = (() => {
+    if (!issuerRaw) return null;
+    const filtered = issuerRaw.topEtfs.filter(e => !similarCodes.has(e.code));
+    // 비슷한 ETF 에 모두 포함됐다면 별도 섹션 생략 (중복)
+    if (filtered.length === 0) return null;
+    return { ...issuerRaw, topEtfs: filtered };
+  })();
   // 이 ETF가 들어간 대가 포트폴리오 (역방향)
   const templateMentions = findTemplatesByEtfCode(etf.code);
   const relatedSparrings = findRelatedSparringsForEtf(baseEtf as any, sparringRes.sparrings, 2);
@@ -162,7 +170,6 @@ export default async function EtfDetailPage({ params }: Props) {
   const risk = buildEtfRisk(etf as any);
 
   // 분배금 히스토리 (분배 있는 ETF만)
-  const distHistory = buildDistributionHistory(etf as any);
 
   const jsonLd: Record<string, unknown>[] = [
     {
@@ -601,66 +608,7 @@ export default async function EtfDetailPage({ params }: Props) {
               );
             })()}
 
-            {/* 분배금 히스토리 mini bar — 현재 mock, KRX 연동 전 반투명 오버레이 */}
-            {distHistory.points.length > 0 && (
-              <section className={`${styles.section} ${styles.mockSection}`}>
-                <div className={styles.mockOverlay}>
-                  <span className={styles.mockBadge}>
-                    <FaIcon name="flask" size={10} />
-                    참고용
-                  </span>
-                  <span className={styles.mockBody}>
-                    운용사 평균 기준 추정치예요. 실제 분배금은 운용사 공시를 확인하세요.
-                  </span>
-                </div>
-                <div className={styles.sectionHead}>
-                  <h2>분배금 히스토리</h2>
-                  <span>
-                    {distHistory.period === 'monthly' ? '월별' :
-                     distHistory.period === 'quarterly' ? '분기별' :
-                     distHistory.period === 'semiannual' ? '반기별' : '연별'} ·
-                    {' '}최근 {distHistory.points.length}회
-                  </span>
-                </div>
-                <MiniBarChart
-                  label="1주당 분배금"
-                  caption="운용사 평균 기준 추정치"
-                  data={distHistory.points.map(p => ({
-                    label: p.label,
-                    value: p.value,
-                    tooltip: `${p.date} · ${p.value.toLocaleString()}원`,
-                  }))}
-                  unit="원"
-                  summary={[
-                    { label: '구간 합계', value: `${distHistory.perShareSum.toLocaleString()}원` },
-                    { label: '연환산 수익률', value: `${distHistory.yieldPercent.toFixed(2)}%` },
-                  ]}
-                />
-              </section>
-            )}
-
-            {/* 분배금 히스토리 — 데이터 없을 때 placeholder (분배 미확정 ETF 안내) */}
-            {distHistory.points.length === 0 && (
-              <section className={styles.section}>
-                <div className={styles.sectionHead}>
-                  <h2>분배금 히스토리</h2>
-                  <span>데이터 준비 중</span>
-                </div>
-                <div className={styles.emptyDist}>
-                  <FaIcon name="hand-holding-dollar" size={22} />
-                  <p className={styles.emptyDistTitle}>
-                    {/^없음|미확정|—|$/.test(etf.distribution || '')
-                      ? '이 ETF는 분배(배당) 이력이 없어요'
-                      : '분배금 데이터를 아직 불러올 수 없어요'}
-                  </p>
-                  <p className={styles.emptyDistBody}>
-                    {/^없음|미확정/.test(etf.distribution || '')
-                      ? '주가 상승만 노리는 무분배형 상품일 가능성이 커요. 운용사 공시에서 분배 정책을 확인해보세요.'
-                      : 'KRX 분배금 API 연동 전 단계예요. 실제 분배 이력은 운용사 공식 페이지에서 확인 가능해요.'}
-                  </p>
-                </div>
-              </section>
-            )}
+            {/* (분배금 mock 섹션 제거 — 실데이터 KRX API 연동 후 다시 추가) */}
 
             {/* ──────────── ④ 궁합: AI 매칭 ──────────── */}
             <div id="sec-match">
@@ -785,15 +733,7 @@ export default async function EtfDetailPage({ params }: Props) {
               </section>
             )}
 
-            {/* ── 페이지 하단 CTA ── */}
-            <section className={styles.bottomCta}>
-              <p className={styles.bottomCtaTitle}>{etf.shortName}에 대해 궁금한 게 있다면?</p>
-              <p className={styles.bottomCtaBody}>이 ETF를 사도 될지, 내 포트폴리오에 맞는지 — 전문가에게 질문해보세요.</p>
-              <div className={styles.bottomCtaActions}>
-                <Button href={`/?ask=1&about=${encodeURIComponent(etf.name)}`} variant="primary" size="md">질문하기</Button>
-                <Button href="/etf/compare" variant="outline" size="md">ETF 비교</Button>
-              </div>
-            </section>
+            {/* (페이지 하단 CTA 제거 — Hero·사이드·Chat·관련콘텐츠 footer 에 이미 질문 진입로 다수) */}
           </div>
 
           <aside className={styles.sideColumn}>

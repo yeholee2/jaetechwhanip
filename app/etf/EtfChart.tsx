@@ -34,7 +34,6 @@ const PERIODS: { key: Exclude<PeriodKey, 'custom'>; label: string; days: number 
 ];
 
 const NAV_COLOR = '#F0295A';
-const CLOSE_COLOR = '#4593fc'; // 우리 정책: 초록 미사용 → 블루 패밀리
 
 type Benchmark = { key: string; name: string; color: string; history: PricePoint[] };
 
@@ -81,11 +80,9 @@ export function EtfChart({ code, history = [], benchmarks = [], changeTone = 'fl
   const [pendingEnd, setPendingEnd] = useState<string>('');
   const [customRange, setCustomRange] = useState<{ start: string; end: string } | null>(null);
 
-  // 시리즈 표시 상태 — 기본: NAV 만 (종가는 NAV와 동일 데이터라 OFF)
+  // 시리즈 표시 상태 — 기본 NAV(이 ETF) 만, 벤치마크는 사용자 선택
   const [active, setActive] = useState<Record<SeriesKey, boolean>>({
     nav: true,
-    close: false,
-    aum: false, // 데이터 없음 — 비활성
     ...Object.fromEntries(benchmarks.map(b => [b.key, false])),
   });
 
@@ -125,11 +122,7 @@ export function EtfChart({ code, history = [], benchmarks = [], changeTone = 'fl
   // 멀티 시리즈 배열
   const extraSeries = useMemo<ExtraSeries[]>(() => {
     const arr: ExtraSeries[] = [];
-    // 종가 — NAV 와 동일 데이터 (NAV ≈ 거래종가), 시각 구분 위해 alpha 다르게
-    if (active.close && navPoints.length > 1) {
-      arr.push({ key: 'close', color: CLOSE_COLOR, points: navPoints, width: 1.4 });
-    }
-    // 벤치마크
+    // 벤치마크 (이 ETF vs KOSPI/S&P/나스닥100)
     for (const b of benchmarks) {
       if (active[b.key] && b.history.length > 1) {
         const bPts = toReturnSeries(b.history, startDate, endDate);
@@ -227,27 +220,13 @@ export function EtfChart({ code, history = [], benchmarks = [], changeTone = 'fl
         </Link>
       </div>
 
-      {/* 시리즈 체크박스 범례 (FunETF 톤) */}
+      {/* 시리즈 체크박스 범례 — NAV (메인) + 비교 벤치마크만 */}
       <div className={styles.legend} role="group" aria-label="표시할 시리즈">
         <Checkbox
           color={NAV_COLOR}
-          label="NAV"
+          label="이 ETF"
           checked={active.nav}
           onChange={v => setActive(s => ({ ...s, nav: v }))}
-        />
-        <Checkbox
-          color={CLOSE_COLOR}
-          label="종가"
-          checked={active.close}
-          onChange={v => setActive(s => ({ ...s, close: v }))}
-        />
-        <Checkbox
-          color="#1DB5AE"
-          label="순자산[우측]"
-          checked={active.aum}
-          onChange={() => {}}
-          disabled
-          hint="데이터 준비 중"
         />
         {benchmarks.map(b => (
           <Checkbox
@@ -258,6 +237,7 @@ export function EtfChart({ code, history = [], benchmarks = [], changeTone = 'fl
             onChange={v => setActive(s => ({ ...s, [b.key]: v }))}
           />
         ))}
+        <span className={styles.legendNote}>벤치마크와 비교해보세요</span>
       </div>
 
       {/* 차트 */}
