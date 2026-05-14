@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { AppShell } from '@/components/AppShell';
 import { ETF_HOME_URL } from '@/lib/etfs';
+import { fetchEtfs } from '@/lib/etfsDb';
 import { SITE_NAME } from '@/lib/seo';
 import { PageHero } from '@/components/ui';
 import { PageSidebar } from '@/components/PageSidebar';
@@ -25,7 +26,9 @@ export const metadata: Metadata = {
   },
 };
 
-export default function EtfThemesPage() {
+export default async function EtfThemesPage() {
+  const allEtfs = await fetchEtfs(2000);
+
   return (
     <AppShell active="etf" wide hideSlogan>
       <main className="pc-layout">
@@ -36,8 +39,8 @@ export default function EtfThemesPage() {
             lead="어떤 테마가 주목받는지, 어떤 전략이 돈을 벌어왔는지 한 페이지에서 살펴봐요."
           />
 
-          <StrategyToggle />
-          <ThemeToggle />
+          <StrategyToggle allEtfs={allEtfs} />
+          <ThemeToggle allEtfs={allEtfs} />
           <InsightCarousel />
           <CtaCards />
           <FeaturePromo />
