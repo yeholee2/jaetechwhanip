@@ -98,3 +98,32 @@
   color: var(--t3);
   padding: 6px 2px;
 }
+
+/* 콘텐츠 희소 시 CTA */
+.sparseFooter {
+  margin-top: 12px;
+  padding: 14px;
+  background: var(--rw-card-muted);
+  border-radius: var(--rw-radius-sm);
+  text-align: center;
+}
+.sparseFooter p {
+  margin: 0 0 10px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--rw-text-body);
+  line-height: 1.55;
+}
+.sparseCta {
+  display: inline-flex;
+  align-items: center;
+  padding: 7px 14px;
+  border-radius: 999px;
+  background: var(--rw-primary);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 900;
+  text-decoration: none;
+  transition: background-color 120ms ease;
+}
+.sparseCta:hover { background: var(--rw-primary-hover); }

@@ -123,6 +123,18 @@ export function RelatedContent({
           </ul>
         </div>
       )}
+
+      {/* 콘텐츠 희소 시 — 직접 질문하기 CTA */}
+      {((questions?.length ?? 0) + (sparrings?.length ?? 0) + (articles?.length ?? 0) + (reports?.length ?? 0)) < 3 && (
+        <div className={styles.sparseFooter}>
+          <p>
+            이 ETF에 대한 콘텐츠를 모으는 중이에요.
+            <br />
+            궁금한 게 있으면 한입에 먼저 물어보세요.
+          </p>
+          <Link href="/?ask=1" className={styles.sparseCta}>한입에 질문하기 →</Link>
+        </div>
+      )}
     </section>
   );
 }

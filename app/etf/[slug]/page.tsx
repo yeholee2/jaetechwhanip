@@ -820,7 +820,10 @@ export default async function EtfDetailPage({ params }: Props) {
                 </Link>
               </div>
               <div className={styles.sideQuickHead}>
-                <span>핵심 요약</span>
+                <span className={styles.sideQuickEyebrow}>
+                  <span className={styles.sideQuickSparkle} aria-hidden="true">✨</span>
+                  한입 요약
+                </span>
                 <span className={styles.sideQuickCode}>{etf.code}</span>
               </div>
               <h3 className={styles.sideQuickTitle}>{etf.shortName}</h3>
