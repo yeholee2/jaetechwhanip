@@ -74,13 +74,9 @@ export async function EtfReturns({ code, etfName, lastUpdated, history: passed }
           </table>
         </div>
 
-        <ul className={styles.noteList}>
-          <li>시장가격(종가) 기준 누적 수익률이에요.</li>
-          <li>분배금 재투자는 반영하지 않았어요.</li>
-          <li>기준가격(NAV)은 운용사 공시가 필요해 차후 제공 예정이에요.</li>
-          <li>상장일 이전 구간(예: 5년)은 데이터가 없어 표시되지 않을 수 있어요.</li>
-          <li>위 수익률은 누적 기준이며, 거래·세금 비용은 제외돼 있어요.</li>
-        </ul>
+        <p className={styles.note}>
+          ※ 과거 수익률은 미래를 보장하지 않아요. 누적 기준이며 분배금 재투자·세금 미반영.
+        </p>
       </Card>
 
       <Card pad="lg">

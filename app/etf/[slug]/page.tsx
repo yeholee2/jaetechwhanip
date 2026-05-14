@@ -287,37 +287,37 @@ export default async function EtfDetailPage({ params }: Props) {
               <Button href="/?ask=1" variant="primary" size="md">질문하기</Button>
             </div>
           </div>
+          <div className={styles.heroPrice}>
+            <span className={styles.heroPriceLabel}>현재가</span>
+            <strong className={`${styles.heroPriceBig} ${styles[`delta_${etf.changeTone ?? 'flat'}`]}`}>
+              {etf.price || '—'}
+            </strong>
+            {etf.change && (
+              <span className={`${styles.heroPriceDelta} ${styles[`delta_${etf.changeTone}`]}`}>
+                {etf.change}
+              </span>
+            )}
+            <p className={styles.heroPriceFoot}>
+              {etfBaseDate ? `${etfBaseDate} 기준` : etf.dataNotice}
+              {etfNav && ` · NAV ${etfNav}`}
+            </p>
+          </div>
         </section>
 
         <div className={styles.layout}>
           <div className={styles.mainColumn}>
             <EtfSectionNav />
 
-            {/* ──────────── ① 시세: 가격 + 차트 + 수익률 ──────────── */}
-            <section id="sec-quote" className={styles.priceCard}>
-              <span className={styles.priceLabel}>현재가</span>
-              <div className={styles.priceRow}>
-                <strong className={styles.priceBig}>{etf.price || '—'}</strong>
-                {etf.change && (
-                  <span className={`${styles.priceDelta} ${styles[`delta_${etf.changeTone}`]}`}>
-                    {etf.change}
-                  </span>
-                )}
-              </div>
-              <span className={styles.priceFoot}>
-                {etfBaseDate ? `${etfBaseDate} 기준` : etf.dataNotice}
-                {etfNav && ` · NAV ${etfNav}`}
-              </span>
-            </section>
-
-            {/* ──────────── 2단: 차트 (펀ETF/토스 표준 — 가격 직후) ──────────── */}
-            <EtfChart
-              code={etf.code}
-              price={etf.price}
-              changeTone={etf.changeTone}
-              history={priceHistory}
-              benchmark={benchHistory.length > 0 ? { name: benchName, history: benchHistory } : undefined}
-            />
+            {/* ──────────── ① 시세: 차트 + 수익률 ──────────── */}
+            <div id="sec-quote">
+              <EtfChart
+                code={etf.code}
+                price={etf.price}
+                changeTone={etf.changeTone}
+                history={priceHistory}
+                benchmark={benchHistory.length > 0 ? { name: benchName, history: benchHistory } : undefined}
+              />
+            </div>
 
             {/* ──────────── 3단: 기간별 수익률 + 적립식 계산기 ──────────── */}
             <Suspense fallback={null}>
@@ -325,7 +325,11 @@ export default async function EtfDetailPage({ params }: Props) {
             </Suspense>
 
             {/* ──────────── ② 건전성: 핵심 5 그리드 + 위험 등급 ──────────── */}
-            <section id="sec-health" aria-label="핵심 정보">
+            <section id="sec-health" className={styles.section} aria-label="핵심 정보">
+              <div className={styles.sectionHead}>
+                <h2>핵심 지표</h2>
+                <span>보수·규모·분배</span>
+              </div>
               <DataCell.Grid columns={4}>
                 {(() => {
                   // 라이브 운용보수 (Yahoo) → 시드 fallback
@@ -415,18 +419,21 @@ export default async function EtfDetailPage({ params }: Props) {
                   />
                 </div>
               )}
-            </section>
 
-            {/* ──────────── 5단: 위험 등급 + 한 줄 요약 (합침) ──────────── */}
-            <section aria-label="위험 등급과 한 줄 요약" className={styles.riskWrap}>
-              <p className={styles.riskOneLiner}>{insight.oneLiner}</p>
-              <RiskMeter
-                level={risk.level}
-                label={risk.label}
-                tone={risk.tone}
-                reasons={risk.reasons}
-                points={risk.points}
-              />
+              {/* 구분선 */}
+              <hr style={{ border: 'none', borderTop: '1px solid var(--rw-border)', margin: 'var(--space-4) 0' }} />
+
+              {/* 한 줄 요약 + 위험 등급 */}
+              <div className={styles.riskWrap}>
+                <p className={styles.riskOneLiner}>{insight.oneLiner}</p>
+                <RiskMeter
+                  level={risk.level}
+                  label={risk.label}
+                  tone={risk.tone}
+                  reasons={risk.reasons}
+                  points={risk.points}
+                />
+              </div>
             </section>
 
             {/* ──────────── ③ 속살: 구성종목 + 섹터 + 분배금 ──────────── */}

@@ -63,9 +63,51 @@
 }
 
 .hero {
-  display: block;
-  padding: var(--space-6) var(--space-2);
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: start;
+  gap: var(--space-8);
+  padding: var(--space-6) var(--space-6);
   margin-bottom: var(--space-3);
+}
+
+.heroPrice {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--space-1);
+  padding-top: var(--space-1);
+  min-width: 160px;
+  flex-shrink: 0;
+}
+.heroPriceLabel {
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--rw-text-muted);
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+}
+.heroPriceBig {
+  font-size: 28px;
+  font-weight: 900;
+  letter-spacing: -0.6px;
+  line-height: 1.15;
+  font-feature-settings: 'tnum';
+  color: var(--rw-text-strong);
+}
+.heroPriceDelta {
+  font-size: 14px;
+  font-weight: 800;
+  font-feature-settings: 'tnum';
+}
+.heroPriceFoot {
+  font-size: 11px;
+  color: var(--rw-text-muted);
+  font-weight: 600;
+  margin-top: var(--space-1);
+  text-align: right;
+  line-height: 1.4;
+  margin: 0;
 }
 
 .heroMain {
@@ -157,8 +199,10 @@
 
 /* 모바일: 액션 영역 전체 너비, 가로 분배 */
 @media (max-width: 600px) {
-  /* hero: 항상 block — flex-direction 불필요 */
   .hero {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
     padding: var(--space-4) 0 var(--space-3);
   }
   .hero h1 {
@@ -170,6 +214,13 @@
   }
   .heroMeta {
     line-height: 1.6;
+  }
+  .heroPrice {
+    align-items: flex-start;
+    min-width: 0;
+  }
+  .heroPriceFoot {
+    text-align: left;
   }
   /* 액션: 전체 너비, 한 줄 균등 */
   .actions {
@@ -711,8 +762,17 @@
   }
 
   .hero {
-    display: block;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
     padding: 16px;
+  }
+  .heroPrice {
+    align-items: flex-start;
+    min-width: 0;
+  }
+  .heroPriceFoot {
+    text-align: left;
   }
 
   .hero h1 {
