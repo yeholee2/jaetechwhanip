@@ -34,7 +34,7 @@ const PERIODS: { key: Exclude<PeriodKey, 'custom'>; label: string; days: number 
 ];
 
 const NAV_COLOR = '#F0295A';
-const CLOSE_COLOR = '#00987D';
+const CLOSE_COLOR = '#4593fc'; // 우리 정책: 초록 미사용 → 블루 패밀리
 
 type Benchmark = { key: string; name: string; color: string; history: PricePoint[] };
 

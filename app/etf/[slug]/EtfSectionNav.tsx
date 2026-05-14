@@ -4,9 +4,8 @@
  * ETF 상세 — 섹션 앵커 nav (PC sticky, 토스/펀ETF 톤).
  *
  * - 클릭 시 해당 섹션으로 스무스 스크롤
- * - 스크롤 중인 섹션을 IntersectionObserver 로 추적해 active 표시
- *
- * 모바일에선 가로 스크롤 가능한 횡 nav 로 자동 전환 (CSS).
+ * - 스크롤 위치 기반 active 계산 (mount + IO + scroll listener 3중 보장)
+ * - 모바일에선 가로 스크롤 횡 nav (CSS).
  */
 
 import { useEffect, useState } from 'react';
@@ -24,32 +23,49 @@ export function EtfSectionNav() {
   const [active, setActive] = useState<string>(SECTIONS[0].id);
 
   useEffect(() => {
-    const observers: IntersectionObserver[] = [];
-    const triggered = new Set<string>();
-    // 단일 옵저버, 여러 섹션
+    // 페이지 위치 기반 active 계산 — 상단 200px 안에 가장 가까운 섹션
+    const compute = () => {
+      const probe = 200;
+      let best: { id: string; top: number } | null = null;
+      for (const s of SECTIONS) {
+        const el = document.getElementById(s.id);
+        if (!el) continue;
+        const top = el.getBoundingClientRect().top;
+        if (top <= probe) {
+          if (!best || top > best.top) best = { id: s.id, top };
+        }
+      }
+      setActive(best ? best.id : SECTIONS[0].id);
+    };
+
+    // 1) 마운트 시 1회 계산
+    compute();
+
+    // 2) IntersectionObserver — 섹션이 화면 상단을 가로지를 때마다 갱신
     const io = new IntersectionObserver(
-      entries => {
-        // 화면 상단(0~40%)에 가장 가깝게 들어온 섹션 선택
-        const visible = entries
-          .filter(e => e.isIntersecting)
-          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
-        if (visible[0]) setActive(visible[0].target.id);
-      },
-      {
-        // 상단 80px(헤더) 무시, 하단 50%까지 본격 active
-        rootMargin: '-80px 0px -50% 0px',
-        threshold: [0, 0.1, 0.25, 0.5],
-      },
+      () => compute(),
+      { rootMargin: '-80px 0px -50% 0px', threshold: [0, 0.25, 0.5, 0.75, 1] },
     );
     SECTIONS.forEach(s => {
       const el = document.getElementById(s.id);
-      if (el) {
-        io.observe(el);
-        triggered.add(s.id);
-      }
+      if (el) io.observe(el);
     });
-    observers.push(io);
-    return () => observers.forEach(o => o.disconnect());
+
+    // 3) 스크롤 이벤트 폴백 (rAF 스로틀)
+    let raf = 0;
+    const onScroll = () => {
+      if (raf) return;
+      raf = requestAnimationFrame(() => { raf = 0; compute(); });
+    };
+    window.addEventListener('scroll', onScroll, { passive: true, capture: true });
+    window.addEventListener('resize', onScroll);
+
+    return () => {
+      io.disconnect();
+      window.removeEventListener('scroll', onScroll, true);
+      window.removeEventListener('resize', onScroll);
+      if (raf) cancelAnimationFrame(raf);
+    };
   }, []);
 
   const onClick = (e: React.MouseEvent<HTMLAnchorElement>, id: string) => {

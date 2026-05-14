@@ -306,7 +306,7 @@ export default async function EtfDetailPage({ params }: Props) {
             </strong>
             {etf.change && (
               <span className={`${styles.heroPriceDelta} ${styles[`delta_${etf.changeTone}`]}`}>
-                {etf.change}
+                {etf.changeTone === 'up' ? '▲' : etf.changeTone === 'down' ? '▼' : ''} {etf.change}
               </span>
             )}
             <p className={styles.heroPriceFoot}>
@@ -805,7 +805,7 @@ export default async function EtfDetailPage({ params }: Props) {
                   <strong className={styles.stickyPriceBig}>{etf.price || '—'}</strong>
                   {etf.change && (
                     <span className={`${styles.stickyPriceDelta} ${styles[`delta_${etf.changeTone}`]}`}>
-                      {etf.change}
+                      {etf.changeTone === 'up' ? '▲' : etf.changeTone === 'down' ? '▼' : ''} {etf.change}
                     </span>
                   )}
                 </div>

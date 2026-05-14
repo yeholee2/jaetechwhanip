@@ -173,16 +173,18 @@
 .returnHero {
   display: inline-flex;
   align-items: baseline;
-  gap: 4px;
-  font-size: 28px;
+  gap: 6px;
+  font-size: 26px;
   font-weight: 900;
-  letter-spacing: -0.6px;
+  letter-spacing: -0.5px;
   font-feature-settings: 'tnum';
-  line-height: 1.05;
+  line-height: 1.1;
+  white-space: nowrap;
 }
 .returnArrow {
-  font-size: 18px;
+  font-size: 16px;
   line-height: 1;
+  flex-shrink: 0;
 }
 
 .up { color: var(--rw-red60); }
