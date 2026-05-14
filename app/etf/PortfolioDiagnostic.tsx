@@ -9,7 +9,7 @@ import {
   buildHoldingDisplays,
   summarizePortfolio,
 } from '@/lib/etfPortfolio';
-import { etfs, getEtfByCode, type EtfInfo } from '@/lib/etfs';
+import { etfs, type EtfInfo } from '@/lib/etfs';
 import { Card, Badge, Button, Stat, DataCell } from '@/components/ui';
 import styles from './PortfolioDiagnostic.module.css';
 import { HoldingAddModal } from './HoldingAddModal';
@@ -31,6 +31,7 @@ const formatPct = (n: number) => `${n >= 0 ? '+' : ''}${(n * 100).toFixed(2)}%`;
 
 export function PortfolioDiagnostic({ allEtfs }: { allEtfs?: EtfInfo[] }) {
   const pool = allEtfs ?? etfs;
+  const findByCode = (code: string | null | undefined) => pool.find(e => e.code === code);
   const [authState, setAuthState] = useState<'loading' | 'unauth' | 'auth'>('loading');
   const [holdings, setHoldings] = useState<UserEtfHolding[]>([]);
   const [modal, setModal] = useState<null | 'manual' | 'bulk' | 'screenshot'>(null);
@@ -201,7 +202,7 @@ export function PortfolioDiagnostic({ allEtfs }: { allEtfs?: EtfInfo[] }) {
   // 한입 진단 인사이트 (가중평균 보수/위험/환노출, 섹터 중복도, 한줄평)
   const weightedHoldings: WeightedHolding[] = weighed
     .map(({ d, weight }) => {
-      const etf = getEtfByCode(d.etf_code);
+      const etf = findByCode(d.etf_code);
       return etf ? { etf, weight } : null;
     })
     .filter((x): x is WeightedHolding => !!x);
@@ -210,7 +211,7 @@ export function PortfolioDiagnostic({ allEtfs }: { allEtfs?: EtfInfo[] }) {
   // 운용사 비중 합산
   const issuerMap = new Map<string, number>();
   weighed.forEach(({ d, basis }) => {
-    const etf = getEtfByCode(d.etf_code);
+    const etf = findByCode(d.etf_code);
     const issuer = etf?.issuer || '기타';
     issuerMap.set(issuer, (issuerMap.get(issuer) || 0) + basis);
   });
@@ -353,7 +354,7 @@ export function PortfolioDiagnostic({ allEtfs }: { allEtfs?: EtfInfo[] }) {
           </div>
           <ul className={styles.weightList}>
             {weighed.map(({ d, weight }) => {
-              const etf = getEtfByCode(d.etf_code);
+              const etf = findByCode(d.etf_code);
               return (
                 <li key={d.id || d.etf_code} className={styles.weightItem}>
                   <div className={styles.weightLabel}>
