@@ -238,27 +238,34 @@ export default async function EtfDetailPage({ params }: Props) {
 
         <section className={styles.hero}>
           <div className={styles.heroMain}>
+            {/* 상장지/국가 chips — 종목코드는 별도 줄로 */}
             <div className={styles.heroBadges}>
-              <Badge tone="neutral">{etf.code}</Badge>
               {etf.country === 'US' ? (
-                <Badge tone="fresh">🇺🇸 미국상장</Badge>
+                <Badge tone="fresh">미국상장</Badge>
               ) : (
-                <Badge tone="success">🇰🇷 국내상장</Badge>
+                <Badge tone="success">국내상장</Badge>
               )}
               {etf.underlyingCountry && countryInfo(etf.underlyingCountry).isOverseas && (
                 <Badge tone="neutral">
-                  추종 {countryInfo(etf.underlyingCountry).flag} {countryInfo(etf.underlyingCountry).label}
+                  추종 {countryInfo(etf.underlyingCountry).label}
                 </Badge>
               )}
+              <span className={styles.heroCode}>{etf.code}</span>
             </div>
+            {/* 종목명 — 토스 톤 큰 글씨 */}
             <h1>{etf.name}</h1>
+            {/* 운용사 (강조) + 카테고리 — 한 줄 */}
             <p className={styles.heroMeta}>
               <strong>{etf.issuer}</strong>
               <span> · {etf.category}</span>
-              {etf.trackingIndex && (
-                <span className={styles.heroIndex}> · 추종: {etf.trackingIndex}</span>
-              )}
             </p>
+            {/* 추종지수 — 별도 줄 (덜 중요한 메타) */}
+            {etf.trackingIndex && (
+              <p className={styles.heroIndex}>
+                <span className={styles.heroIndexLabel}>추종</span>
+                {etf.trackingIndex}
+              </p>
+            )}
             {(() => {
               // 기계적 DB 생성 패턴 감지 — "ETF명 (코드) — 운용사 운용 카테고리."
               const isGeneric = !etf.summary

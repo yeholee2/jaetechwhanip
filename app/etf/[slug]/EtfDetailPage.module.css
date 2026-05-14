@@ -18,7 +18,7 @@
   height: 30px;
   color: var(--t3);
   font-size: 13px;
-  font-weight: 750;
+  font-weight: 700;
 }
 
 .backLink:hover {
@@ -155,19 +155,47 @@
   font-weight: var(--weight-bold);
 }
 
-.heroIndex {
-  display: inline-block;
-  margin-top: 2px;
+/* 종목코드 — Badge 대신 옅은 회색 작은 텍스트 */
+.heroCode {
+  font-size: 11px;
+  font-weight: 800;
   color: var(--rw-text-muted);
+  letter-spacing: 0.4px;
+  font-feature-settings: 'tnum';
+  margin-left: 4px;
 }
 
+/* 추종지수 — 별도 줄, 라벨 + 값 */
+.heroIndex {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin: 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--rw-text-body);
+  line-height: 1.4;
+}
+.heroIndexLabel {
+  font-size: 10px;
+  font-weight: 800;
+  color: var(--rw-text-muted);
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  padding: 2px 6px;
+  background: var(--rw-card-muted);
+  border-radius: 4px;
+}
+
+/* 상품 1줄 설명 — Toss 톤: 본문 weight medium, 길이 제한 */
 .heroSummary {
   max-width: 620px;
   color: var(--rw-text-body);
-  font-size: var(--type-body);
-  line-height: 1.55;
-  font-weight: var(--weight-semibold);
+  font-size: 14px;
+  line-height: 1.6;
+  font-weight: 550;
   margin: 0;
+  letter-spacing: -0.1px;
 }
 
 /* legacy fallback */
@@ -193,8 +221,8 @@
 .tags {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--space-2);
-  margin-top: var(--space-4);
+  gap: 6px;
+  margin-top: var(--space-2);
 }
 
 .actions {
@@ -304,7 +332,7 @@
 .sectionHead span {
   color: var(--t3);
   font-size: 12px;
-  font-weight: 750;
+  font-weight: 700;
 }
 
 .priceHead strong {
@@ -327,7 +355,7 @@
   color: var(--t3);
   font-size: 12px;
   line-height: 1.5;
-  font-weight: 650;
+  font-weight: 600;
   text-align: right;
 }
 
@@ -408,7 +436,7 @@
   color: var(--t1);
   font-size: 15px;
   line-height: 1.65;
-  font-weight: 750;
+  font-weight: 700;
 }
 
 /* (이전에 padding 16px 로 덮어쓰던 룰 제거 — 위 .section 24px 사용) */
@@ -733,7 +761,7 @@
   color: var(--t3);
   font-size: 12px;
   line-height: 1.5;
-  font-weight: 650;
+  font-weight: 600;
 }
 
 .holdingList b,
