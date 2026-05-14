@@ -41,7 +41,7 @@ export default async function EtfThemesPage() {
 
           <StrategyToggle allEtfs={allEtfs} />
           <ThemeToggle allEtfs={allEtfs} />
-          <InsightCarousel />
+          <InsightCarousel allEtfs={allEtfs} />
           <CtaCards />
           <FeaturePromo />
         </div>

@@ -1,45 +1,45 @@
 /**
- * RiskWeather 인사이트 가로 카드 스크롤 — 큐레이션 묶음.
- * 카드 안: 큰 제목 + 종목 3개 + "더 보기".
+ * ETF 큐레이션 가로 카드 스크롤.
+ * allEtfs prop을 받아 실제 DB 기반으로 ETF를 찾아 표시.
  */
 import Link from 'next/link';
-import { etfPath, etfs } from '@/lib/etfs';
-import { Badge } from '@/components/ui';
+import { etfPath, type EtfInfo } from '@/lib/etfs';
 import sec from './sectionStyles.module.css';
 import styles from './InsightCarousel.module.css';
 
 type Insight = {
   title: string;
+  /** ETF name/shortName 일부 문자열로 매칭 */
   picks: string[];
   href: string;
 };
 
 const INSIGHTS: Insight[] = [
   {
-    title: '월급 모이는 월배당 ETF',
-    picks: ['ACE 미국배당다우존스'],
+    title: '월급 모이는 배당 ETF',
+    picks: ['배당', '월배당', '다우존스배당'],
     href: '/etf?theme=월배당',
   },
   {
     title: 'S&P500 첫 ETF 고르기',
-    picks: ['TIGER 미국S&P500', 'KODEX 미국S&P500TR'],
+    picks: ['S&P500', 'SP500'],
     href: '/etf?theme=S%26P500',
   },
   {
     title: '나스닥 100 노리는 사람들',
-    picks: ['KODEX 미국나스닥100TR'],
+    picks: ['나스닥100', '나스닥 100', 'NASDAQ100'],
     href: '/etf?theme=나스닥100',
   },
   {
     title: 'ISA 계좌에 담기 좋은 ETF',
-    picks: ['TIGER 미국S&P500', 'ACE 미국배당다우존스'],
-    href: '/etf?theme=ISA',
+    picks: ['S&P500', '나스닥100', '배당'],
+    href: '/etf/all',
   },
 ];
 
-function InsightCard({ insight }: { insight: Insight }) {
-  const items = etfs
-    .filter(e => insight.picks.some(p => e.shortName.includes(p) || e.name.includes(p)))
+function InsightCard({ insight, allEtfs }: { insight: Insight; allEtfs: EtfInfo[] }) {
+  const items = allEtfs
+    .filter(e => insight.picks.some(p => e.shortName.includes(p) || e.name.includes(p) || e.theme.includes(p)))
     .slice(0, 3);
 
   return (
@@ -59,16 +59,15 @@ function InsightCard({ insight }: { insight: Insight }) {
   );
 }
 
-export function InsightCarousel() {
+export function InsightCarousel({ allEtfs = [] }: { allEtfs?: EtfInfo[] }) {
   return (
     <section className={sec.card} aria-label="ETF 큐레이션">
       <div className={sec.head}>
-        <h3 className={sec.title}>이번 주 ETF 큐레이션</h3>
-        <Badge tone="neutral">샘플</Badge>
+        <h3 className={sec.title}>목적별 ETF 큐레이션</h3>
       </div>
       <div className={`${sec.bleedScroller} ${styles.scroller}`}>
         {INSIGHTS.map(i => (
-          <InsightCard key={i.title} insight={i} />
+          <InsightCard key={i.title} insight={i} allEtfs={allEtfs} />
         ))}
       </div>
     </section>
