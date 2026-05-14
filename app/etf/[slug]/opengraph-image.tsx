@@ -4,7 +4,7 @@ import { getEtfBySlug } from '@/lib/etfs';
 export const runtime = 'edge';
 export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
-export const alt = 'ETF한입 — ETF 정보';
+export const alt = '재테크한입 — ETF 정보';
 
 export default async function Image({ params }: { params: { slug: string } }) {
   const etf = getEtfBySlug(params.slug);
@@ -25,7 +25,7 @@ export default async function Image({ params }: { params: { slug: string } }) {
             fontFamily: 'sans-serif',
           }}
         >
-          ETF한입
+          재테크한입
         </div>
       ),
       { ...size },
@@ -59,7 +59,7 @@ export default async function Image({ params }: { params: { slug: string } }) {
             marginBottom: 40,
           }}
         >
-          <span style={{ display: 'flex' }}>ETF</span>
+          <span style={{ display: 'flex' }}>재테크</span>
           <span style={{ color: '#191f28' }}>한입</span>
         </div>
 

@@ -47,8 +47,8 @@ export function BottomPromoBar() {
     <div className={styles.bar} role="complementary" aria-label="가입 안내">
       <div className={styles.inner}>
         <p className={styles.copy}>
-          <strong>주식 시작이 겁난다면,</strong>
-          <span>ETF로 한입씩 건강하게 시작해보세요.</span>
+          <strong>재테크 고민이 있다면,</strong>
+          <span>질문하고, ETF 찾고, 포트폴리오까지 한 곳에서.</span>
         </p>
         <Link href="/auth" className={styles.cta}>
           재테크한입 무료 시작 →

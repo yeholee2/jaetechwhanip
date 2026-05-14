@@ -30,12 +30,17 @@ export function PageSidebar({
 }) {
   return (
     <aside className="pc-layout-side">
-      {widgets.includes('sparring') && featuredSparring !== undefined && (
-        <SparringMiniCard sparring={featuredSparring} />
-      )}
-      {widgets.includes('watch') && <HomeWatchWidget />}
-      {widgets.includes('etf-nav') && <EtfNavWidget />}
-      {widgets.includes('help') && <HelpWidget />}
+      {widgets.map(w => {
+        if (w === 'sparring') {
+          return featuredSparring !== undefined
+            ? <SparringMiniCard key="sparring" sparring={featuredSparring} />
+            : null;
+        }
+        if (w === 'watch') return <HomeWatchWidget key="watch" />;
+        if (w === 'etf-nav') return <EtfNavWidget key="etf-nav" />;
+        if (w === 'help') return <HelpWidget key="help" />;
+        return null;
+      })}
     </aside>
   );
 }

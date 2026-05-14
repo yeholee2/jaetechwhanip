@@ -186,7 +186,7 @@ export default async function EtfDetailPage({ params }: Props) {
       ],
       isPartOf: {
         '@type': 'CollectionPage',
-        name: 'ETF한입 ETF 목록',
+        name: '재테크한입 ETF 목록',
         url: `${etfUrl(etf.slug).replace(`/${encodeURIComponent(etf.slug)}`, '')}`,
       },
     },
@@ -194,7 +194,7 @@ export default async function EtfDetailPage({ params }: Props) {
       '@context': 'https://schema.org',
       '@type': 'BreadcrumbList',
       itemListElement: [
-        { '@type': 'ListItem', position: 1, name: 'ETF한입', item: etfUrl(etf.slug).replace(`/etf/${encodeURIComponent(etf.slug)}`, '') },
+        { '@type': 'ListItem', position: 1, name: '재테크한입', item: etfUrl(etf.slug).replace(`/etf/${encodeURIComponent(etf.slug)}`, '') },
         { '@type': 'ListItem', position: 2, name: 'ETF', item: `${etfUrl(etf.slug).replace(`/${encodeURIComponent(etf.slug)}`, '')}` },
         { '@type': 'ListItem', position: 3, name: etf.name, item: etfUrl(etf.slug) },
       ],

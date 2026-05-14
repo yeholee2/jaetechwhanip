@@ -6,8 +6,8 @@ export function Footer() {
     <footer className={styles.footer} role="contentinfo">
       <div className={styles.inner}>
         <div className={styles.brand}>
-          <span className="logo-font">ETF<em>한입</em></span>
-          <p>ETF 자산을 한입에. 시장 흐름·내 포트폴리오·토론까지 한 곳에서.</p>
+          <span className="logo-font">재테크<em>한입</em></span>
+          <p>재테크 고민을 한 곳에서. 시장 흐름·ETF·포트폴리오·Q&A까지.</p>
         </div>
 
         <nav className={styles.nav} aria-label="사이트 맵">
@@ -36,7 +36,7 @@ export function Footer() {
       </div>
 
       <div className={styles.legal}>
-        <p>© 2026 ETF한입. 본 서비스의 정보는 투자 권유가 아니며 참고 목적입니다.</p>
+        <p>© 2026 재테크한입. 본 서비스의 정보는 투자 권유가 아니며 참고 목적입니다.</p>
       </div>
     </footer>
   );
