@@ -141,6 +141,10 @@ export default async function EtfDetailPage({ params }: Props) {
     ? liveSectors.map(s => ({ label: s.sector, value: s.weight * 100 })).sort((a, b) => b.value - a.value)
     : buildSectorBreakdown(etf.holdings);
   const topSector = sectorBreakdown[0];
+  // "기타 (10위 외)"가 최상위면 실질 1위 섹터를 대신 표시
+  const displayTopSector = topSector?.label.startsWith('기타')
+    ? (sectorBreakdown.find(s => !s.label.startsWith('기타')) ?? topSector)
+    : topSector;
 
   // 동종 카테고리 보수 비교
   const feeStats = computeFeeStats(etf as any, etfs);
@@ -450,7 +454,7 @@ export default async function EtfDetailPage({ params }: Props) {
                   {liveHoldings?.holdings?.length
                     ? 'Yahoo Finance · 실데이터'
                     : etf.holdings?.length
-                      ? '예시 비중'
+                      ? '참고용 비중'
                       : '운용사 공시'}
                 </span>
               </div>
@@ -528,12 +532,12 @@ export default async function EtfDetailPage({ params }: Props) {
               <section className={styles.section}>
                 <div className={styles.sectionHead}>
                   <h2>섹터 비중</h2>
-                  <span>{topSector ? `${topSector.label} ${topSector.value.toFixed(1)}%` : ''}</span>
+                  <span>{displayTopSector ? `${displayTopSector.label} ${displayTopSector.value.toFixed(1)}%` : ''}</span>
                 </div>
                 <DonutChart
                   segments={sectorBreakdown}
-                  centerLabel="가장 큰 섹터"
-                  centerValue={topSector ? topSector.label : ''}
+                  centerLabel="주요 섹터"
+                  centerValue={displayTopSector ? displayTopSector.label : ''}
                 />
               </section>
             )}
@@ -544,10 +548,10 @@ export default async function EtfDetailPage({ params }: Props) {
                 <div className={styles.mockOverlay}>
                   <span className={styles.mockBadge}>
                     <FaIcon name="flask" size={10} />
-                    예시 데이터
+                    참고용
                   </span>
                   <span className={styles.mockBody}>
-                    KRX 분배금 API 연동 전이라 운용사 평균값으로 표시했어요.
+                    운용사 평균 기준 추정치예요. 실제 분배금은 운용사 공시를 확인하세요.
                   </span>
                 </div>
                 <div className={styles.sectionHead}>
@@ -561,7 +565,7 @@ export default async function EtfDetailPage({ params }: Props) {
                 </div>
                 <MiniBarChart
                   label="1주당 분배금"
-                  caption="예시 데이터 (KRX API 연동 후 실제 값)"
+                  caption="운용사 평균 기준 추정치"
                   data={distHistory.points.map(p => ({
                     label: p.label,
                     value: p.value,
@@ -623,7 +627,7 @@ export default async function EtfDetailPage({ params }: Props) {
             {similarResults.length > 0 && (
               <section id="sec-social" className={styles.section}>
                 <div className={styles.sectionHead}>
-                  <h2>이거 보는 사람들이 본 ETF</h2>
+                  <h2>비슷한 ETF</h2>
                   <span>{similarResults.length}개</span>
                 </div>
                 <div className={styles.relatedList}>

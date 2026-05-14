@@ -43,9 +43,14 @@ export function findSimilarEtfs(target: EtfInfo, pool: EtfInfo[], limit = 6): Si
   const tIssuer = target.issuer || '';
   const tIndex = (target.trackingIndex || '').trim();
 
+  // 레버리지/인버스 ETF는 유사 추천에서 제외 (단, target 자체가 레버리지면 포함)
+  const targetIsLeverage = /레버리지|인버스|곱버스/i.test(target.name);
+  const isLeverage = (e: EtfInfo) => /레버리지|인버스|곱버스/i.test(e.name);
+
   const results: SimilarResult[] = [];
   for (const e of pool) {
     if (e.code === target.code) continue;
+    if (!targetIsLeverage && isLeverage(e)) continue;
     let score = 0;
     const reasons: string[] = [];
 
