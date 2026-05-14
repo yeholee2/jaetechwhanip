@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { AppShell } from '@/components/AppShell';
-import { etfs, getEtfByCode, ETF_HOME_URL } from '@/lib/etfs';
+import { ETF_HOME_URL } from '@/lib/etfs';
+import { fetchEtfs, fetchEtfByCode } from '@/lib/etfsDb';
 import { SITE_NAME } from '@/lib/seo';
 import { PageHero } from '@/components/ui';
 import { PageSidebar } from '@/components/PageSidebar';
@@ -26,8 +27,11 @@ export default async function EtfComparePage({
 }: {
   searchParams?: { a?: string; b?: string };
 }) {
-  const a = searchParams?.a ? getEtfByCode(searchParams.a) : undefined;
-  const b = searchParams?.b ? getEtfByCode(searchParams.b) : undefined;
+  const [allEtfs, a, b] = await Promise.all([
+    fetchEtfs(2000),
+    searchParams?.a ? fetchEtfByCode(searchParams.a) : Promise.resolve(undefined),
+    searchParams?.b ? fetchEtfByCode(searchParams.b) : Promise.resolve(undefined),
+  ]);
 
   return (
     <AppShell active="etf" wide hideSlogan>
@@ -38,7 +42,7 @@ export default async function EtfComparePage({
             title="두 ETF를 한눈에 비교해요"
             lead="현재가·순자산·총보수·분배금·환헤지를 나란히 놓고 보세요."
           />
-          <EtfCompareClient initialA={a} initialB={b} candidates={etfs} />
+          <EtfCompareClient initialA={a} initialB={b} candidates={allEtfs} />
         </div>
         <PageSidebar widgets={['watch', 'etf-nav', 'help']} />
       </main>
