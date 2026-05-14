@@ -155,13 +155,30 @@ export function PriceChart({
           </linearGradient>
         </defs>
 
-        {/* y축 그리드 + 라벨 */}
+        {/* y축 그리드 + 라벨 (0 기준선은 강조) */}
         {ticks.map(t => {
           const y = yAt(t);
+          const isZero = Math.abs(t) < 0.001;
           return (
             <g key={t}>
-              <line x1={padL} x2={W - padR} y1={y} y2={y} stroke="var(--rw-hairline)" strokeDasharray="3 3" />
-              <text x={padL - 8} y={y} textAnchor="end" dominantBaseline="middle" className={styles.yLabel}>
+              <line
+                x1={padL}
+                x2={W - padR}
+                y1={y}
+                y2={y}
+                stroke={isZero ? 'var(--rw-text-muted)' : 'var(--rw-hairline)'}
+                strokeWidth={isZero ? 1 : 1}
+                strokeDasharray={isZero ? '0' : '3 3'}
+                opacity={isZero ? 0.45 : 1}
+              />
+              <text
+                x={padL - 8}
+                y={y}
+                textAnchor="end"
+                dominantBaseline="middle"
+                className={styles.yLabel}
+                fontWeight={isZero ? 800 : undefined}
+              >
                 {valueFormat(t)}
               </text>
             </g>

@@ -162,14 +162,13 @@
   gap: 2px;
 }
 
-.returnLabel {
-  font-size: 11px;
-  font-weight: 800;
-  color: var(--rw-text-muted);
-  letter-spacing: 0.2px;
+/* 누적 수익률 — 타이틀 아래 블록 (사이드 카드 가격과 시각 분리) */
+.returnBlock {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin-top: 8px;
 }
-
-/* 누적 수익률 hero — FunETF 톤 큰 숫자 + 화살표 */
 .returnHero {
   display: inline-flex;
   align-items: baseline;
@@ -185,6 +184,12 @@
   font-size: 16px;
   line-height: 1;
   flex-shrink: 0;
+}
+.returnLabel {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--rw-text-muted);
+  letter-spacing: -0.1px;
 }
 
 .up { color: var(--rw-red60); }

@@ -81,10 +81,10 @@ export function EtfChart({ code, history = [], benchmarks = [], changeTone = 'fl
   const [pendingEnd, setPendingEnd] = useState<string>('');
   const [customRange, setCustomRange] = useState<{ start: string; end: string } | null>(null);
 
-  // 시리즈 표시 상태 — 기본: NAV + 종가 (FunETF 스크린샷 톤)
+  // 시리즈 표시 상태 — 기본: NAV 만 (종가는 NAV와 동일 데이터라 OFF)
   const [active, setActive] = useState<Record<SeriesKey, boolean>>({
     nav: true,
-    close: true,
+    close: false,
     aum: false, // 데이터 없음 — 비활성
     ...Object.fromEntries(benchmarks.map(b => [b.key, false])),
   });
@@ -168,17 +168,16 @@ export function EtfChart({ code, history = [], benchmarks = [], changeTone = 'fl
           {history.length > 1 && (
             <span className={styles.headSub}>{history[history.length - 1].date} 기준</span>
           )}
-        </div>
-        <div className={styles.headRight}>
-          <span className={styles.returnLabel}>{periodLabel} 누적</span>
-          <span className={`${styles.returnHero} ${styles[tone]}`}>
-            {navPoints.length > 1 ? (
-              <>
+          {/* 누적 수익률 hero — 타이틀 아래 (사이드 카드 가격과 시각 분리) */}
+          {navPoints.length > 1 && (
+            <div className={styles.returnBlock}>
+              <span className={`${styles.returnHero} ${styles[tone]}`}>
                 <span className={styles.returnArrow}>{arrow}</span>
                 {fmtPct(Math.abs(returnPct))}
-              </>
-            ) : '—'}
-          </span>
+              </span>
+              <span className={styles.returnLabel}>{periodLabel}간 누적 수익률</span>
+            </div>
+          )}
         </div>
       </div>
 
