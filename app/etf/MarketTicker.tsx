@@ -9,7 +9,8 @@
  */
 import Link from 'next/link';
 import styles from './MarketTicker.module.css';
-import { getNextMajorEvent } from '@/lib/marketCalendar';
+import { getNextMajorEvent, type CalendarEvent } from '@/lib/marketCalendar';
+import { fetchLiveCalendar } from '@/lib/marketCalendarLive';
 
 type IndexDef = {
   symbol: string;
@@ -125,9 +126,16 @@ function Sparkline({ series, up }: { series: number[]; up: boolean }) {
 export type TickerQuote = Quote;
 
 /** 순수 렌더링 컴포넌트 (server/client 어디든) — 데이터 prop 주입 */
-export function MarketTickerView({ quotes }: { quotes: (TickerQuote | null)[] }) {
+export function MarketTickerView({
+  quotes,
+  nextEvent: nextEventProp,
+}: {
+  quotes: (TickerQuote | null)[];
+  /** 외부 주입 (live data). 없으면 seed 사용 */
+  nextEvent?: { event: CalendarEvent; dDay: number } | null;
+}) {
   const status = getMarketStatus();
-  const nextEvent = getNextMajorEvent();
+  const nextEvent = nextEventProp !== undefined ? nextEventProp : getNextMajorEvent();
   return (
     <section className={styles.ticker} aria-label="실시간 시장 시세">
       <div className={styles.statusBar}>
@@ -189,13 +197,23 @@ export function MarketTickerView({ quotes }: { quotes: (TickerQuote | null)[] })
   );
 }
 
-/** 서버 사이드 fetch + 렌더 (기존 호환) */
+/** 서버 사이드 fetch + 렌더 (기존 호환) — Finnhub 키 있으면 live calendar 자동 */
 export async function MarketTicker() {
-  const quotes = await Promise.all(TICKER_INDICES.map(idx => fetchQuote(idx.symbol)));
-  return <MarketTickerView quotes={quotes} />;
+  const [quotes, calendarEvents] = await Promise.all([
+    Promise.all(TICKER_INDICES.map(idx => fetchQuote(idx.symbol))),
+    fetchLiveCalendar({ weeksAhead: 2 }),
+  ]);
+  const nextEvent = getNextMajorEvent(new Date(), calendarEvents);
+  return <MarketTickerView quotes={quotes} nextEvent={nextEvent} />;
 }
 
 /** 서버에서 ticker 데이터만 fetch (다른 페이지가 prop 으로 주입할 때 사용) */
 export async function fetchTickerQuotes(): Promise<(TickerQuote | null)[]> {
   return Promise.all(TICKER_INDICES.map(idx => fetchQuote(idx.symbol)));
+}
+
+/** 서버에서 nextEvent 만 fetch (라이브 캘린더, prop 주입용) */
+export async function fetchNextMajorEvent() {
+  const events = await fetchLiveCalendar({ weeksAhead: 2 });
+  return getNextMajorEvent(new Date(), events);
 }

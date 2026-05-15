@@ -19,6 +19,7 @@ import { FaIcon } from './FaIcon';
 import { AppShell } from './AppShell';
 import { Chip, Badge, Tooltip } from '@/components/ui';
 import { MarketTickerView, type TickerQuote } from '@/app/etf/MarketTicker';
+import type { CalendarEvent } from '@/lib/marketCalendar';
 import { lookupGlossary } from '@/lib/etfGlossary';
 import SparringMiniCard from './sparring/SparringMiniCard';
 import { HomeWatchWidget } from './HomeWatchWidget';
@@ -57,6 +58,7 @@ export default function HomeClient({
   siteBanner,
   siteKeywords,
   tickerQuotes,
+  nextEvent,
 }: {
   initialQuestions: Question[];
   featuredSparring?: Sparring | null;
@@ -64,6 +66,7 @@ export default function HomeClient({
   siteBanner?: { enabled: boolean; message: string; link: string };
   siteKeywords?: string[];
   tickerQuotes?: (TickerQuote | null)[];
+  nextEvent?: { event: CalendarEvent; dDay: number } | null;
 }) {
   const router = useRouter();
   const [user, setUser] = useState<any>(null);
@@ -311,7 +314,7 @@ export default function HomeClient({
       {/* 시장 시세 ticker — 페이지 최상단, 전체 폭 */}
       {tickerQuotes && tickerQuotes.length > 0 && (
         <div className={styles.tickerWrap}>
-          <MarketTickerView quotes={tickerQuotes} />
+          <MarketTickerView quotes={tickerQuotes} nextEvent={nextEvent} />
         </div>
       )}
 

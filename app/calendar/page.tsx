@@ -2,9 +2,10 @@ import type { Metadata } from 'next';
 import { AppShell } from '@/components/AppShell';
 import { SITE_NAME, SITE_URL } from '@/lib/seo';
 import { CalendarClient } from './CalendarClient';
-import { CALENDAR_EVENTS, getWeeklyEvents, getWeeklyAiSummary } from '@/lib/marketCalendar';
+import { getWeeklyEvents, getWeeklyAiSummary } from '@/lib/marketCalendar';
+import { fetchLiveCalendar } from '@/lib/marketCalendarLive';
 
-export const revalidate = 600;
+export const revalidate = 3600; // 1시간 (Finnhub 부하 ↓)
 
 export const metadata: Metadata = {
   title: '증시 캘린더',
@@ -19,16 +20,17 @@ export const metadata: Metadata = {
   },
 };
 
-export default function CalendarPage() {
+export default async function CalendarPage() {
   const today = new Date();
-  const weeks = getWeeklyEvents(today);
+  const events = await fetchLiveCalendar({ weeksAhead: 4 });
+  const weeks = getWeeklyEvents(today, events);
   const aiSummary = getWeeklyAiSummary();
 
   return (
     <AppShell active="etf" wide hideSlogan>
       <main className="pc-layout-stack">
         <CalendarClient
-          events={CALENDAR_EVENTS}
+          events={events}
           weeks={weeks}
           aiSummary={aiSummary}
           todayIso={today.toISOString().slice(0, 10)}

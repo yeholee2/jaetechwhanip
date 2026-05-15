@@ -170,13 +170,13 @@ export const CALENDAR_EVENTS: CalendarEvent[] = [
   },
 ];
 
-/** 오늘 이후 가장 가까운 major 이벤트 */
-export function getNextMajorEvent(today: Date = new Date()): {
-  event: CalendarEvent;
-  dDay: number;
-} | null {
+/** 오늘 이후 가장 가까운 major 이벤트 — 데이터 주입 가능 */
+export function getNextMajorEvent(
+  today: Date = new Date(),
+  events: CalendarEvent[] = CALENDAR_EVENTS,
+): { event: CalendarEvent; dDay: number } | null {
   const todayStr = isoDate(today);
-  const upcoming = CALENDAR_EVENTS
+  const upcoming = events
     .filter(e => e.importance === 'major' && e.date >= todayStr)
     .sort((a, b) => a.date.localeCompare(b.date));
   if (upcoming.length === 0) return null;
@@ -185,8 +185,11 @@ export function getNextMajorEvent(today: Date = new Date()): {
   return { event, dDay };
 }
 
-/** 이번 주차 + 다음 주차 이벤트 (월요일 기준) */
-export function getWeeklyEvents(today: Date = new Date()): {
+/** 이번 주차 + 다음 주차 이벤트 (월요일 기준) — 데이터 주입 가능 */
+export function getWeeklyEvents(
+  today: Date = new Date(),
+  events: CalendarEvent[] = CALENDAR_EVENTS,
+): {
   week: string;
   startDate: string;
   events: CalendarEvent[];
@@ -205,7 +208,7 @@ export function getWeeklyEvents(today: Date = new Date()): {
     weekEnd.setDate(weekEnd.getDate() + 6);
     const startISO = isoDate(weekStart);
     const endISO = isoDate(weekEnd);
-    const inWeek = CALENDAR_EVENTS.filter(e => e.date >= startISO && e.date <= endISO);
+    const inWeek = events.filter(e => e.date >= startISO && e.date <= endISO);
     const monthNum = weekStart.getMonth() + 1;
     const weekNumInMonth = Math.ceil(weekStart.getDate() / 7);
     weeks.push({
