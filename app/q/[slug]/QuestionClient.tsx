@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import {
   ArrowDownUp, Bookmark, CheckCircle2, ChevronLeft,
   Heart, MessageCircle, Share2,
-  Swords, ThumbsUp, X, Zap,
+  Sparkles, Swords, ThumbsDown, ThumbsUp, X, Zap,
 } from 'lucide-react';
 import { createClient, hasSupabase } from '@/lib/supabase/client';
 import { CATEGORY_DEFINITIONS, getCategoryLabel } from '@/lib/categories';
@@ -653,7 +653,7 @@ export default function QuestionClient({
                 className={`${styles.qActionBtn} ${dislikedQuestion ? styles.activeDanger : ''}`}
                 onClick={dislikeQuestion}
               >
-                <Heart size={15} style={{ transform: 'rotate(180deg)' }} />
+                <ThumbsDown size={15} />
                 별로예요 {q.dislike_count > 0 ? q.dislike_count : ''}
               </button>
               <button

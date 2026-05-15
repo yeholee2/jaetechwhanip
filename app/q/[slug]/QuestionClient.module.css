@@ -258,15 +258,41 @@
 
 /* ── 답변 카드 ── */
 .answerCard {
-  background: var(--white); border-radius: 12px;
-  border: 1px solid var(--line); padding: 18px;
-  margin-bottom: 8px;
+  background: var(--white);
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  padding: 18px;
+  margin-bottom: 10px;
+  transition: border-color .15s, box-shadow .15s;
 }
-.adoptedCard { border-color: var(--blue); }
+.answerCard:hover {
+  border-color: rgba(49, 130, 246, .35);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, .04);
+}
+
+/* 채택된 답변 — 강한 시각 위계 */
+.adoptedCard {
+  border-color: var(--blue);
+  border-width: 2px;
+  background: linear-gradient(180deg, rgba(49,130,246,.04) 0%, var(--white) 80px);
+  box-shadow: 0 2px 10px rgba(49, 130, 246, .08);
+}
+.adoptedCard:hover {
+  box-shadow: 0 4px 14px rgba(49, 130, 246, .14);
+}
 .adoptedBadge {
-  display: inline-flex; align-items: center; gap: 5px;
-  font-size: 12px; font-weight: 700; color: var(--blue);
-  margin-bottom: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 11px;
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--white);
+  background: var(--blue);
+  border-radius: 999px;
+  margin-bottom: 14px;
+  letter-spacing: -0.2px;
+  box-shadow: 0 2px 6px rgba(49, 130, 246, .25);
 }
 .answerProfile {
   display: flex; align-items: center; gap: 10px; margin-bottom: 12px;
@@ -301,16 +327,26 @@
 .answerBtn:hover { border-color: var(--blue); color: var(--blue); }
 .answerBtnActive { border-color: var(--blue); color: var(--blue); background: var(--blue-bg); font-weight: 700; }
 
-/* 응원하기 버튼 */
+/* 응원하기 — 가벼운 액션이라 톤다운 (추천보다 시각적 위계 낮춤) */
 .cheerBtn {
   display: flex; align-items: center; gap: 4px;
   height: 30px; padding: 0 10px; border-radius: 20px;
-  border: 1.5px solid #FF6B35; background: #FFF5F0;
-  font-size: 12px; font-weight: 700; color: #FF6B35;
+  border: 1.5px solid transparent;
+  background: transparent;
+  font-size: 12px; font-weight: 500; color: var(--t3);
   transition: all .12s;
 }
-.cheerBtn:hover { background: #FF6B35; color: white; }
-.cheerBtnActive { background: #FF6B35; color: white; }
+.cheerBtn:hover {
+  border-color: #FFD9C2;
+  background: #FFF5F0;
+  color: #FF6B35;
+}
+.cheerBtnActive {
+  border-color: #FF6B35;
+  background: #FFF5F0;
+  color: #FF6B35;
+  font-weight: 700;
+}
 
 /* 답변 정렬 탭 */
 .sortTabs { display: flex; gap: 4px; }
