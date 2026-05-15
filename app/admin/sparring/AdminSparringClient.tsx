@@ -288,10 +288,18 @@ export default function AdminSparringClient({ initialSparrings }: { initialSparr
       setForm(prev => ({ ...prev, id: savedId, thumbnailUrl: thumbnailUrl || '' }));
       setFile(null);
       await refresh();
-    } catch (error) {
-      const errMsg = error instanceof Error ? error.message : '저장 중 문제가 생겼어요.';
-      setMessage(errMsg);
-      setToast({ type: 'error', text: errMsg });
+    } catch (error: any) {
+      // Supabase PostgrestError 는 Error instance 가 아니라서 message 가 누락되는 경우가 있음
+      const errMsg =
+        (error && typeof error === 'object' && (error.message || error.error_description || error.hint || error.details))
+        || (error instanceof Error ? error.message : '')
+        || (typeof error === 'string' ? error : '')
+        || '저장 중 문제가 생겼어요.';
+      const codeStr = error?.code ? ` [${error.code}]` : '';
+      const full = `${errMsg}${codeStr}`;
+      console.error('[sparring submit]', error);
+      setMessage(full);
+      setToast({ type: 'error', text: full });
     } finally {
       setPending(false);
     }
