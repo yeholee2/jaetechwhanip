@@ -31,6 +31,12 @@ export default function Countdown({ deadlineAt, compact = false, expiredLabel = 
   }, []);
 
   if (parts.diff <= 0) return <>{expiredLabel}</>;
-  if (compact) return <>{parts.days > 0 ? `${parts.days}일 남았어요` : `${parts.hours}:${pad(parts.minutes)}:${pad(parts.seconds)} 남음`}</>;
+  if (compact) {
+    // 사람이 읽기 좋은 단위 — 큰 두 단위만 노출
+    if (parts.days >= 1) return <>{parts.days}일 {parts.hours}시간 남음</>;
+    if (parts.hours >= 1) return <>{parts.hours}시간 {pad(parts.minutes)}분 남음</>;
+    if (parts.minutes >= 1) return <>{parts.minutes}분 {pad(parts.seconds)}초 남음</>;
+    return <>{parts.seconds}초 남음</>;
+  }
   return <>{parts.days}일 {parts.hours}:{pad(parts.minutes)}:{pad(parts.seconds)}</>;
 }

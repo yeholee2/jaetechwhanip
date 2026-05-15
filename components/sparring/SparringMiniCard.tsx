@@ -2,23 +2,11 @@ import Link from 'next/link';
 import type { CSSProperties } from 'react';
 import { FaIcon } from '@/components/FaIcon';
 import { sparringPath, type Sparring } from '@/lib/sparring';
+import Countdown from './Countdown';
 import styles from './SparringMiniCard.module.css';
 
 function formatNumber(value: number) {
   return value.toLocaleString('ko-KR');
-}
-
-function formatRemaining(deadline: string) {
-  const diff = new Date(deadline).getTime() - Date.now();
-  if (diff <= 0) return '마감됐어요';
-
-  const minutes = Math.floor(diff / 60000);
-  const hours = Math.floor(minutes / 60);
-  const days = Math.floor(hours / 24);
-
-  if (days >= 1) return `${days}일 남았어요`;
-  if (hours >= 1) return `${hours}시간 남았어요`;
-  return `${Math.max(1, minutes)}분 남았어요`;
 }
 
 export default function SparringMiniCard({
@@ -31,7 +19,6 @@ export default function SparringMiniCard({
   const href = sparring ? sparringPath(sparring.slug) : '/sparring';
   const title = sparring?.title || '지금 진행 중인 스파링 보러가기';
   const totalVotes = sparring?.stats.votes_total ?? 0;
-  const remaining = sparring ? formatRemaining(sparring.deadline_at) : '참여하기';
   const thumb = sparring?.thumbnail_url ? `url("${sparring.thumbnail_url}")` : 'none';
 
   return (
@@ -63,7 +50,10 @@ export default function SparringMiniCard({
           <h2 className={styles.title}>{title}</h2>
         </div>
         <div className={styles.foot}>
-          <span><FaIcon name="clock" size={13} /> {remaining}</span>
+          <span>
+            <FaIcon name="clock" size={13} />{' '}
+            {sparring ? <Countdown deadlineAt={sparring.deadline_at} compact /> : '참여하기'}
+          </span>
           <strong><FaIcon name="comment-dots" size={13} /> 참여하기</strong>
         </div>
       </Link>
