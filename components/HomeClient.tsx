@@ -10,6 +10,7 @@ import type { Question } from '@/lib/sampleData';
 import { LEVELS, EMOJI, sampleQuestions } from '@/lib/sampleData';
 import { mapDbRowToHomeQuestion, isUsefulQuestion as isUsefulQ, formatTime as fmtTime } from '@/lib/home-questions';
 import { trackEvent } from '@/lib/analytics';
+import { Sparkline } from '@/components/Sparkline';
 import type { Sparring } from '@/lib/sparring';
 import { createQuestionSlug, ensureUniqueSlug } from '@/lib/slugs';
 import { getAuthNickname, syncFinanceNickname } from '@/lib/nicknames';
@@ -23,11 +24,11 @@ import { HomeWatchWidget } from './HomeWatchWidget';
 import { etfs, etfPath } from '@/lib/etfs';
 import styles from './HomeClient.module.css';
 
-const HOME_INDICES_FALLBACK = [
-  { name: '코스피', val: '—', chg: '—', up: true },
-  { name: 'S&P500', val: '—', chg: '—', up: true },
-  { name: '나스닥', val: '—', chg: '—', up: true },
-  { name: '원달러', val: '—', chg: '—', up: true },
+const HOME_INDICES_FALLBACK: { name: string; val: string; chg: string; up: boolean; series: number[] }[] = [
+  { name: '코스피', val: '—', chg: '—', up: true, series: [] },
+  { name: 'S&P500', val: '—', chg: '—', up: true, series: [] },
+  { name: '나스닥', val: '—', chg: '—', up: true, series: [] },
+  { name: '원달러', val: '—', chg: '—', up: true, series: [] },
 ];
 const HOME_KEYWORDS = ['반도체', '월배당', 'AI전력', '나스닥100', 'S&P500', '커버드콜', '밸류업'];
 
@@ -57,7 +58,7 @@ export default function HomeClient({
 }: {
   initialQuestions: Question[];
   featuredSparring?: Sparring | null;
-  marketIndices?: { name: string; val: string; chg: string; up: boolean }[];
+  marketIndices?: { name: string; val: string; chg: string; up: boolean; series?: number[] }[];
   siteBanner?: { enabled: boolean; message: string; link: string };
   siteKeywords?: string[];
 }) {
@@ -359,6 +360,9 @@ export default function HomeClient({
               {(marketIndices && marketIndices.length > 0 ? marketIndices : HOME_INDICES_FALLBACK).map(i => (
                 <li key={i.name} className={styles.indexRow}>
                   <span className={styles.indexName}>{i.name}</span>
+                  {i.series && i.series.length > 1 && (
+                    <Sparkline series={i.series} up={i.up} width={48} height={18} />
+                  )}
                   <span className={styles.indexVal}>{i.val}</span>
                   <span className={i.up ? styles.sideUp : styles.sideDown}>{i.chg}</span>
                 </li>
