@@ -128,30 +128,45 @@
 }
 
 /* ─────────────────────────────────────────────────────────
- * 피드 탭
+ * 피드 탭 — ETF 탭 (EtfPageTabs) 와 동일 톤
  * ───────────────────────────────────────────────────────── */
 .feedTabs {
   display: flex;
-  gap: 18px;
-  margin-bottom: 14px;
+  gap: 24px;
+  padding: 0 4px;
+  margin: 4px 0 16px;
+  border-bottom: 1px solid var(--rw-hairline);
 }
 
 .ftab {
-  font-size: 20px;
-  font-weight: 700;
-  color: var(--rw-text-muted);
-  padding-bottom: 4px;
-  border-bottom: 2.5px solid transparent;
-  transition: color var(--duration-instant) var(--ease-in-out),
-              border-color var(--duration-instant) var(--ease-in-out);
-}
-
-.ftab.on {
-  color: var(--rw-text-strong);
-  border-bottom-color: var(--rw-text-strong);
+  position: relative;
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--rw-text-disabled);
+  padding: 14px 4px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: color var(--duration-instant) var(--ease-in-out);
 }
 
 .ftab:hover { color: var(--rw-text-body); }
+
+.ftab.on {
+  color: var(--rw-text-strong);
+  font-weight: 700;
+}
+
+.ftab.on::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 2px;
+  background: var(--rw-text-strong);
+  border-radius: 2px 2px 0 0;
+}
 
 .feedSummary {
   display: flex;
