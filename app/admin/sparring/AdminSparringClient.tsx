@@ -7,6 +7,7 @@ import { CATEGORY_DEFINITIONS } from '@/lib/categories';
 import { inferPolarity, slugifySparringTitle, sparringPath, type Sparring, type SparringPolarity } from '@/lib/sparring';
 import { etfs, getEtfByCode } from '@/lib/etfs';
 import { createClient } from '@/lib/supabase/client';
+import { ImageCropper } from './ImageCropper';
 import styles from './AdminSparring.module.css';
 
 type FormState = {
@@ -98,6 +99,8 @@ export default function AdminSparringClient({ initialSparrings }: { initialSparr
   const [filePreviewUrl, setFilePreviewUrl] = useState('');
   const [pending, setPending] = useState(false);
   const [message, setMessage] = useState('');
+  // 크롭 모달 — 사용자가 파일 선택하면 모달 열림, 확인 시 webp blob 으로 file 갱신
+  const [cropTarget, setCropTarget] = useState<File | null>(null);
   const supabase = useMemo(() => createClient(), []);
 
   useEffect(() => {
@@ -423,9 +426,17 @@ export default function AdminSparringClient({ initialSparrings }: { initialSparr
             </div>
             <label className={styles.field}>
               <span>썸네일 업로드</span>
-              <input type="file" accept="image/png,image/jpeg,image/webp" onChange={event => setFile(event.target.files?.[0] || null)} />
+              <input
+                type="file"
+                accept="image/png,image/jpeg,image/webp,image/gif"
+                onChange={event => {
+                  const f = event.target.files?.[0];
+                  if (f) setCropTarget(f);   // 크롭 모달로
+                  event.target.value = '';   // 같은 파일 재선택 가능하게
+                }}
+              />
               <small style={{ display: 'block', marginTop: 4, fontSize: 11, color: 'var(--t3)' }}>
-                권장 1200×628 (16:9 비율). 실제 카드 248px 높이로 크롭됩니다 — 인물·텍스트는 중앙에 두세요.
+                업로드 후 크롭 창에서 영역을 조정할 수 있어요. <strong>1200×675 (16:9) webp</strong> 로 저장됩니다.
               </small>
             </label>
 
@@ -567,6 +578,23 @@ export default function AdminSparringClient({ initialSparrings }: { initialSparr
           </section>
         </aside>
       </div>
+
+      {/* 이미지 크롭 모달 — 파일 선택 시 자동 열림 */}
+      {cropTarget && (
+        <ImageCropper
+          file={cropTarget}
+          onCancel={() => setCropTarget(null)}
+          onConfirm={(blob) => {
+            // Blob → File (webp) — name 에 timestamp 넣어 캐시 방지
+            const webpFile = new File([blob], `sparring-${Date.now()}.webp`, {
+              type: 'image/webp',
+              lastModified: Date.now(),
+            });
+            setFile(webpFile);
+            setCropTarget(null);
+          }}
+        />
+      )}
     </main>
   );
 }
