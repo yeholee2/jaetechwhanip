@@ -23,6 +23,8 @@ import type { CalendarEvent } from '@/lib/marketCalendar';
 import { lookupGlossary } from '@/lib/etfGlossary';
 import SparringMiniCard from './sparring/SparringMiniCard';
 import { HomeWatchWidget } from './HomeWatchWidget';
+import { ForYouSection } from './ForYouSection';
+import type { ForYouBundle } from '@/lib/forYou';
 import { etfs, etfPath } from '@/lib/etfs';
 import styles from './HomeClient.module.css';
 
@@ -59,6 +61,7 @@ export default function HomeClient({
   siteKeywords,
   tickerQuotes,
   nextEvent,
+  forYou,
 }: {
   initialQuestions: Question[];
   featuredSparring?: Sparring | null;
@@ -67,6 +70,7 @@ export default function HomeClient({
   siteKeywords?: string[];
   tickerQuotes?: (TickerQuote | null)[];
   nextEvent?: { event: CalendarEvent; dDay: number } | null;
+  forYou?: ForYouBundle;
 }) {
   const router = useRouter();
   const [user, setUser] = useState<any>(null);
@@ -331,6 +335,8 @@ export default function HomeClient({
           {siteBanner?.enabled && siteBanner.message && (
             <SiteBannerStrip banner={siteBanner} />
           )}
+          {/* 개인화 — 로그인 시 + 콘텐츠 있을 때만 자체 렌더 */}
+          {forYou && <ForYouSection data={forYou} />}
           <div className={styles.feedTabs}>
             {FEED_TABS.map(tab => (
               <button
