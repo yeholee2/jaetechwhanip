@@ -24,6 +24,7 @@ import type { AnswerDetail, QuestionDetail, RelatedQuestion } from '@/lib/questi
 import type { Sparring } from '@/lib/sparring';
 import { createQuestionSlug, ensureUniqueSlug } from '@/lib/slugs';
 import { getAuthNickname, syncFinanceNickname } from '@/lib/nicknames';
+import { notifyUser } from '@/lib/alerts';
 import { useAutoTranslation } from '@/lib/useAutoTranslation';
 import { buildSeoDescription } from '@/lib/seo-content';
 import { FaIcon } from '@/components/FaIcon';
@@ -267,6 +268,16 @@ export default function QuestionClient({
       setQ((p: any) => ({ ...p, answer_count: cnt }));
       setAnswerBody('');
       showT('답변이 등록됐어요!');
+
+      // 질문 작성자에게 알림 (본인 제외)
+      if (q.author_id && q.author_id !== user.id) {
+        void notifyUser({
+          userId: q.author_id,
+          title: '내 질문에 새 답변이 달렸어요',
+          body: q.title,
+          link: `/q/${q.slug || q.id}#answer-${newAns.id}`,
+        });
+      }
     } else {
       showT('답변 등록에 실패했어요.');
     }
@@ -283,6 +294,17 @@ export default function QuestionClient({
     setAnswers(prev => prev.map(a => ({ ...a, is_adopted: a.id === answerId })));
     setQ((p: any) => ({ ...p, is_answered: true }));
     showT('채택 완료!');
+
+    // 채택된 답변 작성자에게 알림 (본인 제외)
+    const adopted = answers.find(a => a.id === answerId);
+    if (adopted?.author_id && adopted.author_id !== user.id) {
+      void notifyUser({
+        userId: adopted.author_id,
+        title: '내 답변이 채택됐어요 🎉',
+        body: q.title,
+        link: `/q/${q.slug || q.id}#answer-${answerId}`,
+      });
+    }
   };
 
   // 답변 좋아요 (토글)

@@ -147,3 +147,23 @@ export async function markAllRead(): Promise<boolean> {
     .is('read_at', null);
   return !error;
 }
+
+/** 다른 사용자에게 시스템 알림 발송 (Q&A 답변/채택/멘션 등) */
+export async function notifyUser(input: {
+  userId: string;
+  title: string;
+  body?: string;
+  link?: string;
+}): Promise<boolean> {
+  if (!hasSupabase()) return false;
+  if (!input.userId) return false;
+  const supabase = createClient();
+  const { error } = await supabase.from('user_notifications').insert({
+    user_id: input.userId,
+    kind: 'system',
+    title: input.title,
+    body: input.body ?? null,
+    link: input.link ?? null,
+  });
+  return !error;
+}
