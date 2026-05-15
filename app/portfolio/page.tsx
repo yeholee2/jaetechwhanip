@@ -8,6 +8,7 @@ import { fetchWhales } from '@/lib/portfolioWhalesDb';
 import { SITE_NAME, SITE_URL } from '@/lib/seo';
 import { PortfolioTabs, type PortfolioTab } from './PortfolioTabs';
 import { LabSection } from './LabSection';
+import { AutoPortfolio } from './AutoPortfolio';
 import styles from './PortfolioPage.module.css';
 
 export const revalidate = 300;
@@ -36,6 +37,10 @@ const TAB_HERO: Record<PortfolioTab, { title: string; lead: string }> = {
     title: '내 ETF, 한 번에 진단',
     lead: '섹터 중복도 · 환노출 · 보수 가중평균 · 위험 등급을 한 화면에서.',
   },
+  auto: {
+    title: '나이·성향에 맞춘 자동 추천',
+    lead: 'TDF 글라이드 패스로 자산 배분 + 카테고리별 ETF를 즉시 제안해요.',
+  },
   copy: {
     title: '대가의 포트폴리오로 시작하기',
     lead: '버핏 · 달리오 · 보글 — 검증된 자산배분과 SEC 13F 실시간 보유.',
@@ -48,6 +53,7 @@ const TAB_HERO: Record<PortfolioTab, { title: string; lead: string }> = {
 
 export default async function PortfolioPage({ searchParams }: Props) {
   const tab: PortfolioTab =
+    searchParams?.tab === 'auto' ? 'auto' :
     searchParams?.tab === 'copy' ? 'copy' :
     searchParams?.tab === 'lab'  ? 'lab'  :
     'build';
@@ -71,6 +77,8 @@ export default async function PortfolioPage({ searchParams }: Props) {
             <PortfolioDiagnostic />
           </div>
         )}
+
+        {tab === 'auto' && <AutoPortfolio />}
 
         {tab === 'copy' && (
           <div className={styles.copyGrid}>

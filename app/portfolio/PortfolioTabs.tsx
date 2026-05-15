@@ -12,12 +12,13 @@
 import Link from 'next/link';
 import styles from './PortfolioTabs.module.css';
 
-export type PortfolioTab = 'build' | 'copy' | 'lab';
+export type PortfolioTab = 'build' | 'auto' | 'copy' | 'lab';
 
 const TABS: { key: PortfolioTab; label: string; sub: string; href: string; beta?: boolean }[] = [
-  { key: 'build', label: '직접 만들기',   sub: '내 ETF 입력 · 진단',    href: '/portfolio' },
-  { key: 'copy',  label: '대가 따라하기', sub: '버핏 · 달리오 · 13F',   href: '/portfolio?tab=copy' },
-  { key: 'lab',   label: '실험실',        sub: '백테스트 · 시뮬레이션', href: '/portfolio?tab=lab', beta: true },
+  { key: 'build', label: '직접 만들기',   sub: '내 ETF 입력 · 진단',     href: '/portfolio' },
+  { key: 'auto',  label: '맞춤 추천',     sub: '나이·성향 기반 자동 추천', href: '/portfolio?tab=auto' },
+  { key: 'copy',  label: '대가 따라하기', sub: '버핏 · 달리오 · 13F',    href: '/portfolio?tab=copy' },
+  { key: 'lab',   label: '실험실',        sub: '백테스트 · 시뮬레이션',   href: '/portfolio?tab=lab', beta: true },
 ];
 
 export function PortfolioTabs({ active }: { active: PortfolioTab }) {
