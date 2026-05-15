@@ -335,3 +335,77 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* 홈 사이드바 미니카드 미리보기 (SparringMiniCard와 동일 규격) */
+.previewMini {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: #131c2b;
+  color: #fff;
+  isolation: isolate;
+  min-height: 320px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 20px;
+}
+
+.previewMini::before,
+.previewMini::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+}
+.previewMini::before {
+  background-image: var(--preview-thumb);
+  background-position: center;
+  background-size: cover;
+  opacity: var(--preview-opacity, 0);
+}
+.previewMini::after {
+  background: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0.30) 0%,
+    rgba(0, 0, 0, 0.10) 35%,
+    rgba(0, 0, 0, 0.10) 55%,
+    rgba(0, 0, 0, 0.70) 100%
+  );
+}
+
+.previewMiniCopy {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.previewMiniCopy span {
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 13px;
+  font-weight: 600;
+}
+.previewMiniCopy strong {
+  display: block;
+  color: #fff;
+  font-size: 19px;
+  line-height: 1.35;
+  font-weight: 900;
+  letter-spacing: -0.4px;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.previewMiniFoot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.18);
+  font-size: 13px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.92);
+}

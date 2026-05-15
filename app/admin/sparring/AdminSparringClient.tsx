@@ -446,7 +446,36 @@ export default function AdminSparringClient({ initialSparrings }: { initialSparr
 
         <aside className={styles.sideStack}>
           <section className={styles.panel}>
-            <h2>상단 카드 미리보기</h2>
+            <h2>실제 노출 미리보기</h2>
+            <p className={styles.previewHint} style={{ marginTop: 0, marginBottom: 12 }}>
+              같은 이미지가 두 곳에서 다른 비율로 잘려요. 둘 다 보기 좋게 만들어주세요.
+            </p>
+
+            {/* 1) 홈/질문 사이드바 — SparringMiniCard (세로 320px) */}
+            <h3 style={{ fontSize: 13, fontWeight: 700, color: 'var(--t2)', margin: '4px 0 8px' }}>
+              홈/질문 사이드바 (세로 카드)
+            </h3>
+            <article
+              className={styles.previewMini}
+              style={{
+                '--preview-thumb': previewImage ? `url("${previewImage}")` : 'none',
+                '--preview-opacity': previewImage ? '1' : '0',
+              } as CSSProperties}
+            >
+              <div className={styles.previewMiniCopy}>
+                <span>{formatNumber(previewVotes)}명 투표 중</span>
+                <strong>{previewTitle}</strong>
+              </div>
+              <div className={styles.previewMiniFoot}>
+                <span>{deadlineCopy(form.deadlineAt)}</span>
+                <b>참여하기 →</b>
+              </div>
+            </article>
+
+            {/* 2) /sparring 페이지 — SparringActiveCard (가로 248px) */}
+            <h3 style={{ fontSize: 13, fontWeight: 700, color: 'var(--t2)', margin: '20px 0 8px' }}>
+              /sparring 진행중 카드 (가로 카드)
+            </h3>
             <article
               className={styles.previewCard}
               style={{
@@ -463,7 +492,6 @@ export default function AdminSparringClient({ initialSparrings }: { initialSparr
                 <b>참여하기</b>
               </div>
             </article>
-            <p className={styles.previewHint}>이 모습이 `/sparring` 진행중 카드에 가깝게 노출돼요.</p>
           </section>
 
           <section className={styles.panel}>
