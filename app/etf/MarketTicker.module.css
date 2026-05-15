@@ -7,7 +7,6 @@
   background: var(--rw-card);
   border: 1px solid var(--rw-border);
   border-radius: var(--rw-radius-lg);
-  margin-bottom: var(--space-3);
 }
 
 .statusBar {

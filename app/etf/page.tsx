@@ -88,20 +88,23 @@ export default async function EtfPage({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <main className="pc-layout">
-        <div className="pc-layout-main">
-          {/* 시장 시세 티커 — 탭 위, 전체 폭 */}
-          <MarketTicker />
+      <main className="pc-layout-stack">
+        {/* 시장 시세 티커 — 전체 폭 (사이드 끝까지) */}
+        <MarketTicker />
 
-          <EtfPageTabs active={active} />
+        {/* 메인 + 사이드 */}
+        <div className="pc-layout">
+          <div className="pc-layout-main">
+            <EtfPageTabs active={active} />
 
-          {active === 'discover' && <DiscoverTab allEtfs={etfs} />}
-          {active === 'watch' && <WatchTabPlaceholder allEtfs={etfs} />}
-          {active === 'diagnostic' && <DiagnosticTabPlaceholder allEtfs={etfs} />}
-          {active === 'feed' && <FeedTabPlaceholder />}
+            {active === 'discover' && <DiscoverTab allEtfs={etfs} />}
+            {active === 'watch' && <WatchTabPlaceholder allEtfs={etfs} />}
+            {active === 'diagnostic' && <DiagnosticTabPlaceholder allEtfs={etfs} />}
+            {active === 'feed' && <FeedTabPlaceholder />}
+          </div>
+
+          <PageSidebar widgets={['sparring', 'watch', 'help']} featuredSparring={featured} />
         </div>
-
-        <PageSidebar widgets={['sparring', 'watch', 'help']} featuredSparring={featured} />
       </main>
     </AppShell>
   );
