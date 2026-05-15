@@ -572,48 +572,46 @@ function FeedList({ questions, mobile, router }: { questions: Question[], mobile
               <span className={`${styles.lv} ${styles['lv'+q.lv]}`}>{LEVELS[q.lv]?.l}</span>
             </div>
             <div className={styles.qinfo}>
+              {/* 메타: 작성자+채택됨 / 카테고리+시간 2줄 구조 */}
               <div className={styles.qmeta}>
-                <Badge tone="neutral">{getCategoryLabel(q.cat)}</Badge>
-                {q.topic && q.topic !== '일반' && <Badge tone="success">{q.topic}</Badge>}
-                <span style={{fontSize:12,color:'var(--rw-text-body)',fontWeight:500}}>{q.author}</span>
-                <span style={{fontSize:10,color:'var(--rw-text-muted)'}}>·</span>
-                <span style={{fontSize:12,color:'var(--rw-text-muted)'}}>{q.time}</span>
-                {q.adopted && <Badge tone="warning">✅ 채택됨</Badge>}
-                {translated && <Badge tone="primary">Translated</Badge>}
-              </div>
-              {q.tags && q.tags.length > 0 && (
-                <div className={styles.qtags}>
-                  {q.tags.slice(0, 3).map(tag => <span key={tag}>#{tag}</span>)}
+                <div className={styles.qmetaTop}>
+                  <span className={styles.qauthor}>{q.author}</span>
+                  {q.adopted && <Badge tone="warning">✅ 채택됨</Badge>}
+                  {translated && <Badge tone="primary">Translated</Badge>}
                 </div>
-              )}
+                <div className={styles.qmetaBot}>
+                  <Badge tone="neutral">{getCategoryLabel(q.cat)}</Badge>
+                  {q.topic && q.topic !== '일반' && <Badge tone="success">{q.topic}</Badge>}
+                  <span className={styles.qtime}>{q.time}</span>
+                </div>
+              </div>
               <h3 className={styles.qtitle}>
                 <Link href={`/q/${questionPath}`}>{title}</Link>
               </h3>
               <p className={styles.qbody}>{body}</p>
               <div className={styles.qfoot} onClick={e => e.stopPropagation()}>
-                <div style={{display:'flex',alignItems:'center',gap:6}}>
-                  <div style={{display:'flex'}}>
-                    {Array.from({length:Math.min(3,q.ans)}).map((_,i) => (
-                      <div key={i} className={`${styles.av} tf`}>{EMOJI[i]}</div>
-                    ))}
-                  </div>
-                  {q.ans > 0
-                    ? <span style={{fontSize:12,color:'var(--t2)'}}><b>{q.ans}명</b>이 답변했어요</span>
-                    : <span style={{fontSize:12,color:'var(--rw-text-muted)'}}>첫 번째 답변을 남겨보세요</span>
-                  }
-                </div>
-                <div style={{display:'flex',alignItems:'center',gap:6}}>
+                <div className={styles.qfootStats}>
+                  <span className={styles.qstat}>
+                    <FaIcon name="comment" size={12}/>
+                    {q.ans > 0 ? `${q.ans}` : '답변하기'}
+                  </span>
                   {(q as any).viewCount > 0 && (
-                    <span style={{fontSize:11,color:'var(--rw-text-muted)'}}>조회 {(q as any).viewCount}</span>
+                    <span className={styles.qstat}>
+                      <FaIcon name="eye" size={12}/>
+                      {(q as any).viewCount.toLocaleString()}
+                    </span>
                   )}
                   {((q as any).likeCount ?? 0) > 0 && (
-                    <span style={{fontSize:11,color:'var(--rw-text-muted)'}}>👍 {(q as any).likeCount}</span>
+                    <span className={styles.qstat}>
+                      <FaIcon name="thumbs-up" size={12}/>
+                      {(q as any).likeCount}
+                    </span>
                   )}
-                  <button className={styles.qbtn} onClick={(e) => {
-                    e.stopPropagation();
-                    navigator.clipboard?.writeText(`${window.location.origin}/q/${questionPath}`);
-                  }}><FaIcon name="share-nodes" size={13}/></button>
                 </div>
+                <button className={styles.qbtn} onClick={(e) => {
+                  e.stopPropagation();
+                  navigator.clipboard?.writeText(`${window.location.origin}/q/${questionPath}`);
+                }}><FaIcon name="share-nodes" size={13}/></button>
               </div>
             </div>
           </div>

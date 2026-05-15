@@ -270,31 +270,34 @@
 
 .qmeta {
   display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 8px;
+}
+
+.qmetaTop {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.qauthor {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--rw-text-strong);
+}
+
+.qmetaBot {
+  display: flex;
   align-items: center;
   gap: 4px;
-  flex-wrap: wrap;
-  margin-bottom: 7px;
 }
 
-/* adopted, translatedBadge, topicBadge → Badge 컴포넌트로 대체 (deprecated) */
-
-.qtags {
-  display: flex;
-  gap: 5px;
-  flex-wrap: wrap;
-  margin: -1px 0 8px;
-}
-
-.qtags span {
-  height: 22px;
-  display: inline-flex;
-  align-items: center;
-  padding: 0 8px;
-  border-radius: 999px;
-  background: var(--rw-card-muted);
-  color: var(--rw-text-body);
+.qtime {
   font-size: 11px;
-  font-weight: 600;
+  color: var(--rw-text-muted);
+  font-weight: 500;
+  margin-left: 2px;
 }
 
 .qtitle {
@@ -324,19 +327,20 @@
   justify-content: space-between;
 }
 
-.av {
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  border: 1.5px solid #fff;
-  margin-left: -5px;
-  background: var(--rw-primary-bg);
+.qfootStats {
   display: flex;
   align-items: center;
-  justify-content: center;
-  font-size: 9px;
+  gap: 10px;
 }
-.av:first-child { margin-left: 0; }
+
+.qstat {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--rw-text-muted);
+}
 
 .qbtn {
   width: 30px;
