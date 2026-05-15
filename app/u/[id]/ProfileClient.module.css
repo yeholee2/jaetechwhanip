@@ -37,25 +37,41 @@
   border-bottom: 1px solid var(--rw-hairline);
 }
 
+.avatarWrap {
+  position: relative;
+  flex-shrink: 0;
+}
+
 .bigAvatar {
   width: 72px;
   height: 72px;
   border-radius: 50%;
-  background: var(--rw-primary);
-  color: #fff;
+  background: var(--rw-card-muted);
+  border: 1px solid var(--rw-hairline);
+  color: var(--rw-text-strong);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: var(--text-2xl);
+  font-size: 38px;
   font-weight: var(--weight-black);
-  flex-shrink: 0;
   overflow: hidden;
 }
 
-.bigAvatar img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+.avatarEditBtn {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--rw-card);
+  border: 1px solid var(--rw-hairline);
+  font-size: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0,0,0,.12);
 }
 
 .headerBody {
@@ -113,6 +129,45 @@
   font-size: var(--text-sm);
   color: var(--rw-text-muted);
 }
+
+.emojiPicker {
+  margin-top: var(--space-3);
+  padding: var(--space-4);
+  background: var(--rw-card);
+  border: 1px solid var(--rw-hairline);
+  border-radius: var(--rw-radius-md);
+  box-shadow: 0 2px 12px rgba(0,0,0,.08);
+}
+
+.emojiPickerLabel {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--rw-text-muted);
+  margin-bottom: var(--space-3);
+}
+
+.emojiGrid {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 6px;
+}
+
+.emojiBtn {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  border: 1.5px solid transparent;
+  background: var(--rw-card-muted);
+  font-size: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: border-color .1s, background .1s;
+}
+
+.emojiBtn:hover { background: var(--rw-primary-bg); border-color: var(--rw-primary); }
+.emojiBtnActive { border-color: var(--rw-primary) !important; background: var(--rw-primary-bg) !important; }
 
 /* ─────────────────────────────────────────────────────────
  * 탭

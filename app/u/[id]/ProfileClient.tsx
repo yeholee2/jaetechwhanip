@@ -8,6 +8,12 @@ import { AppShell } from '@/components/AppShell';
 import { Badge } from '@/components/ui';
 import styles from './ProfileClient.module.css';
 
+const AVATAR_EMOJIS = [
+  '🐯','🐰','🦊','🐻','🦋','🐸','🐼','🦁','🐨','🐮','🐷','🐙',
+  '🦄','🐧','🐥','🦉','🐺','🦝','🐹','🐭','🐱','🐶','🐴','🦊',
+  '🌊','🔥','⭐','🌙','☀️','🌈','🍀','🎯',
+];
+
 function ft(d: string) {
   if (!d) return '';
   const diff = Date.now() - new Date(d).getTime();
@@ -27,6 +33,8 @@ export default function ProfileClient({ userId }: { userId: string }) {
   const [loading, setLoading] = useState(true);
   const [isMe, setIsMe] = useState(false);
   const [totalLikesReceived, setTotalLikesReceived] = useState(0);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [savingEmoji, setSavingEmoji] = useState(false);
 
   useEffect(() => {
     if (!hasSupabase()) return;
@@ -59,6 +67,16 @@ export default function ProfileClient({ userId }: { userId: string }) {
       });
   }, [userId]);
 
+  async function saveEmoji(emoji: string) {
+    if (!hasSupabase()) return;
+    setSavingEmoji(true);
+    const supabase = createClient();
+    await supabase.from('users').update({ avatar_url: emoji }).eq('id', userId);
+    setProfile((p: any) => ({ ...p, avatar_url: emoji }));
+    setShowEmojiPicker(false);
+    setSavingEmoji(false);
+  }
+
   if (loading) {
     return (
       <AppShell active="my">
@@ -72,17 +90,24 @@ export default function ProfileClient({ userId }: { userId: string }) {
   const name = profile?.name || '익명';
   const initial = name[0]?.toUpperCase() || 'U';
   const adoptedCount = answers.filter(a => a.is_adopted).length;
+  const avatarEmoji = profile?.avatar_url && profile.avatar_url.length <= 4 ? profile.avatar_url : null;
 
   return (
     <AppShell active="my" hideSlogan>
       <main className={styles.page}>
         {/* 프로필 헤더 */}
         <header className={styles.header}>
-          <div className={styles.bigAvatar} aria-label={name}>
-            {profile?.avatar_url
-              ? // eslint-disable-next-line @next/next/no-img-element
-                <img src={profile.avatar_url} alt="" />
-              : initial}
+          <div className={styles.avatarWrap}>
+            <div className={`${styles.bigAvatar} tf`} aria-label={name}>
+              {avatarEmoji || initial}
+            </div>
+            {isMe && (
+              <button
+                className={styles.avatarEditBtn}
+                onClick={() => setShowEmojiPicker(v => !v)}
+                title="아바타 변경"
+              >✏️</button>
+            )}
           </div>
           <div className={styles.headerBody}>
             <h1 className={styles.name}>{name}</h1>
@@ -107,10 +132,22 @@ export default function ProfileClient({ userId }: { userId: string }) {
           </div>
         </header>
 
-        {isMe && (
-          <p className={styles.meCard}>
-            내 프로필이에요. 앞으로 프로필 편집 기능이 생길 거예요!
-          </p>
+        {isMe && showEmojiPicker && (
+          <div className={styles.emojiPicker}>
+            <p className={styles.emojiPickerLabel}>아바타 선택</p>
+            <div className={styles.emojiGrid}>
+              {AVATAR_EMOJIS.map(em => (
+                <button
+                  key={em}
+                  className={`${styles.emojiBtn} tf ${avatarEmoji === em ? styles.emojiBtnActive : ''}`}
+                  onClick={() => saveEmoji(em)}
+                  disabled={savingEmoji}
+                >
+                  {em}
+                </button>
+              ))}
+            </div>
+          </div>
         )}
 
         {/* 탭 */}

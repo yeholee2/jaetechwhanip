@@ -565,7 +565,7 @@ export default function QuestionClient({
           <article className={styles.qCard}>
             <div className={styles.qProfile}>
               <div className={styles.qAvatarWrap}>
-                <div className={`${styles.qAvatar} tf`}>{EMOJI[0]}</div>
+                <div className={`${styles.qAvatar} tf`}>{q.users?.avatar_url || EMOJI[0]}</div>
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 2 }}>
@@ -773,7 +773,7 @@ function AnswerCard({ answer: a, currentUserId, isMyQuestion, isAnswered, liked,
         </div>
       )}
       <div className={styles.answerProfile}>
-        <div className={`${styles.answerAvatar} tf`}>{EMOJI[1]}</div>
+        <div className={`${styles.answerAvatar} tf`}>{a.users?.avatar_url || EMOJI[1]}</div>
         <div style={{ flex: 1 }}>
           <div style={{ fontWeight: 700, fontSize: 14 }}>{name}</div>
           <div style={{ fontSize: 12, color: 'var(--t3)' }}>{a.created_at ? ft(a.created_at) : ''}</div>

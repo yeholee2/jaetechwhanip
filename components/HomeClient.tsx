@@ -130,7 +130,7 @@ export default function HomeClient({
     // 패킷 최적화: 홈 피드에 필요한 컬럼만 select
     let query = supabase
       .from('questions')
-      .select('id, title, body, category, slug, answer_count, like_count, view_count, is_answered, created_at, author_id, users:author_id(name)')
+      .select('id, title, body, category, slug, answer_count, like_count, view_count, is_answered, created_at, author_id, users:author_id(name,avatar_url)')
       .range(pageNum * PAGE_SIZE, (pageNum + 1) * PAGE_SIZE - 1);
 
     // 카테고리 필터는 DB에서 — 클라이언트 필터 X
@@ -159,7 +159,7 @@ export default function HomeClient({
         topic: seed?.topic || '일반',
         author: seed?.author || (q.users as any)?.name || '익명',
         time: seed?.createdAt ? formatTime(seed.createdAt) : formatTime(q.created_at),
-        em: seed?.em || EMOJI[(i + pageNum * PAGE_SIZE) % EMOJI.length],
+        em: (q.users as any)?.avatar_url || seed?.em || EMOJI[(i + pageNum * PAGE_SIZE) % EMOJI.length],
         lv: seed?.lv ?? 0,
         title: seed?.title || q.title,
         body: seed?.body || q.body || '',
