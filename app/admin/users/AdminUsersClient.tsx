@@ -32,11 +32,15 @@ export default function AdminUsersClient({ initialItems }: { initialItems: any[]
 
   const updateRole = async (id: string, nextRole: string) => {
     setBusy(id);
-    const supabase = createClient();
-    const { error } = await supabase.from('users').update({ role: nextRole }).eq('id', id);
+    const res = await fetch('/api/admin/mutate', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ action: 'update_role', userId: id, role: nextRole }),
+    });
+    const json = await res.json();
     setBusy(null);
-    if (error) {
-      alert('변경 실패: ' + error.message);
+    if (!json.ok) {
+      alert('변경 실패: ' + (json.error || 'unknown'));
       return;
     }
     setItems(prev => prev.map(p => p.id === id ? { ...p, role: nextRole } : p));

@@ -33,11 +33,15 @@ export default function AdminAnswersClient({ initialItems }: { initialItems: any
   const remove = async (id: string) => {
     if (!confirm('이 답변을 삭제할까요? 댓글도 함께 사라집니다.')) return;
     setBusy(id);
-    const supabase = createClient();
-    const { error } = await supabase.from('answers').delete().eq('id', id);
+    const res = await fetch('/api/admin/mutate', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ action: 'delete', table: 'answers', id }),
+    });
+    const json = await res.json();
     setBusy(null);
-    if (error) {
-      alert('삭제 실패: ' + error.message);
+    if (!json.ok) {
+      alert('삭제 실패: ' + (json.error || 'unknown'));
       return;
     }
     setItems(prev => prev.filter(p => p.id !== id));
