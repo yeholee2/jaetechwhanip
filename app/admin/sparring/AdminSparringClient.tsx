@@ -112,6 +112,25 @@ export default function AdminSparringClient({ initialSparrings }: { initialSparr
     return () => URL.revokeObjectURL(objectUrl);
   }, [file]);
 
+  // ?edit=<id> 쿼리로 진입 시 해당 스파링 폼에 자동 로드
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const params = new URLSearchParams(window.location.search);
+    const editId = params.get('edit');
+    if (!editId) return;
+    const target = sparrings.find(s => s.id === editId);
+    if (target) {
+      setForm(fromSparring(target));
+      setFile(null);
+      // URL 정리 (편집 후 새로고침해도 다시 같은 폼 안 열림)
+      window.history.replaceState(null, '', '/admin/sparring');
+      // 폼 영역으로 스무스 스크롤
+      setTimeout(() => {
+        document.querySelector('input')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 100);
+    }
+  }, [sparrings]);
+
   const setField = <K extends keyof FormState>(key: K, value: FormState[K]) => {
     setForm(prev => ({ ...prev, [key]: value }));
   };

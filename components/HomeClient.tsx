@@ -70,6 +70,7 @@ export default function HomeClient({
 }) {
   const router = useRouter();
   const [user, setUser] = useState<any>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [allQs, setAllQs] = useState<Question[]>(initialQuestions);
   const [currentCat, setCurrentCat] = useState('전체');
   const [feedTab, setFeedTab] = useState<FeedTab>('popular');
@@ -104,7 +105,13 @@ export default function HomeClient({
     const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
       const nextUser = session?.user ?? null;
       setUser(nextUser);
-      if (nextUser) syncFinanceNickname(supabase, nextUser);
+      if (nextUser) {
+        syncFinanceNickname(supabase, nextUser);
+        supabase.from('users').select('role').eq('id', nextUser.id).maybeSingle()
+          .then(({ data: p }) => setIsAdmin(p?.role === 'admin'));
+      } else {
+        setIsAdmin(false);
+      }
       setAuthLoading(false);
       // 로그인 후 hash 제거 (깔끔한 URL)
       if (typeof window !== 'undefined' && window.location.hash.includes('access_token')) {
@@ -366,22 +373,8 @@ export default function HomeClient({
           )}
         </div>
         <aside className={styles.pcSide}>
-          {/* 1. 시장 지수 — 항상 유용한 정보 최상단 */}
-          <div className={styles.sideWidget}>
-            <div className={styles.sideHead}>시장 지수</div>
-            <ul className={styles.indexList}>
-              {(marketIndices && marketIndices.length > 0 ? marketIndices : HOME_INDICES_FALLBACK).map(i => (
-                <li key={i.name} className={styles.indexRow}>
-                  <span className={styles.indexName}>{i.name}</span>
-                  {i.series && i.series.length > 1 && (
-                    <Sparkline series={i.series} up={i.up} width={48} height={18} />
-                  )}
-                  <span className={styles.indexVal}>{i.val}</span>
-                  <span className={i.up ? styles.sideUp : styles.sideDown}>{i.chg}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
+          {/* 1. 스파링 — 최상단 (시장 지수는 페이지 상단 ticker 로 대체) */}
+          <SparringMiniCard sparring={featuredSparring} isAdmin={isAdmin} />
 
           {/* 2. 내 관심 ETF */}
           <HomeWatchWidget />
@@ -433,8 +426,6 @@ export default function HomeClient({
             </div>
           </div>
 
-          {/* 5. 스파링 — 보조 콘텐츠로 하단 배치 */}
-          <SparringMiniCard sparring={featuredSparring} />
         </aside>
       </div>
 

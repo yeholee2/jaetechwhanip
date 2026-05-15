@@ -21,7 +21,13 @@ function formatRemaining(deadline: string) {
   return `${Math.max(1, minutes)}분 남았어요`;
 }
 
-export default function SparringMiniCard({ sparring }: { sparring?: Sparring | null }) {
+export default function SparringMiniCard({
+  sparring,
+  isAdmin = false,
+}: {
+  sparring?: Sparring | null;
+  isAdmin?: boolean;
+}) {
   const href = sparring ? sparringPath(sparring.slug) : '/sparring';
   const title = sparring?.title || '지금 진행 중인 스파링 보러가기';
   const totalVotes = sparring?.stats.votes_total ?? 0;
@@ -37,6 +43,18 @@ export default function SparringMiniCard({ sparring }: { sparring?: Sparring | n
         '--thumb-opacity': sparring?.thumbnail_url ? '1' : '0',
       } as CSSProperties}
     >
+      {/* 관리자만 보이는 인라인 편집 진입 */}
+      {isAdmin && sparring && (
+        <Link
+          href={`/admin/sparring?edit=${sparring.id}`}
+          className={styles.adminEdit}
+          aria-label="이 스파링 편집"
+          onClick={e => e.stopPropagation()}
+        >
+          <FaIcon name="pen" size={11} /> 편집
+        </Link>
+      )}
+
       <Link href={href} className={styles.hero}>
         <div className={styles.copy}>
           <div className={styles.meta}>
