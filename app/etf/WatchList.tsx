@@ -69,7 +69,7 @@ export function WatchList({ allEtfs }: { allEtfs?: EtfInfo[] }) {
             {samples.map(etf => (
               <li key={etf.code}>
                 <Link className={styles.sampleItem} href={etfPath(etf.slug)}>
-                  <EtfLogo name={etf.shortName} size={32} />
+                  <EtfLogo name={etf.shortName} code={etf.code} size={32} />
                   <div className={styles.sampleInfo}>
                     <strong>{etf.shortName}</strong>
                     <span>{etf.code}</span>
@@ -108,7 +108,7 @@ export function WatchList({ allEtfs }: { allEtfs?: EtfInfo[] }) {
           return (
             <li key={etf.slug}>
               <Link className={styles.item} href={etfPath(etf.slug)}>
-                <EtfLogo name={etf.shortName} size={36} />
+                <EtfLogo name={etf.shortName} code={etf.code} size={36} />
                 <div className={styles.info}>
                   <strong>{etf.shortName}</strong>
                   <span>{etf.code} · {etf.issuer}</span>

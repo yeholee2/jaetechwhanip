@@ -169,7 +169,7 @@ export default async function SearchPage({
               {etfMatches.map(etf => (
                 <li key={etf.slug}>
                   <Link className={styles.etfItem} href={etfPath(etf.slug)}>
-                    <EtfLogo name={etf.shortName} size={32} />
+                    <EtfLogo name={etf.shortName} code={etf.code} size={32} />
                     <div>
                       <strong>{etf.shortName}</strong>
                       <span>{etf.code} · {etf.issuer}</span>

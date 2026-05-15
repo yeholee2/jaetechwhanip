@@ -72,7 +72,7 @@ export function ThemeToggle({ allEtfs = [] }: { allEtfs?: EtfInfo[] }) {
         {items.map(etf => (
           <li key={etf.slug}>
             <Link className={styles.item} href={etfPath(etf.slug)}>
-              <EtfLogo name={etf.shortName} size={36} />
+              <EtfLogo name={etf.shortName} code={etf.code} size={36} />
               <div className={styles.info}>
                 <strong>{etf.shortName}</strong>
                 <span>{etf.price}</span>

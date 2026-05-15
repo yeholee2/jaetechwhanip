@@ -60,7 +60,7 @@ function ETFPicker({
               className={`${styles.pickerItem} ${current?.slug === etf.slug ? styles.pickerItemActive : ''}`}
               onClick={() => onSelect(etf)}
             >
-              <EtfLogo name={etf.shortName} size={28} />
+              <EtfLogo name={etf.shortName} code={etf.code} size={28} />
               <div className={styles.pickerItemInfo}>
                 <strong>{etf.shortName}</strong>
                 <span>{etf.code} · {etf.fee}</span>

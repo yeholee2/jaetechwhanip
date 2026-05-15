@@ -76,7 +76,7 @@ export function StrategyToggle({ allEtfs = [] }: { allEtfs?: EtfInfo[] }) {
         {items.length > 0 ? items.map(etf => (
           <li key={etf.slug}>
             <Link className={styles.item} href={etfPath(etf.slug)}>
-              <EtfLogo name={etf.shortName} size={32} />
+              <EtfLogo name={etf.shortName} code={etf.code} size={32} />
               <strong className={styles.itemName}>{etf.shortName}</strong>
               <span className={etf.changeTone === 'down' ? styles.down : styles.up}>
                 {etf.change}

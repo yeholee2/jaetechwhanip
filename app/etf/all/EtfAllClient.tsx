@@ -205,7 +205,7 @@ export function EtfAllClient({ initialEtfs }: { initialEtfs: EtfInfo[] }) {
                   <tr key={etf.slug} className={styles.row}>
                     <td className={styles.colName}>
                       <Link href={etfPath(etf.slug)} className={styles.nameLink}>
-                        <EtfLogo name={etf.shortName} size={28} />
+                        <EtfLogo name={etf.shortName} code={etf.code} size={28} />
                         <span className={styles.nameMain}>
                           <strong>{etf.shortName}</strong>
                           <em>{etf.code} · {etf.issuer}</em>

@@ -131,7 +131,7 @@ export function EtfRanking({ allEtfs }: { allEtfs: EtfInfo[] }) {
           <li key={etf.slug}>
             <Link className={styles.item} href={etfPath(etf.slug)}>
               <span className={styles.rank}>{idx + 1}</span>
-              <EtfLogo name={etf.shortName} size={36} className={styles.logo} />
+              <EtfLogo name={etf.shortName} code={etf.code} size={36} className={styles.logo} />
               <div className={styles.info}>
                 <strong>{etf.shortName}</strong>
                 <span>
