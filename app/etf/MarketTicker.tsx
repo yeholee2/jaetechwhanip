@@ -11,6 +11,7 @@ import Link from 'next/link';
 import styles from './MarketTicker.module.css';
 import { getNextMajorEvent, type CalendarEvent } from '@/lib/marketCalendar';
 import { fetchLiveCalendar } from '@/lib/marketCalendarLive';
+import { TickerScroller } from './TickerScroller';
 
 type IndexDef = {
   symbol: string;
@@ -90,11 +91,11 @@ function getMarketStatus(): { krOpen: boolean; usOpen: boolean } {
   return { krOpen, usOpen };
 }
 
-/** Mini horizontal sparkline (60×24) — 더 작게 */
+/** Mini horizontal sparkline — 더 작게 (한 줄에 더 많이) */
 function Sparkline({ series, up }: { series: number[]; up: boolean }) {
   if (series.length < 2) return <div className={styles.sparkPlaceholder} aria-hidden="true" />;
-  const W = 60;
-  const H = 24;
+  const W = 44;
+  const H = 20;
   const padY = 3;
   const min = Math.min(...series);
   const max = Math.max(...series);
@@ -149,50 +150,48 @@ export function MarketTickerView({
         </span>
       </div>
 
-      <div className={styles.scrollWrap}>
-        <div className={styles.row}>
-          {/* 첫 카드: 증시 캘린더 D-X (가장 가까운 major 이벤트) */}
-          {nextEvent && (
-            <Link href="/calendar" className={`${styles.item} ${styles.itemCalendar}`}>
-              <span className={styles.dBadge}>D-{nextEvent.dDay}</span>
-              <div className={styles.body}>
-                <span className={styles.name}>증시캘린더</span>
-                <span className={styles.priceCal}>{nextEvent.event.title}</span>
-              </div>
-            </Link>
-          )}
+      <TickerScroller>
+        {/* 첫 카드: 증시 캘린더 D-X (가장 가까운 major 이벤트) */}
+        {nextEvent && (
+          <Link href="/calendar" className={`${styles.item} ${styles.itemCalendar}`}>
+            <span className={styles.dBadge}>D-{nextEvent.dDay}</span>
+            <div className={styles.body}>
+              <span className={styles.name}>증시캘린더</span>
+              <span className={styles.priceCal}>{nextEvent.event.title}</span>
+            </div>
+          </Link>
+        )}
 
-          {TICKER_INDICES.map((idx, i) => {
-            const q = quotes[i];
-            if (!q) {
-              return (
-                <div key={idx.symbol} className={styles.item}>
-                  <div className={styles.sparkPlaceholder} aria-hidden="true" />
-                  <div className={styles.body}>
-                    <span className={styles.name}>{idx.name}</span>
-                    <span className={styles.price}>—</span>
-                  </div>
-                </div>
-              );
-            }
-            const up = q.change >= 0;
+        {TICKER_INDICES.map((idx, i) => {
+          const q = quotes[i];
+          if (!q) {
             return (
               <div key={idx.symbol} className={styles.item}>
-                <Sparkline series={q.series} up={up} />
+                <div className={styles.sparkPlaceholder} aria-hidden="true" />
                 <div className={styles.body}>
                   <span className={styles.name}>{idx.name}</span>
-                  <div className={styles.priceRow}>
-                    <strong className={styles.price}>{formatPrice(q.price, idx.unit)}</strong>
-                    <span className={`${styles.change} ${up ? styles.up : styles.down}`}>
-                      {formatChange(q.change, q.changePct)}
-                    </span>
-                  </div>
+                  <span className={styles.price}>—</span>
                 </div>
               </div>
             );
-          })}
-        </div>
-      </div>
+          }
+          const up = q.change >= 0;
+          return (
+            <div key={idx.symbol} className={styles.item}>
+              <Sparkline series={q.series} up={up} />
+              <div className={styles.body}>
+                <span className={styles.name}>{idx.name}</span>
+                <div className={styles.priceRow}>
+                  <strong className={styles.price}>{formatPrice(q.price, idx.unit)}</strong>
+                  <span className={`${styles.change} ${up ? styles.up : styles.down}`}>
+                    {formatChange(q.change, q.changePct)}
+                  </span>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </TickerScroller>
     </section>
   );
 }

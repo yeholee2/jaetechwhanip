@@ -7,6 +7,15 @@
   background: var(--rw-card);
   border: 1px solid var(--rw-border);
   border-radius: var(--rw-radius-lg);
+  /* 탭 전환·스크롤 시에도 항상 화면 상단에 고정 */
+  position: sticky;
+  top: 64px;
+  z-index: 30;
+  backdrop-filter: saturate(160%) blur(6px);
+  -webkit-backdrop-filter: saturate(160%) blur(6px);
+}
+@media (max-width: 768px) {
+  .ticker { top: 56px; }
 }
 
 .statusBar {
@@ -37,14 +46,51 @@
   opacity: 0.5;
 }
 
+/* 스크롤 호스트 (좌/우 버튼 + 스크롤 영역) */
+.scrollerHost {
+  position: relative;
+  display: block;
+}
+
+/* 좌/우 nav 버튼 */
+.navBtn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 2;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 1px solid var(--rw-border);
+  background: var(--rw-card);
+  color: var(--rw-text-strong);
+  font-size: 18px;
+  font-weight: 900;
+  line-height: 1;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.10);
+  transition: background 140ms, transform 140ms, color 140ms;
+  padding-bottom: 2px; /* 시각 중앙 보정 */
+}
+.navBtn:hover {
+  background: var(--rw-primary);
+  color: #fff;
+  border-color: var(--rw-primary);
+}
+.navBtnL { left: -6px; }
+.navBtnR { right: -6px; }
+
 /* 가로 스크롤 행 */
 .scrollWrap {
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
-  /* 우측 fade 어포던스 */
-  -webkit-mask-image: linear-gradient(to right, #000 0, #000 calc(100% - 32px), transparent 100%);
-          mask-image: linear-gradient(to right, #000 0, #000 calc(100% - 32px), transparent 100%);
+  /* 좌우 fade 어포던스 */
+  -webkit-mask-image: linear-gradient(to right, transparent 0, #000 16px, #000 calc(100% - 16px), transparent 100%);
+          mask-image: linear-gradient(to right, transparent 0, #000 16px, #000 calc(100% - 16px), transparent 100%);
 }
 .scrollWrap::-webkit-scrollbar { display: none; }
 
@@ -52,14 +98,14 @@
   display: inline-flex;
   align-items: center;
   gap: 0;
-  padding-right: 24px;
+  padding: 0 24px;
 }
 
 .item {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 4px 12px;
+  gap: 6px;
+  padding: 3px 10px;
   border-right: 1px solid var(--rw-hairline);
   flex-shrink: 0;
   min-width: 0;
@@ -70,9 +116,9 @@
 /* 캘린더 진입 카드 (첫 항목) */
 .itemCalendar {
   cursor: pointer;
-  transition: background-color 140ms ease;
+  transition: background-color 140ms;
   border-radius: 8px;
-  padding: 4px 12px;
+  padding: 3px 10px;
 }
 .itemCalendar:hover {
   background: var(--rw-primary-bg);
@@ -81,40 +127,39 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 32px;
-  height: 22px;
-  padding: 0 6px;
-  border-radius: 6px;
+  min-width: 28px;
+  height: 20px;
+  padding: 0 5px;
+  border-radius: 5px;
   background: var(--rw-text-strong);
   color: #fff;
-  font-size: 11px;
+  font-size: 10.5px;
   font-weight: 900;
   letter-spacing: -0.1px;
   font-feature-settings: 'tnum';
 }
 .priceCal {
-  font-size: 12px;
+  font-size: 11.5px;
   font-weight: 700;
   color: var(--rw-text-strong);
   letter-spacing: -0.1px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 220px;
+  max-width: 180px;
   line-height: 1.2;
 }
 .item:last-child { border-right: none; }
-.item:first-child { padding-left: 0; }
 
 .spark {
   flex-shrink: 0;
-  width: 60px;
-  height: 24px;
+  width: 44px;
+  height: 20px;
 }
 .sparkPlaceholder {
   flex-shrink: 0;
-  width: 60px;
-  height: 24px;
+  width: 44px;
+  height: 20px;
 }
 
 .body {
@@ -125,7 +170,7 @@
 }
 
 .name {
-  font-size: 11px;
+  font-size: 10.5px;
   font-weight: 700;
   color: var(--rw-text-muted);
   letter-spacing: -0.1px;
@@ -140,7 +185,7 @@
 }
 
 .price {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 900;
   color: var(--rw-text-strong);
   letter-spacing: -0.2px;
@@ -149,7 +194,7 @@
 }
 
 .change {
-  font-size: 11px;
+  font-size: 10.5px;
   font-weight: 700;
   font-feature-settings: 'tnum';
   letter-spacing: -0.1px;
@@ -159,10 +204,13 @@
 
 @media (max-width: 600px) {
   .ticker { padding: 6px 12px 8px; }
-  .item { padding: 3px 10px; gap: 6px; }
-  .spark { width: 48px; height: 22px; }
-  .sparkPlaceholder { width: 48px; height: 22px; }
-  .price { font-size: 12px; }
-  .change { font-size: 10.5px; }
-  .name { font-size: 10.5px; }
+  .item { padding: 3px 8px; gap: 5px; }
+  .spark { width: 36px; height: 18px; }
+  .sparkPlaceholder { width: 36px; height: 18px; }
+  .price { font-size: 11.5px; }
+  .change { font-size: 10px; }
+  .name { font-size: 10px; }
+  .navBtn { width: 22px; height: 22px; font-size: 15px; }
+  .navBtnL { left: -2px; }
+  .navBtnR { right: -2px; }
 }
