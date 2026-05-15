@@ -217,11 +217,23 @@ export default function AdminSparringClient({ initialSparrings }: { initialSparr
       if (form.id) {
         const { error } = await supabase.from('sparrings').update(payload).eq('id', form.id);
         if (error) throw error;
-        setMessage('라운드를 수정했어요.');
+        setMessage('라운드를 수정했어요. (캐시 무효화 중…)');
       } else {
         const { error } = await supabase.from('sparrings').insert({ ...payload, status: 'active' });
         if (error) throw error;
-        setMessage('새 라운드를 만들었어요.');
+        setMessage('새 라운드를 만들었어요. (캐시 무효화 중…)');
+      }
+
+      // 캐시 즉시 무효화 — 홈/ETF/스파링 페이지 새로 빌드
+      try {
+        await fetch('/api/admin/revalidate', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ paths: ['/', '/etf', '/sparring', `/sparring/${form.slug}`] }),
+        });
+        setMessage(prev => prev.replace(' (캐시 무효화 중…)', ' ✓ 홈에 바로 반영됨'));
+      } catch {
+        // 실패해도 1분 후 ISR 로 갱신됨
       }
 
       setForm(emptyForm);
@@ -234,6 +246,16 @@ export default function AdminSparringClient({ initialSparrings }: { initialSparr
     }
   };
 
+  const revalidateHome = async () => {
+    try {
+      await fetch('/api/admin/revalidate', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ paths: ['/', '/etf', '/sparring'] }),
+      });
+    } catch {}
+  };
+
   const closeRound = async (id: string) => {
     setPending(true);
     const { error } = await supabase
@@ -242,6 +264,7 @@ export default function AdminSparringClient({ initialSparrings }: { initialSparr
       .eq('id', id);
     setPending(false);
     if (error) setMessage(error.message);
+    await revalidateHome();
     await refresh();
   };
 
@@ -253,6 +276,7 @@ export default function AdminSparringClient({ initialSparrings }: { initialSparr
       .eq('id', id);
     setPending(false);
     if (error) setMessage(error.message);
+    await revalidateHome();
     await refresh();
   };
 

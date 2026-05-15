@@ -13,6 +13,12 @@ import { listMyNotifications, type UserNotification } from '@/lib/alerts';
 import styles from './MyPage.module.css';
 
 const EMOJI = ['🐯','🐰','🦊','🐻','🦋','🐸','🐼','🦁','🐨','🐮','🐷','🐙'];
+const EMOJI_PALETTE = [
+  '🐯','🐰','🦊','🐻','🦋','🐸','🐼','🦁','🐨','🐮','🐷','🐙',
+  '🐧','🦉','🐢','🐳','🦄','🐝','🐞','🐳','🐊','🦖','🐬','🦦',
+  '🌱','🌸','🌻','🍀','🍎','🍑','🍓','🥑','🍔','🍕','🍩','🍰',
+  '⚽','🎾','🎯','🎨','🎮','🎸','🎺','🚀','✨','⭐','🌈','🌙',
+];
 function hashEmoji(key?: string | null): string {
   if (!key) return EMOJI[0];
   let h = 0;
@@ -50,6 +56,11 @@ export default function MyPageClient() {
   const [notifications, setNotifications] = useState<UserNotification[]>([]);
   const [portfolioSummary, setPortfolioSummary] = useState<{ count: number; total_market_value: number; total_pnl: number; total_pnl_pct: number; has_unknown_price: boolean } | null>(null);
   const [tab, setTab] = useState<Tab>('questions');
+  const [editOpen, setEditOpen] = useState(false);
+  const [editEmoji, setEditEmoji] = useState<string>('');
+  const [editName, setEditName] = useState<string>('');
+  const [editBio, setEditBio] = useState<string>('');
+  const [savingProfile, setSavingProfile] = useState(false);
 
   useEffect(() => {
     if (!hasSupabase()) {
@@ -150,13 +161,122 @@ export default function MyPageClient() {
       <main className={styles.page}>
         {/* 헤더 */}
         <header className={styles.header}>
-          <div className={`${styles.avatar} tf`}>{avatarEmoji}</div>
+          <button
+            type="button"
+            onClick={() => {
+              setEditEmoji(avatarEmoji);
+              setEditName(name);
+              setEditBio(profile?.bio || '');
+              setEditOpen(true);
+            }}
+            className={`${styles.avatar} tf`}
+            title="프로필 수정"
+            aria-label="프로필 수정"
+          >
+            {avatarEmoji}
+            <span className={styles.avatarEditHint}>✏️</span>
+          </button>
           <div className={styles.headerBody}>
             <h1 className={styles.name}>{name}</h1>
             <div className={styles.joinedAt}>{fmtJoin(joinedAt)}</div>
+            {profile?.bio && <p className={styles.bio}>{profile.bio}</p>}
           </div>
-          <Link href={`/u/${user.id}`} className={styles.profileLink}>공개 프로필 →</Link>
+          <div className={styles.headerActions}>
+            <button type="button" onClick={() => {
+              setEditEmoji(avatarEmoji);
+              setEditName(name);
+              setEditBio(profile?.bio || '');
+              setEditOpen(true);
+            }} className={styles.editBtn}>프로필 수정</button>
+            <Link href={`/u/${user.id}`} className={styles.profileLink}>공개 프로필 →</Link>
+          </div>
         </header>
+
+        {/* 프로필 수정 모달 */}
+        {editOpen && (
+          <div className={styles.modalBackdrop} onClick={() => !savingProfile && setEditOpen(false)}>
+            <div className={styles.modal} onClick={e => e.stopPropagation()}>
+              <header className={styles.modalHead}>
+                <h2>프로필 수정</h2>
+                <button type="button" onClick={() => setEditOpen(false)} className={styles.modalClose} aria-label="닫기">✕</button>
+              </header>
+
+              <div className={styles.editSection}>
+                <div className={styles.editLabel}>아바타 이모지</div>
+                <div className={styles.editEmojiPreview}>
+                  <span className={`${styles.editEmojiBig} tf`}>{editEmoji}</span>
+                </div>
+                <div className={styles.emojiGrid}>
+                  {EMOJI_PALETTE.map(e => (
+                    <button
+                      type="button"
+                      key={e}
+                      onClick={() => setEditEmoji(e)}
+                      className={`${styles.emojiBtn} tf ${editEmoji === e ? styles.emojiBtnOn : ''}`}
+                    >
+                      {e}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className={styles.editSection}>
+                <label className={styles.editLabel} htmlFor="profile-name">닉네임</label>
+                <input
+                  id="profile-name"
+                  type="text"
+                  value={editName}
+                  onChange={e => setEditName(e.target.value)}
+                  maxLength={20}
+                  className={styles.editInput}
+                  placeholder="2~20자"
+                />
+              </div>
+
+              <div className={styles.editSection}>
+                <label className={styles.editLabel} htmlFor="profile-bio">한 줄 소개 (선택)</label>
+                <input
+                  id="profile-bio"
+                  type="text"
+                  value={editBio}
+                  onChange={e => setEditBio(e.target.value)}
+                  maxLength={80}
+                  className={styles.editInput}
+                  placeholder="예: 30대 직장인, ETF로 적립식 투자 중"
+                />
+              </div>
+
+              <div className={styles.modalFoot}>
+                <button type="button" onClick={() => setEditOpen(false)} className={styles.modalBack} disabled={savingProfile}>취소</button>
+                <button
+                  type="button"
+                  onClick={async () => {
+                    if (!hasSupabase()) return;
+                    setSavingProfile(true);
+                    const supabase = createClient();
+                    const trimmedName = editName.trim() || name;
+                    const trimmedBio = editBio.trim();
+                    const { error } = await supabase
+                      .from('users')
+                      .update({ avatar_url: editEmoji, name: trimmedName, bio: trimmedBio || null })
+                      .eq('id', user.id);
+                    setSavingProfile(false);
+                    if (error) {
+                      alert('저장 실패: ' + error.message);
+                      return;
+                    }
+                    setProfile((p: any) => ({ ...(p || {}), avatar_url: editEmoji, name: trimmedName, bio: trimmedBio || null }));
+                    setEditOpen(false);
+                  }}
+                  className={styles.modalSave}
+                  disabled={savingProfile || !editEmoji || !editName.trim()}
+                >
+                  {savingProfile ? '저장 중…' : '저장'}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* 통계 카드 */}
         <section className={styles.statGrid}>
