@@ -9,6 +9,7 @@ import { CATEGORY_DEFINITIONS, CATEGORY_EMOJI, CATEGORY_LABELS, getCategoryLabel
 import type { Question } from '@/lib/sampleData';
 import { LEVELS, EMOJI, sampleQuestions } from '@/lib/sampleData';
 import { mapDbRowToHomeQuestion, isUsefulQuestion as isUsefulQ, formatTime as fmtTime } from '@/lib/home-questions';
+import { trackEvent } from '@/lib/analytics';
 import type { Sparring } from '@/lib/sparring';
 import { createQuestionSlug, ensureUniqueSlug } from '@/lib/slugs';
 import { getAuthNickname, syncFinanceNickname } from '@/lib/nicknames';
@@ -51,10 +52,14 @@ export default function HomeClient({
   initialQuestions,
   featuredSparring,
   marketIndices,
+  siteBanner,
+  siteKeywords,
 }: {
   initialQuestions: Question[];
   featuredSparring?: Sparring | null;
   marketIndices?: { name: string; val: string; chg: string; up: boolean }[];
+  siteBanner?: { enabled: boolean; message: string; link: string };
+  siteKeywords?: string[];
 }) {
   const router = useRouter();
   const [user, setUser] = useState<any>(null);
@@ -302,6 +307,9 @@ export default function HomeClient({
       {/* PC 본문 */}
       <div className={styles.pcBody}>
         <div className={styles.pcFeed}>
+          {siteBanner?.enabled && siteBanner.message && (
+            <SiteBannerStrip banner={siteBanner} />
+          )}
           <div className={styles.feedTabs}>
             {FEED_TABS.map(tab => (
               <button
@@ -381,10 +389,14 @@ export default function HomeClient({
           <div className={styles.sideWidget}>
             <div className={styles.sideHead}>인기 키워드</div>
             <div className={styles.keywordChips}>
-              {HOME_KEYWORDS.map(kw => {
+              {(siteKeywords && siteKeywords.length > 0 ? siteKeywords : HOME_KEYWORDS).map(kw => {
                 const entry = lookupGlossary(kw);
                 const link = (
-                  <Link className={styles.keywordChip} href={`/etf?q=${encodeURIComponent(kw)}`}>
+                  <Link
+                    className={styles.keywordChip}
+                    href={`/etf?q=${encodeURIComponent(kw)}`}
+                    onClick={() => trackEvent({ kind: 'click', target: `keyword:${kw}` })}
+                  >
                     #{kw}
                   </Link>
                 );
@@ -477,6 +489,44 @@ function mergeQuestions(primary: Question[], fallback: Question[]) {
     seen.add(key);
     return true;
   });
+}
+
+function SiteBannerStrip({ banner }: { banner: { enabled: boolean; message: string; link: string } }) {
+  // 노출 임프레션 1회 기록
+  useEffect(() => {
+    trackEvent({ kind: 'impression', target: 'banner', meta: { message: banner.message } });
+  }, [banner.message]);
+
+  const inner = (
+    <div style={{
+      display: 'flex',
+      alignItems: 'center',
+      gap: 10,
+      padding: '12px 16px',
+      background: 'var(--rw-primary-bg, rgba(49,130,246,.08))',
+      border: '1px solid rgba(49,130,246,.18)',
+      borderRadius: 10,
+      marginBottom: 14,
+      fontSize: 14,
+      color: 'var(--rw-text-strong, var(--t1))',
+      fontWeight: 600,
+    }}>
+      <span style={{ fontSize: 16 }}>📢</span>
+      <span style={{ flex: 1 }}>{banner.message}</span>
+      {banner.link && <span style={{ color: 'var(--blue)', fontSize: 12, fontWeight: 700 }}>자세히 →</span>}
+    </div>
+  );
+
+  if (!banner.link) return inner;
+  return (
+    <Link
+      href={banner.link}
+      onClick={() => trackEvent({ kind: 'click', target: 'banner', meta: { link: banner.link } })}
+      style={{ textDecoration: 'none' }}
+    >
+      {inner}
+    </Link>
+  );
 }
 
 function FeedSummary({

@@ -2,12 +2,12 @@
   display: grid;
   grid-template-columns: 220px 1fr;
   min-height: 100vh;
-  background: var(--bg);
+  background: var(--rw-screen, var(--bg));
 }
 
 .side {
-  border-right: 1px solid var(--line);
-  background: var(--white);
+  border-right: 1px solid var(--rw-hairline, var(--line));
+  background: var(--rw-card, var(--white));
   padding: 24px 16px;
   display: flex;
   flex-direction: column;
@@ -20,19 +20,19 @@
 .logo {
   font-size: 18px;
   font-weight: 800;
-  color: var(--blue);
+  color: var(--rw-primary, var(--blue));
   text-decoration: none;
   margin-bottom: 4px;
 }
 .logo em {
-  color: var(--t1);
+  color: var(--rw-text-strong, var(--t1));
   font-style: normal;
 }
 
 .sideLabel {
   font-size: 11px;
   font-weight: 700;
-  color: var(--t3);
+  color: var(--rw-text-muted, var(--t3));
   text-transform: uppercase;
   letter-spacing: 1px;
   margin: 16px 0 6px;
@@ -48,22 +48,22 @@
   padding: 10px 12px;
   font-size: 14px;
   font-weight: 500;
-  color: var(--t2);
+  color: var(--rw-text-body, var(--t2));
   text-decoration: none;
   border-radius: 8px;
   transition: background .12s, color .12s;
 }
 .navItem:hover {
-  background: var(--bg);
-  color: var(--t1);
+  background: var(--rw-screen, var(--bg));
+  color: var(--rw-text-strong, var(--t1));
 }
 
 .sideFoot {
   margin-top: auto;
   padding-top: 16px;
-  border-top: 1px solid var(--line);
+  border-top: 1px solid var(--rw-hairline, var(--line));
   font-size: 12px;
-  color: var(--t3);
+  color: var(--rw-text-muted, var(--t3));
 }
 .userEmail {
   display: block;
@@ -82,12 +82,12 @@
 .head h1 {
   font-size: 24px;
   font-weight: 800;
-  color: var(--t1);
+  color: var(--rw-text-strong, var(--t1));
   margin: 0 0 6px;
 }
 .head p {
   font-size: 14px;
-  color: var(--t3);
+  color: var(--rw-text-muted, var(--t3));
   margin: 0;
 }
 
@@ -99,48 +99,50 @@
   margin-bottom: 32px;
 }
 .statCard {
-  background: var(--white);
-  border: 1px solid var(--line);
-  border-radius: 12px;
+  background: var(--rw-card, var(--white));
+  border: 1px solid var(--rw-hairline, var(--line));
+  border-radius: 14px;
   padding: 18px 20px;
+  box-shadow: 0 1px 3px rgba(0,0,0,.04);
 }
 .statLabel {
   font-size: 12px;
   font-weight: 600;
-  color: var(--t3);
+  color: var(--rw-text-muted, var(--t3));
   margin-bottom: 6px;
 }
 .statValue {
   font-size: 28px;
   font-weight: 800;
-  color: var(--t1);
+  color: var(--rw-text-strong, var(--t1));
   line-height: 1;
 }
 .statDelta {
   font-size: 12px;
   font-weight: 600;
-  color: var(--t3);
+  color: var(--rw-text-muted, var(--t3));
   margin-top: 4px;
 }
 
 /* 데이터 테이블 */
 .tableWrap {
-  background: var(--white);
-  border: 1px solid var(--line);
-  border-radius: 12px;
+  background: var(--rw-card, var(--white));
+  border: 1px solid var(--rw-hairline, var(--line));
+  border-radius: 14px;
   overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0,0,0,.04);
 }
 .tableHead {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 16px 20px;
-  border-bottom: 1px solid var(--line);
+  border-bottom: 1px solid var(--rw-hairline, var(--line));
 }
 .tableHead h2 {
   font-size: 15px;
   font-weight: 700;
-  color: var(--t1);
+  color: var(--rw-text-strong, var(--t1));
   margin: 0;
 }
 .table {
@@ -151,25 +153,25 @@
 .table th, .table td {
   text-align: left;
   padding: 12px 16px;
-  border-bottom: 1px solid var(--line);
+  border-bottom: 1px solid var(--rw-hairline, var(--line));
   vertical-align: middle;
 }
 .table th {
   font-size: 12px;
   font-weight: 700;
-  color: var(--t3);
-  background: var(--bg);
+  color: var(--rw-text-muted, var(--t3));
+  background: var(--rw-screen, var(--bg));
 }
 .table tbody tr:last-child td {
   border-bottom: none;
 }
 .table tbody tr:hover {
-  background: var(--bg);
+  background: var(--rw-screen, var(--bg));
 }
 
 .cellTitle {
   font-weight: 600;
-  color: var(--t1);
+  color: var(--rw-text-strong, var(--t1));
   text-decoration: none;
   display: block;
   max-width: 480px;
@@ -178,7 +180,7 @@
   white-space: nowrap;
 }
 .cellTitle:hover {
-  color: var(--blue);
+  color: var(--rw-primary, var(--blue));
 }
 
 .actionBtn {
@@ -186,14 +188,14 @@
   font-size: 12px;
   font-weight: 600;
   border-radius: 6px;
-  border: 1px solid var(--line);
-  background: var(--white);
-  color: var(--t2);
+  border: 1px solid var(--rw-hairline, var(--line));
+  background: var(--rw-card, var(--white));
+  color: var(--rw-text-body, var(--t2));
   cursor: pointer;
 }
 .actionBtn:hover {
-  background: var(--bg);
-  color: var(--t1);
+  background: var(--rw-screen, var(--bg));
+  color: var(--rw-text-strong, var(--t1));
 }
 .danger {
   color: #e03131;
@@ -207,7 +209,7 @@
 .empty {
   padding: 60px 20px;
   text-align: center;
-  color: var(--t3);
+  color: var(--rw-text-muted, var(--t3));
   font-size: 14px;
 }
 
@@ -222,34 +224,34 @@
 .gateCard {
   max-width: 460px;
   text-align: center;
-  background: var(--white);
-  border: 1px solid var(--line);
+  background: var(--rw-card, var(--white));
+  border: 1px solid var(--rw-hairline, var(--line));
   border-radius: 16px;
   padding: 40px 32px;
 }
 .gateCard span {
   font-size: 12px;
   font-weight: 700;
-  color: var(--t3);
+  color: var(--rw-text-muted, var(--t3));
   text-transform: uppercase;
   letter-spacing: 1px;
 }
 .gateCard h1 {
   font-size: 22px;
   font-weight: 800;
-  color: var(--t1);
+  color: var(--rw-text-strong, var(--t1));
   margin: 8px 0 12px;
 }
 .gateCard p {
   font-size: 14px;
-  color: var(--t2);
+  color: var(--rw-text-body, var(--t2));
   margin: 0 0 24px;
   line-height: 1.6;
 }
 .gateBtn {
   display: inline-block;
   padding: 10px 24px;
-  background: var(--blue);
+  background: var(--rw-primary, var(--blue));
   color: white;
   border-radius: 8px;
   font-weight: 700;

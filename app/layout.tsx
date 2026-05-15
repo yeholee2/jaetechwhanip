@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { SITE_NAME, SITE_URL } from '@/lib/seo';
 import '@fortawesome/fontawesome-free/css/all.css';
 import './globals.css';
+import { PageViewTracker } from '@/components/PageViewTracker';
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -48,7 +49,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
-      <body>{children}</body>
+      <body>
+        <PageViewTracker />
+        {children}
+      </body>
     </html>
   );
 }
