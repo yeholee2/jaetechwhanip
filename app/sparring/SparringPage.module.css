@@ -4,34 +4,59 @@
   padding: 24px 4px 56px;
 }
 
-.header {
-  margin-bottom: 20px;
+/* 톤 통일된 hero — 우측 카운트 pill */
+.hero {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 16px;
+  padding: 8px 4px 20px;
 }
-
-.eyebrow {
-  display: inline-flex;
-  align-items: center;
-  height: 24px;
-  margin-bottom: 8px;
-  color: var(--blue);
-  font-size: 13px;
-  font-weight: 850;
+.heroText {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
-
-.header h1 {
-  color: var(--t1);
-  font-size: 30px;
+.heroEyebrow {
+  font-size: 11.5px;
+  font-weight: 900;
+  letter-spacing: 0.4px;
+  color: var(--rw-primary);
+  text-transform: uppercase;
+}
+.heroText h1 {
+  margin: 4px 0 0;
+  color: var(--rw-text-strong);
+  font-size: 26px;
+  font-weight: 900;
+  letter-spacing: -0.5px;
   line-height: 1.3;
-  font-weight: 850;
-  letter-spacing: 0;
 }
-
-.header p {
-  margin-top: 6px;
-  color: var(--t2);
-  font-size: 14px;
-  line-height: 1.55;
-  font-weight: 650;
+.heroText p {
+  margin: 0;
+  color: var(--rw-text-muted);
+  font-size: 13.5px;
+  font-weight: 600;
+  line-height: 1.6;
+}
+.heroPill {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+  padding: 8px 14px;
+  background: var(--rw-primary-bg);
+  color: var(--rw-primary);
+  border-radius: 999px;
+  flex-shrink: 0;
+}
+.heroPill strong {
+  font-size: 17px;
+  font-weight: 900;
+  font-feature-settings: 'tnum';
+}
+.heroPill span {
+  font-size: 11.5px;
+  font-weight: 800;
 }
 
 .sectionHead {
@@ -125,12 +150,12 @@
     padding: 18px 0 48px;
   }
 
-  .header h1 {
-    font-size: 26px;
+  .hero { padding: 4px 0 16px; }
+  .heroText h1 {
+    font-size: 22px;
   }
-
-  .header p {
-    font-size: 14px;
+  .heroText p {
+    font-size: 13px;
   }
 
   .sectionHead h2,

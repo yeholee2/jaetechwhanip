@@ -6,7 +6,7 @@ import SparringActiveCard from '@/components/sparring/SparringActiveCard';
 import SparringPastCard from '@/components/sparring/SparringPastCard';
 import { CATEGORY_DEFINITIONS, getCategoryLabel } from '@/lib/categories';
 import type { Sparring } from '@/lib/sparring';
-import { PageHero, Section, Chip, Badge } from '@/components/ui';
+import { Section, Chip } from '@/components/ui';
 import { PageSidebar } from '@/components/PageSidebar';
 import styles from './SparringPage.module.css';
 
@@ -36,12 +36,17 @@ export default function SparringClient({ sparrings }: { sparrings: Sparring[] })
     <AppShell active="sparring" wide hideSlogan>
       <main className="pc-layout">
         <div className="pc-layout-main">
-        <PageHero
-          eyebrow="머니 스파링"
-          title="결정하기 전에, 찬반으로 먼저 검증해요"
-          lead="ETF·세금·보험 — 헷갈리는 선택을 라운드로 가린 뒤 모두의 의견을 들어봐요."
-          aside={<Badge tone="primary">{activeSparrings.length}개 진행중</Badge>}
-        />
+        <header className={styles.hero}>
+          <div className={styles.heroText}>
+            <span className={styles.heroEyebrow}>머니 스파링</span>
+            <h1>결정하기 전에, 찬반으로 먼저 검증해요</h1>
+            <p>ETF·세금·보험 — 헷갈리는 선택을 라운드로 가린 뒤 모두의 의견을 들어봐요.</p>
+          </div>
+          <div className={styles.heroPill}>
+            <strong>{activeSparrings.length}</strong>
+            <span>진행중</span>
+          </div>
+        </header>
 
         <Section title="진행중 스파링" sub={`${activeSparrings.length}개`}>
           <div className={styles.activeGrid} aria-label="진행중 스파링">

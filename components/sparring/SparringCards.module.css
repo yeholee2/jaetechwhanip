@@ -1,13 +1,18 @@
 .activeCard {
   position: relative;
-  min-height: 248px;
+  aspect-ratio: 4 / 5;
   overflow: hidden;
   border: 1px solid var(--line);
-  border-radius: 12px;
+  border-radius: 14px;
   background: var(--fallback-bg, linear-gradient(135deg, var(--rw-blue70), #071b5f));
   color: #fff;
-  box-shadow: none;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
   isolation: isolate;
+  transition: transform 200ms ease, box-shadow 200ms ease;
+}
+.activeCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.12);
 }
 
 .activeCard::before,
@@ -32,7 +37,7 @@
 
 .activeLink {
   display: flex;
-  min-height: 248px;
+  height: 100%;
   flex-direction: column;
   justify-content: space-between;
 }
@@ -370,14 +375,10 @@
 }
 
 @media (max-width: 768px) {
-  .activeCard,
-  .activeLink {
-    min-height: 258px;
-  }
-
   .activeCard {
-    flex: 0 0 min(84vw, 300px);
+    flex: 0 0 min(78vw, 280px);
     scroll-snap-align: start;
+    aspect-ratio: 4 / 5;
   }
 
   .activeCopy {
@@ -385,7 +386,7 @@
   }
 
   .activeTitle {
-    font-size: 22px;
+    font-size: 20px;
   }
 
   .activeMeta {
