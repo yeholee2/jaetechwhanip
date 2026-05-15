@@ -65,9 +65,11 @@ function formatPrice(price: number, unit?: string): string {
 }
 
 function formatChange(change: number, pct: number): string {
-  const sign = change > 0 ? '+' : '';
+  // 일관된 부호 표기: +232.88 (+0.88%) / -488.23 (-6.12%)
+  const sign = change > 0 ? '+' : change < 0 ? '-' : '';
   const absChg = Math.abs(change).toLocaleString('en-US', { maximumFractionDigits: 2 });
-  return `${sign}${absChg} (${pct.toFixed(2)}%)`;
+  const pctSign = pct > 0 ? '+' : '';
+  return `${sign}${absChg} (${pctSign}${pct.toFixed(2)}%)`;
 }
 
 /** Mini sparkline SVG (60×30) — Toss 톤 톤온톤 라인 */

@@ -132,17 +132,32 @@ async function DiscoverTab({ allEtfs }: { allEtfs: import('@/lib/etfs').EtfInfo[
 function DiscoverMoreCards() {
   return (
     <section className={styles.discoverMore}>
-      <Card href="/etf/themes" pad="lg" className={styles.moreCard}>
+      <Card href="/etf/themes" pad="lg" className={`${styles.moreCard} ${styles.moreCardThemes}`}>
+        <div className={styles.moreCardIcon} aria-hidden="true">
+          <span className="tf">🔥</span>
+        </div>
         <Badge tone="purple">테마 · 전략</Badge>
         <h3>뜨는 테마와 검증된 전략</h3>
-        <p>월배당·반도체·AI · 큐레이션 묶음까지 한 페이지에서.</p>
+        <p>월배당·반도체·AI 큐레이션 묶음까지 한 페이지에서.</p>
         <span className={styles.moreLink}>둘러보기 →</span>
       </Card>
-      <Card href="/etf/news" pad="lg" className={styles.moreCard}>
-        <Badge tone="orange">📰 뉴스</Badge>
+      <Card href="/etf/news" pad="lg" className={`${styles.moreCard} ${styles.moreCardNews}`}>
+        <div className={styles.moreCardIcon} aria-hidden="true">
+          <span className="tf">📰</span>
+        </div>
+        <Badge tone="orange">뉴스</Badge>
         <h3>ETF·시장 뉴스</h3>
-        <p>ETF·시장·정책 관련 주요 기사 모음.</p>
+        <p>ETF·시장·정책 주요 기사를 빠르게 훑어보세요.</p>
         <span className={styles.moreLink}>뉴스 보기 →</span>
+      </Card>
+      <Card href="/etf/all" pad="lg" className={`${styles.moreCard} ${styles.moreCardAll}`}>
+        <div className={styles.moreCardIcon} aria-hidden="true">
+          <span className="tf">🔍</span>
+        </div>
+        <Badge tone="primary">전체 검색</Badge>
+        <h3>국내·미국 ETF 한번에</h3>
+        <p>1,066개 ETF 를 보수·순자산·테마로 필터링.</p>
+        <span className={styles.moreLink}>전체 보기 →</span>
       </Card>
     </section>
   );

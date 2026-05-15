@@ -13,43 +13,77 @@
   gap: var(--space-section-sm);
 }
 
-/* 발견 탭 — 더 보기 카드 (테마/뉴스 진입) */
+/* 발견 탭 — 더 보기 카드 (테마/뉴스/전체검색 진입) */
 .discoverMore {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: var(--space-3);
   margin-bottom: var(--space-3);
 }
 
 .moreCard {
+  position: relative;
   display: flex;
   flex-direction: column;
-  gap: var(--space-2);
+  gap: 6px;
+  overflow: hidden;
+  transition: transform 140ms ease, box-shadow 140ms ease;
+}
+.moreCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 22px rgba(15, 23, 42, 0.06);
+}
+
+/* 우상단 큰 emoji 일러스트 (드라이브 시각) */
+.moreCardIcon {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  font-size: 56px;
+  line-height: 1;
+  opacity: 0.18;
+  pointer-events: none;
+  transition: opacity 140ms ease, transform 140ms ease;
+}
+.moreCard:hover .moreCardIcon {
+  opacity: 0.32;
+  transform: scale(1.05);
 }
 
 .moreCard h3 {
-  font-size: var(--text-md);
-  font-weight: var(--weight-heavy);
+  font-size: 15px;
+  font-weight: 900;
   color: var(--rw-text-strong);
   margin: var(--space-1) 0 0;
-  letter-spacing: -0.1px;
+  letter-spacing: -0.2px;
+  line-height: 1.3;
 }
 
 .moreCard p {
-  font-size: var(--text-sm);
-  font-weight: var(--weight-semibold);
+  font-size: 12.5px;
+  font-weight: 550;
   color: var(--rw-text-body);
-  line-height: var(--leading-relaxed);
+  line-height: 1.55;
   margin: 0;
 }
 
 .moreLink {
-  font-size: var(--text-sm);
-  font-weight: var(--weight-bold);
-  color: var(--rw-blue70);
-  margin-top: var(--space-1);
+  font-size: 12px;
+  font-weight: 900;
+  color: var(--rw-primary);
+  margin-top: auto;
+  padding-top: 6px;
+  letter-spacing: -0.1px;
 }
 
+/* 카드별 미세 톤 — 옅은 brand color 배경 */
+.moreCardThemes { background: linear-gradient(135deg, rgba(126, 87, 194, 0.06), var(--rw-card) 60%); }
+.moreCardNews   { background: linear-gradient(135deg, rgba(255, 169, 39, 0.08), var(--rw-card) 60%); }
+.moreCardAll    { background: linear-gradient(135deg, var(--rw-primary-bg), var(--rw-card) 60%); }
+
+@media (max-width: 960px) {
+  .discoverMore { grid-template-columns: 1fr 1fr; }
+}
 @media (max-width: 600px) {
   .discoverMore { grid-template-columns: 1fr; }
 }
