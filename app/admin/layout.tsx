@@ -15,6 +15,7 @@ const NAV_ITEMS = [
   { href: '/admin/sparring', label: '스파링' },
   { href: '/admin/reports', label: '리포트' },
   { href: '/admin/settings', label: '설정' },
+  { href: '/admin/setup', label: '⚙️ 초기 설정' },
 ];
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
