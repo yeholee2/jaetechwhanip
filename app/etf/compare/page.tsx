@@ -44,7 +44,7 @@ export default async function EtfComparePage({
           />
           <EtfCompareClient initialA={a} initialB={b} candidates={allEtfs} />
         </div>
-        <PageSidebar widgets={['watch', 'etf-nav', 'help']} />
+        <PageSidebar widgets={['watch', 'help']} />
       </main>
     </AppShell>
   );

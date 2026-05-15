@@ -45,7 +45,7 @@ export default async function EtfThemesPage() {
           <CtaCards />
           <FeaturePromo />
         </div>
-        <PageSidebar widgets={['watch', 'etf-nav']} />
+        <PageSidebar widgets={['watch']} />
       </main>
     </AppShell>
   );

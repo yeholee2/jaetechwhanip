@@ -35,7 +35,7 @@ export default function EtfNewsPage() {
 
           <EtfNews />
         </div>
-        <PageSidebar widgets={['watch', 'etf-nav']} />
+        <PageSidebar widgets={['watch']} />
       </main>
     </AppShell>
   );

@@ -179,7 +179,7 @@ export default async function LearnPage({
             </section>
           )}
         </div>
-        <PageSidebar widgets={['sparring', 'watch', 'etf-nav', 'help']} featuredSparring={featured} />
+        <PageSidebar widgets={['sparring', 'watch', 'help']} featuredSparring={featured} />
       </main>
     </AppShell>
   );

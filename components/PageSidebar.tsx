@@ -4,11 +4,10 @@
  * PC 페이지 우측 사이드바 — 페이지별 컨텍스트 위젯.
  *
  * 사용 예:
- *   <PageSidebar widgets={['watch', 'etf-nav', 'sparring']} />
+ *   <PageSidebar widgets={['watch', 'sparring']} />
  *
  * 위젯 종류:
  * - 'watch'      : 내 관심 ETF (HomeWatchWidget)
- * - 'etf-nav'    : ETF 영역 내부 네비 (발견/관심/진단/테마/뉴스/검색/비교)
  * - 'sparring'   : 진행 중 핫 스파링 (SparringMiniCard)
  * - 'help'       : 검색·질문 도움말
  */
@@ -19,7 +18,7 @@ import SparringMiniCard from './sparring/SparringMiniCard';
 import type { Sparring } from '@/lib/sparring';
 import styles from './PageSidebar.module.css';
 
-export type SidebarWidget = 'watch' | 'etf-nav' | 'sparring' | 'help';
+export type SidebarWidget = 'watch' | 'sparring' | 'help';
 
 export function PageSidebar({
   widgets,
@@ -37,7 +36,6 @@ export function PageSidebar({
             : null;
         }
         if (w === 'watch') return <HomeWatchWidget key="watch" />;
-        if (w === 'etf-nav') return <EtfNavWidget key="etf-nav" />;
         if (w === 'help') return <HelpWidget key="help" />;
         return null;
       })}
@@ -45,19 +43,7 @@ export function PageSidebar({
   );
 }
 
-function EtfNavWidget() {
-  return (
-    <div className={styles.widget}>
-      <div className={styles.head}>ETF 메뉴</div>
-      <ul className={styles.navList}>
-        <li><Link href="/etf/all">전체 검색</Link></li>
-        <li><Link href="/etf/compare">ETF 비교</Link></li>
-        <li><Link href="/etf/themes">테마 · 전략</Link></li>
-        <li><Link href="/etf/news">뉴스</Link></li>
-      </ul>
-    </div>
-  );
-}
+// EtfNavWidget 제거 — 상단 탭 (발견/비교/관심/진단) 에 통합됨
 
 function HelpWidget() {
   return (

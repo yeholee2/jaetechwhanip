@@ -1,57 +1,101 @@
-/* MarketIndices — 3-col grid (한 화면에 가지런히, 가로 스크롤 X) */
+/* 시장 지수 — Figma 톤: sparkline + name / price + change */
 .grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: var(--space-3);
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 12px;
 }
 
 .item {
-  padding: var(--space-3) var(--space-4);
-  background: var(--rw-card-muted);
-  border-radius: var(--rw-radius-sm);
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.head {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 12px;
+  padding: 10px 12px;
+  background: var(--rw-card-muted);
+  border-radius: var(--rw-radius-md);
+  min-width: 0;
+}
+
+.spark {
+  flex-shrink: 0;
+  width: 64px;
+  height: 32px;
+}
+
+.sparkPlaceholder {
+  flex-shrink: 0;
+  width: 64px;
+  height: 32px;
+  background:
+    linear-gradient(to right, transparent 0%, var(--rw-hairline) 50%, transparent 100%);
+  opacity: 0.5;
+}
+
+.body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
 .name {
-  font-size: var(--type-caption);
-  font-weight: var(--weight-semibold);
+  font-size: 12px;
+  font-weight: 700;
   color: var(--rw-text-muted);
+  letter-spacing: -0.1px;
+  line-height: 1.2;
 }
 
-.warn {
-  font-size: 11px;
-  line-height: 1;
+.priceRow {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  flex-wrap: wrap;
 }
 
 .price {
-  font-size: var(--type-body);
-  font-weight: var(--weight-heavy);
+  font-size: 16px;
+  font-weight: 900;
   color: var(--rw-text-strong);
-  letter-spacing: -0.2px;
+  letter-spacing: -0.3px;
+  font-feature-settings: 'tnum';
+  line-height: 1.15;
 }
 
-.up {
-  font-size: var(--type-caption);
-  font-weight: var(--weight-bold);
-  color: var(--rw-up);
+.change {
+  font-size: 12px;
+  font-weight: 700;
+  font-feature-settings: 'tnum';
+  letter-spacing: -0.1px;
 }
+.up { color: var(--rw-red60); }
+.down { color: var(--rw-blue70); }
 
-.down {
-  font-size: var(--type-caption);
-  font-weight: var(--weight-bold);
-  color: var(--rw-down);
+/* 실시간 배지 (head 영역) */
+.liveBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--rw-text-muted);
+  letter-spacing: -0.1px;
+}
+.liveDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--rw-red60);
+  animation: pulse 1.8s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
 }
 
 @media (max-width: 600px) {
-  .grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
+  .grid { grid-template-columns: 1fr; }
+  .item { padding: 8px 10px; }
+  .spark { width: 56px; }
+  .price { font-size: 15px; }
 }

@@ -36,7 +36,7 @@ export default async function EtfAllPage() {
           />
           <EtfAllClient initialEtfs={etfs} />
         </div>
-        <PageSidebar widgets={['watch', 'etf-nav']} />
+        <PageSidebar widgets={['watch']} />
       </main>
     </AppShell>
   );

@@ -298,7 +298,7 @@ export default async function SearchPage({
           </section>
         )}
         </div>
-        <PageSidebar widgets={['watch', 'etf-nav', 'help']} />
+        <PageSidebar widgets={['watch', 'help']} />
       </main>
     </AppShell>
   );

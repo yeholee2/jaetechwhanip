@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import type { CSSProperties } from 'react';
 import { FaIcon } from '@/components/FaIcon';
 import { sparringPath, type Sparring } from '@/lib/sparring';
 import styles from './SparringMiniCard.module.css';
@@ -25,18 +26,27 @@ export default function SparringMiniCard({ sparring }: { sparring?: Sparring | n
   const title = sparring?.title || '지금 진행 중인 스파링 보러가기';
   const totalVotes = sparring?.stats.votes_total ?? 0;
   const remaining = sparring ? formatRemaining(sparring.deadline_at) : '참여하기';
+  const thumb = sparring?.thumbnail_url ? `url("${sparring.thumbnail_url}")` : 'none';
 
   return (
-    <section className={styles.card} aria-label="현재 스파링">
+    <section
+      className={styles.card}
+      aria-label="현재 스파링"
+      style={{
+        '--thumb': thumb,
+        '--thumb-opacity': sparring?.thumbnail_url ? '1' : '0',
+      } as CSSProperties}
+    >
       <Link href={href} className={styles.hero}>
-        <div className={styles.meta}>
-          <span className="tf">🔥</span>
-          <span>{totalVotes > 0 ? `${formatNumber(totalVotes)}명 투표 중` : '지금 투표 중'}</span>
+        <div className={styles.copy}>
+          <div className={styles.meta}>
+            {totalVotes > 0 ? `${formatNumber(totalVotes)}명 투표 중` : '지금 투표 중'}
+          </div>
+          <h2 className={styles.title}>{title}</h2>
         </div>
-        <h2>{title}</h2>
         <div className={styles.foot}>
           <span><FaIcon name="clock" size={13} /> {remaining}</span>
-          <strong>참여하기</strong>
+          <strong><FaIcon name="comment-dots" size={13} /> 참여하기</strong>
         </div>
       </Link>
     </section>

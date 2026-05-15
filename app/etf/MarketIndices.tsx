@@ -1,8 +1,9 @@
 /**
- * 시장 지수 — Yahoo Finance 라이브.
+ * 시장 지수 — Yahoo Finance 라이브 + 미니 sparkline.
  * 서버 컴포넌트 (revalidate 60s).
+ *
+ * Figma 톤: [sparkline] [라벨] / [큰 가격] [+ 등락률]
  */
-import { Stat } from '@/components/ui';
 import sec from './sectionStyles.module.css';
 import styles from './MarketIndices.module.css';
 
@@ -21,33 +22,85 @@ const INDICES: Index[] = [
   { symbol: 'GC=F', name: '금', unit: '$' },
 ];
 
-type Quote = { price: number; change: number; currency?: string };
+type Quote = {
+  price: number;
+  prevClose: number;
+  change: number;     // 절댓값
+  changePct: number;
+  series: number[];   // intraday 가격 시계열 (sparkline 용)
+};
 
 async function fetchQuote(symbol: string): Promise<Quote | null> {
   try {
-    const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}?interval=1d&range=2d`;
+    // 1일 5분 단위 — 인트라데이 충분 + 가벼움
+    const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}?interval=5m&range=1d`;
     const r = await fetch(url, {
       headers: { 'User-Agent': 'Mozilla/5.0' },
       next: { revalidate: 60 },
     });
     if (!r.ok) return null;
     const j = await r.json();
-    const m = j?.chart?.result?.[0]?.meta;
-    if (!m) return null;
-    const price = m.regularMarketPrice;
-    const prev = m.chartPreviousClose ?? m.previousClose;
-    const change = prev ? ((price - prev) / prev) * 100 : 0;
-    return { price, change, currency: m.currency };
+    const result = j?.chart?.result?.[0];
+    if (!result) return null;
+    const meta = result.meta;
+    const price = meta?.regularMarketPrice;
+    const prev = meta?.chartPreviousClose ?? meta?.previousClose;
+    if (typeof price !== 'number' || typeof prev !== 'number') return null;
+    // 시계열 (null 값 제거)
+    const closes: number[] = result.indicators?.quote?.[0]?.close ?? [];
+    const series = closes.filter((v: number | null): v is number => typeof v === 'number');
+    const change = price - prev;
+    const changePct = prev ? (change / prev) * 100 : 0;
+    return { price, prevClose: prev, change, changePct, series };
   } catch {
     return null;
   }
 }
 
-function format(price: number, unit?: string): string {
+function formatPrice(price: number, unit?: string): string {
   if (!unit || unit === '원') {
     return price.toLocaleString('ko-KR', { maximumFractionDigits: 2 });
   }
   return `${unit}${price.toLocaleString('en-US', { maximumFractionDigits: 2 })}`;
+}
+
+function formatChange(change: number, pct: number): string {
+  const sign = change > 0 ? '+' : '';
+  const absChg = Math.abs(change).toLocaleString('en-US', { maximumFractionDigits: 2 });
+  return `${sign}${absChg} (${pct.toFixed(2)}%)`;
+}
+
+/** Mini sparkline SVG (60×30) — Toss 톤 톤온톤 라인 */
+function Sparkline({ series, up }: { series: number[]; up: boolean }) {
+  if (series.length < 2) return <div className={styles.sparkPlaceholder} aria-hidden="true" />;
+  const W = 64;
+  const H = 32;
+  const padY = 3;
+  const min = Math.min(...series);
+  const max = Math.max(...series);
+  const range = max - min || 1;
+  const stride = (W - 2) / (series.length - 1);
+  const points = series.map((v, i) => {
+    const x = 1 + i * stride;
+    const y = padY + (1 - (v - min) / range) * (H - padY * 2);
+    return [x, y] as [number, number];
+  });
+  const path = points.map(([x, y], i) => `${i === 0 ? 'M' : 'L'}${x.toFixed(1)},${y.toFixed(1)}`).join(' ');
+  const areaPath = `${path} L${points[points.length - 1][0]},${H} L${points[0][0]},${H} Z`;
+  const color = up ? 'var(--rw-up)' : 'var(--rw-down)';
+  const gradId = `sparkgrad-${up ? 'u' : 'd'}-${Math.random().toString(36).slice(2, 7)}`;
+  return (
+    <svg viewBox={`0 0 ${W} ${H}`} width={W} height={H} className={styles.spark} aria-hidden="true">
+      <defs>
+        <linearGradient id={gradId} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor={color} stopOpacity={0.25} />
+          <stop offset="100%" stopColor={color} stopOpacity={0} />
+        </linearGradient>
+      </defs>
+      <path d={areaPath} fill={`url(#${gradId})`} stroke="none" />
+      <path d={path} fill="none" stroke={color} strokeWidth={1.5} strokeLinejoin="round" strokeLinecap="round" />
+    </svg>
+  );
 }
 
 export async function MarketIndices() {
@@ -56,7 +109,8 @@ export async function MarketIndices() {
     <section className={sec.card} aria-label="시장 지수">
       <div className={sec.head}>
         <h3 className={sec.title}>오늘의 시장</h3>
-        <span style={{ fontSize: 11, color: 'var(--rw-text-muted)', fontWeight: 600 }}>
+        <span className={styles.liveBadge}>
+          <span className={styles.liveDot} aria-hidden="true" />
           실시간
         </span>
       </div>
@@ -66,21 +120,27 @@ export async function MarketIndices() {
           if (!q) {
             return (
               <div key={idx.symbol} className={styles.item}>
-                <Stat label={idx.name} value="—" size="md" />
+                <div className={styles.sparkPlaceholder} aria-hidden="true" />
+                <div className={styles.body}>
+                  <span className={styles.name}>{idx.name}</span>
+                  <span className={styles.price}>—</span>
+                </div>
               </div>
             );
           }
-          const tone = q.change > 0 ? 'up' : q.change < 0 ? 'down' : 'flat';
-          const sign = q.change > 0 ? '+' : '';
+          const up = q.change >= 0;
           return (
             <div key={idx.symbol} className={styles.item}>
-              <Stat
-                label={idx.name}
-                value={format(q.price, idx.unit)}
-                delta={`${sign}${q.change.toFixed(2)}%`}
-                tone={tone}
-                size="md"
-              />
+              <Sparkline series={q.series} up={up} />
+              <div className={styles.body}>
+                <span className={styles.name}>{idx.name}</span>
+                <div className={styles.priceRow}>
+                  <strong className={styles.price}>{formatPrice(q.price, idx.unit)}</strong>
+                  <span className={`${styles.change} ${up ? styles.up : styles.down}`}>
+                    {formatChange(q.change, q.changePct)}
+                  </span>
+                </div>
+              </div>
             </div>
           );
         })}

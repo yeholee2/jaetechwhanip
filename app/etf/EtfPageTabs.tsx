@@ -1,7 +1,8 @@
 'use client';
 
 /**
- * RW 페이지 상단 탭 — 발견 / 관심 / 진단 / 피드.
+ * ETF 페이지 상단 탭 — 발견 / 비교 / 관심 / 진단.
+ * 사이드 etf-nav 위젯을 흡수해 통합.
  * 관심 탭에는 등록 개수 뱃지가 자동으로 붙음.
  */
 import Link from 'next/link';
@@ -9,13 +10,13 @@ import { useEffect, useState } from 'react';
 import { listWatchedEtfCodes, subscribeWatchChanges } from '@/lib/etfWatch';
 import styles from './EtfPageTabs.module.css';
 
-export type EtfPageTab = 'discover' | 'watch' | 'diagnostic' | 'feed';
+export type EtfPageTab = 'discover' | 'compare' | 'watch' | 'diagnostic' | 'feed';
 
 const TABS: { key: EtfPageTab; label: string; href: string; dot?: boolean }[] = [
-  { key: 'discover', label: '발견', href: '/etf' },
-  { key: 'watch', label: '관심', href: '/etf?tab=watch' },
+  { key: 'discover',   label: '발견', href: '/etf' },
+  { key: 'compare',    label: '비교', href: '/etf/compare' },
+  { key: 'watch',      label: '관심', href: '/etf?tab=watch' },
   { key: 'diagnostic', label: '진단', href: '/etf?tab=diagnostic' },
-  { key: 'feed', label: '피드', href: '/etf?tab=feed' },
 ];
 
 export function EtfPageTabs({ active = 'discover' }: { active?: EtfPageTab }) {
