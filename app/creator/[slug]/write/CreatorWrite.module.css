@@ -1,0 +1,160 @@
+.wrap {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 32px 20px 80px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+.head h1 {
+  margin: 0;
+  font-size: 26px;
+  font-weight: 900;
+  color: var(--rw-text-strong);
+  letter-spacing: -0.5px;
+}
+.head p {
+  margin: 6px 0 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--rw-text-muted);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.field label {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--rw-text-strong);
+}
+.optional {
+  font-weight: 600;
+  color: var(--rw-text-muted);
+  font-size: 12px;
+  margin-left: 4px;
+}
+.field input,
+.field textarea {
+  padding: 12px 14px;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: inherit;
+  border: 1.5px solid var(--rw-border);
+  border-radius: 10px;
+  background: var(--rw-card);
+  color: var(--rw-text-strong);
+  outline: none;
+  transition: border-color 140ms, box-shadow 140ms;
+}
+.field textarea {
+  resize: vertical;
+  line-height: 1.6;
+}
+.field input:focus,
+.field textarea:focus {
+  border-color: var(--rw-primary);
+  box-shadow: 0 0 0 3px var(--rw-primary-bg);
+}
+
+.titleInput {
+  font-size: 22px !important;
+  font-weight: 900 !important;
+  letter-spacing: -0.4px;
+  border: none !important;
+  padding: 8px 0 !important;
+  background: transparent !important;
+  border-radius: 0 !important;
+  border-bottom: 2px solid var(--rw-border) !important;
+}
+.titleInput:focus {
+  border-color: transparent !important;
+  border-bottom-color: var(--rw-primary) !important;
+  box-shadow: none !important;
+}
+
+.bodyTextarea {
+  font-family: 'SF Mono', Menlo, Consolas, monospace !important;
+  font-size: 13.5px !important;
+  line-height: 1.7 !important;
+}
+
+.memberToggle {
+  padding: var(--space-4);
+  background: var(--rw-card-muted);
+  border: 1px solid var(--rw-border);
+  border-radius: 12px;
+}
+.toggle {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  cursor: pointer;
+}
+.toggle input {
+  width: 20px;
+  height: 20px;
+  margin-top: 2px;
+  cursor: pointer;
+}
+.toggle input:disabled { cursor: not-allowed; }
+.toggle > div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.toggle strong {
+  font-size: 14px;
+  font-weight: 900;
+  color: var(--rw-text-strong);
+}
+.toggle span {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--rw-text-muted);
+  line-height: 1.55;
+}
+
+.errorBox {
+  padding: 10px 14px;
+  background: rgba(228, 41, 57, 0.08);
+  border: 1px solid rgba(228, 41, 57, 0.25);
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--rw-red60);
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+.btnPrimary,
+.btnSecondary {
+  padding: 12px 24px;
+  border-radius: 10px;
+  border: none;
+  font-size: 13.5px;
+  font-weight: 900;
+  cursor: pointer;
+  transition: background 140ms;
+}
+.btnPrimary {
+  background: var(--rw-primary);
+  color: #fff;
+}
+.btnPrimary:hover:not(:disabled) { background: var(--rw-primary-hover); }
+.btnPrimary:disabled { opacity: 0.5; cursor: not-allowed; }
+.btnSecondary {
+  background: var(--rw-card-muted);
+  color: var(--rw-text-body);
+}
+.btnSecondary:hover { background: var(--rw-primary-bg); color: var(--rw-primary); }

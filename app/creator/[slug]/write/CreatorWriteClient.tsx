@@ -1,0 +1,158 @@
+'use client';
+
+/**
+ * 크리에이터 글 작성 — 팬딩/네프콘 스타일.
+ * - 제목, 본문(Markdown), 썸네일, 미리보기, 무료/멤버 전용
+ */
+
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { createClient } from '@/lib/supabase/client';
+import { normalizeSlug, type Creator } from '@/lib/creator';
+import styles from './CreatorWrite.module.css';
+
+export function CreatorWriteClient({ creator }: { creator: Creator }) {
+  const router = useRouter();
+  const [form, setForm] = useState({
+    title: '',
+    body: '',
+    cover_url: '',
+    preview: '',
+    is_member_only: false,
+  });
+  const [saving, setSaving] = useState(false);
+  const [err, setErr] = useState('');
+
+  const submit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setErr('');
+    if (!form.title.trim()) {
+      setErr('제목은 필수예요.');
+      return;
+    }
+    if (!form.body.trim()) {
+      setErr('본문을 입력해주세요.');
+      return;
+    }
+    if (form.is_member_only && !creator.membership_enabled) {
+      setErr('멤버 전용 글은 멤버십을 먼저 활성화해야 해요. 페이지 편집에서 켜주세요.');
+      return;
+    }
+
+    setSaving(true);
+    try {
+      const supabase = createClient();
+      const baseSlug = normalizeSlug(form.title) || `post-${Date.now()}`;
+      // slug 중복 회피: 타임스탬프 suffix
+      const slug = `${baseSlug}-${Date.now().toString(36).slice(-4)}`;
+
+      const { data, error } = await supabase
+        .from('creator_posts')
+        .insert({
+          creator_id: creator.id,
+          title: form.title.trim(),
+          slug,
+          body: form.body.trim(),
+          cover_url: form.cover_url.trim() || null,
+          preview: form.preview.trim() || null,
+          is_member_only: form.is_member_only,
+          is_published: true,
+        })
+        .select('slug')
+        .single();
+      if (error) {
+        setErr(error.message);
+        return;
+      }
+      router.push(`/creator/${creator.slug}/posts/${data!.slug}`);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <main className={styles.wrap}>
+      <header className={styles.head}>
+        <h1>글 작성</h1>
+        <p>{creator.display_name} · {creator.membership_enabled ? '멤버십 활성' : '무료 페이지'}</p>
+      </header>
+
+      <form onSubmit={submit} className={styles.form}>
+        <div className={styles.field}>
+          <input
+            type="text"
+            value={form.title}
+            onChange={e => setForm(f => ({ ...f, title: e.target.value }))}
+            placeholder="제목을 입력하세요"
+            className={styles.titleInput}
+            maxLength={120}
+          />
+        </div>
+
+        <div className={styles.field}>
+          <label>썸네일 URL <span className={styles.optional}>(선택)</span></label>
+          <input
+            type="url"
+            value={form.cover_url}
+            onChange={e => setForm(f => ({ ...f, cover_url: e.target.value }))}
+            placeholder="https://..."
+          />
+        </div>
+
+        <div className={styles.field}>
+          <label>본문 <span className={styles.optional}>(Markdown 지원)</span></label>
+          <textarea
+            rows={18}
+            value={form.body}
+            onChange={e => setForm(f => ({ ...f, body: e.target.value }))}
+            placeholder="# 제목&#10;&#10;본문을 작성하세요. Markdown 문법을 지원해요."
+            className={styles.bodyTextarea}
+          />
+        </div>
+
+        <div className={styles.memberToggle}>
+          <label className={styles.toggle}>
+            <input
+              type="checkbox"
+              checked={form.is_member_only}
+              onChange={e => setForm(f => ({ ...f, is_member_only: e.target.checked }))}
+              disabled={!creator.membership_enabled}
+            />
+            <div>
+              <strong>멤버 전용 글</strong>
+              <span>
+                {creator.membership_enabled
+                  ? `월 ${creator.membership_price_won?.toLocaleString()}원 ${creator.membership_tier_name}만 전체 본문을 볼 수 있어요.`
+                  : '멤버십이 비활성화된 상태예요. 페이지 편집에서 멤버십을 켜야 사용할 수 있어요.'}
+              </span>
+            </div>
+          </label>
+        </div>
+
+        {form.is_member_only && (
+          <div className={styles.field}>
+            <label>무료 미리보기 <span className={styles.optional}>(paywall 위에 노출)</span></label>
+            <textarea
+              rows={4}
+              value={form.preview}
+              onChange={e => setForm(f => ({ ...f, preview: e.target.value }))}
+              placeholder="멤버가 아닌 사람도 볼 수 있는 첫 단락을 적어주세요. 호기심을 끄는 한두 문단이 좋아요."
+              maxLength={400}
+            />
+          </div>
+        )}
+
+        {err && <div className={styles.errorBox}>{err}</div>}
+
+        <div className={styles.actions}>
+          <button type="button" onClick={() => router.back()} className={styles.btnSecondary}>
+            취소
+          </button>
+          <button type="submit" disabled={saving} className={styles.btnPrimary}>
+            {saving ? '발행 중…' : '발행'}
+          </button>
+        </div>
+      </form>
+    </main>
+  );
+}

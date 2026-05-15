@@ -1,0 +1,211 @@
+.wrap {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 32px 20px 72px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+.head h1 {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 900;
+  color: var(--rw-text-strong);
+  letter-spacing: -0.5px;
+}
+.head p {
+  margin: 8px 0 0;
+  font-size: 14px;
+  color: var(--rw-text-body);
+  font-weight: 600;
+}
+
+/* 탭 */
+.tabs {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  background: var(--rw-card-muted);
+  border-radius: 12px;
+  align-self: flex-start;
+}
+.tab {
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--rw-text-muted);
+  cursor: pointer;
+  transition: background 120ms, color 120ms;
+}
+.tab:hover { color: var(--rw-text-body); }
+.tabOn {
+  background: var(--rw-card);
+  color: var(--rw-text-strong);
+  box-shadow: 0 1px 3px rgba(0,27,55,0.06);
+}
+
+/* 리스트 */
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.empty {
+  padding: 60px 0;
+  text-align: center;
+  color: var(--rw-text-muted);
+  font-weight: 700;
+}
+
+.item {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 18px 20px;
+  background: var(--rw-card);
+  border: 1px solid var(--rw-border);
+  border-radius: 14px;
+}
+.itemHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.itemHead strong {
+  font-size: 17px;
+  font-weight: 900;
+  color: var(--rw-text-strong);
+  letter-spacing: -0.3px;
+}
+.itemDate {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--rw-text-muted);
+}
+.itemBio {
+  margin: 0;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--rw-text-body);
+  line-height: 1.55;
+}
+.itemMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--rw-text-muted);
+}
+.itemMeta a {
+  color: var(--rw-primary);
+  text-decoration: none;
+}
+.itemMeta a:hover { text-decoration: underline; }
+
+.itemBadge {
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.2px;
+}
+.badgeOn {
+  background: rgba(0, 168, 107, 0.10);
+  color: var(--rw-green50);
+}
+.badgeOff {
+  background: var(--rw-card-muted);
+  color: var(--rw-text-muted);
+}
+
+.itemDetails {
+  margin-top: 4px;
+}
+.itemDetails summary {
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--rw-primary);
+  padding: 4px 0;
+}
+.itemDetails pre {
+  margin: 6px 0 0;
+  padding: 10px 12px;
+  background: var(--rw-card-muted);
+  border-radius: 8px;
+  font-size: 12.5px;
+  font-weight: 500;
+  font-family: inherit;
+  white-space: pre-wrap;
+  color: var(--rw-text-body);
+  line-height: 1.55;
+}
+
+.rejectBox {
+  margin-top: 4px;
+  padding: 10px 12px;
+  background: rgba(228, 41, 57, 0.08);
+  border-radius: 8px;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--rw-red60);
+}
+
+.itemActions {
+  display: flex;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.btnApprove,
+.btnReject,
+.btnSecondary {
+  padding: 9px 16px;
+  border-radius: 8px;
+  border: none;
+  font-size: 13px;
+  font-weight: 900;
+  cursor: pointer;
+  transition: background 140ms, transform 140ms;
+}
+.btnApprove {
+  background: var(--rw-primary);
+  color: #fff;
+}
+.btnApprove:hover:not(:disabled) { background: var(--rw-primary-hover); }
+.btnReject {
+  background: rgba(228, 41, 57, 0.10);
+  color: var(--rw-red60);
+}
+.btnReject:hover:not(:disabled) { background: rgba(228, 41, 57, 0.18); }
+.btnSecondary {
+  background: var(--rw-card-muted);
+  color: var(--rw-text-body);
+}
+.btnSecondary:hover:not(:disabled) { background: var(--rw-primary-bg); color: var(--rw-primary); }
+
+button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.toast {
+  position: fixed;
+  top: 80px;
+  right: 24px;
+  z-index: 200;
+  padding: 14px 18px;
+  background: linear-gradient(135deg, #1B64DA, #3182F6);
+  color: #fff;
+  border-radius: 12px;
+  font-size: 13.5px;
+  font-weight: 800;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.18);
+  animation: toastIn 220ms ease-out;
+}
+@keyframes toastIn {
+  from { transform: translateY(-12px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
