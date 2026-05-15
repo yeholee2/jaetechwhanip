@@ -6,6 +6,9 @@ import { AppShell, UnifiedFilterBar } from '@/components/AppShell';
 import { CATEGORY_FILTERS, TOPIC_TABS } from '@/lib/ia';
 import { questionPath, SITE_NAME, SITE_URL, truncateDescription } from '@/lib/seo';
 import { fetchTopicQuestions, getTopicBySlug, TOPICS, topicPath, topicUrl } from '@/lib/topics';
+import { getTopicExtras } from '@/lib/topic-content';
+import { etfPath } from '@/lib/etfs';
+import { EtfLogo } from '@/app/etf/EtfLogo';
 import styles from './TopicPage.module.css';
 
 type Props = { params: { slug: string } };
@@ -73,6 +76,12 @@ export default async function TopicPage({ params }: Props) {
   if (params.slug !== topic.slug) permanentRedirect(topicPath(topic.slug));
 
   const questions = await fetchTopicQuestions(topic);
+  const extras = getTopicExtras(topic.category, topic.keywords);
+
+  // 인기 질문 TOP 10 — answer_count + like_count 가중치
+  const popular = [...questions]
+    .sort((a, b) => ((b.answerCount || 0) * 2 + (b.likeCount || 0)) - ((a.answerCount || 0) * 2 + (a.likeCount || 0)))
+    .slice(0, 10);
 
   return (
     <AppShell active="topics">
@@ -84,9 +93,9 @@ export default async function TopicPage({ params }: Props) {
       />
 
       <header className={styles.header}>
-        <span className={styles.eyebrow}>토픽</span>
+        <span className={styles.eyebrow}>토픽 · {topic.emoji} {topic.label}</span>
         <h1>{topic.title} 모음</h1>
-        <p>{topic.description}</p>
+        <p>{extras.intro || topic.description}</p>
       </header>
 
       <UnifiedFilterBar
@@ -103,6 +112,62 @@ export default async function TopicPage({ params }: Props) {
           </Link>
         ))}
       </section>
+
+      {/* 핵심 질문 TOP 10 */}
+      {popular.length > 0 && (
+        <section className={styles.popularSection} aria-label="이 분야 핵심 질문">
+          <h2 className={styles.sectionTitle}>이 분야 핵심 질문 TOP 10</h2>
+          <ol className={styles.popularList}>
+            {popular.map((q, i) => (
+              <li key={q.slug}>
+                <Link href={questionPath(q.slug)}>
+                  <span className={styles.popularRank}>{i + 1}</span>
+                  <div className={styles.popularBody}>
+                    <strong>{q.title}</strong>
+                    <span>답변 {q.answerCount || 0}개 · 추천 {q.likeCount || 0}</span>
+                  </div>
+                </Link>
+              </li>
+            ))}
+          </ol>
+        </section>
+      )}
+
+      {/* 관련 ETF */}
+      {extras.etfs.length > 0 && (
+        <section className={styles.etfSection} aria-label="관련 ETF">
+          <div className={styles.etfHead}>
+            <h2 className={styles.sectionTitle}>이 토픽 관련 ETF</h2>
+            <Link href="/etf/all" className={styles.moreLink}>전체 ETF →</Link>
+          </div>
+          <div className={styles.etfGrid}>
+            {extras.etfs.map(etf => (
+              <Link key={etf.code} href={etfPath(etf.slug)} className={styles.etfCard}>
+                <EtfLogo name={etf.shortName} code={etf.code} size={36} />
+                <div className={styles.etfInfo}>
+                  <strong>{etf.shortName}</strong>
+                  <span>{etf.theme} · {etf.fee}</span>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* 핵심 용어집 */}
+      {extras.glossary.length > 0 && (
+        <section className={styles.glossarySection} aria-label="핵심 용어">
+          <h2 className={styles.sectionTitle}>핵심 용어 정리</h2>
+          <dl className={styles.glossaryList}>
+            {extras.glossary.map(g => (
+              <div key={g.title} className={styles.glossaryItem}>
+                <dt>{g.title}</dt>
+                <dd>{g.body}</dd>
+              </div>
+            ))}
+          </dl>
+        </section>
+      )}
 
       <section className={styles.list} aria-label={`${topic.title} 목록`}>
         <div className={styles.listHead}>

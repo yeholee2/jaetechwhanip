@@ -10,7 +10,7 @@ export type GlossaryEntry = {
   aliases?: string[];     // 동의어 (#태그 다양한 표기)
 };
 
-const ENTRIES: GlossaryEntry[] = [
+export const GLOSSARY: GlossaryEntry[] = [
   {
     title: 'UAM',
     body: '도심 항공 모빌리티(Urban Air Mobility). 전기 수직이착륙 비행체(eVTOL) 같은 도심 비행 교통수단을 만드는 회사들에 투자해요.',
@@ -108,7 +108,7 @@ function norm(s: string): string {
 }
 
 const LOOKUP = new Map<string, GlossaryEntry>();
-for (const e of ENTRIES) {
+for (const e of GLOSSARY) {
   LOOKUP.set(norm(e.title), e);
   for (const a of e.aliases || []) {
     LOOKUP.set(norm(a), e);

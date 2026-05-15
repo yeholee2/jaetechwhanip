@@ -8,6 +8,7 @@ export const dynamic = 'force-dynamic';
 const NAV_ITEMS = [
   { href: '/admin', label: '대시보드', exact: true },
   { href: '/admin/analytics', label: '노출·클릭' },
+  { href: '/admin/categories', label: '카테고리 통계' },
   { href: '/admin/questions', label: '질문' },
   { href: '/admin/answers', label: '답변' },
   { href: '/admin/comments', label: '댓글' },
