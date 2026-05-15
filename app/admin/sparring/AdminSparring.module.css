@@ -439,3 +439,77 @@
   font-weight: 700;
   color: rgba(255, 255, 255, 0.92);
 }
+
+/* ─────────────────────────────────────────────────────────
+ * 저장 결과 토스트 (우상단 떠 있다 자동 사라짐)
+ * ───────────────────────────────────────────────────────── */
+.toast {
+  position: fixed;
+  top: 80px;
+  right: 24px;
+  z-index: 200;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  max-width: 360px;
+  padding: 14px 18px;
+  border-radius: 12px;
+  box-shadow:
+    0 10px 30px rgba(15, 23, 42, 0.18),
+    0 3px 8px rgba(15, 23, 42, 0.08);
+  cursor: pointer;
+  animation: toastIn 220ms ease-out;
+  font-size: 13.5px;
+  font-weight: 800;
+  letter-spacing: -0.1px;
+}
+
+@keyframes toastIn {
+  from {
+    transform: translateY(-12px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.toastSuccess {
+  background: linear-gradient(135deg, #1B64DA, #3182F6);
+  color: #fff;
+}
+
+.toastError {
+  background: linear-gradient(135deg, #c62828, #e42939);
+  color: #fff;
+}
+
+.toastIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.22);
+  font-size: 14px;
+  font-weight: 900;
+  flex-shrink: 0;
+}
+
+.toastText {
+  flex: 1;
+  min-width: 0;
+  line-height: 1.45;
+}
+
+@media (max-width: 600px) {
+  .toast {
+    top: auto;
+    bottom: 100px;
+    right: 16px;
+    left: 16px;
+    max-width: none;
+  }
+}

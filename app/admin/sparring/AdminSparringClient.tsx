@@ -99,6 +99,8 @@ export default function AdminSparringClient({ initialSparrings }: { initialSparr
   const [filePreviewUrl, setFilePreviewUrl] = useState('');
   const [pending, setPending] = useState(false);
   const [message, setMessage] = useState('');
+  // 토스트 — 성공/에러 후 잠깐 떠 있는 알림
+  const [toast, setToast] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   // 크롭 모달 — 사용자가 파일 선택하면 모달 열림, 확인 시 webp blob 으로 file 갱신
   const [cropTarget, setCropTarget] = useState<File | null>(null);
   const supabase = useMemo(() => createClient(), []);
@@ -275,18 +277,30 @@ export default function AdminSparringClient({ initialSparrings }: { initialSparr
         // 실패해도 1분 후 ISR 로 갱신됨
       }
 
-      setMessage(form.id ? '✓ 수정 완료 — 홈에 즉시 반영됨' : '✓ 새 라운드 생성 — 홈에 즉시 반영됨');
+      const successMsg = form.id ? '✓ 수정 완료! 홈에 즉시 반영됐어요' : '✓ 새 라운드 생성 완료!';
+      setMessage(successMsg);
+      setToast({ type: 'success', text: successMsg });
 
       // 저장된 URL 로 form 갱신 (file 만 초기화, 나머지 유지 → 사용자가 결과 확인 가능)
       setForm(prev => ({ ...prev, id: savedId, thumbnailUrl: thumbnailUrl || '' }));
       setFile(null);
       await refresh();
     } catch (error) {
-      setMessage(error instanceof Error ? error.message : '저장 중 문제가 생겼어요.');
+      const errMsg = error instanceof Error ? error.message : '저장 중 문제가 생겼어요.';
+      setMessage(errMsg);
+      setToast({ type: 'error', text: errMsg });
     } finally {
       setPending(false);
     }
   };
+
+  // 토스트 자동 사라짐 (성공: 3초, 에러: 6초)
+  useEffect(() => {
+    if (!toast) return;
+    const timeout = toast.type === 'success' ? 3000 : 6000;
+    const t = window.setTimeout(() => setToast(null), timeout);
+    return () => window.clearTimeout(t);
+  }, [toast]);
 
   const revalidateHome = async () => {
     try {
@@ -578,6 +592,20 @@ export default function AdminSparringClient({ initialSparrings }: { initialSparr
           </section>
         </aside>
       </div>
+
+      {/* ── 저장 결과 토스트 ── */}
+      {toast && (
+        <div
+          className={`${styles.toast} ${toast.type === 'success' ? styles.toastSuccess : styles.toastError}`}
+          role="status"
+          onClick={() => setToast(null)}
+        >
+          <span className={styles.toastIcon} aria-hidden="true">
+            {toast.type === 'success' ? '✓' : '⚠️'}
+          </span>
+          <span className={styles.toastText}>{toast.text}</span>
+        </div>
+      )}
 
       {/* 이미지 크롭 모달 — 파일 선택 시 자동 열림 */}
       {cropTarget && (
