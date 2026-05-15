@@ -4,6 +4,7 @@ import { ETF_HOME_URL } from '@/lib/etfs';
 import { SITE_NAME } from '@/lib/seo';
 import { PageHero, Button } from '@/components/ui';
 import { PageSidebar } from '@/components/PageSidebar';
+import { EtfPageTabs } from '../EtfPageTabs';
 import { EtfNews } from '../EtfNews';
 
 export const revalidate = 300;
@@ -26,6 +27,7 @@ export default function EtfNewsPage() {
     <AppShell active="etf" wide hideSlogan>
       <main className="pc-layout">
         <div className="pc-layout-main">
+          <EtfPageTabs active="news" />
           <PageHero
             eyebrow="ETF 뉴스"
             title="ETF·시장 흐름을 따라가요"

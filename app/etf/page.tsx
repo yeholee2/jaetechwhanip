@@ -5,7 +5,7 @@ import { fetchEtfs } from '@/lib/etfsDb';
 import { SITE_NAME } from '@/lib/seo';
 import { PageHero, Badge, Card, Button } from '@/components/ui';
 import styles from './EtfPage.module.css';
-import { EtfPageTabs, type EtfPageTab } from './EtfPageTabs';
+import { EtfPageTabs, EtfUtilityRow, type EtfPageTab } from './EtfPageTabs';
 import { MyEtfSection } from './MyEtfSection';
 import { MarketTicker } from './MarketTicker';
 import { EtfNews } from './EtfNews';
@@ -111,62 +111,28 @@ export default async function EtfPage({
 }
 
 async function DiscoverTab({ allEtfs }: { allEtfs: import('@/lib/etfs').EtfInfo[] }) {
-  // 발견 탭은 핵심만. 뉴스/전략/큐레이션은 /etf/themes, /etf/news 페이지로 분리.
+  // 발견 탭은 핵심만. 테마·뉴스·전체검색은 상단 탭으로 분리.
   return (
     <div className={styles.discoverStack}>
+      {/* 0. 유틸리티 도구 행 (비교/관심/진단) */}
+      <EtfUtilityRow />
+
       {/* 1. 내 ETF (로그인 시 도미노 풀화면, 비로그인 시 가입 CTA) */}
       <MyEtfSection />
 
-      {/* (시장지수는 페이지 상단 MarketTicker 로 이동) */}
-
-      {/* 3. 투자 매력도 높은 ETF */}
+      {/* 2. 투자 매력도 높은 ETF */}
       <EtfRanking allEtfs={allEtfs} />
 
-      {/* 4. 더 보기 — 테마·뉴스 페이지로 진입 */}
-      <DiscoverMoreCards />
-
-      {/* 5. 요즘 뜨는 테마 (mini) */}
+      {/* 3. 요즘 뜨는 테마 (mini) — AI 요약 포함 */}
       <ThemeToggle allEtfs={allEtfs} />
 
-      {/* 6. ETF 입문 가이드 (첫 사용자용) */}
+      {/* 4. ETF 입문 가이드 (첫 사용자용) */}
       <EtfLearnCard />
     </div>
   );
 }
 
-function DiscoverMoreCards() {
-  return (
-    <section className={styles.discoverMore}>
-      <Card href="/etf/themes" pad="lg" className={`${styles.moreCard} ${styles.moreCardThemes}`}>
-        <div className={styles.moreCardIcon} aria-hidden="true">
-          <span className="tf">🔥</span>
-        </div>
-        <Badge tone="purple">테마 · 전략</Badge>
-        <h3>뜨는 테마와 검증된 전략</h3>
-        <p>월배당·반도체·AI 큐레이션 묶음까지 한 페이지에서.</p>
-        <span className={styles.moreLink}>둘러보기 →</span>
-      </Card>
-      <Card href="/etf/news" pad="lg" className={`${styles.moreCard} ${styles.moreCardNews}`}>
-        <div className={styles.moreCardIcon} aria-hidden="true">
-          <span className="tf">📰</span>
-        </div>
-        <Badge tone="orange">뉴스</Badge>
-        <h3>ETF·시장 뉴스</h3>
-        <p>ETF·시장·정책 주요 기사를 빠르게 훑어보세요.</p>
-        <span className={styles.moreLink}>뉴스 보기 →</span>
-      </Card>
-      <Card href="/etf/all" pad="lg" className={`${styles.moreCard} ${styles.moreCardAll}`}>
-        <div className={styles.moreCardIcon} aria-hidden="true">
-          <span className="tf">🔍</span>
-        </div>
-        <Badge tone="primary">전체 검색</Badge>
-        <h3>국내·미국 ETF 한번에</h3>
-        <p>1,066개 ETF 를 보수·순자산·테마로 필터링.</p>
-        <span className={styles.moreLink}>전체 보기 →</span>
-      </Card>
-    </section>
-  );
-}
+// DiscoverMoreCards 제거됨 — 콘텐츠는 상단 탭(테마·전략/뉴스/전체 검색)으로 승격
 
 function ComingSoonCard({
   eyebrow,

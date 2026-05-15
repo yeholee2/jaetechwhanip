@@ -5,6 +5,7 @@ import { fetchEtfs } from '@/lib/etfsDb';
 import { SITE_NAME } from '@/lib/seo';
 import { PageHero } from '@/components/ui';
 import { PageSidebar } from '@/components/PageSidebar';
+import { EtfPageTabs } from '../EtfPageTabs';
 import { StrategyToggle } from '../StrategyToggle';
 import { ThemeToggle } from '../ThemeToggle';
 import { InsightCarousel } from '../InsightCarousel';
@@ -33,6 +34,7 @@ export default async function EtfThemesPage() {
     <AppShell active="etf" wide hideSlogan>
       <main className="pc-layout">
         <div className="pc-layout-main">
+          <EtfPageTabs active="themes" />
           <PageHero
             eyebrow="테마 · 전략"
             title="요즘 뜨는 테마와 검증된 전략"

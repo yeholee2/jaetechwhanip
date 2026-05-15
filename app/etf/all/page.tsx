@@ -5,6 +5,7 @@ import { fetchEtfs } from '@/lib/etfsDb';
 import { SITE_NAME } from '@/lib/seo';
 import { PageHero, Badge } from '@/components/ui';
 import { PageSidebar } from '@/components/PageSidebar';
+import { EtfPageTabs } from '../EtfPageTabs';
 import { EtfAllClient } from './EtfAllClient';
 
 export const revalidate = 600;
@@ -28,6 +29,7 @@ export default async function EtfAllPage() {
     <AppShell active="etf" wide hideSlogan>
       <main className="pc-layout">
         <div className="pc-layout-main">
+          <EtfPageTabs active="all" />
           <PageHero
             eyebrow="전체 ETF"
             title="찾는 ETF, 한 번에 검색해요"
