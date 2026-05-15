@@ -372,8 +372,11 @@ export function AppShell({
               {showProfile && (
                 <div className={styles.profileMenu} role="menu">
                   <div className={styles.profileName}>{userName}</div>
+                  <Link href="/mypage" onClick={() => setShowProfile(false)} role="menuitem">
+                    🏠 마이페이지
+                  </Link>
                   <Link href={profileHref} onClick={() => setShowProfile(false)} role="menuitem">
-                    내 정보 보기
+                    공개 프로필
                   </Link>
                   {isAdmin && (
                     <Link href="/admin" onClick={() => setShowProfile(false)} role="menuitem">
