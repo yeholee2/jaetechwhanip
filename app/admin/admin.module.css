@@ -1,0 +1,258 @@
+.shell {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  min-height: 100vh;
+  background: var(--bg);
+}
+
+.side {
+  border-right: 1px solid var(--line);
+  background: var(--white);
+  padding: 24px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+}
+
+.logo {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--blue);
+  text-decoration: none;
+  margin-bottom: 4px;
+}
+.logo em {
+  color: var(--t1);
+  font-style: normal;
+}
+
+.sideLabel {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--t3);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin: 16px 0 6px;
+}
+
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.navItem {
+  padding: 10px 12px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--t2);
+  text-decoration: none;
+  border-radius: 8px;
+  transition: background .12s, color .12s;
+}
+.navItem:hover {
+  background: var(--bg);
+  color: var(--t1);
+}
+
+.sideFoot {
+  margin-top: auto;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+  font-size: 12px;
+  color: var(--t3);
+}
+.userEmail {
+  display: block;
+  word-break: break-all;
+}
+
+.main {
+  padding: 32px;
+  min-width: 0;
+}
+
+/* 페이지 헤더 */
+.head {
+  margin-bottom: 24px;
+}
+.head h1 {
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--t1);
+  margin: 0 0 6px;
+}
+.head p {
+  font-size: 14px;
+  color: var(--t3);
+  margin: 0;
+}
+
+/* 통계 카드 그리드 */
+.statGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 14px;
+  margin-bottom: 32px;
+}
+.statCard {
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 18px 20px;
+}
+.statLabel {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--t3);
+  margin-bottom: 6px;
+}
+.statValue {
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--t1);
+  line-height: 1;
+}
+.statDelta {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--t3);
+  margin-top: 4px;
+}
+
+/* 데이터 테이블 */
+.tableWrap {
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  overflow: hidden;
+}
+.tableHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--line);
+}
+.tableHead h2 {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--t1);
+  margin: 0;
+}
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.table th, .table td {
+  text-align: left;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--line);
+  vertical-align: middle;
+}
+.table th {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--t3);
+  background: var(--bg);
+}
+.table tbody tr:last-child td {
+  border-bottom: none;
+}
+.table tbody tr:hover {
+  background: var(--bg);
+}
+
+.cellTitle {
+  font-weight: 600;
+  color: var(--t1);
+  text-decoration: none;
+  display: block;
+  max-width: 480px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.cellTitle:hover {
+  color: var(--blue);
+}
+
+.actionBtn {
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 6px;
+  border: 1px solid var(--line);
+  background: var(--white);
+  color: var(--t2);
+  cursor: pointer;
+}
+.actionBtn:hover {
+  background: var(--bg);
+  color: var(--t1);
+}
+.danger {
+  color: #e03131;
+  border-color: rgba(224,49,49,.3);
+}
+.danger:hover {
+  background: rgba(224,49,49,.05);
+  color: #c92a2a;
+}
+
+.empty {
+  padding: 60px 20px;
+  text-align: center;
+  color: var(--t3);
+  font-size: 14px;
+}
+
+/* Gate (권한 없을 때) */
+.gate {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+.gateCard {
+  max-width: 460px;
+  text-align: center;
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 40px 32px;
+}
+.gateCard span {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--t3);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.gateCard h1 {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--t1);
+  margin: 8px 0 12px;
+}
+.gateCard p {
+  font-size: 14px;
+  color: var(--t2);
+  margin: 0 0 24px;
+  line-height: 1.6;
+}
+.gateBtn {
+  display: inline-block;
+  padding: 10px 24px;
+  background: var(--blue);
+  color: white;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 14px;
+  text-decoration: none;
+}

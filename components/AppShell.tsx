@@ -52,6 +52,7 @@ export function AppShell({
 }) {
   const router = useRouter();
   const [user, setUser] = useState<any>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -139,7 +140,12 @@ export function AppShell({
     supabase.auth.getSession().then(({ data }) => {
       const nextUser = data.session?.user ?? null;
       setUser(nextUser);
-      if (nextUser) void syncFinanceNickname(supabase, nextUser);
+      if (nextUser) {
+        void syncFinanceNickname(supabase, nextUser);
+        // admin role 확인
+        supabase.from('users').select('role').eq('id', nextUser.id).maybeSingle()
+          .then(({ data: profile }) => setIsAdmin(profile?.role === 'admin'));
+      }
     });
 
     return () => authSub.subscription.unsubscribe();
@@ -369,6 +375,11 @@ export function AppShell({
                   <Link href={profileHref} onClick={() => setShowProfile(false)} role="menuitem">
                     내 정보 보기
                   </Link>
+                  {isAdmin && (
+                    <Link href="/admin" onClick={() => setShowProfile(false)} role="menuitem">
+                      🛠 관리자 대시보드
+                    </Link>
+                  )}
                   <div style={{ padding: '8px 12px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }} role="menuitem">
                     <span style={{ fontSize: 13, color: 'var(--rw-text-body)', fontWeight: 600 }}>화면 테마</span>
                     <DarkModeToggle />
