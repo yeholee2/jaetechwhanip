@@ -1186,3 +1186,27 @@
   gap: var(--space-3);
   flex-wrap: wrap;
 }
+
+/* 구성종목 도넛 + 리스트 레이아웃 */
+.holdingsLayout {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  gap: 28px;
+  align-items: start;
+}
+.holdingsDonut {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 0;
+}
+
+@media (max-width: 760px) {
+  .holdingsLayout {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  .holdingsDonut {
+    padding: 4px 0 12px;
+  }
+}

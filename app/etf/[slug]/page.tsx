@@ -519,20 +519,41 @@ export default async function EtfDetailPage({ params }: Props) {
               {(() => {
                 if (liveHoldings?.holdings?.length) {
                   const max = Math.max(...liveHoldings.holdings.map(h => h.weight), 0.01);
+                  // 도넛용 세그먼트 (Top 10 + 기타)
+                  const topN = liveHoldings.holdings.slice(0, 10);
+                  const topSum = topN.reduce((s, h) => s + h.weight, 0);
+                  const segments = topN.map(h => ({
+                    label: h.name,
+                    value: h.weight * 100,
+                  }));
+                  if (topSum < 1) {
+                    segments.push({ label: '기타', value: (1 - topSum) * 100 });
+                  }
                   return (
-                    <div className={styles.holdingList}>
-                      {liveHoldings.holdings.map(h => (
-                        <div key={h.symbol || h.name} className={styles.holdingRow}>
-                          <div className={styles.holdingInfo}>
-                            <strong>{h.name}</strong>
-                            <p>{h.symbol}</p>
+                    <div className={styles.holdingsLayout}>
+                      <div className={styles.holdingsDonut}>
+                        <DonutChart
+                          segments={segments}
+                          centerLabel="Top 보유"
+                          centerValue={`${(topSum * 100).toFixed(0)}%`}
+                          size={180}
+                          thickness={28}
+                        />
+                      </div>
+                      <div className={styles.holdingList}>
+                        {liveHoldings.holdings.map(h => (
+                          <div key={h.symbol || h.name} className={styles.holdingRow}>
+                            <div className={styles.holdingInfo}>
+                              <strong>{h.name}</strong>
+                              <p>{h.symbol}</p>
+                            </div>
+                            <div className={styles.holdingBar} aria-hidden="true">
+                              <span style={{ width: `${(h.weight / max) * 100}%` }} />
+                            </div>
+                            <b className={styles.holdingPct}>{(h.weight * 100).toFixed(2)}%</b>
                           </div>
-                          <div className={styles.holdingBar} aria-hidden="true">
-                            <span style={{ width: `${(h.weight / max) * 100}%` }} />
-                          </div>
-                          <b className={styles.holdingPct}>{(h.weight * 100).toFixed(2)}%</b>
-                        </div>
-                      ))}
+                        ))}
+                      </div>
                     </div>
                   );
                 }
@@ -542,20 +563,36 @@ export default async function EtfDetailPage({ params }: Props) {
                     pct: parseFloat(String(h.weight).replace(/[^\d.]/g, '')) || 0,
                   })).sort((a, b) => b.pct - a.pct);
                   const max = Math.max(...parsed.map(p => p.pct), 1);
+                  const topSum = parsed.reduce((s, p) => s + p.pct, 0);
+                  const segments = parsed.map(p => ({ label: p.name, value: p.pct }));
+                  if (topSum < 100) {
+                    segments.push({ label: '기타', value: 100 - topSum });
+                  }
                   return (
-                    <div className={styles.holdingList}>
-                      {parsed.map(holding => (
-                        <div key={holding.name} className={styles.holdingRow}>
-                          <div className={styles.holdingInfo}>
-                            <strong>{holding.name}</strong>
-                            <p>{holding.note}</p>
+                    <div className={styles.holdingsLayout}>
+                      <div className={styles.holdingsDonut}>
+                        <DonutChart
+                          segments={segments}
+                          centerLabel="Top 보유"
+                          centerValue={`${topSum.toFixed(0)}%`}
+                          size={180}
+                          thickness={28}
+                        />
+                      </div>
+                      <div className={styles.holdingList}>
+                        {parsed.map(holding => (
+                          <div key={holding.name} className={styles.holdingRow}>
+                            <div className={styles.holdingInfo}>
+                              <strong>{holding.name}</strong>
+                              <p>{holding.note}</p>
+                            </div>
+                            <div className={styles.holdingBar} aria-hidden="true">
+                              <span style={{ width: `${(holding.pct / max) * 100}%` }} />
+                            </div>
+                            <b className={styles.holdingPct}>{holding.weight}</b>
                           </div>
-                          <div className={styles.holdingBar} aria-hidden="true">
-                            <span style={{ width: `${(holding.pct / max) * 100}%` }} />
-                          </div>
-                          <b className={styles.holdingPct}>{holding.weight}</b>
-                        </div>
-                      ))}
+                        ))}
+                      </div>
                     </div>
                   );
                 }
