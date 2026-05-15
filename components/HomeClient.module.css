@@ -98,10 +98,11 @@
   gap: 20px;
   max-width: 1040px;
   margin: 0 auto;
-  padding: var(--space-3) 0;
+  /* ticker 와 동일한 좌우 padding 으로 라인 정렬 */
+  padding: var(--space-3) var(--space-5);
 }
 
-/* 시장 시세 ticker — pcBody 와 동일 폭 */
+/* 시장 시세 ticker — pcBody 와 동일 폭 + 동일 좌우 padding */
 .tickerWrap {
   max-width: 1040px;
   margin: 0 auto;
