@@ -9,9 +9,11 @@ const NAV_ITEMS = [
   { href: '/admin', label: '대시보드', exact: true },
   { href: '/admin/questions', label: '질문' },
   { href: '/admin/answers', label: '답변' },
+  { href: '/admin/comments', label: '댓글' },
   { href: '/admin/users', label: '사용자' },
   { href: '/admin/sparring', label: '스파링' },
   { href: '/admin/reports', label: '리포트' },
+  { href: '/admin/settings', label: '설정' },
 ];
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {

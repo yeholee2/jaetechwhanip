@@ -7,6 +7,7 @@ export const dynamic = 'force-dynamic';
 type Stats = {
   questions: { total: number; today: number };
   answers: { total: number; today: number };
+  comments: { total: number; today: number };
   users: { total: number; today: number };
   unanswered: number;
 };
@@ -19,11 +20,13 @@ async function loadStats(): Promise<Stats | null> {
   todayStart.setHours(0, 0, 0, 0);
   const isoToday = todayStart.toISOString();
 
-  const [qAll, qToday, aAll, aToday, uAll, uToday, unanswered] = await Promise.all([
+  const [qAll, qToday, aAll, aToday, cAll, cToday, uAll, uToday, unanswered] = await Promise.all([
     admin.from('questions').select('id', { count: 'exact', head: true }),
     admin.from('questions').select('id', { count: 'exact', head: true }).gte('created_at', isoToday),
     admin.from('answers').select('id', { count: 'exact', head: true }),
     admin.from('answers').select('id', { count: 'exact', head: true }).gte('created_at', isoToday),
+    admin.from('comments').select('id', { count: 'exact', head: true }),
+    admin.from('comments').select('id', { count: 'exact', head: true }).gte('created_at', isoToday),
     admin.from('users').select('id', { count: 'exact', head: true }),
     admin.from('users').select('id', { count: 'exact', head: true }).gte('created_at', isoToday),
     admin.from('questions').select('id', { count: 'exact', head: true }).eq('answer_count', 0),
@@ -32,6 +35,7 @@ async function loadStats(): Promise<Stats | null> {
   return {
     questions: { total: qAll.count || 0, today: qToday.count || 0 },
     answers: { total: aAll.count || 0, today: aToday.count || 0 },
+    comments: { total: cAll.count || 0, today: cToday.count || 0 },
     users: { total: uAll.count || 0, today: uToday.count || 0 },
     unanswered: unanswered.count || 0,
   };
@@ -80,6 +84,11 @@ export default async function AdminDashboardPage() {
             <div className={styles.statLabel}>전체 답변</div>
             <div className={styles.statValue}>{stats.answers.total.toLocaleString()}</div>
             <div className={styles.statDelta}>오늘 +{stats.answers.today}</div>
+          </div>
+          <div className={styles.statCard}>
+            <div className={styles.statLabel}>전체 댓글</div>
+            <div className={styles.statValue}>{stats.comments.total.toLocaleString()}</div>
+            <div className={styles.statDelta}>오늘 +{stats.comments.today}</div>
           </div>
           <div className={styles.statCard}>
             <div className={styles.statLabel}>가입자</div>
