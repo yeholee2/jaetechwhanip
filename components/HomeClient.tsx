@@ -8,14 +8,7 @@ import { createClient, hasSupabase } from '@/lib/supabase/client';
 import { CATEGORY_DEFINITIONS, CATEGORY_EMOJI, CATEGORY_LABELS, getCategoryLabel } from '@/lib/categories';
 import type { Question } from '@/lib/sampleData';
 import { LEVELS, EMOJI, sampleQuestions } from '@/lib/sampleData';
-
-function getUserEmoji(idOrName?: string | null): string {
-  const key = idOrName || '';
-  if (!key) return EMOJI[0];
-  let h = 0;
-  for (let i = 0; i < key.length; i++) h = (Math.imul(31, h) + key.charCodeAt(i)) | 0;
-  return EMOJI[Math.abs(h) % EMOJI.length];
-}
+import { mapDbRowToHomeQuestion, isUsefulQuestion as isUsefulQ, formatTime as fmtTime } from '@/lib/home-questions';
 import type { Sparring } from '@/lib/sparring';
 import { createQuestionSlug, ensureUniqueSlug } from '@/lib/slugs';
 import { getAuthNickname, syncFinanceNickname } from '@/lib/nicknames';
@@ -157,29 +150,10 @@ export default function HomeClient({
     const { data, error } = await query;
     if (error || !data) return;
 
-    const usefulRows = data.filter((q: any) => isUsefulQuestion(q.title, q.body));
-    const mapped: Question[] = usefulRows.map((q: any, i: number) => {
-      const seed = sampleQuestions.find(item => item.slug === (q.slug || q.id));
-
-      return {
-        id: i + pageNum * PAGE_SIZE,
-        cat: seed?.cat || q.category || '재테크입문',
-        topic: seed?.topic || '일반',
-        author: seed?.author || (q.users as any)?.name || '익명',
-        time: seed?.createdAt ? formatTime(seed.createdAt) : formatTime(q.created_at),
-        em: (q.users as any)?.avatar_url || getUserEmoji(q.author_id || (q.users as any)?.name || seed?.author),
-        lv: seed?.lv ?? 0,
-        title: seed?.title || q.title,
-        body: seed?.body || q.body || '',
-        ans: seed?.ans ?? q.answer_count ?? 0,
-        adopted: seed?.adopted ?? q.is_answered ?? false,
-        slug: q.slug || seed?.slug || q.id,
-        dbId: q.id,
-        likeCount: seed?.likeCount ?? q.like_count ?? 0,
-        viewCount: q.view_count ?? 0,
-        createdAt: seed?.createdAt || q.created_at,
-      };
-    });
+    const usefulRows = data.filter((q: any) => isUsefulQ(q.title, q.body));
+    const mapped: Question[] = usefulRows.map((q: any, i: number) =>
+      mapDbRowToHomeQuestion(q, i, pageNum * PAGE_SIZE),
+    );
 
     if (replace) {
       setAllQs(mergeQuestions(mapped, seedQuestionsFor(cat, tab)));
@@ -190,10 +164,17 @@ export default function HomeClient({
     setLoadingMore(false);
   }, []);
 
+  // SSR로 받은 initialQuestions가 있으면 첫 마운트(전체/popular)에서는 재요청 스킵
+  const didInitialLoad = useRef(false);
   useEffect(() => {
+    if (!didInitialLoad.current && currentCat === '전체' && feedTab === 'popular' && initialQuestions.length > 0) {
+      didInitialLoad.current = true;
+      return;
+    }
+    didInitialLoad.current = true;
     setPage(0);
     loadQuestions(currentCat, feedTab, 0, true);
-  }, [currentCat, feedTab, loadQuestions]);
+  }, [currentCat, feedTab, loadQuestions, initialQuestions.length]);
 
   // 실시간 신규 질문 구독
   useEffect(() => {
@@ -523,30 +504,7 @@ function FeedSummary({
   );
 }
 
-function formatTime(dateStr: string): string {
-  if (!dateStr) return '';
-  const diff = Date.now() - new Date(dateStr).getTime();
-  const m = Math.floor(diff / 60000);
-  if (m < 1) return '방금 전';
-  if (m < 60) return `${m}분 전`;
-  const h = Math.floor(m / 60);
-  if (h < 24) return `${h}시간 전`;
-  return `${Math.floor(h / 24)}일 전`;
-}
-
-function isUsefulQuestion(title: string, body?: string) {
-  const cleanTitle = String(title || '').replace(/\s+/g, ' ').trim();
-  const cleanBody = String(body || '').replace(/\s+/g, ' ').trim();
-  const testWords = /^(test|asdf|qwer|dld|aaa|bbb|ccc|테스트|ㄴㄴ|ㅇㅇ)$/i;
-
-  return (
-    cleanTitle.length >= 6 &&
-    cleanBody.length >= 10 &&
-    cleanTitle !== cleanBody &&
-    !testWords.test(cleanTitle) &&
-    !testWords.test(cleanBody)
-  );
-}
+// formatTime, isUsefulQuestion → lib/home-questions.ts 로 이동 (SSR/CSR 공용)
 
 function FeedList({ questions, mobile, router }: { questions: Question[], mobile: boolean, router: any }) {
   const translation = useAutoTranslation(
