@@ -249,22 +249,6 @@
   position: relative;
 }
 
-.lv {
-  position: absolute;
-  bottom: -3px;
-  right: -3px;
-  font-size: 8px;
-  font-weight: 700;
-  padding: 1px 4px;
-  border-radius: 3px;
-  border: 1.5px solid #fff;
-  white-space: nowrap;
-}
-
-.lv0 { background: #CD7F32; color: #fff; }
-.lv1 { background: #B0B0B0; color: #fff; }
-.lv2 { background: #F4C430; color: #333; }
-.lv3 { background: linear-gradient(135deg, #667eea, #764ba2); color: #fff; }
 
 .qinfo { flex: 1; min-width: 0; }
 

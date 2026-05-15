@@ -569,7 +569,6 @@ function FeedList({ questions, mobile, router }: { questions: Question[], mobile
           <div className={styles.qcardRow}>
             <div className={`${styles.qavatar} tf`}>
               {q.em}
-              <span className={`${styles.lv} ${styles['lv'+q.lv]}`}>{LEVELS[q.lv]?.l}</span>
             </div>
             <div className={styles.qinfo}>
               {/* 메타: 작성자+채택됨 / 카테고리+시간 2줄 구조 */}
