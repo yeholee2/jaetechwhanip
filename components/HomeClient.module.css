@@ -101,6 +101,18 @@
   padding: var(--space-3) 0;
 }
 
+/* 시장 시세 ticker — pcBody 와 동일 폭 */
+.tickerWrap {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: var(--space-3) var(--space-5) 0;
+}
+@media (max-width: 768px) {
+  .tickerWrap {
+    display: none;  /* 모바일은 홈 사이드 mini-indices 가 있어서 중복 회피 */
+  }
+}
+
 .pcFeed {
   flex: 1;
   min-width: 0;

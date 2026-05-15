@@ -2,8 +2,11 @@
  * 시장 지수 가로 티커 — Yahoo Finance 라이브.
  * Toss증권 톤: 상단에 길게 펼쳐지는 sparkline + 가격 + 등락률.
  * 좌측 상태 (국내 애프터마켓 / 해외 프리마켓 등) 표시.
+ *
+ * 사용:
+ *  - 서버 컴포넌트로: <MarketTicker />  (자체 fetch)
+ *  - 또는 prop으로 데이터 주입: <MarketTickerView quotes={...} />
  */
-import sec from './sectionStyles.module.css';
 import styles from './MarketTicker.module.css';
 
 type IndexDef = {
@@ -13,7 +16,7 @@ type IndexDef = {
   region: 'kr' | 'us';
 };
 
-const INDICES: IndexDef[] = [
+export const TICKER_INDICES: IndexDef[] = [
   { symbol: '^KS11', name: '코스피', region: 'kr' },
   { symbol: '^KQ11', name: '코스닥', region: 'kr' },
   { symbol: 'KRW=X', name: '원/달러', region: 'kr', unit: '원' },
@@ -117,10 +120,11 @@ function Sparkline({ series, up }: { series: number[]; up: boolean }) {
   );
 }
 
-export async function MarketTicker() {
-  const results = await Promise.all(INDICES.map(idx => fetchQuote(idx.symbol)));
-  const status = getMarketStatus();
+export type TickerQuote = Quote;
 
+/** 순수 렌더링 컴포넌트 (server/client 어디든) — 데이터 prop 주입 */
+export function MarketTickerView({ quotes }: { quotes: (TickerQuote | null)[] }) {
+  const status = getMarketStatus();
   return (
     <section className={styles.ticker} aria-label="실시간 시장 시세">
       <div className={styles.statusBar}>
@@ -136,8 +140,8 @@ export async function MarketTicker() {
 
       <div className={styles.scrollWrap}>
         <div className={styles.row}>
-          {INDICES.map((idx, i) => {
-            const q = results[i];
+          {TICKER_INDICES.map((idx, i) => {
+            const q = quotes[i];
             if (!q) {
               return (
                 <div key={idx.symbol} className={styles.item}>
@@ -169,4 +173,15 @@ export async function MarketTicker() {
       </div>
     </section>
   );
+}
+
+/** 서버 사이드 fetch + 렌더 (기존 호환) */
+export async function MarketTicker() {
+  const quotes = await Promise.all(TICKER_INDICES.map(idx => fetchQuote(idx.symbol)));
+  return <MarketTickerView quotes={quotes} />;
+}
+
+/** 서버에서 ticker 데이터만 fetch (다른 페이지가 prop 으로 주입할 때 사용) */
+export async function fetchTickerQuotes(): Promise<(TickerQuote | null)[]> {
+  return Promise.all(TICKER_INDICES.map(idx => fetchQuote(idx.symbol)));
 }

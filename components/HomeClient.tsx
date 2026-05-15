@@ -18,6 +18,7 @@ import { useAutoTranslation } from '@/lib/useAutoTranslation';
 import { FaIcon } from './FaIcon';
 import { AppShell } from './AppShell';
 import { Chip, Badge, Tooltip } from '@/components/ui';
+import { MarketTickerView, type TickerQuote } from '@/app/etf/MarketTicker';
 import { lookupGlossary } from '@/lib/etfGlossary';
 import SparringMiniCard from './sparring/SparringMiniCard';
 import { HomeWatchWidget } from './HomeWatchWidget';
@@ -55,12 +56,14 @@ export default function HomeClient({
   marketIndices,
   siteBanner,
   siteKeywords,
+  tickerQuotes,
 }: {
   initialQuestions: Question[];
   featuredSparring?: Sparring | null;
   marketIndices?: { name: string; val: string; chg: string; up: boolean; series?: number[] }[];
   siteBanner?: { enabled: boolean; message: string; link: string };
   siteKeywords?: string[];
+  tickerQuotes?: (TickerQuote | null)[];
 }) {
   const router = useRouter();
   const [user, setUser] = useState<any>(null);
@@ -305,6 +308,13 @@ export default function HomeClient({
 
   return (
     <AppShell active="home" wide hideSlogan>
+      {/* 시장 시세 ticker — 페이지 최상단, 전체 폭 */}
+      {tickerQuotes && tickerQuotes.length > 0 && (
+        <div className={styles.tickerWrap}>
+          <MarketTickerView quotes={tickerQuotes} />
+        </div>
+      )}
+
       {/* PC 본문 */}
       <div className={styles.pcBody}>
         <div className={styles.pcFeed}>
