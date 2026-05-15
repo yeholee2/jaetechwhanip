@@ -16,12 +16,13 @@ import { FloatingThemeToggle } from './FloatingThemeToggle';
 import { NotificationBell } from './NotificationBell';
 import styles from './AppShell.module.css';
 
-export type AppNavKey = 'home' | 'etf' | 'portfolio' | 'topics' | 'sparring' | 'feed' | 'mission' | 'my';
+export type AppNavKey = 'home' | 'etf' | 'portfolio' | 'topics' | 'sparring' | 'feed' | 'mission' | 'my' | 'creators';
 
 const NAV_ITEMS: { key: AppNavKey; label: string; href: string }[] = [
   { key: 'home', label: 'Q&A', href: '/' },
   { key: 'etf', label: 'ETF', href: '/etf' },
   { key: 'portfolio', label: 'MY포트폴리오', href: '/portfolio' },
+  { key: 'creators', label: '핀플루언서', href: '/creators' },
   { key: 'sparring', label: '스파링', href: '/sparring' },
 ];
 

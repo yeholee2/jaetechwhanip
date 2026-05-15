@@ -6,6 +6,7 @@ import { createClient } from '@/lib/supabase/server';
 import { SITE_NAME, SITE_URL } from '@/lib/seo';
 import type { Creator, CreatorPost } from '@/lib/creator';
 import { PostBody } from './PostBody';
+import { PostInteractions } from './PostInteractions';
 import styles from './CreatorPost.module.css';
 
 export const revalidate = 60;
@@ -133,6 +134,13 @@ export default async function CreatorPostPage({ params }: Props) {
         ) : (
           <PostBody body={post.body || ''} />
         )}
+
+        <PostInteractions
+          postId={post.id}
+          initialLikeCount={post.like_count}
+          initialCommentCount={post.comment_count}
+          locked={locked}
+        />
       </main>
     </AppShell>
   );
