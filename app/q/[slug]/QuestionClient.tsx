@@ -563,30 +563,32 @@ export default function QuestionClient({
         {/* 메인 컬럼 */}
         <main className={styles.main}>
 
-          {/* 브레드크럼 */}
-          <div className={styles.breadcrumb}>
-            <Chip onClick={() => router.push('/')} size="sm">
-              {getCategoryLabel(q.category || '재테크')}
-            </Chip>
-          </div>
-
-          {/* 질문 카드 */}
+          {/* 질문 카드 — 홈 카드와 동일한 헤더 구조 */}
           <article className={styles.qCard}>
             <div className={styles.qProfile}>
               <div className={styles.qAvatarWrap}>
                 <div className={`${styles.qAvatar} tf`}>{q.users?.avatar_url || getUserEmoji(q.author_id, q.users?.name)}</div>
               </div>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 2 }}>
-                  <span style={{ fontSize: 14, fontWeight: 700 }}>{authorName}</span>
-                  {q.is_answered && <Badge tone="success">✅ 채택됨</Badge>}
+              <div className={styles.qInfo}>
+                <div className={styles.qMetaTop}>
+                  <span className={styles.qAuthor}>{authorName}</span>
+                  {q.is_answered && <span className={styles.qAdopted} title="채택된 답변 있음">✅</span>}
                   {qTranslated && <Badge tone="primary">Translated</Badge>}
                 </div>
-                <div style={{ fontSize: 12, color: 'var(--t3)' }}>
-                  {ft(q.created_at)} · 조회 {q.view_count || 0}
+                <div className={styles.qMetaBot}>
+                  <button
+                    className={styles.qCat}
+                    onClick={() => router.push('/')}
+                    type="button"
+                  >
+                    {getCategoryLabel(q.category || '재테크')}
+                  </button>
+                  <span className={styles.qDivider}>·</span>
+                  <span className={styles.qTime}>{ft(q.created_at)}</span>
+                  <span className={styles.qDivider}>·</span>
+                  <span className={styles.qTime}>조회 {q.view_count || 0}</span>
                 </div>
               </div>
-              {/* 더보기 메뉴: 기능 구현 전까지 숨김 */}
             </div>
 
             <h1 className={styles.qTitle}>{qTitle}</h1>
