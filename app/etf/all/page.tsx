@@ -6,6 +6,7 @@ import { SITE_NAME } from '@/lib/seo';
 import { PageHero, Badge } from '@/components/ui';
 import { PageSidebar } from '@/components/PageSidebar';
 import { EtfPageTabs } from '../EtfPageTabs';
+import { MarketTicker } from '../MarketTicker';
 import { EtfAllClient } from './EtfAllClient';
 
 export const revalidate = 600;
@@ -27,18 +28,21 @@ export default async function EtfAllPage() {
   const etfs = await fetchEtfs(2000);
   return (
     <AppShell active="etf" wide hideSlogan>
-      <main className="pc-layout">
-        <div className="pc-layout-main">
-          <EtfPageTabs active="all" />
-          <PageHero
-            eyebrow="전체 ETF"
-            title="찾는 ETF, 한 번에 검색해요"
-            lead="국내상장 + 미국상장 통합 검색. 코드·이름·테마로 빠르게."
-            aside={<Badge tone="primary">{etfs.length}개</Badge>}
-          />
-          <EtfAllClient initialEtfs={etfs} />
+      <main className="pc-layout-stack">
+        <MarketTicker />
+        <div className="pc-layout">
+          <div className="pc-layout-main">
+            <EtfPageTabs active="all" />
+            <PageHero
+              eyebrow="전체 ETF"
+              title="찾는 ETF, 한 번에 검색해요"
+              lead="국내상장 + 미국상장 통합 검색. 코드·이름·테마로 빠르게."
+              aside={<Badge tone="primary">{etfs.length}개</Badge>}
+            />
+            <EtfAllClient initialEtfs={etfs} />
+          </div>
+          <PageSidebar widgets={['watch']} />
         </div>
-        <PageSidebar widgets={['watch']} />
       </main>
     </AppShell>
   );

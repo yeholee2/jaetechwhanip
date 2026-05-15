@@ -4,6 +4,7 @@ import { ETF_HOME_URL } from '@/lib/etfs';
 import { SITE_NAME } from '@/lib/seo';
 import { PageSidebar } from '@/components/PageSidebar';
 import { EtfPageTabs } from '../EtfPageTabs';
+import { MarketTicker } from '../MarketTicker';
 import { fetchHannipBlog, fetchMacroNews, getEtfCurated } from '@/lib/newsFeed';
 import { NewsClient } from './NewsClient';
 
@@ -31,12 +32,15 @@ export default async function EtfNewsPage() {
 
   return (
     <AppShell active="etf" wide hideSlogan>
-      <main className="pc-layout">
-        <div className="pc-layout-main">
-          <EtfPageTabs active="news" />
-          <NewsClient blog={blog} macro={macro} etf={etf} />
+      <main className="pc-layout-stack">
+        <MarketTicker />
+        <div className="pc-layout">
+          <div className="pc-layout-main">
+            <EtfPageTabs active="news" />
+            <NewsClient blog={blog} macro={macro} etf={etf} />
+          </div>
+          <PageSidebar widgets={['watch']} />
         </div>
-        <PageSidebar widgets={['watch']} />
       </main>
     </AppShell>
   );

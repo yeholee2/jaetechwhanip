@@ -6,6 +6,7 @@ import { SITE_NAME } from '@/lib/seo';
 import { PageHero } from '@/components/ui';
 import { PageSidebar } from '@/components/PageSidebar';
 import { EtfPageTabs } from '../EtfPageTabs';
+import { MarketTicker } from '../MarketTicker';
 import { StrategyToggle } from '../StrategyToggle';
 import { ThemeToggle } from '../ThemeToggle';
 import { InsightCarousel } from '../InsightCarousel';
@@ -32,22 +33,25 @@ export default async function EtfThemesPage() {
 
   return (
     <AppShell active="etf" wide hideSlogan>
-      <main className="pc-layout">
-        <div className="pc-layout-main">
-          <EtfPageTabs active="themes" />
-          <PageHero
-            eyebrow="테마 · 전략"
-            title="요즘 뜨는 테마와 검증된 전략"
-            lead="어떤 테마가 주목받는지, 어떤 전략이 돈을 벌어왔는지 한 페이지에서 살펴봐요."
-          />
+      <main className="pc-layout-stack">
+        <MarketTicker />
+        <div className="pc-layout">
+          <div className="pc-layout-main">
+            <EtfPageTabs active="themes" />
+            <PageHero
+              eyebrow="테마 · 전략"
+              title="요즘 뜨는 테마와 검증된 전략"
+              lead="어떤 테마가 주목받는지, 어떤 전략이 돈을 벌어왔는지 한 페이지에서 살펴봐요."
+            />
 
-          <StrategyToggle allEtfs={allEtfs} />
-          <ThemeToggle allEtfs={allEtfs} />
-          <InsightCarousel allEtfs={allEtfs} />
-          <CtaCards />
-          <FeaturePromo />
+            <StrategyToggle allEtfs={allEtfs} />
+            <ThemeToggle allEtfs={allEtfs} />
+            <InsightCarousel allEtfs={allEtfs} />
+            <CtaCards />
+            <FeaturePromo />
+          </div>
+          <PageSidebar widgets={['watch']} />
         </div>
-        <PageSidebar widgets={['watch']} />
       </main>
     </AppShell>
   );
