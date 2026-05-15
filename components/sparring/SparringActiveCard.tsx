@@ -53,8 +53,8 @@ export default function SparringActiveCard({ sparring }: { sparring: Sparring })
           )}
         </div>
         <div className={styles.activeFoot}>
-          <span><FaIcon name="clock" size={15} /> <Countdown deadlineAt={sparring.deadline_at} compact /></span>
-          <strong><FaIcon name="bullhorn" size={15} /> 참여하기</strong>
+          <span><FaIcon name="clock" size={14} /> <Countdown deadlineAt={sparring.deadline_at} compact /></span>
+          <strong><FaIcon name="comment-dots" size={14} /> 참여하기</strong>
         </div>
       </Link>
     </article>
