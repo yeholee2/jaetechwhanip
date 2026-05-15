@@ -7,7 +7,7 @@ import { PageHero, Badge, Card, Button } from '@/components/ui';
 import styles from './EtfPage.module.css';
 import { EtfPageTabs, type EtfPageTab } from './EtfPageTabs';
 import { MyEtfSection } from './MyEtfSection';
-import { MarketIndices } from './MarketIndices';
+import { MarketTicker } from './MarketTicker';
 import { EtfNews } from './EtfNews';
 import { EtfRanking } from './EtfRanking';
 import { CtaCards } from './CtaCards';
@@ -90,6 +90,9 @@ export default async function EtfPage({
       />
       <main className="pc-layout">
         <div className="pc-layout-main">
+          {/* 시장 시세 티커 — 탭 위, 전체 폭 */}
+          <MarketTicker />
+
           <EtfPageTabs active={active} />
 
           {active === 'discover' && <DiscoverTab allEtfs={etfs} />}
@@ -111,8 +114,7 @@ async function DiscoverTab({ allEtfs }: { allEtfs: import('@/lib/etfs').EtfInfo[
       {/* 1. 내 ETF (로그인 시 도미노 풀화면, 비로그인 시 가입 CTA) */}
       <MyEtfSection />
 
-      {/* 2. 시장 지수 */}
-      <MarketIndices />
+      {/* (시장지수는 페이지 상단 MarketTicker 로 이동) */}
 
       {/* 3. 투자 매력도 높은 ETF */}
       <EtfRanking allEtfs={allEtfs} />
