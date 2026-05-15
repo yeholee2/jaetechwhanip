@@ -14,6 +14,7 @@ import { Footer } from './Footer';
 import { BottomPromoBar } from './BottomPromoBar';
 import { FloatingThemeToggle } from './FloatingThemeToggle';
 import { NotificationBell } from './NotificationBell';
+import { GlobalSearch } from './GlobalSearch';
 import styles from './AppShell.module.css';
 
 export type AppNavKey = 'home' | 'etf' | 'portfolio' | 'topics' | 'sparring' | 'feed' | 'mission' | 'my' | 'creators';
@@ -489,6 +490,9 @@ export function AppShell({
 
       {/* 우측 하단 화면 테마 토글 (모든 페이지에 표시) */}
       <FloatingThemeToggle />
+
+      {/* 글로벌 검색 (⌘+K) — 모든 페이지에서 동작 */}
+      <GlobalSearch />
 
       <button
         className={styles.moAskFab}
