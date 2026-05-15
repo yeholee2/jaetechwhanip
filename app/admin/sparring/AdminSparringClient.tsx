@@ -123,18 +123,30 @@ export default function AdminSparringClient({ initialSparrings }: { initialSparr
   const uploadThumbnail = async () => {
     if (!file) return form.thumbnailUrl || null;
 
+    setMessage('이미지 업로드 중…');
     const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '-');
     const path = `sparring/${Date.now()}-${safeName}`;
-    const { error } = await supabase.storage.from('sparring-thumbnails').upload(path, file, { upsert: false });
+    const { error } = await supabase.storage
+      .from('sparring-thumbnails')
+      .upload(path, file, { upsert: false, contentType: file.type });
 
     if (error) {
-      setMessage(`썸네일 업로드 실패: ${error.message}. URL 입력값으로 저장합니다.`);
-      return form.thumbnailUrl || null;
+      // 상세 에러: bucket 권한 / 용량 / mime
+      const hint = error.message.includes('mime') ? ' (PNG/JPG/WebP/GIF 만 가능)'
+        : error.message.includes('size') ? ' (5MB 이하만 가능)'
+        : error.message.includes('Bucket') || error.message.includes('not allowed') ? ' (Supabase Storage 권한 확인 필요)'
+        : '';
+      setMessage(`❌ 이미지 업로드 실패: ${error.message}${hint}`);
+      throw new Error(`Storage upload: ${error.message}`);
     }
 
     const { data } = supabase.storage.from('sparring-thumbnails').getPublicUrl(path);
-    // form의 URL 필드도 즉시 갱신해서 사용자에게 시각적 피드백
-    setForm(prev => ({ ...prev, thumbnailUrl: data.publicUrl }));
+    if (!data?.publicUrl) {
+      setMessage('❌ 업로드는 됐지만 public URL 받기 실패. bucket public 설정 확인 필요.');
+      throw new Error('No public URL returned');
+    }
+
+    setMessage('✓ 이미지 업로드 완료, DB 반영 중…');
     return data.publicUrl;
   };
 
@@ -216,14 +228,18 @@ export default function AdminSparringClient({ initialSparrings }: { initialSparr
         etf_b_code: etfBCode,
       };
 
+      let savedId = form.id;
       if (form.id) {
         const { error } = await supabase.from('sparrings').update(payload).eq('id', form.id);
         if (error) throw error;
-        setMessage('라운드를 수정했어요. (캐시 무효화 중…)');
       } else {
-        const { error } = await supabase.from('sparrings').insert({ ...payload, status: 'active' });
+        const { data: inserted, error } = await supabase
+          .from('sparrings')
+          .insert({ ...payload, status: 'active' })
+          .select()
+          .single();
         if (error) throw error;
-        setMessage('새 라운드를 만들었어요. (캐시 무효화 중…)');
+        savedId = inserted?.id || '';
       }
 
       // 캐시 즉시 무효화 — 홈/ETF/스파링 페이지 새로 빌드
@@ -231,14 +247,16 @@ export default function AdminSparringClient({ initialSparrings }: { initialSparr
         await fetch('/api/admin/revalidate', {
           method: 'POST',
           headers: { 'content-type': 'application/json' },
-          body: JSON.stringify({ paths: ['/', '/etf', '/sparring', `/sparring/${form.slug}`] }),
+          body: JSON.stringify({ paths: ['/', '/etf', '/sparring', `/sparring/${slug}`] }),
         });
-        setMessage(prev => prev.replace(' (캐시 무효화 중…)', ' ✓ 홈에 바로 반영됨'));
       } catch {
         // 실패해도 1분 후 ISR 로 갱신됨
       }
 
-      setForm(emptyForm);
+      setMessage(form.id ? '✓ 수정 완료 — 홈에 즉시 반영됨' : '✓ 새 라운드 생성 — 홈에 즉시 반영됨');
+
+      // 저장된 URL 로 form 갱신 (file 만 초기화, 나머지 유지 → 사용자가 결과 확인 가능)
+      setForm(prev => ({ ...prev, id: savedId, thumbnailUrl: thumbnailUrl || '' }));
       setFile(null);
       await refresh();
     } catch (error) {
@@ -499,19 +517,30 @@ export default function AdminSparringClient({ initialSparrings }: { initialSparr
             <div className={styles.list}>
               {sparrings.map(item => (
                 <article key={item.id} className={styles.item}>
-                  <div className={styles.itemMeta}>
-                    <span>{item.round_number} 라운드 · {item.category}</span>
-                    <span>{item.status}</span>
-                  </div>
-                  <strong>{item.title}</strong>
-                  <div className={styles.itemStats}>
-                    {formatNumber(item.stats.votes_total)}표 · 토론 {formatNumber(item.stats.comment_count)}개
-                  </div>
-                  <div className={styles.itemActions}>
-                    <Link href={sparringPath(item.slug)}>보기</Link>
-                    <button type="button" onClick={() => setForm(fromSparring(item))}>편집</button>
-                    <button type="button" disabled={pending || item.status !== 'active'} onClick={() => closeRound(item.id)}>마감</button>
-                    <button type="button" disabled={pending} onClick={() => deleteRound(item.id)}>삭제</button>
+                  {item.thumbnail_url ? (
+                    <div
+                      className={styles.itemThumb}
+                      style={{ backgroundImage: `url("${item.thumbnail_url}")` }}
+                      aria-hidden="true"
+                    />
+                  ) : (
+                    <div className={styles.itemThumbEmpty} aria-hidden="true">📷</div>
+                  )}
+                  <div className={styles.itemBody}>
+                    <div className={styles.itemMeta}>
+                      <span>{item.round_number} 라운드 · {item.category}</span>
+                      <span>{item.status}</span>
+                    </div>
+                    <strong>{item.title}</strong>
+                    <div className={styles.itemStats}>
+                      {formatNumber(item.stats.votes_total)}표 · 토론 {formatNumber(item.stats.comment_count)}개
+                    </div>
+                    <div className={styles.itemActions}>
+                      <Link href={sparringPath(item.slug)}>보기</Link>
+                      <button type="button" onClick={() => { setForm(fromSparring(item)); setFile(null); }}>편집</button>
+                      <button type="button" disabled={pending || item.status !== 'active'} onClick={() => closeRound(item.id)}>마감</button>
+                      <button type="button" disabled={pending} onClick={() => deleteRound(item.id)}>삭제</button>
+                    </div>
                   </div>
                 </article>
               ))}
