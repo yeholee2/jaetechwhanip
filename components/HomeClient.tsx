@@ -8,6 +8,14 @@ import { createClient, hasSupabase } from '@/lib/supabase/client';
 import { CATEGORY_DEFINITIONS, CATEGORY_EMOJI, CATEGORY_LABELS, getCategoryLabel } from '@/lib/categories';
 import type { Question } from '@/lib/sampleData';
 import { LEVELS, EMOJI, sampleQuestions } from '@/lib/sampleData';
+
+function getUserEmoji(idOrName?: string | null): string {
+  const key = idOrName || '';
+  if (!key) return EMOJI[0];
+  let h = 0;
+  for (let i = 0; i < key.length; i++) h = (Math.imul(31, h) + key.charCodeAt(i)) | 0;
+  return EMOJI[Math.abs(h) % EMOJI.length];
+}
 import type { Sparring } from '@/lib/sparring';
 import { createQuestionSlug, ensureUniqueSlug } from '@/lib/slugs';
 import { getAuthNickname, syncFinanceNickname } from '@/lib/nicknames';
@@ -159,7 +167,7 @@ export default function HomeClient({
         topic: seed?.topic || '일반',
         author: seed?.author || (q.users as any)?.name || '익명',
         time: seed?.createdAt ? formatTime(seed.createdAt) : formatTime(q.created_at),
-        em: (q.users as any)?.avatar_url || seed?.em || EMOJI[(i + pageNum * PAGE_SIZE) % EMOJI.length],
+        em: (q.users as any)?.avatar_url || seed?.em || getUserEmoji(q.author_id),
         lv: seed?.lv ?? 0,
         title: seed?.title || q.title,
         body: seed?.body || q.body || '',

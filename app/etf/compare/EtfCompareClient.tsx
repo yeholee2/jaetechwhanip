@@ -113,15 +113,27 @@ export function EtfCompareClient({
     updateUrl(b, oldA);
   };
 
-  // B 후보에서 A 제외, 그 반대도
-  const bCandidates = useMemo(
-    () => candidates.filter(e => e.slug !== a?.slug),
-    [candidates, a],
-  );
-  const aCandidates = useMemo(
-    () => candidates.filter(e => e.slug !== b?.slug),
-    [candidates, b],
-  );
+  // A가 선택된 경우 B 후보에서 같은 theme → 같은 category → 나머지 순으로 정렬
+  const bCandidates = useMemo(() => {
+    const rest = candidates.filter(e => e.slug !== a?.slug);
+    if (!a) return rest;
+    return [...rest].sort((x, y) => {
+      const scoreOf = (e: typeof x) =>
+        e.theme === a.theme ? 2 : e.category === a.category ? 1 : 0;
+      return scoreOf(y) - scoreOf(x);
+    });
+  }, [candidates, a]);
+
+  // B가 선택된 경우 A 후보도 동일 로직
+  const aCandidates = useMemo(() => {
+    const rest = candidates.filter(e => e.slug !== b?.slug);
+    if (!b) return rest;
+    return [...rest].sort((x, y) => {
+      const scoreOf = (e: typeof x) =>
+        e.theme === b.theme ? 2 : e.category === b.category ? 1 : 0;
+      return scoreOf(y) - scoreOf(x);
+    });
+  }, [candidates, b]);
 
   const bothSelected = a && b;
 

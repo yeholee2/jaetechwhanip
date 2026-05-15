@@ -11,6 +11,15 @@ import {
 import { createClient, hasSupabase } from '@/lib/supabase/client';
 import { CATEGORY_DEFINITIONS, getCategoryLabel } from '@/lib/categories';
 import { EMOJI, getSampleAnswers, sampleQuestions } from '@/lib/sampleData';
+
+/** 사용자 id 또는 name을 해시해서 EMOJI 배열에서 일관된 이모지 반환 */
+function getUserEmoji(user?: { id?: string | null; name?: string | null } | null): string {
+  const key = user?.id || user?.name || '';
+  if (!key) return EMOJI[0];
+  let h = 0;
+  for (let i = 0; i < key.length; i++) h = (Math.imul(31, h) + key.charCodeAt(i)) | 0;
+  return EMOJI[Math.abs(h) % EMOJI.length];
+}
 import type { AnswerDetail, QuestionDetail, RelatedQuestion } from '@/lib/question-detail';
 import type { Sparring } from '@/lib/sparring';
 import { createQuestionSlug, ensureUniqueSlug } from '@/lib/slugs';
@@ -565,7 +574,7 @@ export default function QuestionClient({
           <article className={styles.qCard}>
             <div className={styles.qProfile}>
               <div className={styles.qAvatarWrap}>
-                <div className={`${styles.qAvatar} tf`}>{q.users?.avatar_url || EMOJI[0]}</div>
+                <div className={`${styles.qAvatar} tf`}>{q.users?.avatar_url || getUserEmoji(q.users)}</div>
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 2 }}>
@@ -773,7 +782,7 @@ function AnswerCard({ answer: a, currentUserId, isMyQuestion, isAnswered, liked,
         </div>
       )}
       <div className={styles.answerProfile}>
-        <div className={`${styles.answerAvatar} tf`}>{a.users?.avatar_url || EMOJI[1]}</div>
+        <div className={`${styles.answerAvatar} tf`}>{a.users?.avatar_url || getUserEmoji(a.users)}</div>
         <div style={{ flex: 1 }}>
           <div style={{ fontWeight: 700, fontSize: 14 }}>{name}</div>
           <div style={{ fontSize: 12, color: 'var(--t3)' }}>{a.created_at ? ft(a.created_at) : ''}</div>

@@ -63,8 +63,8 @@
 
 /* ── 본문 레이아웃 ── */
 .body {
-  max-width: 1040px; margin: 56px auto 0;
-  padding: 24px 24px 60px;
+  max-width: 1040px; margin: 0 auto;
+  padding: 12px 24px 60px;
   display: flex; gap: 20px;
 }
 .main { flex: 1; min-width: 0; }
