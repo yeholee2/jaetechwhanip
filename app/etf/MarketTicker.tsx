@@ -84,11 +84,11 @@ function getMarketStatus(): { krOpen: boolean; usOpen: boolean } {
   return { krOpen, usOpen };
 }
 
-/** Mini horizontal sparkline (90×28) */
+/** Mini horizontal sparkline (60×24) — 더 작게 */
 function Sparkline({ series, up }: { series: number[]; up: boolean }) {
   if (series.length < 2) return <div className={styles.sparkPlaceholder} aria-hidden="true" />;
-  const W = 90;
-  const H = 28;
+  const W = 60;
+  const H = 24;
   const padY = 3;
   const min = Math.min(...series);
   const max = Math.max(...series);
