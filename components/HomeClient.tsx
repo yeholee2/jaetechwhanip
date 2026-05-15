@@ -571,16 +571,19 @@ function FeedList({ questions, mobile, router }: { questions: Question[], mobile
               {q.em}
             </div>
             <div className={styles.qinfo}>
-              {/* 메타: 작성자+채택됨 / 카테고리+시간 2줄 구조 */}
+              {/* 메타: 작성자+채택됨 아이콘 / 카테고리·날짜 2줄 */}
               <div className={styles.qmeta}>
                 <div className={styles.qmetaTop}>
                   <span className={styles.qauthor}>{q.author}</span>
-                  {q.adopted && <Badge tone="warning">✅ 채택됨</Badge>}
+                  {q.adopted && <span className={styles.qadopted} title="채택된 답변 있음">✅</span>}
                   {translated && <Badge tone="primary">Translated</Badge>}
                 </div>
                 <div className={styles.qmetaBot}>
-                  <Badge tone="neutral">{getCategoryLabel(q.cat)}</Badge>
-                  {q.topic && q.topic !== '일반' && <Badge tone="success">{q.topic}</Badge>}
+                  <span className={styles.qcat}>{getCategoryLabel(q.cat)}</span>
+                  {q.topic && q.topic !== '일반' && (
+                    <><span className={styles.qdivider}>·</span><span className={styles.qtopic}>{q.topic}</span></>
+                  )}
+                  <span className={styles.qdivider}>·</span>
                   <span className={styles.qtime}>{q.time}</span>
                 </div>
               </div>
@@ -592,20 +595,12 @@ function FeedList({ questions, mobile, router }: { questions: Question[], mobile
                 <div className={styles.qfootStats}>
                   <span className={styles.qstat}>
                     <FaIcon name="comment" size={12}/>
-                    {q.ans > 0 ? `${q.ans}` : '답변하기'}
+                    {q.ans > 0 ? q.ans : '첫 답변'}
                   </span>
-                  {(q as any).viewCount > 0 && (
-                    <span className={styles.qstat}>
-                      <FaIcon name="eye" size={12}/>
-                      {(q as any).viewCount.toLocaleString()}
-                    </span>
-                  )}
-                  {((q as any).likeCount ?? 0) > 0 && (
-                    <span className={styles.qstat}>
-                      <FaIcon name="thumbs-up" size={12}/>
-                      {(q as any).likeCount}
-                    </span>
-                  )}
+                  <span className={styles.qstat}>
+                    <FaIcon name="thumbs-up" size={12}/>
+                    {(q as any).likeCount ?? 0}
+                  </span>
                 </div>
                 <button className={styles.qbtn} onClick={(e) => {
                   e.stopPropagation();
