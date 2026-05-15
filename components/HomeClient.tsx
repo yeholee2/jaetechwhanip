@@ -22,11 +22,11 @@ import { HomeWatchWidget } from './HomeWatchWidget';
 import { etfs, etfPath } from '@/lib/etfs';
 import styles from './HomeClient.module.css';
 
-const HOME_INDICES = [
-  { name: '코스피', val: '7,822', chg: '+4.32%', up: true },
-  { name: 'S&P500', val: '7,398', chg: '+0.84%', up: true },
-  { name: '나스닥', val: '26,247', chg: '+1.71%', up: true },
-  { name: '원달러', val: '1,474', chg: '+0.86%', up: true },
+const HOME_INDICES_FALLBACK = [
+  { name: '코스피', val: '—', chg: '—', up: true },
+  { name: 'S&P500', val: '—', chg: '—', up: true },
+  { name: '나스닥', val: '—', chg: '—', up: true },
+  { name: '원달러', val: '—', chg: '—', up: true },
 ];
 const HOME_KEYWORDS = ['반도체', '월배당', 'AI전력', '나스닥100', 'S&P500', '커버드콜', '밸류업'];
 
@@ -50,9 +50,11 @@ function getUserName(user: any): string {
 export default function HomeClient({
   initialQuestions,
   featuredSparring,
+  marketIndices,
 }: {
   initialQuestions: Question[];
   featuredSparring?: Sparring | null;
+  marketIndices?: { name: string; val: string; chg: string; up: boolean }[];
 }) {
   const router = useRouter();
   const [user, setUser] = useState<any>(null);
@@ -346,7 +348,7 @@ export default function HomeClient({
           <div className={styles.sideWidget}>
             <div className={styles.sideHead}>시장 지수</div>
             <ul className={styles.indexList}>
-              {HOME_INDICES.map(i => (
+              {(marketIndices && marketIndices.length > 0 ? marketIndices : HOME_INDICES_FALLBACK).map(i => (
                 <li key={i.name} className={styles.indexRow}>
                   <span className={styles.indexName}>{i.name}</span>
                   <span className={styles.indexVal}>{i.val}</span>

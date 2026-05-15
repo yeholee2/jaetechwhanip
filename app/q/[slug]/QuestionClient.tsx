@@ -532,9 +532,34 @@ export default function QuestionClient({
 
   if (loading) {
     return (
-      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <div className={styles.spinner} />
-      </div>
+      <AppShell active="home" wide hideSlogan>
+        <div className={styles.body}>
+          <main className={styles.main}>
+            <article className={styles.qCard}>
+              <div className={styles.qProfile}>
+                <div className={`${styles.qAvatar} ${styles.skeleton}`} />
+                <div className={styles.qInfo}>
+                  <div className={`${styles.skeleton} ${styles.skLine}`} style={{ width: 120 }} />
+                  <div className={`${styles.skeleton} ${styles.skLine}`} style={{ width: 200, height: 12 }} />
+                </div>
+              </div>
+              <div className={`${styles.skeleton} ${styles.skLine}`} style={{ width: '70%', height: 22, marginBottom: 12 }} />
+              <div className={`${styles.skeleton} ${styles.skLine}`} style={{ width: '100%', height: 14, marginBottom: 8 }} />
+              <div className={`${styles.skeleton} ${styles.skLine}`} style={{ width: '85%', height: 14 }} />
+            </article>
+            <div className={styles.qCard}>
+              <div className={styles.qProfile}>
+                <div className={`${styles.qAvatar} ${styles.skeleton}`} />
+                <div className={styles.qInfo}>
+                  <div className={`${styles.skeleton} ${styles.skLine}`} style={{ width: 100 }} />
+                </div>
+              </div>
+              <div className={`${styles.skeleton} ${styles.skLine}`} style={{ width: '95%', height: 14, marginBottom: 8 }} />
+              <div className={`${styles.skeleton} ${styles.skLine}`} style={{ width: '90%', height: 14 }} />
+            </div>
+          </main>
+        </div>
+      </AppShell>
     );
   }
 

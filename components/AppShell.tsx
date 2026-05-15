@@ -90,6 +90,20 @@ export function AppShell({
     setTimeout(() => searchInputRef.current?.focus(), 50);
   };
 
+  // Cmd/Ctrl+K 단축키로 검색 열기
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        if (showSearch) setShowSearch(false);
+        else openSearch();
+      }
+      if (e.key === 'Escape' && showSearch) setShowSearch(false);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [showSearch]);
+
   // 인라인 결과 + 최근 검색
   const [recents, setRecents] = useState<string[]>([]);
   const inlineHits = useMemo(() => searchInline(searchQuery, 6), [searchQuery]);
