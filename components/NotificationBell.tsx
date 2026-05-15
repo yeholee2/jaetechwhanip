@@ -21,6 +21,15 @@ import {
 } from '@/lib/alerts';
 import styles from './NotificationBell.module.css';
 
+const KIND_EMOJI: Record<UserNotification['kind'], string> = {
+  alert: '🔔',
+  system: 'ℹ️',
+  creator_post_published: '✨',
+  creator_post_liked: '♥',
+  creator_post_commented: '💬',
+  qa_answered: '💡',
+};
+
 function timeAgo(iso: string): string {
   const t = new Date(iso).getTime();
   if (!Number.isFinite(t)) return '';
@@ -131,7 +140,10 @@ export function NotificationBell() {
               const isUnread = !n.read_at;
               const Content = (
                 <>
-                  <div className={styles.itemTitle}>{n.title}</div>
+                  <div className={styles.itemTitle}>
+                    <span aria-hidden style={{ marginRight: 6 }}>{KIND_EMOJI[n.kind] || '🔔'}</span>
+                    {n.title}
+                  </div>
                   {n.body && <p className={styles.itemBody}>{n.body}</p>}
                   <span className={styles.itemDate}>{timeAgo(n.created_at)}</span>
                 </>

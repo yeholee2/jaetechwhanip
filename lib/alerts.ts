@@ -25,7 +25,7 @@ export type EtfAlert = {
 export type UserNotification = {
   id: string;
   user_id: string;
-  kind: 'alert' | 'system';
+  kind: 'alert' | 'system' | 'creator_post_published' | 'creator_post_liked' | 'creator_post_commented' | 'qa_answered';
   title: string;
   body: string | null;
   link: string | null;
