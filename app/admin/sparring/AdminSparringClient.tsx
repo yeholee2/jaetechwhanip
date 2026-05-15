@@ -133,6 +133,8 @@ export default function AdminSparringClient({ initialSparrings }: { initialSparr
     }
 
     const { data } = supabase.storage.from('sparring-thumbnails').getPublicUrl(path);
+    // form의 URL 필드도 즉시 갱신해서 사용자에게 시각적 피드백
+    setForm(prev => ({ ...prev, thumbnailUrl: data.publicUrl }));
     return data.publicUrl;
   };
 
@@ -357,16 +359,37 @@ export default function AdminSparringClient({ initialSparrings }: { initialSparr
               </label>
               <label className={styles.field}>
                 <span>썸네일 URL</span>
-                <input
-                  value={form.thumbnailUrl}
-                  placeholder="https://... 이미지 주소"
-                  onChange={event => setField('thumbnailUrl', event.target.value)}
-                />
+                <div style={{ display: 'flex', gap: 6 }}>
+                  <input
+                    style={{ flex: 1, minWidth: 0 }}
+                    value={form.thumbnailUrl}
+                    placeholder="https://... 이미지 주소"
+                    onChange={event => setField('thumbnailUrl', event.target.value)}
+                  />
+                  {(form.thumbnailUrl || file) && (
+                    <button
+                      type="button"
+                      onClick={() => { setField('thumbnailUrl', ''); setFile(null); }}
+                      style={{
+                        padding: '0 10px',
+                        fontSize: 12,
+                        background: 'transparent',
+                        border: '1px solid var(--line)',
+                        borderRadius: 6,
+                        color: 'var(--t3)',
+                        cursor: 'pointer',
+                      }}
+                    >지우기</button>
+                  )}
+                </div>
               </label>
             </div>
             <label className={styles.field}>
               <span>썸네일 업로드</span>
               <input type="file" accept="image/png,image/jpeg,image/webp" onChange={event => setFile(event.target.files?.[0] || null)} />
+              <small style={{ display: 'block', marginTop: 4, fontSize: 11, color: 'var(--t3)' }}>
+                권장 1200×628 (16:9 비율). 실제 카드 248px 높이로 크롭됩니다 — 인물·텍스트는 중앙에 두세요.
+              </small>
             </label>
 
             <div className={styles.designNote}>

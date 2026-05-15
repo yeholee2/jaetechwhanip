@@ -191,14 +191,19 @@
   font-weight: 650;
 }
 
+/* 실제 SparringActiveCard와 동일 규격으로 미리보기 (홈 카드와 1:1 매칭) */
 .previewCard {
   position: relative;
-  min-height: 350px;
+  min-height: 248px;
   overflow: hidden;
-  border-radius: 20px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
   background: linear-gradient(135deg, #123b8d 0%, #1e59da 56%, #61a5ff 100%);
   color: #fff;
   isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
 .previewCard::before,
@@ -218,49 +223,42 @@
 
 .previewCard::after {
   background:
-    linear-gradient(180deg, rgba(0, 0, 0, .44) 0%, rgba(0, 0, 0, .14) 46%, rgba(0, 0, 0, .04) 62%, rgba(0, 0, 0, .62) 100%);
+    linear-gradient(180deg, rgba(0, 0, 0, .42) 0%, rgba(0, 0, 0, .12) 48%, rgba(0, 0, 0, .04) 62%, rgba(0, 0, 0, .66) 100%);
 }
 
 .previewCopy {
-  padding: 30px 28px 20px;
+  padding: 22px 22px 14px;
 }
 
 .previewCopy span {
   display: block;
-  color: rgba(255, 255, 255, .92);
-  font-size: 21px;
-  line-height: 1.25;
-  font-weight: 850;
+  color: rgba(255, 255, 255, .82);
+  font-size: 13px;
+  line-height: 1.3;
+  font-weight: 600;
 }
 
 .previewCopy strong {
   display: block;
   max-width: 94%;
-  margin-top: 22px;
+  margin-top: 10px;
   color: #fff;
-  font-size: 32px;
-  line-height: 1.28;
-  font-weight: 900;
-  letter-spacing: 0;
+  font-size: 22px;
+  line-height: 1.3;
+  font-weight: 800;
+  letter-spacing: -0.3px;
 }
 
 .previewFoot {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  min-height: 64px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  padding: 0 28px;
-  background: rgba(19, 24, 25, .58);
-  backdrop-filter: blur(14px);
+  padding: 14px 22px 18px;
   color: rgba(255, 255, 255, .92);
-  font-size: 17px;
+  font-size: 13px;
   line-height: 1;
-  font-weight: 850;
+  font-weight: 700;
 }
 
 .previewFoot b {
