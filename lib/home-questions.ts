@@ -47,7 +47,9 @@ export function mapDbRowToHomeQuestion(q: any, i: number, pageOffset = 0): Quest
     topic: seed?.topic || '일반',
     author: seed?.author || (q.users as any)?.name || '익명',
     time: seed?.createdAt ? formatTime(seed.createdAt) : formatTime(q.created_at),
-    em: (q.users as any)?.avatar_url || getUserEmoji(q.author_id || (q.users as any)?.name || seed?.author),
+    // QuestionClient는 users.name을 seed.author로 오버라이드하므로,
+    // hash 키 우선순위를 author_id → seed.author → DB users.name 으로 통일
+    em: (q.users as any)?.avatar_url || getUserEmoji(q.author_id || seed?.author || (q.users as any)?.name),
     lv: seed?.lv ?? 0,
     title: seed?.title || q.title,
     body: seed?.body || q.body || '',
