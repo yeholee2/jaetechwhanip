@@ -12,7 +12,7 @@ import { etfPath } from '@/lib/etfs';
 import { FaIcon } from './FaIcon';
 import { Footer } from './Footer';
 import { BottomPromoBar } from './BottomPromoBar';
-import { DarkModeToggle } from './DarkModeToggle';
+import { FloatingThemeToggle } from './FloatingThemeToggle';
 import { NotificationBell } from './NotificationBell';
 import styles from './AppShell.module.css';
 
@@ -383,10 +383,7 @@ export function AppShell({
                       🛠 관리자 대시보드
                     </Link>
                   )}
-                  <div style={{ padding: '8px 12px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }} role="menuitem">
-                    <span style={{ fontSize: 13, color: 'var(--rw-text-body)', fontWeight: 600 }}>화면 테마</span>
-                    <DarkModeToggle />
-                  </div>
+                  {/* 화면 테마 토글 — 우측 하단 floating 버튼으로 이동 */}
                   <button className={styles.signOut} onClick={handleSignOut} role="menuitem" type="button">
                     로그아웃
                   </button>
@@ -395,7 +392,6 @@ export function AppShell({
             </div>
           ) : (
             <>
-              <DarkModeToggle />
               <Link className={styles.iconBtn} href="/auth" aria-label="내 정보" title="내 정보">
                 <FaIcon name="user" size={18} />
               </Link>
@@ -489,6 +485,9 @@ export function AppShell({
       <Footer />
 
       <BottomPromoBar />
+
+      {/* 우측 하단 화면 테마 토글 (모든 페이지에 표시) */}
+      <FloatingThemeToggle />
 
       <button
         className={styles.moAskFab}
