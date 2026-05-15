@@ -31,6 +31,41 @@ export const metadata: Metadata = {
     description: '금융 특화 Q&A 커뮤니티',
   },
   robots: { index: true, follow: true },
+  // Search Console 검증 토큰 — 환경변수로 주입
+  verification: {
+    google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION,
+    other: {
+      'naver-site-verification': process.env.NEXT_PUBLIC_NAVER_SITE_VERIFICATION || '',
+    },
+  },
+};
+
+// Organization 구조화 데이터 — 브랜드 검색·지식 그래프 노출
+const ORG_JSONLD = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: SITE_NAME,
+  alternateName: '재테크한입',
+  url: SITE_URL,
+  logo: `${SITE_URL}/icon.png`,
+  description: '금융 특화 Q&A 커뮤니티. 주식·ETF, 절세, 보험, 대출까지 전문가가 답해드려요.',
+  sameAs: [
+    // 'https://twitter.com/jaetechwhanip',
+    // 'https://www.instagram.com/jaetechwhanip',
+  ],
+};
+
+const WEBSITE_JSONLD = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: SITE_NAME,
+  url: SITE_URL,
+  inLanguage: 'ko-KR',
+  potentialAction: {
+    '@type': 'SearchAction',
+    target: `${SITE_URL}/search?q={search_term_string}`,
+    'query-input': 'required name=search_term_string',
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -48,6 +83,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="ko">
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+        {/* Organization + WebSite 구조화 데이터 — Google 지식 그래프 노출 */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(ORG_JSONLD).replace(/</g, '\\u003c') }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(WEBSITE_JSONLD).replace(/</g, '\\u003c') }}
+        />
       </head>
       <body>
         <PageViewTracker />
