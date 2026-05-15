@@ -7,7 +7,9 @@
  *  - 서버 컴포넌트로: <MarketTicker />  (자체 fetch)
  *  - 또는 prop으로 데이터 주입: <MarketTickerView quotes={...} />
  */
+import Link from 'next/link';
 import styles from './MarketTicker.module.css';
+import { getNextMajorEvent } from '@/lib/marketCalendar';
 
 type IndexDef = {
   symbol: string;
@@ -125,6 +127,7 @@ export type TickerQuote = Quote;
 /** 순수 렌더링 컴포넌트 (server/client 어디든) — 데이터 prop 주입 */
 export function MarketTickerView({ quotes }: { quotes: (TickerQuote | null)[] }) {
   const status = getMarketStatus();
+  const nextEvent = getNextMajorEvent();
   return (
     <section className={styles.ticker} aria-label="실시간 시장 시세">
       <div className={styles.statusBar}>
@@ -140,6 +143,17 @@ export function MarketTickerView({ quotes }: { quotes: (TickerQuote | null)[] })
 
       <div className={styles.scrollWrap}>
         <div className={styles.row}>
+          {/* 첫 카드: 증시 캘린더 D-X (가장 가까운 major 이벤트) */}
+          {nextEvent && (
+            <Link href="/calendar" className={`${styles.item} ${styles.itemCalendar}`}>
+              <span className={styles.dBadge}>D-{nextEvent.dDay}</span>
+              <div className={styles.body}>
+                <span className={styles.name}>증시캘린더</span>
+                <span className={styles.priceCal}>{nextEvent.event.title}</span>
+              </div>
+            </Link>
+          )}
+
           {TICKER_INDICES.map((idx, i) => {
             const q = quotes[i];
             if (!q) {

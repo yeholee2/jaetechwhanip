@@ -63,6 +63,45 @@
   border-right: 1px solid var(--rw-hairline);
   flex-shrink: 0;
   min-width: 0;
+  text-decoration: none;
+  color: inherit;
+}
+
+/* 캘린더 진입 카드 (첫 항목) */
+.itemCalendar {
+  cursor: pointer;
+  transition: background-color 140ms ease;
+  border-radius: 8px;
+  padding: 4px 12px;
+}
+.itemCalendar:hover {
+  background: var(--rw-primary-bg);
+}
+.dBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  height: 22px;
+  padding: 0 6px;
+  border-radius: 6px;
+  background: var(--rw-text-strong);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: -0.1px;
+  font-feature-settings: 'tnum';
+}
+.priceCal {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--rw-text-strong);
+  letter-spacing: -0.1px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 220px;
+  line-height: 1.2;
 }
 .item:last-child { border-right: none; }
 .item:first-child { padding-left: 0; }
