@@ -148,30 +148,33 @@ export default function AdminSparringClient({ initialSparrings }: { initialSparr
     if (!file) return form.thumbnailUrl || null;
 
     setMessage('이미지 업로드 중…');
-    const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '-');
-    const path = `sparring/${Date.now()}-${safeName}`;
-    const { error } = await supabase.storage
-      .from('sparring-thumbnails')
-      .upload(path, file, { upsert: false, contentType: file.type });
+    // 서버 API 경유 (서비스 롤로 RLS 우회 + admin 검증)
+    const formData = new FormData();
+    formData.append('file', file);
 
-    if (error) {
-      // 상세 에러: bucket 권한 / 용량 / mime
-      const hint = error.message.includes('mime') ? ' (PNG/JPG/WebP/GIF 만 가능)'
-        : error.message.includes('size') ? ' (5MB 이하만 가능)'
-        : error.message.includes('Bucket') || error.message.includes('not allowed') ? ' (Supabase Storage 권한 확인 필요)'
-        : '';
-      setMessage(`❌ 이미지 업로드 실패: ${error.message}${hint}`);
-      throw new Error(`Storage upload: ${error.message}`);
+    const res = await fetch('/api/admin/sparring/upload', {
+      method: 'POST',
+      body: formData,
+    });
+
+    if (!res.ok) {
+      let errMsg = '업로드 실패';
+      try {
+        const j = await res.json();
+        errMsg = j.error || errMsg;
+      } catch {}
+      setMessage(`❌ 이미지 업로드 실패: ${errMsg}`);
+      throw new Error(`Upload API: ${errMsg}`);
     }
 
-    const { data } = supabase.storage.from('sparring-thumbnails').getPublicUrl(path);
-    if (!data?.publicUrl) {
-      setMessage('❌ 업로드는 됐지만 public URL 받기 실패. bucket public 설정 확인 필요.');
-      throw new Error('No public URL returned');
+    const { url } = await res.json();
+    if (!url) {
+      setMessage('❌ 업로드는 됐지만 URL 받기 실패');
+      throw new Error('No URL returned');
     }
 
     setMessage('✓ 이미지 업로드 완료, DB 반영 중…');
-    return data.publicUrl;
+    return url;
   };
 
   const refresh = async () => {
