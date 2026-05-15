@@ -167,7 +167,7 @@ export default function HomeClient({
         topic: seed?.topic || '일반',
         author: seed?.author || (q.users as any)?.name || '익명',
         time: seed?.createdAt ? formatTime(seed.createdAt) : formatTime(q.created_at),
-        em: (q.users as any)?.avatar_url || seed?.em || getUserEmoji(q.author_id),
+        em: (q.users as any)?.avatar_url || getUserEmoji(q.author_id),
         lv: seed?.lv ?? 0,
         title: seed?.title || q.title,
         body: seed?.body || q.body || '',
