@@ -12,9 +12,9 @@
 .statusBar {
   display: flex;
   align-items: center;
-  gap: 10px;
-  font-size: 10.5px;
-  font-weight: 700;
+  gap: 14px;
+  font-size: 11px;
+  font-weight: 600;
   color: var(--rw-text-muted);
   letter-spacing: -0.1px;
 }
@@ -23,18 +23,9 @@
   align-items: center;
   gap: 4px;
 }
+/* 점 표시 제거 (레퍼런스 톤 — 텍스트만) */
 .statusDot {
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-}
-.statusDot.open {
-  background: var(--rw-green50, #1b64da);
-  box-shadow: 0 0 0 3px rgba(27, 100, 218, 0.12);
-}
-.statusDot.closed {
-  background: var(--rw-text-muted);
-  opacity: 0.5;
+  display: none;
 }
 
 /* 스크롤 호스트 (좌/우 버튼 + 스크롤 영역) */
@@ -109,25 +100,24 @@
 .item {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 3px 10px;
-  border-right: 1px solid var(--rw-hairline);
+  gap: 8px;
+  padding: 3px 18px;
   flex-shrink: 0;
   min-width: 0;
   text-decoration: none;
   color: inherit;
 }
 
-/* 캘린더 진입 카드 (첫 항목) — 좌측 패딩 0 (statusBar 와 열 맞춤) */
+/* 캘린더 진입 카드 (첫 항목) — 우측에 단 1개 구분선 (시세와 분리) */
 .itemCalendar {
   cursor: pointer;
-  transition: background-color 140ms;
-  border-radius: 10px;
-  padding: 4px 12px 4px 0;
+  border-radius: 0;
+  padding: 4px 18px 4px 0;
   gap: 10px;
+  border-right: 1px solid var(--rw-hairline);
 }
-.itemCalendar:hover {
-  background: var(--rw-primary-bg);
+.itemCalendar:hover .priceCal {
+  color: var(--rw-primary);
 }
 .itemCalendar .name {
   font-size: 11px;
@@ -136,7 +126,7 @@
 }
 .itemCalendar .priceCal {
   font-size: 13px;
-  font-weight: 900;
+  font-weight: 800;
   color: var(--rw-text-strong);
   letter-spacing: -0.2px;
 }
@@ -167,7 +157,7 @@
   max-width: 180px;
   line-height: 1.2;
 }
-.item:last-child { border-right: none; }
+/* item 사이 border 제거됨 (.itemCalendar 만 right border 보유) */
 
 .spark {
   flex-shrink: 0;
@@ -203,8 +193,8 @@
 }
 
 .price {
-  font-size: 12px;
-  font-weight: 900;
+  font-size: 12.5px;
+  font-weight: 800;
   color: var(--rw-text-strong);
   letter-spacing: -0.2px;
   font-feature-settings: 'tnum';
