@@ -32,7 +32,9 @@ function getUserName(user: any) {
   return getAuthNickname(user) || 'ME';
 }
 
-function getUserAvatar(user: any) {
+function getUserAvatar(user: any, dbProfile: { avatar_url?: string | null } | null) {
+  // DB profile 의 avatar (사용자가 마이페이지에서 직접 설정한 이모지/URL) 우선
+  if (dbProfile?.avatar_url) return dbProfile.avatar_url;
   return (
     user?.user_metadata?.avatar_url ||
     user?.user_metadata?.picture ||
@@ -54,6 +56,7 @@ export function AppShell({
 }) {
   const router = useRouter();
   const [user, setUser] = useState<any>(null);
+  const [dbProfile, setDbProfile] = useState<{ avatar_url?: string | null; name?: string | null } | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
@@ -61,8 +64,8 @@ export function AppShell({
   const profileRef = useRef<HTMLDivElement>(null);
   const searchRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
-  const userName = getUserName(user);
-  const userAvatar = getUserAvatar(user);
+  const userName = dbProfile?.name || getUserName(user);
+  const userAvatar = getUserAvatar(user, dbProfile);
   const profileHref = user ? `/u/${user.id}` : '/auth';
   const ask = () => router.push(user ? '/?ask=1' : '/auth?next=/?ask=1');
 
@@ -133,10 +136,25 @@ export function AppShell({
     }
 
     const supabase = createClient();
+
+    const refreshDbProfile = (uid: string) => {
+      supabase.from('users').select('role, avatar_url, name').eq('id', uid).maybeSingle()
+        .then(({ data: profile }) => {
+          setIsAdmin(profile?.role === 'admin');
+          setDbProfile({ avatar_url: profile?.avatar_url ?? null, name: profile?.name ?? null });
+        });
+    };
+
     const { data: authSub } = supabase.auth.onAuthStateChange((_event, session) => {
       const nextUser = session?.user ?? null;
       setUser(nextUser);
-      if (nextUser) void syncFinanceNickname(supabase, nextUser);
+      if (nextUser) {
+        void syncFinanceNickname(supabase, nextUser);
+        refreshDbProfile(nextUser.id);
+      } else {
+        setDbProfile(null);
+        setIsAdmin(false);
+      }
     });
 
     supabase.auth.getSession().then(({ data }) => {
@@ -144,13 +162,27 @@ export function AppShell({
       setUser(nextUser);
       if (nextUser) {
         void syncFinanceNickname(supabase, nextUser);
-        // admin role 확인
-        supabase.from('users').select('role').eq('id', nextUser.id).maybeSingle()
-          .then(({ data: profile }) => setIsAdmin(profile?.role === 'admin'));
+        refreshDbProfile(nextUser.id);
       }
     });
 
-    return () => authSub.subscription.unsubscribe();
+    // 마이페이지에서 프로필 저장 시 dispatch — 즉시 헤더 아바타·이름 반영
+    const onProfileUpdated = (e: Event) => {
+      const detail = (e as CustomEvent).detail || {};
+      if (detail.avatar_url !== undefined || detail.name !== undefined) {
+        setDbProfile(p => ({ ...(p || {}), ...detail }));
+      } else {
+        // detail 없으면 fresh fetch
+        const uid = (supabase.auth as any)?.currentSession?.user?.id;
+        if (uid) refreshDbProfile(uid);
+      }
+    };
+    window.addEventListener('profile-updated', onProfileUpdated as EventListener);
+
+    return () => {
+      authSub.subscription.unsubscribe();
+      window.removeEventListener('profile-updated', onProfileUpdated as EventListener);
+    };
   }, []);
 
   useEffect(() => {
@@ -365,8 +397,10 @@ export function AppShell({
                 type="button"
               >
                 {userAvatar ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={userAvatar} alt="" />
+                  /^https?:\/\//.test(userAvatar)
+                    // eslint-disable-next-line @next/next/no-img-element
+                    ? <img src={userAvatar} alt="" />
+                    : <span className="tf" style={{ fontSize: '18px', lineHeight: 1 }}>{userAvatar}</span>
                 ) : (
                   userName[0]?.toUpperCase() || 'U'
                 )}
@@ -430,8 +464,10 @@ export function AppShell({
             {user ? (
               <Link className={styles.moAvatar} href={profileHref} aria-label="내 정보">
                 {userAvatar ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={userAvatar} alt="" />
+                  /^https?:\/\//.test(userAvatar)
+                    // eslint-disable-next-line @next/next/no-img-element
+                    ? <img src={userAvatar} alt="" />
+                    : <span className="tf" style={{ fontSize: '18px', lineHeight: 1 }}>{userAvatar}</span>
                 ) : (
                   userName[0]?.toUpperCase() || 'U'
                 )}

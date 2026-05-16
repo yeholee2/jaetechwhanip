@@ -266,6 +266,12 @@ export default function MyPageClient() {
                       return;
                     }
                     setProfile((p: any) => ({ ...(p || {}), avatar_url: editEmoji, name: trimmedName, bio: trimmedBio || null }));
+                    // AppShell 헤더 아바타·이름 즉시 갱신
+                    if (typeof window !== 'undefined') {
+                      window.dispatchEvent(new CustomEvent('profile-updated', {
+                        detail: { avatar_url: editEmoji, name: trimmedName },
+                      }));
+                    }
                     setEditOpen(false);
                   }}
                   className={styles.modalSave}
