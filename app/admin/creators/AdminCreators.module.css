@@ -189,7 +189,9 @@
 }
 .btnSecondary:hover:not(:disabled) { background: var(--rw-primary-bg); color: var(--rw-primary); }
 
-button:disabled { opacity: 0.5; cursor: not-allowed; }
+.btnApprove:disabled,
+.btnReject:disabled,
+.btnSecondary:disabled { opacity: 0.5; cursor: not-allowed; }
 
 .toast {
   position: fixed;

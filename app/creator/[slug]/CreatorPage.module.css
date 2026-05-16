@@ -132,7 +132,10 @@
 }
 .btnChannel:hover { border-color: var(--rw-primary); color: var(--rw-primary); }
 
-button:disabled { opacity: 0.5; cursor: not-allowed; }
+.btnFollow:disabled,
+.btnFollowing:disabled,
+.btnSubscribe:disabled,
+.btnChannel:disabled { opacity: 0.5; cursor: not-allowed; }
 
 .section {
   display: flex;
