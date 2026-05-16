@@ -4,24 +4,22 @@ import { NextResponse, type NextRequest } from 'next/server';
  * 도메인 정규화 redirect.
  *
  * 의도:
- *   - 최종 production: we.hannipmoney.com (canonical)
- *   - 다른 서브도메인은 we.hannipmoney.com 로 308 redirect
+ *   - 최종 production: etf.hannipmoney.com (canonical, ETF한입 브랜드)
+ *   - 다른 서브도메인은 canonical 로 308 redirect
  *
- * 현 상태:
- *   - we.hannipmoney.com DNS 미등록 → redirect 후 NXDOMAIN 으로 사이트 사망
- *   - 환경변수 SERVICE_REDIRECT_ENABLED=true 일 때만 redirect 활성화
- *   - 기본값: redirect 비활성화 (모든 서브도메인 직접 서빙) — DNS 준비될 때까지 안전 모드
- *
- * DNS 정상화 후:
- *   Vercel env에 SERVICE_REDIRECT_ENABLED=true 추가 → 자동으로 we 로 정규화 redirect 복원.
+ * 환경변수:
+ *   - NEXT_PUBLIC_SERVICE_HOST=etf.hannipmoney.com (canonical 호스트)
+ *   - SERVICE_REDIRECT_ENABLED=true 일 때만 redirect 활성화
+ *     (DNS 준비 안 됐을 때 false 로 두면 모든 호스트 직접 서빙)
  */
 
-const SERVICE_HOST = process.env.NEXT_PUBLIC_SERVICE_HOST || 'we.hannipmoney.com';
+const SERVICE_HOST = process.env.NEXT_PUBLIC_SERVICE_HOST || 'etf.hannipmoney.com';
 const REDIRECT_ENABLED = process.env.SERVICE_REDIRECT_ENABLED === 'true';
 
 const LEGACY_SERVICE_HOSTS = new Set([
   'qa.hannipmoney.com',
   'home.hannipmoney.com',
+  'we.hannipmoney.com',     // 이전 canonical → 새 canonical 로 redirect
 ]);
 const LEGACY_ARTICLE_HOSTS = new Set([
   'article.hannipmoney.com',

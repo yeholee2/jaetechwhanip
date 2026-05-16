@@ -211,7 +211,7 @@ export default async function Image({ params }: { params: { slug: string } }) {
           }}
         >
           <span style={{ fontWeight: 900, color: '#fff' }}>재테크한입 · 스파링</span>
-          <span>we.hannipmoney.com/sparring</span>
+          <span>etf.hannipmoney.com/sparring</span>
         </div>
       </div>
     ),
