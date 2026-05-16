@@ -52,19 +52,19 @@
   display: block;
 }
 
-/* 좌/우 nav 버튼 — 글래스모피즘 */
+/* 좌/우 nav 버튼 — 글래스모피즘 (컨텐츠 위 오버레이) */
 .navBtn {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  z-index: 2;
-  width: 28px;
-  height: 28px;
+  z-index: 5;
+  width: 38px;
+  height: 38px;
   border-radius: 50%;
-  border: 1px solid rgba(255, 255, 255, 0.45);
-  background: rgba(255, 255, 255, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.72);
   color: var(--rw-text-strong);
-  font-size: 18px;
+  font-size: 22px;
   font-weight: 900;
   line-height: 1;
   cursor: pointer;
@@ -72,39 +72,41 @@
   align-items: center;
   justify-content: center;
   box-shadow:
-    0 4px 18px rgba(15, 23, 42, 0.12),
-    inset 0 1px 0 rgba(255, 255, 255, 0.6);
-  backdrop-filter: blur(12px) saturate(180%);
-  -webkit-backdrop-filter: blur(12px) saturate(180%);
+    0 6px 22px rgba(15, 23, 42, 0.14),
+    inset 0 1px 0 rgba(255, 255, 255, 0.85),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(18px) saturate(190%);
+  -webkit-backdrop-filter: blur(18px) saturate(190%);
   transition: background 160ms, transform 160ms, color 160ms, box-shadow 160ms, border-color 160ms;
   padding-bottom: 2px; /* 시각 중앙 보정 */
 }
 .navBtn:hover {
-  background: rgba(255, 255, 255, 0.78);
-  border-color: rgba(255, 255, 255, 0.7);
+  background: rgba(255, 255, 255, 0.92);
+  border-color: rgba(255, 255, 255, 0.85);
   transform: translateY(-50%) scale(1.06);
   box-shadow:
-    0 8px 24px rgba(27, 100, 218, 0.18),
-    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+    0 10px 28px rgba(27, 100, 218, 0.20),
+    inset 0 1px 0 rgba(255, 255, 255, 0.95);
   color: var(--rw-primary);
 }
 .navBtn:active {
   transform: translateY(-50%) scale(0.96);
 }
 :global([data-theme='dark']) .navBtn {
-  background: rgba(28, 32, 40, 0.55);
-  border-color: rgba(255, 255, 255, 0.12);
+  background: rgba(28, 32, 40, 0.7);
+  border-color: rgba(255, 255, 255, 0.14);
   color: #fff;
   box-shadow:
-    0 4px 18px rgba(0, 0, 0, 0.36),
-    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    0 6px 22px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 :global([data-theme='dark']) .navBtn:hover {
-  background: rgba(40, 46, 58, 0.78);
-  border-color: rgba(255, 255, 255, 0.2);
+  background: rgba(40, 46, 58, 0.86);
+  border-color: rgba(255, 255, 255, 0.22);
 }
-.navBtnL { left: -8px; }
-.navBtnR { right: -8px; }
+/* 컨텐츠 위 오버레이 — 안쪽으로 살짝 들여 */
+.navBtnL { left: 6px; }
+.navBtnR { right: 6px; }
 
 /* 가로 스크롤 행 */
 .scrollWrap {
@@ -233,7 +235,7 @@
   .price { font-size: 11.5px; }
   .change { font-size: 10px; }
   .name { font-size: 10px; }
-  .navBtn { width: 22px; height: 22px; font-size: 15px; }
-  .navBtnL { left: -2px; }
-  .navBtnR { right: -2px; }
+  .navBtn { width: 30px; height: 30px; font-size: 17px; }
+  .navBtnL { left: 4px; }
+  .navBtnR { right: 4px; }
 }
