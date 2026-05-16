@@ -35,6 +35,7 @@ type Quote = {
   change: number;
   changePct: number;
   series: number[];
+  prev: number;          // 전일 종가 — sparkline 기준선
 };
 
 async function fetchQuote(symbol: string): Promise<Quote | null> {
@@ -56,7 +57,7 @@ async function fetchQuote(symbol: string): Promise<Quote | null> {
     const series = closes.filter((v: number | null): v is number => typeof v === 'number');
     const change = price - prev;
     const changePct = prev ? (change / prev) * 100 : 0;
-    return { price, change, changePct, series };
+    return { price, change, changePct, series, prev };
   } catch {
     return null;
   }
@@ -91,35 +92,62 @@ function getMarketStatus(): { krOpen: boolean; usOpen: boolean } {
   return { krOpen, usOpen };
 }
 
-/** Mini horizontal sparkline — 더 작게 (한 줄에 더 많이) */
-function Sparkline({ series, up }: { series: number[]; up: boolean }) {
+/** Mini horizontal sparkline — 전일 종가 기준선(점선) + 깔끔한 곡선 */
+function Sparkline({ series, up, baseline }: { series: number[]; up: boolean; baseline?: number }) {
   if (series.length < 2) return <div className={styles.sparkPlaceholder} aria-hidden="true" />;
-  const W = 44;
-  const H = 20;
+  const W = 56;
+  const H = 22;
   const padY = 3;
-  const min = Math.min(...series);
-  const max = Math.max(...series);
+
+  // 기준선(전일 종가)을 포함한 스케일 — 곡선이 baseline 위 아래로 펼쳐지게
+  const dataMin = Math.min(...series);
+  const dataMax = Math.max(...series);
+  const min = baseline !== undefined ? Math.min(dataMin, baseline) : dataMin;
+  const max = baseline !== undefined ? Math.max(dataMax, baseline) : dataMax;
   const range = max - min || 1;
+
+  const yOf = (v: number) => padY + (1 - (v - min) / range) * (H - padY * 2);
   const stride = (W - 2) / (series.length - 1);
-  const points = series.map((v, i) => {
-    const x = 1 + i * stride;
-    const y = padY + (1 - (v - min) / range) * (H - padY * 2);
-    return [x, y] as [number, number];
-  });
-  const path = points.map(([x, y], i) => `${i === 0 ? 'M' : 'L'}${x.toFixed(1)},${y.toFixed(1)}`).join(' ');
+
+  const points = series.map((v, i) => [1 + i * stride, yOf(v)] as [number, number]);
+  const path = points
+    .map(([x, y], i) => `${i === 0 ? 'M' : 'L'}${x.toFixed(1)},${y.toFixed(1)}`)
+    .join(' ');
   const areaPath = `${path} L${points[points.length - 1][0]},${H} L${points[0][0]},${H} Z`;
+
+  const baselineY = baseline !== undefined ? yOf(baseline) : null;
   const color = up ? 'var(--rw-up)' : 'var(--rw-down)';
   const gradId = `tg-${up ? 'u' : 'd'}-${Math.random().toString(36).slice(2, 7)}`;
+
   return (
     <svg viewBox={`0 0 ${W} ${H}`} width={W} height={H} className={styles.spark} aria-hidden="true">
       <defs>
         <linearGradient id={gradId} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor={color} stopOpacity={0.18} />
+          <stop offset="0%" stopColor={color} stopOpacity={0.16} />
           <stop offset="100%" stopColor={color} stopOpacity={0} />
         </linearGradient>
       </defs>
       <path d={areaPath} fill={`url(#${gradId})`} stroke="none" />
-      <path d={path} fill="none" stroke={color} strokeWidth={1.5} strokeLinejoin="round" strokeLinecap="round" />
+      {baselineY !== null && (
+        <line
+          x1={0.5}
+          y1={baselineY}
+          x2={W - 0.5}
+          y2={baselineY}
+          stroke="var(--rw-text-disabled, #c7ced9)"
+          strokeWidth={0.7}
+          strokeDasharray="2 2"
+          opacity={0.85}
+        />
+      )}
+      <path
+        d={path}
+        fill="none"
+        stroke={color}
+        strokeWidth={1.2}
+        strokeLinejoin="round"
+        strokeLinecap="round"
+      />
     </svg>
   );
 }
@@ -178,7 +206,7 @@ export function MarketTickerView({
           const up = q.change >= 0;
           return (
             <div key={idx.symbol} className={styles.item}>
-              <Sparkline series={q.series} up={up} />
+              <Sparkline series={q.series} up={up} baseline={q.prev} />
               <div className={styles.body}>
                 <span className={styles.name}>{idx.name}</span>
                 <div className={styles.priceRow}>
