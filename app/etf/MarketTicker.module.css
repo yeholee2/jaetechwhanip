@@ -104,9 +104,9 @@
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
-  /* 좌우 fade 어포던스 */
-  -webkit-mask-image: linear-gradient(to right, transparent 0, #000 16px, #000 calc(100% - 16px), transparent 100%);
-          mask-image: linear-gradient(to right, transparent 0, #000 16px, #000 calc(100% - 16px), transparent 100%);
+  /* 우측 fade 어포던스만 (좌측은 statusBar 와 정렬 위해 제거) */
+  -webkit-mask-image: linear-gradient(to right, #000 0, #000 calc(100% - 16px), transparent 100%);
+          mask-image: linear-gradient(to right, #000 0, #000 calc(100% - 16px), transparent 100%);
 }
 .scrollWrap::-webkit-scrollbar { display: none; }
 
@@ -114,7 +114,8 @@
   display: inline-flex;
   align-items: center;
   gap: 0;
-  padding: 0 24px;
+  /* 좌측 정렬: D 배지 시작 위치 = statusBar 의 "국내 애프터마켓" 시작 위치 */
+  padding: 0 24px 0 0;
 }
 
 .item {
@@ -129,12 +130,12 @@
   color: inherit;
 }
 
-/* 캘린더 진입 카드 (첫 항목) */
+/* 캘린더 진입 카드 (첫 항목) — 좌측 패딩 0 (statusBar 와 열 맞춤) */
 .itemCalendar {
   cursor: pointer;
   transition: background-color 140ms;
   border-radius: 10px;
-  padding: 4px 12px 4px 8px;
+  padding: 4px 12px 4px 0;
   gap: 10px;
 }
 .itemCalendar:hover {
