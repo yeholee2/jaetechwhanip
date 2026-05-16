@@ -682,16 +682,6 @@ export default function QuestionClient({
               >
                 <ThumbsDown size={22} strokeWidth={1.8} fill={dislikedQuestion ? 'currentColor' : 'none'} />
               </button>
-              <button
-                type="button"
-                className={styles.qReact}
-                onClick={() => document.getElementById('answer-editor')?.scrollIntoView({ behavior: 'smooth' })}
-                aria-label={`답변 ${answerCount}`}
-                title="답변"
-              >
-                <MessageCircle size={22} strokeWidth={1.8} />
-                {answerCount > 0 && <span className={styles.qReactCount}>{answerCount}</span>}
-              </button>
             </div>
           </article>
 
