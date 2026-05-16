@@ -34,6 +34,9 @@ export async function GET(req: NextRequest) {
       name: e.name,
       slug: e.slug,
       issuer: e.issuer,
+      price: e.price,
+      change: e.change,
+      changeTone: e.changeTone,
     }));
 
   return NextResponse.json({ items });

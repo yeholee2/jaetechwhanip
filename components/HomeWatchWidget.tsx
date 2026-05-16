@@ -9,7 +9,15 @@ import styles from './HomeWatchWidget.module.css';
 
 import { EtfLogo } from '@/app/etf/EtfLogo';
 
-type EtfMeta = { code: string; shortName: string; slug: string; issuer: string };
+type EtfMeta = {
+  code: string;
+  shortName: string;
+  slug: string;
+  issuer: string;
+  price?: string;
+  change?: string;
+  changeTone?: 'up' | 'down' | 'flat';
+};
 
 async function fetchEtfMeta(codes: string[]): Promise<EtfMeta[]> {
   if (codes.length === 0) return [];
@@ -133,9 +141,9 @@ export function HomeWatchWidget() {
       <ul className={styles.list}>
         {items.map(etf => {
           const live = priceMap[etf.code];
-          const price = live?.price ?? '—';
-          const change = live?.change ?? '—';
-          const tone = live?.changeTone ?? 'flat';
+          const price = live?.price || etf.price || '—';
+          const change = live?.change || etf.change || '—';
+          const tone = (live?.changeTone || etf.changeTone || 'flat') as 'up' | 'down' | 'flat';
           return (
             <li key={etf.code}>
               <Link className={styles.item} href={etfPath(etf.slug)}>
