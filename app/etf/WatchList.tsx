@@ -96,11 +96,13 @@ export function WatchList({ allEtfs }: { allEtfs?: EtfInfo[] }) {
   return (
     <section className={styles.list} aria-label="내 관심 ETF">
       <div className={styles.listHead}>
-        <h2>내 관심 ETF</h2>
-        <span>{items.length}개</span>
+        <div>
+          <h2>관심 ETF <span className={styles.headCount}>TOP {Math.min(items.length, 10)}</span></h2>
+          <p className={styles.headSub}>관심 그룹에 담아보세요</p>
+        </div>
       </div>
       <ul>
-        {items.map(etf => {
+        {items.slice(0, 10).map(etf => {
           const live = priceMap[etf.code];
           const price = live?.price || etf.price;
           const change = live?.change || etf.change;
@@ -108,10 +110,10 @@ export function WatchList({ allEtfs }: { allEtfs?: EtfInfo[] }) {
           return (
             <li key={etf.slug}>
               <Link className={styles.item} href={etfPath(etf.slug)}>
-                <EtfLogo name={etf.shortName} code={etf.code} size={36} />
+                <EtfLogo name={etf.shortName} code={etf.code} size={44} />
                 <div className={styles.info}>
                   <strong>{etf.shortName}</strong>
-                  <span>{etf.code} · {etf.issuer}</span>
+                  <span>{etf.code}{etf.issuer ? ` · ${etf.issuer}` : ''}</span>
                 </div>
                 <div className={styles.right}>
                   <span className={styles.price}>{price}</span>
@@ -120,11 +122,17 @@ export function WatchList({ allEtfs }: { allEtfs?: EtfInfo[] }) {
               </Link>
               <button
                 type="button"
-                className={styles.removeBtn}
+                className={styles.heartBtn}
                 onClick={() => removeEtfWatch(etf.code)}
                 aria-label={`${etf.shortName} 관심 해제`}
+                title="관심 해제"
               >
-                ✕
+                <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+                  <path
+                    fill="currentColor"
+                    d="M12 21s-7.5-4.8-9.6-9.4C1 8.2 3 4.8 6.5 4.8c1.9 0 3.5 1.1 4.4 2.6h.2c.9-1.5 2.5-2.6 4.4-2.6 3.5 0 5.5 3.4 4.1 6.8C19.5 16.2 12 21 12 21z"
+                  />
+                </svg>
               </button>
             </li>
           );

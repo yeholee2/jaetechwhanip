@@ -52,16 +52,26 @@
 }
 
 .listHead h2 {
-  font-size: var(--text-xl);
-  font-weight: var(--weight-heavy);
+  font-size: 22px;
+  font-weight: 900;
   color: var(--rw-text-strong);
+  letter-spacing: -0.4px;
   margin: 0;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
 }
-
-.listHead span {
-  font-size: var(--text-sm);
+.headCount {
+  font-size: 16px;
+  font-weight: 900;
+  color: var(--rw-primary);
+  letter-spacing: -0.2px;
+}
+.headSub {
+  margin: 4px 0 0;
+  font-size: 13px;
+  font-weight: 600;
   color: var(--rw-text-muted);
-  font-weight: var(--weight-bold);
 }
 
 .list ul {
@@ -70,27 +80,27 @@
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: var(--space-2);
+  gap: 2px;
 }
 
 .list li {
   position: relative;
 }
 
+/* 행 — 보더 없이 깔끔. 클릭 영역만 분리, 호버 시 살짝 카드 음영 */
 .item {
   display: flex;
   align-items: center;
-  gap: var(--space-3);
-  padding: var(--space-4) var(--space-4) var(--space-4) var(--space-4);
-  padding-right: 56px;
-  background: var(--rw-card);
-  border: 1px solid var(--rw-hairline);
-  border-radius: var(--rw-radius-md);
+  gap: 14px;
+  padding: 12px 56px 12px 4px;
+  background: transparent;
+  border: none;
+  border-radius: 10px;
   color: inherit;
   text-decoration: none;
-  transition: border-color var(--duration-instant) var(--ease-in-out);
+  transition: background-color 140ms;
 }
-.item:hover { border-color: var(--rw-gray30); }
+.item:hover { background: var(--rw-card-muted); }
 
 .info {
   flex: 1;
@@ -99,18 +109,19 @@
 
 .info strong {
   display: block;
-  font-size: var(--text-md);
-  font-weight: var(--weight-heavy);
+  font-size: 15.5px;
+  font-weight: 900;
   color: var(--rw-text-strong);
+  letter-spacing: -0.3px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .info span {
-  font-size: var(--text-sm);
+  font-size: 12px;
   color: var(--rw-text-muted);
-  font-weight: var(--weight-semibold);
+  font-weight: 700;
 }
 
 .right {
@@ -122,32 +133,48 @@
 }
 
 .price {
-  font-size: var(--text-md);
-  font-weight: var(--weight-heavy);
+  font-size: 14.5px;
+  font-weight: 900;
   color: var(--rw-text-strong);
+  font-feature-settings: 'tnum';
+  letter-spacing: -0.2px;
 }
 
-.up { color: var(--rw-up); font-size: var(--text-sm); font-weight: var(--weight-heavy); }
-.down { color: var(--rw-down); font-size: var(--text-sm); font-weight: var(--weight-heavy); }
+.up {
+  color: var(--rw-up);
+  font-size: 12.5px;
+  font-weight: 800;
+  font-feature-settings: 'tnum';
+}
+.down {
+  color: var(--rw-down);
+  font-size: 12.5px;
+  font-weight: 800;
+  font-feature-settings: 'tnum';
+}
 
-.removeBtn {
+/* 하트 — 등록된 상태 = 채워진 회색, 호버 = 빨간색 */
+.heartBtn {
   position: absolute;
-  right: var(--space-3);
+  right: 4px;
   top: 50%;
   transform: translateY(-50%);
-  width: 28px;
-  height: 28px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
-  background: var(--rw-card-muted);
-  color: var(--rw-text-muted);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--rw-text-disabled, #d0d6dd);
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 14px;
+  transition: color 140ms, background 140ms, transform 140ms;
 }
-.removeBtn:hover {
-  background: var(--rw-red50);
-  color: #fff;
+.heartBtn:hover {
+  background: rgba(228, 41, 57, 0.08);
+  color: var(--rw-red60);
+  transform: translateY(-50%) scale(1.06);
 }
 
 /* Skeleton */
