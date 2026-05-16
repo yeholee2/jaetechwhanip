@@ -43,7 +43,7 @@
   display: block;
 }
 
-/* 좌/우 nav 버튼 — 글래스모피즘 (컨텐츠 위 오버레이) */
+/* 좌/우 nav 버튼 — 진짜 글래스모피즘 (레이어드 그라디언트) */
 .navBtn {
   position: absolute;
   top: 50%;
@@ -52,8 +52,13 @@
   width: 38px;
   height: 38px;
   border-radius: 50%;
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  background: rgba(255, 255, 255, 0.72);
+  /* 1.5px 두께의 림 라이트 보더 */
+  border: 1.5px solid rgba(255, 255, 255, 0.85);
+  /* 레이어드 그라디언트 — 위에서 아래로 미세하게 어두워지며 입체감 */
+  background:
+    linear-gradient(155deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.55) 45%, rgba(245, 248, 252, 0.75) 100%),
+    radial-gradient(120% 80% at 30% 20%, rgba(255, 255, 255, 0.9) 0%, transparent 60%);
+  background-blend-mode: screen;
   color: var(--rw-text-strong);
   font-size: 22px;
   font-weight: 900;
@@ -62,38 +67,44 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  /* 3겹 그림자 — 부드러운 외부 그림자 + 안쪽 위 광택 + 안쪽 아래 미세한 어둠 */
   box-shadow:
-    0 6px 22px rgba(15, 23, 42, 0.14),
-    inset 0 1px 0 rgba(255, 255, 255, 0.85),
-    inset 0 -1px 0 rgba(255, 255, 255, 0.2);
-  backdrop-filter: blur(18px) saturate(190%);
-  -webkit-backdrop-filter: blur(18px) saturate(190%);
-  transition: background 160ms, transform 160ms, color 160ms, box-shadow 160ms, border-color 160ms;
+    0 10px 28px rgba(15, 23, 42, 0.18),
+    0 2px 6px rgba(15, 23, 42, 0.08),
+    inset 0 1.5px 1px rgba(255, 255, 255, 0.95),
+    inset 0 -1px 1px rgba(15, 23, 42, 0.08);
+  backdrop-filter: blur(20px) saturate(200%);
+  -webkit-backdrop-filter: blur(20px) saturate(200%);
+  transition: transform 200ms, color 200ms, box-shadow 200ms, border-color 200ms;
   padding-bottom: 2px; /* 시각 중앙 보정 */
 }
 .navBtn:hover {
-  background: rgba(255, 255, 255, 0.92);
-  border-color: rgba(255, 255, 255, 0.85);
-  transform: translateY(-50%) scale(1.06);
+  border-color: rgba(255, 255, 255, 1);
+  transform: translateY(-50%) scale(1.08);
   box-shadow:
-    0 10px 28px rgba(27, 100, 218, 0.20),
-    inset 0 1px 0 rgba(255, 255, 255, 0.95);
+    0 14px 34px rgba(27, 100, 218, 0.22),
+    0 3px 8px rgba(27, 100, 218, 0.12),
+    inset 0 1.5px 1px rgba(255, 255, 255, 1),
+    inset 0 -1px 1px rgba(27, 100, 218, 0.10);
   color: var(--rw-primary);
 }
 .navBtn:active {
-  transform: translateY(-50%) scale(0.96);
+  transform: translateY(-50%) scale(0.94);
 }
 :global([data-theme='dark']) .navBtn {
-  background: rgba(28, 32, 40, 0.7);
-  border-color: rgba(255, 255, 255, 0.14);
+  border-color: rgba(255, 255, 255, 0.22);
+  background:
+    linear-gradient(155deg, rgba(48, 54, 66, 0.85) 0%, rgba(28, 32, 40, 0.6) 45%, rgba(20, 24, 32, 0.8) 100%),
+    radial-gradient(120% 80% at 30% 20%, rgba(255, 255, 255, 0.16) 0%, transparent 60%);
   color: #fff;
   box-shadow:
-    0 6px 22px rgba(0, 0, 0, 0.4),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    0 10px 28px rgba(0, 0, 0, 0.45),
+    inset 0 1.5px 1px rgba(255, 255, 255, 0.18),
+    inset 0 -1px 1px rgba(0, 0, 0, 0.4);
 }
 :global([data-theme='dark']) .navBtn:hover {
-  background: rgba(40, 46, 58, 0.86);
-  border-color: rgba(255, 255, 255, 0.22);
+  border-color: rgba(255, 255, 255, 0.4);
+  color: #7AB1FF;
 }
 /* 컨텐츠 위 오버레이 — 안쪽으로 살짝 들여 */
 .navBtnL { left: 6px; }
