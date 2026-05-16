@@ -7,15 +7,6 @@
   background: var(--rw-card);
   border: 1px solid var(--rw-border);
   border-radius: var(--rw-radius-lg);
-  /* 탭 전환·스크롤 시에도 항상 화면 상단에 고정 */
-  position: sticky;
-  top: 64px;
-  z-index: 30;
-  backdrop-filter: saturate(160%) blur(6px);
-  -webkit-backdrop-filter: saturate(160%) blur(6px);
-}
-@media (max-width: 768px) {
-  .ticker { top: 56px; }
 }
 
 .statusBar {
