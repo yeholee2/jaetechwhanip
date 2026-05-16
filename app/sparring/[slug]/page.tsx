@@ -43,13 +43,13 @@ export async function generateMetadata({ params }: { params: { slug: string } })
       type: 'article',
       publishedTime: sparring.created_at,
       section: sparring.category,
-      images: sparring.thumbnail_url ? [{ url: sparring.thumbnail_url, alt: sparring.title }] : undefined,
+      // images 는 opengraph-image.tsx 가 자동 생성 (동적 VS 카드).
+      // 명시하면 그게 override 되니까 둘 다 비워둠.
     },
     twitter: {
-      card: sparring.thumbnail_url ? 'summary_large_image' : 'summary',
+      card: 'summary_large_image',
       title,
       description,
-      images: sparring.thumbnail_url ? [sparring.thumbnail_url] : undefined,
     },
   };
 }

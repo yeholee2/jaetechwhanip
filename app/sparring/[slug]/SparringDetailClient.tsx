@@ -8,6 +8,8 @@ import { FaIcon } from '@/components/FaIcon';
 import { createComment, getCurrentUserVote, getSideLabel, getSidePolarity, sparringPath, vote, type Sparring, type SparringComment, type SparringSide } from '@/lib/sparring';
 import { RelatedContent } from '@/components/RelatedContent';
 import { EtfCompareCard } from '@/components/sparring/EtfCompareCard';
+import { ShareButtons } from '@/components/sparring/ShareButtons';
+import { SITE_URL } from '@/lib/seo';
 import { getEtfByCode, type EtfInfo } from '@/lib/etfs';
 import { createClient, hasSupabase } from '@/lib/supabase/client';
 import styles from './SparringDetail.module.css';
@@ -174,9 +176,6 @@ export default function SparringDetailClient({
     <main className={styles.detailPage}>
       <div className={styles.main}>
         <section className={styles.hero}>
-          <button className={styles.share} type="button" onClick={() => navigator.share?.({ title: sparring.title, url: location.href })}>
-            <FaIcon name="share-nodes" size={14} /> 공유
-          </button>
           <div className={styles.breadcrumb}>스파링 · {sparring.category}</div>
           <div className={styles.round}>{sparring.round_number} 라운드</div>
           <h1 className={styles.title}>{sparring.title}</h1>
@@ -213,6 +212,13 @@ export default function SparringDetailClient({
             </div>
             {memoOpen && <p className={styles.memoBody}>{sparring.body || '이번 라운드는 댓글을 통해 실제 판단 근거를 모으기 위해 열렸어요.'}</p>}
           </div>
+
+          {/* 공유 — 카카오톡·X·스레드·링크 */}
+          <ShareButtons
+            url={`${SITE_URL}${detailPath}`}
+            title={sparring.title}
+            text={`A. ${sparring.side_a_label} vs B. ${sparring.side_b_label} — 너의 의견은?`}
+          />
         </section>
 
         {(sparring.etf_a_code || sparring.etf_b_code) && (
