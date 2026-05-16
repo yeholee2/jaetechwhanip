@@ -35,6 +35,52 @@ const CATEGORY_MATCHERS: Record<Exclude<CategoryKey, '전체'>, (etf: EtfInfo) =
 
 const CATEGORIES: CategoryKey[] = ['전체', '국내주식', '해외주식', '채권', '원자재', '테마'];
 
+// 추천 프리셋 — 첫 진입 시 발견 동선
+const PRESETS: { key: string; label: string; emoji: string; sub: string; apply: (set: PresetSetter) => void }[] = [
+  {
+    key: 'us-sp500',
+    label: 'S&P500 ETF',
+    emoji: '🇺🇸',
+    sub: '미국 대표 지수',
+    apply: ({ setMarket, setCategory, setQ }) => { setMarket('us'); setCategory('해외주식'); setQ('S&P500'); },
+  },
+  {
+    key: 'dividend',
+    label: '월배당 ETF',
+    emoji: '💰',
+    sub: '꾸준한 현금 흐름',
+    apply: ({ setQ, setCategory }) => { setQ('월배당'); setCategory('전체'); },
+  },
+  {
+    key: 'semi',
+    label: '반도체·AI ETF',
+    emoji: '⚡',
+    sub: '성장 테마',
+    apply: ({ setCategory, setQ }) => { setCategory('테마'); setQ('반도체'); },
+  },
+  {
+    key: 'bond',
+    label: '채권 ETF',
+    emoji: '🏦',
+    sub: '안정 자산',
+    apply: ({ setCategory, setQ }) => { setCategory('채권'); setQ(''); },
+  },
+];
+
+type PresetSetter = {
+  setMarket: (k: MarketTab) => void;
+  setCategory: (k: CategoryKey) => void;
+  setQ: (s: string) => void;
+};
+
+function ChevronDown() {
+  return (
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M6 9l6 6 6-6" />
+    </svg>
+  );
+}
+
 // 숫자 추출 헬퍼 (가격/수익률/순자산/총보수 문자열에서 숫자만)
 function num(value: string | undefined): number {
   if (!value) return 0;
@@ -143,26 +189,57 @@ export function EtfAllClient({ initialEtfs }: { initialEtfs: EtfInfo[] }) {
         )}
       </div>
 
-      {/* 카테고리 필터 */}
+      {/* 추천 프리셋 — 첫 진입 발견 동선 */}
+      {!q && category === '전체' && market === 'all' && (
+        <div className={styles.presetRow}>
+          <span className={styles.presetLabel}>이런 ETF 찾아보세요</span>
+          <div className={styles.presetCards}>
+            {PRESETS.map(p => (
+              <button
+                key={p.key}
+                type="button"
+                className={styles.presetCard}
+                onClick={() => p.apply({ setMarket, setCategory, setQ })}
+              >
+                <span className={styles.presetEmoji}>{p.emoji}</span>
+                <span className={styles.presetText}>
+                  <strong>{p.label}</strong>
+                  <em>{p.sub}</em>
+                </span>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* 카테고리 필터 + 초기화 */}
       <div className={styles.filterRow}>
         {CATEGORIES.map(c => (
           <Chip
             key={c}
             active={c === category}
             size="sm"
-            onClick={() => setCategory(c)}
+            onClick={() => setCategory(c === category && c !== '전체' ? '전체' : c)}
           >
             {c}
           </Chip>
         ))}
+        {(category !== '전체' || market !== 'all' || q.trim()) && (
+          <button
+            type="button"
+            className={styles.resetBtn}
+            onClick={() => { setCategory('전체'); setMarket('all'); setQ(''); }}
+          >
+            ↻ 초기화
+          </button>
+        )}
       </div>
-
-      {/* 정렬 chip은 표 헤더 클릭으로 통합 — 별도 행 제거 */}
 
       {/* 결과 카운터 */}
       <div className={styles.resultInfo}>
         <strong>{filtered.length}</strong>개 ETF
         {q && <span> · "{q}" 검색</span>}
+        {category !== '전체' && <span> · {category}</span>}
       </div>
 
       {/* 결과 표 (다중 비교) */}
@@ -175,24 +252,24 @@ export function EtfAllClient({ initialEtfs }: { initialEtfs: EtfInfo[] }) {
               <tr>
                 <th scope="col" className={styles.colName}>
                   <button type="button" onClick={() => setSort('name')} className={`${styles.sortBtn} ${sort === 'name' ? styles.sortBtnOn : ''}`}>
-                    종목 {sort === 'name' && '▾'}
+                    종목 {sort === 'name' && <ChevronDown />}
                   </button>
                 </th>
                 <th scope="col" className={styles.colMarket}>시장</th>
                 <th scope="col" className={styles.colPrice}>현재가</th>
                 <th scope="col" className={styles.colChange}>
                   <button type="button" onClick={() => setSort('change')} className={`${styles.sortBtn} ${sort === 'change' ? styles.sortBtnOn : ''}`}>
-                    등락률 {sort === 'change' && '▾'}
+                    등락률 {sort === 'change' && <ChevronDown />}
                   </button>
                 </th>
                 <th scope="col" className={styles.colFee}>
                   <button type="button" onClick={() => setSort('fee')} className={`${styles.sortBtn} ${sort === 'fee' ? styles.sortBtnOn : ''}`}>
-                    총보수 {sort === 'fee' && '▾'}
+                    총보수 {sort === 'fee' && <ChevronDown />}
                   </button>
                 </th>
                 <th scope="col" className={styles.colAum}>
                   <button type="button" onClick={() => setSort('aum')} className={`${styles.sortBtn} ${sort === 'aum' ? styles.sortBtnOn : ''}`}>
-                    순자산 {sort === 'aum' && '▾'}
+                    순자산 {sort === 'aum' && <ChevronDown />}
                   </button>
                 </th>
                 <th scope="col" className={styles.colIndex}>추종 지수</th>

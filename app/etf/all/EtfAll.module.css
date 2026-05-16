@@ -320,6 +320,9 @@
 }
 
 .sortBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
   background: none;
   border: none;
   font: inherit;
@@ -328,6 +331,7 @@
   padding: 0;
   font-weight: 800;
 }
+.sortBtn svg { flex-shrink: 0; }
 .sortBtn:hover {
   color: var(--rw-text-body);
 }
@@ -410,4 +414,94 @@
   .colFee { display: none; }
   .table { min-width: 480px; }
   .nameMain strong { font-size: 13px; }
+}
+
+/* ─────────────────────────────────────────────────────────
+ * 추천 프리셋 (첫 진입 발견 동선)
+ * ───────────────────────────────────────────────────────── */
+.presetRow {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 0 4px;
+}
+.presetLabel {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--rw-text-muted);
+  letter-spacing: -0.1px;
+}
+.presetCards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 8px;
+}
+.presetCard {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  background: var(--rw-card);
+  border: 1.5px solid var(--rw-border);
+  border-radius: 12px;
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+  transition: border-color 140ms, transform 140ms, box-shadow 140ms;
+}
+.presetCard:hover {
+  border-color: var(--rw-primary);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(27, 100, 218, 0.08);
+}
+.presetEmoji {
+  font-size: 22px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+.presetText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.presetText strong {
+  font-size: 13.5px;
+  font-weight: 900;
+  color: var(--rw-text-strong);
+  letter-spacing: -0.2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.presetText em {
+  font-style: normal;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--rw-text-muted);
+}
+
+/* ─────────────────────────────────────────────────────────
+ * 필터 초기화 버튼
+ * ───────────────────────────────────────────────────────── */
+.resetBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 24px;
+  padding: 0 10px;
+  margin-left: auto;
+  border: none;
+  background: transparent;
+  border-radius: 999px;
+  font-size: 11.5px;
+  font-weight: 800;
+  color: var(--rw-text-muted);
+  cursor: pointer;
+  font-family: inherit;
+  transition: color 140ms, background 140ms;
+}
+.resetBtn:hover {
+  background: var(--rw-card-muted);
+  color: var(--rw-text-strong);
 }
