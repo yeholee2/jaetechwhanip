@@ -7,6 +7,8 @@ import { listWatchedEtfCodes, subscribeWatchChanges, syncEtfWatchFromServer } fr
 import { fetchEtfLivePrices, buildLivePriceMap, type EtfLivePrice } from '@/lib/etfLivePrices';
 import styles from './HomeWatchWidget.module.css';
 
+import { EtfLogo } from '@/app/etf/EtfLogo';
+
 type EtfMeta = { code: string; shortName: string; slug: string; issuer: string };
 
 async function fetchEtfMeta(codes: string[]): Promise<EtfMeta[]> {
@@ -122,19 +124,27 @@ export function HomeWatchWidget() {
   return (
     <div className={styles.widget}>
       <div className={styles.head}>
-        <span className={styles.title}>내 관심 ETF</span>
+        <div>
+          <h3 className={styles.title}>관심 ETF <span className={styles.count}>TOP {items.length}</span></h3>
+          <p className={styles.sub}>관심 그룹에 담아보세요</p>
+        </div>
         <Link href="/etf?tab=watch" className={styles.moreLink}>전체 →</Link>
       </div>
       <ul className={styles.list}>
         {items.map(etf => {
           const live = priceMap[etf.code];
+          const price = live?.price ?? '—';
           const change = live?.change ?? '—';
           const tone = live?.changeTone ?? 'flat';
           return (
             <li key={etf.code}>
               <Link className={styles.item} href={etfPath(etf.slug)}>
+                <EtfLogo name={etf.shortName} code={etf.code} size={36} />
                 <span className={styles.name}>{etf.shortName}</span>
-                <span className={tone === 'down' ? styles.down : styles.up}>{change}</span>
+                <span className={styles.right}>
+                  <strong>{price}</strong>
+                  <em className={tone === 'down' ? styles.down : styles.up}>{change}</em>
+                </span>
               </Link>
             </li>
           );
