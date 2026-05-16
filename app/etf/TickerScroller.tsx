@@ -11,6 +11,26 @@ import styles from './MarketTicker.module.css';
 
 const NUDGE = 260; // px per click
 
+function ChevronIcon({ dir }: { dir: 'left' | 'right' }) {
+  // 얇은 1.5px 스트로크 chevron (Heroicons 톤)
+  const d = dir === 'left' ? 'M15 6l-6 6 6 6' : 'M9 6l6 6-6 6';
+  return (
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d={d} />
+    </svg>
+  );
+}
+
 export function TickerScroller({ children }: { children: React.ReactNode }) {
   const wrapRef = useRef<HTMLDivElement>(null);
   const [canLeft, setCanLeft] = useState(false);
@@ -50,7 +70,7 @@ export function TickerScroller({ children }: { children: React.ReactNode }) {
           className={`${styles.navBtn} ${styles.navBtnL}`}
           onClick={() => nudge(-1)}
         >
-          ‹
+          <ChevronIcon dir="left" />
         </button>
       )}
       <div ref={wrapRef} className={styles.scrollWrap}>
@@ -63,7 +83,7 @@ export function TickerScroller({ children }: { children: React.ReactNode }) {
           className={`${styles.navBtn} ${styles.navBtnR}`}
           onClick={() => nudge(1)}
         >
-          ›
+          <ChevronIcon dir="right" />
         </button>
       )}
     </div>

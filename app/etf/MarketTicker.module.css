@@ -55,18 +55,16 @@
   border: 1px solid rgba(15, 23, 42, 0.06);
   background: rgba(255, 255, 255, 0.65);
   color: rgba(15, 23, 42, 0.55);
-  font-size: 18px;
-  font-weight: 700;
   line-height: 1;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  padding: 0;
   box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
   transition: transform 180ms, color 180ms, background 180ms;
-  padding-bottom: 1px;
 }
 .navBtn:hover {
   background: rgba(255, 255, 255, 0.95);
@@ -230,7 +228,7 @@
   .price { font-size: 11.5px; }
   .change { font-size: 10px; }
   .name { font-size: 10px; }
-  .navBtn { width: 30px; height: 30px; font-size: 17px; }
+  .navBtn { width: 30px; height: 30px; }
   .navBtnL { left: 4px; }
   .navBtnR { right: 4px; }
 }
