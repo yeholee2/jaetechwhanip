@@ -105,18 +105,9 @@ export function MyEtfSection() {
     return <div className={styles.skeleton} aria-hidden="true" />;
   }
 
-  // ── 비로그인: 단순 진입 카드 ──
+  // ── 비로그인: 노출 안 함 (UX 노이즈 제거) ──
   if (authState === 'unauth') {
-    return (
-      <Link className={styles.row} href="/auth?next=/etf">
-        <span className={`${styles.entryIcon} tf`} aria-hidden="true">📊</span>
-        <div className={styles.body}>
-          <strong>내 ETF 포트폴리오 시작하기</strong>
-          <span>수량·평단 입력 → 자산·비중·예상 배당 자동 계산</span>
-        </div>
-        <span className={styles.arrow} aria-hidden="true">›</span>
-      </Link>
-    );
+    return null;
   }
 
   // ── 로그인 + 보유 0: 노출 안 함 (UX 노이즈 제거 — 추가는 우상단 + 버튼으로) ──
