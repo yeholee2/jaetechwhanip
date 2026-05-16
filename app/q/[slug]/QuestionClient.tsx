@@ -664,25 +664,33 @@ export default function QuestionClient({
 
             <div className={styles.qActions}>
               <button
-                className={`${styles.qActionBtn} ${likedQuestion ? styles.active : ''}`}
+                type="button"
+                className={`${styles.qReact} ${likedQuestion ? styles.qReactOn : ''}`}
                 onClick={likeQuestion}
+                aria-label={`도움돼요 ${q.like_count || 0}`}
+                title="도움돼요"
               >
-                <ThumbsUp size={15} />
-                도움돼요 {q.like_count > 0 ? q.like_count : ''}
+                <ThumbsUp size={22} strokeWidth={1.8} fill={likedQuestion ? 'currentColor' : 'none'} />
+                {q.like_count > 0 && <span className={styles.qReactCount}>{q.like_count}</span>}
               </button>
               <button
-                className={`${styles.qActionBtn} ${dislikedQuestion ? styles.activeDanger : ''}`}
+                type="button"
+                className={`${styles.qReact} ${dislikedQuestion ? styles.qReactOnDanger : ''}`}
                 onClick={dislikeQuestion}
+                aria-label="별로예요"
+                title="별로예요"
               >
-                <ThumbsDown size={15} />
-                별로예요 {q.dislike_count > 0 ? q.dislike_count : ''}
+                <ThumbsDown size={22} strokeWidth={1.8} fill={dislikedQuestion ? 'currentColor' : 'none'} />
               </button>
               <button
-                className={styles.qActionBtn}
+                type="button"
+                className={styles.qReact}
                 onClick={() => document.getElementById('answer-editor')?.scrollIntoView({ behavior: 'smooth' })}
+                aria-label={`답변 ${answerCount}`}
+                title="답변"
               >
-                <MessageCircle size={15} />
-                답변 {answerCount > 0 ? answerCount : ''}
+                <MessageCircle size={22} strokeWidth={1.8} />
+                {answerCount > 0 && <span className={styles.qReactCount}>{answerCount}</span>}
               </button>
             </div>
           </article>
