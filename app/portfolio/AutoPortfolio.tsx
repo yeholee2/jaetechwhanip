@@ -10,7 +10,7 @@
  * 단계마다 친근한 한 줄 설명 (한입 톤)
  */
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import {
   recommendPortfolio,
@@ -279,6 +279,40 @@ function Result({ rec, answers, onRestart }: {
   const ageLabel = AGE_OPTIONS.find(o => o.key === answers.age)?.label;
   const goalLabel = GOAL_OPTIONS.find(o => o.key === answers.goal)?.label;
   const amountLabel = AMOUNT_OPTIONS.find(o => o.key === answers.amount)?.label;
+  const riskLabel = answers.risk ? (
+    answers.risk === 'conservative' ? '안정형'
+    : answers.risk === 'neutral' ? '중립형'
+    : '공격형'
+  ) : '';
+  const horizonLabel = answers.horizon ? (
+    answers.horizon === 'short' ? '1-3년'
+    : answers.horizon === 'mid' ? '3-7년'
+    : answers.horizon === 'long' ? '7-15년'
+    : '15년+'
+  ) : '';
+
+  // ── AI 코멘트 (한입 톤, 캐시 7일) ──
+  const [aiComment, setAiComment] = useState<string | null>(null);
+  useEffect(() => {
+    let cancelled = false;
+    fetch('/api/ai/portfolio-comment', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        ageLabel,
+        goalLabel,
+        amountLabel,
+        riskLabel,
+        horizonLabel,
+        buckets: rec.buckets.map(b => ({ key: b.key, label: b.label, value: b.value })),
+        expectedReturn: rec.expectedReturn,
+      }),
+    })
+      .then(r => r.ok ? r.json() : null)
+      .then(j => { if (!cancelled && j?.comment) setAiComment(j.comment); })
+      .catch(() => { /* fallback to summary */ });
+    return () => { cancelled = true; };
+  }, [ageLabel, goalLabel, amountLabel, riskLabel, horizonLabel, rec]);
 
   return (
     <div className={styles.resultWrap}>
@@ -290,7 +324,7 @@ function Result({ rec, answers, onRestart }: {
         <h2 className={styles.resultTitle}>
           {ageLabel} · {goalLabel} · 매월 {amountLabel}
         </h2>
-        <p className={styles.resultLead}>{rec.summary}</p>
+        <p className={styles.resultLead}>{aiComment || rec.summary}</p>
         <button type="button" className={styles.restartBtn} onClick={onRestart}>
           답변 다시하기 ↻
         </button>

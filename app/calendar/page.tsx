@@ -2,8 +2,9 @@ import type { Metadata } from 'next';
 import { AppShell } from '@/components/AppShell';
 import { SITE_NAME, SITE_URL } from '@/lib/seo';
 import { CalendarClient } from './CalendarClient';
-import { getWeeklyEvents, getWeeklyAiSummary } from '@/lib/marketCalendar';
+import { getWeeklyEvents } from '@/lib/marketCalendar';
 import { fetchLiveCalendar } from '@/lib/marketCalendarLive';
+import { getWeeklyAiSummaryLive } from '@/lib/ai/weeklySummary';
 
 export const revalidate = 3600; // 1시간 (Finnhub 부하 ↓)
 
@@ -24,7 +25,8 @@ export default async function CalendarPage() {
   const today = new Date();
   const events = await fetchLiveCalendar({ weeksAhead: 4 });
   const weeks = getWeeklyEvents(today, events);
-  const aiSummary = getWeeklyAiSummary();
+  const thisWeekEvents = weeks[0]?.events || [];
+  const aiSummary = await getWeeklyAiSummaryLive(today.toISOString().slice(0, 10), thisWeekEvents);
 
   return (
     <AppShell active="etf" wide hideSlogan>

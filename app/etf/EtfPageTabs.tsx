@@ -9,12 +9,13 @@ import { useEffect, useState } from 'react';
 import { listWatchedEtfCodes, subscribeWatchChanges } from '@/lib/etfWatch';
 import styles from './EtfPageTabs.module.css';
 
-export type EtfPageTab = 'discover' | 'themes' | 'news' | 'all'
+export type EtfPageTab = 'discover' | 'themes' | 'trending' | 'news' | 'all'
   // legacy 호환 (소비처에서 active 로 넘어올 수 있음)
   | 'compare' | 'watch' | 'diagnostic' | 'feed';
 
-const TABS: { key: EtfPageTab; label: string; href: string }[] = [
+const TABS: { key: EtfPageTab; label: string; href: string; badge?: string }[] = [
   { key: 'discover', label: '발견',     href: '/etf' },
+  { key: 'trending', label: '핫한 ETF', href: '/etf/trending', badge: 'AI' },
   { key: 'themes',   label: '테마·전략', href: '/etf/themes' },
   { key: 'news',     label: '뉴스',     href: '/etf/news' },
   { key: 'all',      label: '전체 검색', href: '/etf/all' },
@@ -30,6 +31,7 @@ export function EtfPageTabs({ active = 'discover' }: { active?: EtfPageTab }) {
           className={`${styles.tab} ${active === t.key ? styles.active : ''}`}
         >
           {t.label}
+          {t.badge && <span className={styles.tabBadge}>{t.badge}</span>}
         </Link>
       ))}
     </nav>
