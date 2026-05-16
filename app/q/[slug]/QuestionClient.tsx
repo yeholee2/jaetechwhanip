@@ -636,6 +636,27 @@ export default function QuestionClient({
                   <span className={styles.qTime}>조회 {q.view_count || 0}</span>
                 </div>
               </div>
+              {/* 우상단 미니 액션 — 저장 / 공유 (박스 없이) */}
+              <div className={styles.qTopActions}>
+                <button
+                  type="button"
+                  className={`${styles.qTopBtn} ${bookmarked ? styles.qTopBtnOn : ''}`}
+                  onClick={toggleBookmark}
+                  aria-label={bookmarked ? '저장 취소' : '저장'}
+                  title={bookmarked ? '저장 취소' : '저장'}
+                >
+                  <Bookmark size={18} fill={bookmarked ? 'currentColor' : 'none'} strokeWidth={1.8} />
+                </button>
+                <button
+                  type="button"
+                  className={styles.qTopBtn}
+                  onClick={share}
+                  aria-label="공유"
+                  title="공유"
+                >
+                  <Share2 size={18} strokeWidth={1.8} />
+                </button>
+              </div>
             </div>
 
             <h1 className={styles.qTitle}>{qTitle}</h1>
@@ -662,17 +683,6 @@ export default function QuestionClient({
               >
                 <MessageCircle size={15} />
                 답변 {answerCount > 0 ? answerCount : ''}
-              </button>
-              <button
-                className={`${styles.qActionBtn} ${bookmarked ? styles.active : ''}`}
-                onClick={toggleBookmark}
-              >
-                <Bookmark size={15} fill={bookmarked ? 'currentColor' : 'none'} />
-                저장
-              </button>
-              <button className={styles.qActionBtn} onClick={share}>
-                <Share2 size={15} />
-                공유
               </button>
             </div>
           </article>
