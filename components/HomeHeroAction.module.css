@@ -31,20 +31,18 @@
 }
 
 .pillAvatar {
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #7AB1FF 0%, #3182F6 100%);
+  width: 36px;
+  height: 36px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.4);
 }
-.pillEmoji {
-  font-size: 18px;
-  line-height: 1;
-  color: #fff;
+.pillAvatarImg {
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 4px rgba(15, 23, 42, 0.10));
 }
 
 .pillText {
@@ -98,40 +96,39 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
-  padding: 8px 4px;
+  gap: 10px;
+  padding: 10px 4px;
   text-decoration: none;
   color: inherit;
   border-radius: 12px;
-  transition: transform 160ms, background 160ms;
+  transition: background 160ms;
 }
 .iconItem:hover {
   background: var(--rw-card-muted);
-  transform: translateY(-2px);
 }
 
+/* 박스 없는 자유 3D 아이콘 — Fluent CDN */
 .iconBubble {
-  width: 56px;
-  height: 56px;
-  border-radius: 18px;
+  width: 64px;
+  height: 64px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  /* 파스텔 톤 — 부드러운 그림자 */
-  box-shadow:
-    0 2px 8px rgba(15, 23, 42, 0.06),
-    inset 0 1px 1px rgba(255, 255, 255, 0.55);
-  transition: transform 200ms, box-shadow 200ms;
+  background: transparent;
+  transition: transform 200ms;
+}
+.iconImg {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 8px rgba(15, 23, 42, 0.10));
+  transition: filter 200ms, transform 200ms;
 }
 .iconItem:hover .iconBubble {
-  transform: translateY(-2px);
-  box-shadow:
-    0 6px 14px rgba(15, 23, 42, 0.10),
-    inset 0 1px 1px rgba(255, 255, 255, 0.7);
+  transform: translateY(-3px);
 }
-.iconEmoji {
-  font-size: 26px;
-  line-height: 1;
+.iconItem:hover .iconImg {
+  filter: drop-shadow(0 8px 14px rgba(15, 23, 42, 0.16));
 }
 
 .iconLabel {
@@ -146,8 +143,7 @@
   .pillText { gap: 6px; }
   .pillQuestion { font-size: 13px; }
   .pillCta { display: none; }
-  .iconBubble { width: 48px; height: 48px; border-radius: 14px; }
-  .iconEmoji { font-size: 22px; }
+  .iconBubble { width: 54px; height: 54px; }
   .iconLabel { font-size: 11px; }
 }
 

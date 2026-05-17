@@ -32,18 +32,23 @@ type FeatureItem = {
   key: string;
   label: string;
   href: string;
-  emoji: string;
-  bg: string;
+  iconUrl: string;
   isExternal?: boolean;
 };
 
-// 핵심 4개만 — nav 와 중복 줄이고 톤 다이어트 (파스텔)
+// Microsoft Fluent 3D Emoji CDN (무료, MIT 라이선스)
+const FLUENT = 'https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets';
+
+// 핵심 4개 — 3D 일러스트 아이콘 (background 박스 X)
 const FEATURES: FeatureItem[] = [
-  { key: 'ask',       label: '질문하기',    href: '/questions/create', emoji: '💬', bg: 'linear-gradient(135deg, #DEEAFF 0%, #C2D8FF 100%)' },
-  { key: 'trending',  label: '핫한 ETF',    href: '/etf/trending', emoji: '🔥', bg: 'linear-gradient(135deg, #FFE0D6 0%, #FFC5B3 100%)' },
-  { key: 'portfolio', label: '포트폴리오 진단', href: '/portfolio',  emoji: '📊', bg: 'linear-gradient(135deg, #D6F2E3 0%, #B7E2C9 100%)' },
-  { key: 'calendar',  label: '시장 캘린더', href: '/calendar',     emoji: '📅', bg: 'linear-gradient(135deg, #FFEBC9 0%, #FFD89A 100%)' },
+  { key: 'ask',       label: '질문하기',       href: '/questions/create', iconUrl: `${FLUENT}/Speech%20balloon/3D/speech_balloon_3d.png` },
+  { key: 'trending',  label: '핫한 ETF',       href: '/etf/trending',     iconUrl: `${FLUENT}/Fire/3D/fire_3d.png` },
+  { key: 'portfolio', label: '포트폴리오 진단', href: '/portfolio',        iconUrl: `${FLUENT}/Bar%20chart/3D/bar_chart_3d.png` },
+  { key: 'calendar',  label: '시장 캘린더',     href: '/calendar',         iconUrl: `${FLUENT}/Calendar/3D/calendar_3d.png` },
 ];
+
+// pill avatar 도 fluent 3D 로
+const PILL_AVATAR = `${FLUENT}/Thinking%20face/3D/thinking_face_3d.png`;
 
 export function HomeHeroAction({
   tickerQuotes,
@@ -71,7 +76,8 @@ export function HomeHeroAction({
       {/* Pill CTA */}
       <button type="button" onClick={openAsk} className={styles.pill}>
         <span className={styles.pillAvatar} aria-hidden="true">
-          <span className={`${styles.pillEmoji} tf`}>🤔</span>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={PILL_AVATAR} alt="" className={styles.pillAvatarImg} />
         </span>
         <span className={styles.pillText}>
           <strong key={qIndex} className={styles.pillQuestion}>
@@ -91,8 +97,9 @@ export function HomeHeroAction({
         {FEATURES.map(f => {
           const content = (
             <>
-              <span className={styles.iconBubble} style={{ background: f.bg }}>
-                <span className={`${styles.iconEmoji} tf`}>{f.emoji}</span>
+              <span className={styles.iconBubble}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={f.iconUrl} alt="" className={styles.iconImg} loading="lazy" />
               </span>
               <span className={styles.iconLabel}>{f.label}</span>
             </>
