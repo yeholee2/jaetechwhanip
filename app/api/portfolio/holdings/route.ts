@@ -22,9 +22,29 @@ export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => null);
   const rawSym = String(body?.symbol || '').trim();
   if (!rawSym) return NextResponse.json({ error: 'symbol required' }, { status: 400 });
-  const quantity = Number(body?.quantity);
-  if (!Number.isFinite(quantity) || quantity <= 0) {
-    return NextResponse.json({ error: 'quantity > 0 required' }, { status: 400 });
+
+  // 비중 또는 수량 둘 중 하나는 필수
+  const rawWeight = body?.weight;
+  let targetWeight: number | null = null;
+  if (rawWeight !== undefined && rawWeight !== null && rawWeight !== '') {
+    const w = Number(rawWeight);
+    if (!Number.isFinite(w) || w <= 0 || w > 100) {
+      return NextResponse.json({ error: '비중은 0~100% 사이로 입력해주세요' }, { status: 400 });
+    }
+    targetWeight = w / 100; // 0~1 로 저장
+  }
+
+  let quantity: number | null = null;
+  if (body?.quantity !== undefined && body?.quantity !== null && body?.quantity !== '') {
+    const q = Number(body.quantity);
+    if (!Number.isFinite(q) || q <= 0) {
+      return NextResponse.json({ error: '수량은 0보다 커야 해요' }, { status: 400 });
+    }
+    quantity = q;
+  }
+
+  if (targetWeight == null && quantity == null) {
+    return NextResponse.json({ error: '비중(%) 또는 수량 중 하나는 입력해주세요' }, { status: 400 });
   }
 
   const portfolio = await getOrCreatePortfolio(user.id);
@@ -41,6 +61,7 @@ export async function POST(req: NextRequest) {
       display_symbol: rawSym,
       name: String(body?.name || rawSym).trim(),
       quantity,
+      target_weight: targetWeight,
       avg_cost: Number.isFinite(Number(body?.avgCost)) ? Number(body.avgCost) : null,
       currency,
       memo: body?.memo ? String(body.memo).slice(0, 200) : null,
@@ -63,9 +84,19 @@ export async function PUT(req: NextRequest) {
   if (!id) return NextResponse.json({ error: 'id required' }, { status: 400 });
 
   const patch: any = {};
-  if (Number.isFinite(Number(body?.quantity))) patch.quantity = Number(body.quantity);
+  if (body?.quantity !== undefined) {
+    patch.quantity = body.quantity === null || body.quantity === '' ? null : Number(body.quantity);
+  }
+  if (body?.weight !== undefined) {
+    if (body.weight === null || body.weight === '') {
+      patch.target_weight = null;
+    } else {
+      const w = Number(body.weight);
+      if (Number.isFinite(w) && w > 0 && w <= 100) patch.target_weight = w / 100;
+    }
+  }
   if (body?.avgCost !== undefined) {
-    patch.avg_cost = body.avgCost === null ? null : Number(body.avgCost);
+    patch.avg_cost = body.avgCost === null || body.avgCost === '' ? null : Number(body.avgCost);
   }
   if (body?.memo !== undefined) patch.memo = body.memo ? String(body.memo).slice(0, 200) : null;
 

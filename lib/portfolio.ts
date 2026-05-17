@@ -16,8 +16,9 @@ export type Holding = {
   symbol: string;
   display_symbol: string | null;
   name: string;
-  quantity: number;
+  quantity: number | null;      // null = 비중만 입력한 가벼운 모드
   avg_cost: number | null;
+  target_weight: number | null; // 0~1, 비중 직접 입력 (없으면 quantity 기반 계산)
   currency: 'KRW' | 'USD';
   memo: string | null;
   added_at: string;
@@ -131,14 +132,17 @@ export async function buildPortfolioSummary(
     const costPrice = h.avg_cost;
     const quantity = h.quantity;
 
-    // KRW 환산
     const toKrw = (v: number | undefined, cur: 'KRW' | 'USD') => {
       if (v == null || !Number.isFinite(v)) return undefined;
       return cur === 'USD' ? v * fxRate : v;
     };
 
-    const valueKrw = price != null ? toKrw(price * quantity, h.currency) : undefined;
-    const costKrw = costPrice != null ? toKrw(costPrice * quantity, h.currency) : undefined;
+    const valueKrw = (quantity != null && price != null)
+      ? toKrw(price * quantity, h.currency)
+      : undefined;
+    const costKrw = (quantity != null && costPrice != null)
+      ? toKrw(costPrice * quantity, h.currency)
+      : undefined;
     const pnl = valueKrw != null && costKrw != null ? valueKrw - costKrw : undefined;
     const pnlPct = pnl != null && costKrw && costKrw > 0 ? pnl / costKrw : undefined;
 
@@ -155,14 +159,20 @@ export async function buildPortfolioSummary(
     };
   });
 
-  // 비중 계산
+  // 비중 계산:
+  //   - target_weight 직접 입력값 우선
+  //   - 없으면 currentValue 기반 자동 계산
+  //   - 둘 다 없으면 N/A
   for (const eh of enriched) {
-    if (eh.currentValue != null && totalValue > 0) {
+    if (eh.target_weight != null) {
+      eh.weight = eh.target_weight;
+    } else if (eh.currentValue != null && totalValue > 0) {
       eh.weight = eh.currentValue / totalValue;
     }
   }
-  // 평가액 내림차순
-  enriched.sort((a, b) => (b.currentValue || 0) - (a.currentValue || 0));
+
+  // 비중 내림차순 (평가액 정보 부족할 때도 작동)
+  enriched.sort((a, b) => (b.weight || 0) - (a.weight || 0));
 
   const totalPnL = totalValue - totalCost;
   const totalPnLPct = totalCost > 0 ? totalPnL / totalCost : 0;

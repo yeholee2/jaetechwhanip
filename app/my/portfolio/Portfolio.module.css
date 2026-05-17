@@ -155,6 +155,23 @@
 }
 .primaryBtn:disabled { opacity: 0.6; cursor: not-allowed; }
 
+.toggleBtn {
+  padding: 8px 12px;
+  border: 1px dashed var(--rw-border);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--rw-text-muted);
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: border 140ms, color 140ms;
+  text-align: left;
+}
+.toggleBtn:hover {
+  border-color: var(--rw-primary);
+  color: var(--rw-primary);
+}
+
 .empty {
   padding: 48px 24px;
   background: var(--rw-card);

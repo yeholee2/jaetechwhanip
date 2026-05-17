@@ -180,7 +180,8 @@ function HoldingRow({ h, pending, onRemove }: { h: EnrichedHolding; pending: boo
           <span className={styles.holdingSym}>{h.display_symbol || h.symbol}</span>
         </div>
         <div className={styles.holdingMeta}>
-          {h.quantity.toLocaleString()}주
+          {h.quantity != null && <>{h.quantity.toLocaleString()}주</>}
+          {h.quantity == null && h.target_weight != null && <>비중만 추적</>}
           {h.avg_cost != null && <> · 평단 {fmtPrice(h.avg_cost, h.currency)}</>}
           {h.quote?.price != null && <> · 현재가 {fmtPrice(h.quote.price, h.currency)}</>}
         </div>
