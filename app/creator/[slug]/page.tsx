@@ -25,11 +25,13 @@ async function fetchCreator(slug: string): Promise<Creator | null> {
 
 async function fetchPosts(creatorId: string): Promise<CreatorPost[]> {
   const supabase = createClient();
+  const nowIso = new Date().toISOString();
   const { data } = await supabase
     .from('creator_posts')
     .select('*')
     .eq('creator_id', creatorId)
     .eq('is_published', true)
+    .or(`publish_at.is.null,publish_at.lte.${nowIso}`)
     .order('published_at', { ascending: false })
     .limit(30);
   return (data || []) as CreatorPost[];

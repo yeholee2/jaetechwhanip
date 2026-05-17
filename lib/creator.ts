@@ -61,6 +61,25 @@ export type CreatorPost = {
   comment_count: number;
   published_at: string;
   updated_at: string;
+  /** Phase 2: 태그 (최대 15개, 개당 20자) */
+  tags?: string[] | null;
+  /** Phase 3: 예약발행 — null 이면 즉시 발행. 이 시각이 도래하면 노출. */
+  publish_at?: string | null;
+  /** Phase 3: 시리즈 묶음 */
+  series_id?: string | null;
+  series_order?: number | null;
+};
+
+export type CreatorSeries = {
+  id: string;
+  creator_id: string;
+  title: string;
+  slug: string;
+  description?: string | null;
+  cover_url?: string | null;
+  is_published: boolean;
+  created_at: string;
+  updated_at: string;
 };
 
 export function creatorPath(slug: string): string {

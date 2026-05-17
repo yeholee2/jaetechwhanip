@@ -1,0 +1,86 @@
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.field {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 10px 12px;
+  background: var(--rw-card, #fff);
+  border: 1px solid var(--rw-border, #e5e8eb);
+  border-radius: 10px;
+  min-height: 44px;
+  align-items: center;
+}
+
+.field:focus-within {
+  border-color: var(--rw-primary, #3182f6);
+  box-shadow: 0 0 0 3px var(--rw-primary-bg, rgba(49, 130, 246, 0.12));
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 6px 4px 10px;
+  background: var(--rw-primary-bg, rgba(49, 130, 246, 0.1));
+  color: var(--rw-primary, #3182f6);
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: -0.2px;
+}
+
+.chipHash {
+  color: rgba(49, 130, 246, 0.55);
+  font-weight: 600;
+}
+
+.chipRemove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  margin-left: 2px;
+  border: none;
+  background: rgba(49, 130, 246, 0.18);
+  color: var(--rw-primary, #3182f6);
+  border-radius: 50%;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.chipRemove:hover {
+  background: rgba(49, 130, 246, 0.32);
+}
+
+.input {
+  flex: 1;
+  min-width: 140px;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--rw-text-strong, #191f28);
+  padding: 4px 2px;
+}
+
+.input::placeholder {
+  color: var(--rw-text-muted, #8b95a1);
+  font-weight: 500;
+}
+
+.hint {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--rw-text-muted, #8b95a1);
+  letter-spacing: -0.1px;
+  padding-left: 2px;
+}

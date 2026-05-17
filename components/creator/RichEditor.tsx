@@ -21,6 +21,7 @@ import Link from '@tiptap/extension-link';
 import Placeholder from '@tiptap/extension-placeholder';
 import { useCallback, useRef } from 'react';
 import { ChartNode } from './ChartNode';
+import { PaywallNode } from './PaywallNode';
 import styles from './RichEditor.module.css';
 
 type Props = {
@@ -46,6 +47,7 @@ export function RichEditor({ value, onChange, placeholder = '본문을 작성하
       }),
       Placeholder.configure({ placeholder }),
       ChartNode,
+      PaywallNode,
     ],
     content: value,
     onUpdate: ({ editor }) => onChange(editor.getHTML()),
@@ -76,6 +78,15 @@ export function RichEditor({ value, onChange, placeholder = '본문을 작성하
     if (f) void uploadImage(f);
     e.target.value = '';
   };
+
+  const insertPaywall = useCallback(() => {
+    if (!editor) return;
+    if (editor.getHTML().includes('data-paywall')) {
+      alert('페이월은 글당 1개만 넣을 수 있어요. 기존 페이월을 지운 후 다시 추가하세요.');
+      return;
+    }
+    editor.chain().focus().insertPaywallDivider().run();
+  }, [editor]);
 
   const insertChart = useCallback(() => {
     if (!editor) return;
@@ -216,6 +227,15 @@ export function RichEditor({ value, onChange, placeholder = '본문을 작성하
           title="차트 삽입 — 티커로 가격 차트 + 그림 도구"
         >
           📊
+        </button>
+        <span className={styles.toolSep} />
+        <button
+          type="button"
+          className={btn(false)}
+          onClick={insertPaywall}
+          title="페이월 삽입 — 이 줄 아래는 멤버만 보임"
+        >
+          🔒
         </button>
       </div>
 

@@ -36,10 +36,12 @@ async function fetchCreatorAndPost(slug: string, postSlug: string) {
 
   // 본인/admin/active member 체크
   let isMember = false;
+  let isOwnerOrAdmin = false;
   const { data: { user } } = await supabase.auth.getUser();
   if (user) {
     if (user.id === creator.user_id) {
       isMember = true;
+      isOwnerOrAdmin = true;
     } else {
       const { data: profile } = await supabase
         .from('users')
@@ -48,6 +50,7 @@ async function fetchCreatorAndPost(slug: string, postSlug: string) {
         .maybeSingle();
       if (profile?.role === 'admin') {
         isMember = true;
+        isOwnerOrAdmin = true;
       } else {
         const { data: sub } = await supabase
           .from('creator_subscriptions')
@@ -59,6 +62,11 @@ async function fetchCreatorAndPost(slug: string, postSlug: string) {
         if (sub) isMember = true;
       }
     }
+  }
+
+  // 예약 발행 가드: publish_at 이 미래면 본인/admin 외엔 숨김
+  if (post.publish_at && new Date(post.publish_at).getTime() > Date.now() && !isOwnerOrAdmin) {
+    return { creator, post: null, isMember: false };
   }
   return { creator, post, isMember };
 }
@@ -81,11 +89,34 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
+const PAYWALL_RE = /<hr\b[^>]*\bdata-paywall\b[^>]*\/?>/i;
+
+function splitBodyAtPaywall(html: string | null | undefined): { before: string; hasMarker: boolean } {
+  if (!html) return { before: '', hasMarker: false };
+  const m = html.match(PAYWALL_RE);
+  if (!m || m.index === undefined) return { before: html, hasMarker: false };
+  return { before: html.slice(0, m.index), hasMarker: true };
+}
+
+function stripPaywall(html: string | null | undefined): string {
+  if (!html) return '';
+  return html.replace(PAYWALL_RE, '');
+}
+
 export default async function CreatorPostPage({ params }: Props) {
   const { creator, post, isMember } = await fetchCreatorAndPost(params.slug, params.postSlug);
   if (!creator || !post) notFound();
 
-  const locked = post.is_member_only && !isMember;
+  const { before: bodyBeforePaywall, hasMarker: hasInlinePaywall } = splitBodyAtPaywall(post.body);
+  const inlineLocked = hasInlinePaywall && !isMember;
+  const fullLocked = post.is_member_only && !isMember;
+  const locked = inlineLocked || fullLocked;
+
+  const renderedBody = isMember
+    ? stripPaywall(post.body)
+    : inlineLocked
+      ? bodyBeforePaywall
+      : (post.body || '');
 
   return (
     <AppShell active="my" hideSlogan>
@@ -100,11 +131,15 @@ export default async function CreatorPostPage({ params }: Props) {
         )}
 
         <header className={styles.head}>
-          {post.is_member_only && (
+          {post.is_member_only ? (
             <span className={styles.memberBadge}>
               {isMember ? '✓ 멤버 전용' : '🔒 멤버 전용'}
             </span>
-          )}
+          ) : hasInlinePaywall ? (
+            <span className={styles.memberBadge}>
+              {isMember ? '✓ 일부 멤버 전용' : '🔒 일부 멤버 전용'}
+            </span>
+          ) : null}
           <h1>{post.title}</h1>
           <div className={styles.meta}>
             <Link href={`/creator/${creator.slug}`} className={styles.authorLink}>
@@ -115,7 +150,23 @@ export default async function CreatorPostPage({ params }: Props) {
           </div>
         </header>
 
-        {locked ? (
+        {inlineLocked ? (
+          <>
+            <PostBody body={renderedBody} />
+            <div className={styles.paywall}>
+              <div className={styles.paywallIcon}>🔒</div>
+              <strong>여기부터는 {creator.membership_tier_name}만 볼 수 있어요</strong>
+              <p>
+                {creator.display_name}의 멤버가 되면 이 글의 나머지 내용과 모든 멤버 전용 콘텐츠를 볼 수 있어요.
+              </p>
+              <Link href={`/creator/${creator.slug}`} className={styles.paywallBtn}>
+                {creator.membership_enabled
+                  ? `월 ${creator.membership_price_won?.toLocaleString()}원 멤버 되기`
+                  : '곧 멤버십 오픈'}
+              </Link>
+            </div>
+          </>
+        ) : fullLocked ? (
           <>
             {post.preview && <PostBody body={post.preview} className={styles.preview} />}
             <div className={styles.paywall}>
@@ -132,7 +183,7 @@ export default async function CreatorPostPage({ params }: Props) {
             </div>
           </>
         ) : (
-          <PostBody body={post.body || ''} />
+          <PostBody body={renderedBody} />
         )}
 
         <PostInteractions
