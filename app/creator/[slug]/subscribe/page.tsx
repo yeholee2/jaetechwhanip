@@ -40,7 +40,7 @@ export default async function SubscribePage({ params }: Props) {
       .eq('status', 'active')
       .maybeSingle();
     if (existing) {
-      redirect(`/creator/${params.slug}?subscribed=1`);
+      redirect(`/creator/${params.slug}/welcome`);
     }
   }
 

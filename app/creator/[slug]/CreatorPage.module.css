@@ -649,3 +649,45 @@
   from { transform: translateY(-12px); opacity: 0; }
   to { transform: translateY(0); opacity: 1; }
 }
+
+/* 활동 배지 (이름 옆) */
+.activityBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: -0.1px;
+}
+.act_hot {
+  background: #FFEBEB;
+  color: #E03131;
+}
+.act_active {
+  background: #E8F4FF;
+  color: #1B64DA;
+}
+.act_steady {
+  background: var(--rw-card-muted);
+  color: var(--rw-text-body);
+}
+.act_quiet {
+  background: var(--rw-card-muted);
+  color: var(--rw-text-muted);
+}
+
+/* 사이드 멤버십 카드의 활동 지표 */
+.sideActivity {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 8px 10px;
+  margin-top: 6px;
+  background: rgba(27, 100, 218, 0.06);
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--rw-primary);
+  line-height: 1.5;
+}

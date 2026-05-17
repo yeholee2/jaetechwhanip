@@ -157,28 +157,45 @@ export function ApplyForm() {
           <span className={`${styles.sparkle} tf`} aria-hidden="true">✨</span>
           비공개 베타
         </span>
-        <h1>재프콘로 시작하기</h1>
+        <h1>재프콘 채널 만들기</h1>
         <p className={styles.lead}>
-          재테크 콘텐츠를 우리 플랫폼에 올리고 멤버십 구독으로 수익화하세요.
-          베타 기간엔 초청 심사로 운영해요.
+          재테크 인사이트를 멤버에게 직접 전달하고 매출도 만들어보세요.
+          베타 기간엔 <strong>플랫폼 수수료 0%</strong> — 매출 100% 가 크리에이터 몫이에요.
         </p>
       </header>
+
+      {/* 수수료 비교 */}
+      <section className={styles.feeCompare}>
+        <span className={styles.feeLabel}>플랫폼 수수료 비교</span>
+        <div className={styles.feeRow}>
+          <div className={styles.feeItem}>
+            <span>팬딩</span><strong>15%</strong>
+          </div>
+          <div className={styles.feeItem}>
+            <span>네프콘</span><strong>10%</strong>
+          </div>
+          <div className={`${styles.feeItem} ${styles.feeItemUs}`}>
+            <span>재프콘 (베타)</span><strong>0%</strong>
+            <em>100% 본인 수익</em>
+          </div>
+        </div>
+      </section>
 
       <section className={styles.benefits}>
         <div className={styles.benefit}>
           <span className={styles.benefitEmoji} aria-hidden="true">💵</span>
-          <strong>월 구독 수익</strong>
-          <span>플랫폼 수수료 20% 외 전부 본인 몫</span>
+          <strong>매출 100% 수령</strong>
+          <span>베타 기간 수수료 0%. 정착 후 12% (네프콘·팬딩보다 낮음)</span>
         </div>
         <div className={styles.benefit}>
           <span className={styles.benefitEmoji} aria-hidden="true">📈</span>
-          <strong>자기 섹션</strong>
-          <span>/creator/내이름 — 페이지·디자인 직접 관리</span>
+          <strong>내 전용 채널</strong>
+          <span>/creator/내이름 — 페이지·디자인·발행 자율</span>
         </div>
         <div className={styles.benefit}>
-          <span className={styles.benefitEmoji} aria-hidden="true">🤝</span>
-          <strong>B2B 후원 매칭</strong>
-          <span>운용사·증권사 후원 기회 (예정)</span>
+          <span className={styles.benefitEmoji} aria-hidden="true">🛠️</span>
+          <strong>ETF 도구 결합</strong>
+          <span>ETF DB·캘린더·AI 시그널과 결합한 콘텐츠 제작</span>
         </div>
       </section>
 

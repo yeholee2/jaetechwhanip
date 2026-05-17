@@ -15,6 +15,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
 import type { Creator, CreatorPost } from '@/lib/creator';
+import { type CreatorStats, activityBadge, summarize } from '@/lib/creatorStats';
 import styles from './CreatorPage.module.css';
 
 type Tab = 'posts' | 'about' | 'membership';
@@ -36,10 +37,12 @@ function coverStyle(c: any): React.CSSProperties {
 export function CreatorPageClient({
   creator,
   posts,
+  stats,
   isOwner,
 }: {
   creator: Creator & { verified?: boolean; credential?: string; coverGradient?: string; badge?: string };
   posts: CreatorPost[];
+  stats: CreatorStats;
   isOwner: boolean;
 }) {
   const [userId, setUserId] = useState<string | null>(null);
@@ -108,6 +111,8 @@ export function CreatorPageClient({
   };
 
   const perks = (creator.membership_perks || '').split('\n').map(p => p.trim()).filter(Boolean);
+  const actBadge = activityBadge(stats);
+  const actLines = summarize(stats);
 
   return (
     <div className={styles.wrap}>
@@ -141,6 +146,11 @@ export function CreatorPageClient({
             )}
             {creator.badge && !creator.verified && (
               <span className={styles.normalBadge}>{creator.badge}</span>
+            )}
+            {actBadge && (
+              <span className={`${styles.activityBadge} ${styles[`act_${actBadge.tone}`]}`}>
+                {actBadge.label}
+              </span>
             )}
           </div>
           {creator.credential && (
@@ -240,6 +250,11 @@ export function CreatorPageClient({
                 월 {creator.membership_price_won?.toLocaleString()}원
               </strong>
               <span className={styles.sideTier}>{creator.membership_tier_name}</span>
+              {actLines.length > 0 && (
+                <div className={styles.sideActivity}>
+                  {actLines.map((line, i) => <div key={i}>· {line}</div>)}
+                </div>
+              )}
               {perks.length > 0 && (
                 <ul className={styles.sidePerks}>
                   {perks.slice(0, 4).map((p, i) => <li key={i}>✓ {p}</li>)}

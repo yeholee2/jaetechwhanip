@@ -64,7 +64,7 @@ export function CheckoutClient({
         setErr(error.message);
         return;
       }
-      router.push(`/creator/${creator.slug}?subscribed=1`);
+      router.push(`/creator/${creator.slug}/welcome`);
     } finally {
       setProcessing(false);
     }

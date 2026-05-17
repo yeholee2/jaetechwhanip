@@ -247,15 +247,32 @@ export function CreatorsDirectoryClient({ creators }: { creators: Creator[] }) {
         )}
       </section>
 
-      {/* 신청 CTA */}
+      {/* 신청 CTA + 수수료 비교 */}
       <section className={styles.applyBanner}>
-        <div>
-          <strong>나도 재프콘가 되고 싶다면?</strong>
-          <p>재테크 경험·인사이트를 멤버에게 직접 전달하고 수익도 만들어보세요.</p>
+        <div className={styles.applyMain}>
+          <div>
+            <strong>나도 재프콘이 되고 싶다면?</strong>
+            <p>재테크 경험·인사이트를 멤버에게 직접 전달하고 수익도 만들어보세요.</p>
+          </div>
+          <Link href="/creator/apply" className={styles.applyBtn}>
+            + 재프콘 신청하기
+          </Link>
         </div>
-        <Link href="/creator/apply" className={styles.applyBtn}>
-          + 재프콘 신청하기
-        </Link>
+        <div className={styles.feeCompare}>
+          <span className={styles.feeLabel}>플랫폼 수수료 비교</span>
+          <div className={styles.feeRow}>
+            <div className={styles.feeItem}>
+              <span>팬딩</span><strong>15%</strong>
+            </div>
+            <div className={styles.feeItem}>
+              <span>네프콘</span><strong>10%</strong>
+            </div>
+            <div className={`${styles.feeItem} ${styles.feeItemUs}`}>
+              <span>재프콘 (베타)</span><strong>0%</strong>
+              <em>크리에이터 100% 수익</em>
+            </div>
+          </div>
+        </div>
       </section>
     </div>
   );
