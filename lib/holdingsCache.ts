@@ -15,6 +15,7 @@
 import { createAdminClient } from '@/lib/supabase/admin';
 import { fetchEtfHoldings, type HoldingItem, type EtfHoldingsData } from '@/lib/etfHoldings';
 import { fetchEtfByCode } from '@/lib/etfsDb';
+import { fetchNaverHoldings } from '@/lib/naverHoldings';
 
 const CACHE_TTL_HOURS = 24;
 
@@ -169,9 +170,9 @@ export type EtfExposureRow = {
  * ETF 상세 페이지에서 그대로 갈아끼울 수 있음.
  */
 export async function fetchEtfHoldingsWithCache(etfCode: string): Promise<EtfHoldingsData | null> {
+  // 1) Yahoo 먼저 (US ETF 및 일부 KR ETF 작동)
   const data = await fetchEtfHoldings(etfCode).catch(() => null);
   if (data?.holdings?.length) {
-    // fire and forget; 실패해도 사용자 응답에는 영향 없음
     upsertHoldings(etfCode, data.holdings, 'yahoo').catch(() => {});
     if (data.expenseRatio != null || data.dividendYield != null || data.totalAssets != null) {
       upsertMeta(etfCode, {
@@ -181,8 +182,23 @@ export async function fetchEtfHoldingsWithCache(etfCode: string): Promise<EtfHol
         source: 'yahoo',
       }).catch(() => {});
     }
+    return data;
   }
-  return data;
+
+  // 2) KR ETF (6자리 코드) 면 Naver cu_more 폴백
+  if (/^[0-9]{6}$/.test(etfCode)) {
+    const naverItems = await fetchNaverHoldings(etfCode).catch(() => []);
+    if (naverItems.length > 0) {
+      upsertHoldings(etfCode, naverItems, 'naver_top').catch(() => {});
+      return {
+        holdings: naverItems,
+        sectors: [],
+        // expenseRatio/dividendYield 는 모름
+      };
+    }
+  }
+
+  return data; // null
 }
 
 export async function findEtfsHoldingSymbol(symbol: string, limit = 10): Promise<EtfExposureRow[]> {

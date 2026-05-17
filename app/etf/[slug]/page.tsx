@@ -514,19 +514,28 @@ export default async function EtfDetailPage({ params }: Props) {
                       ? `구성종목 Top ${etf.holdings.length}`
                       : '구성종목'}
                 </h2>
-                <span>
-                  {liveHoldings?.holdings?.length
-                    ? 'Yahoo Finance · 실데이터'
-                    : etf.holdings?.length
-                      ? '참고용 비중'
-                      : '운용사 공시'}
-                </span>
+                {(() => {
+                  // Naver 폴백 감지: 비중 합 < 0.75 면 Naver 추정치
+                  const isNaverFallback = liveHoldings?.holdings?.length
+                    ? liveHoldings.holdings.reduce((s, h) => s + h.weight, 0) < 0.75
+                    : false;
+                  return (
+                    <span>
+                      {liveHoldings?.holdings?.length
+                        ? (isNaverFallback ? '네이버 · 주요 구성종목 (비중 미공개)' : 'Yahoo Finance · 실데이터')
+                        : etf.holdings?.length
+                          ? '참고용 비중'
+                          : '운용사 공시'}
+                    </span>
+                  );
+                })()}
               </div>
               {(() => {
                 if (liveHoldings?.holdings?.length) {
+                  const totalWeight = liveHoldings.holdings.reduce((s, h) => s + h.weight, 0);
+                  const isNaverFallback = totalWeight < 0.75;
                   const max = Math.max(...liveHoldings.holdings.map(h => h.weight), 0.01);
-                  // 도넛: 5개 이상일 때만 의미 있음 (3개 미만이면 막대바만)
-                  const showDonut = liveHoldings.holdings.length >= 5;
+                  const showDonut = !isNaverFallback && liveHoldings.holdings.length >= 5;
                   const topN = liveHoldings.holdings.slice(0, 10);
                   const topSum = topN.reduce((s, h) => s + h.weight, 0);
                   const segments = topN.map(h => ({
@@ -545,10 +554,14 @@ export default async function EtfDetailPage({ params }: Props) {
                               <strong>{h.name}</strong>
                               <p>{h.symbol}</p>
                             </div>
-                            <div className={styles.holdingBar} aria-hidden="true">
-                              <span style={{ width: `${(h.weight / max) * 100}%` }} />
-                            </div>
-                            <b className={styles.holdingPct}>{(h.weight * 100).toFixed(2)}%</b>
+                            {!isNaverFallback && (
+                              <div className={styles.holdingBar} aria-hidden="true">
+                                <span style={{ width: `${(h.weight / max) * 100}%` }} />
+                              </div>
+                            )}
+                            <b className={styles.holdingPct}>
+                              {isNaverFallback ? '포함' : `${(h.weight * 100).toFixed(2)}%`}
+                            </b>
                           </div>
                         );
                         return h.symbol ? (
