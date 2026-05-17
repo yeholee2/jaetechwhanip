@@ -85,11 +85,29 @@ export function StockDetailView({
     price: number; change: number; changePercent: number;
     source: string; delayed: boolean; fetchedAt: string;
   } | null>(null);
-  const [drawMode, setDrawMode] = useState(false);
   const [drawings, setDrawings] = useState<Drawing[]>([]);
   const [chartTf, setChartTf] = useState<'5m' | '1d' | '1w' | '1mo' | '1y'>('1d');
   const [chartShowMA, setChartShowMA] = useState(true);
   const [chartShowVolume, setChartShowVolume] = useState(true);
+
+  // drawings localStorage 영속화 — 종목별 키
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    try {
+      const raw = localStorage.getItem(`chart-drawings:${symbol}`);
+      if (raw) setDrawings(JSON.parse(raw));
+    } catch { /* ignore */ }
+  }, [symbol]);
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    try {
+      if (drawings.length > 0) {
+        localStorage.setItem(`chart-drawings:${symbol}`, JSON.stringify(drawings));
+      } else {
+        localStorage.removeItem(`chart-drawings:${symbol}`);
+      }
+    } catch { /* ignore */ }
+  }, [drawings, symbol]);
 
   useEffect(() => {
     // 서버에서 데이터 주입한 경우 스킵
@@ -181,25 +199,6 @@ export function StockDetailView({
       </header>
 
       <section className={styles.chartWrap}>
-        <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 6 }}>
-          <button
-            type="button"
-            onClick={() => setDrawMode(m => !m)}
-            style={{
-              padding: '6px 12px',
-              fontSize: 12,
-              fontWeight: 800,
-              border: '1px solid var(--rw-border)',
-              borderRadius: 8,
-              background: drawMode ? 'var(--rw-primary-bg)' : 'transparent',
-              color: drawMode ? 'var(--rw-primary)' : 'var(--rw-text-muted)',
-              cursor: 'pointer',
-            }}
-            title="좌측에 그림 도구 툴바를 표시해요"
-          >
-            {drawMode ? '✓ 그림 도구' : '✏️ 그림 그리기'}
-          </button>
-        </div>
         <ChartBlock
           data={{
             code: symbol,
@@ -209,7 +208,7 @@ export function StockDetailView({
             showMA: chartShowMA,
             showVolume: chartShowVolume,
           }}
-          editable={drawMode}
+          editable
           onChange={next => {
             if (next.tf) setChartTf(next.tf);
             if (next.showMA !== undefined) setChartShowMA(next.showMA);
