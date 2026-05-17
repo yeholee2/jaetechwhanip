@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui';
 import { listMyHoldings, buildHoldingDisplays, summarizePortfolio } from '@/lib/etfPortfolio';
 import { etfs } from '@/lib/etfs';
 import { listMyNotifications, type UserNotification } from '@/lib/alerts';
+import { ImageUploader } from '@/components/creator/ImageUploader';
 import styles from './MyPage.module.css';
 
 const EMOJI = ['🐯','🐰','🦊','🐻','🦋','🐸','🐼','🦁','🐨','🐮','🐷','🐙'];
@@ -202,9 +203,19 @@ export default function MyPageClient() {
               </header>
 
               <div className={styles.editSection}>
-                <div className={styles.editLabel}>아바타 이모지</div>
+                <div className={styles.editLabel}>프로필 사진</div>
+                <ImageUploader
+                  value={/^https?:\/\//.test(editEmoji) ? editEmoji : ''}
+                  onChange={url => setEditEmoji(url)}
+                  scope="user-avatar"
+                  shape="circle"
+                />
+              </div>
+
+              <div className={styles.editSection}>
+                <div className={styles.editLabel}>또는 이모지로 (사진 없을 때)</div>
                 <div className={styles.editEmojiPreview}>
-                  <span className={`${styles.editEmojiBig} tf`}>{editEmoji}</span>
+                  <span className={`${styles.editEmojiBig} tf`}>{/^https?:\/\//.test(editEmoji) ? '🖼' : editEmoji}</span>
                 </div>
                 <div className={styles.emojiGrid}>
                   {EMOJI_PALETTE.map(e => (

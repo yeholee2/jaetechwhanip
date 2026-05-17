@@ -409,9 +409,6 @@ export function AppShell({
                   <Link href={profileHref} onClick={() => setShowProfile(false)} role="menuitem">
                     공개 프로필
                   </Link>
-                  <Link href="/me" onClick={() => setShowProfile(false)} role="menuitem">
-                    ⚙️ 프로필 설정
-                  </Link>
                   {isAdmin && (
                     <Link href="/admin" onClick={() => setShowProfile(false)} role="menuitem">
                       🛠 관리자 대시보드
