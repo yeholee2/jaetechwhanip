@@ -323,8 +323,8 @@ export default function HomeClient({
 
   return (
     <AppShell active="home" wide hideSlogan>
-      {/* 홈 hero — 질문 CTA + 빠른 진입 아이콘 (지수 ticker 대체) */}
-      <HomeHeroAction />
+      {/* 홈 hero — 질문 CTA + 핵심 4 아이콘 + 미니 시장 */}
+      <HomeHeroAction tickerQuotes={tickerQuotes} nextEvent={nextEvent} />
 
       {/* PC 본문 */}
       <div className={styles.pcBody}>

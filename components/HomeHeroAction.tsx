@@ -15,6 +15,8 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { TICKER_INDICES, type TickerQuote } from '@/app/etf/MarketTicker';
+import type { CalendarEvent } from '@/lib/marketCalendar';
 import styles from './HomeHeroAction.module.css';
 
 const ROTATING_QUESTIONS = [
@@ -35,18 +37,21 @@ type FeatureItem = {
   isExternal?: boolean;
 };
 
+// 핵심 4개만 — nav 와 중복 줄이고 톤 다이어트 (파스텔)
 const FEATURES: FeatureItem[] = [
-  { key: 'ask',       label: '질문하기',    href: '/?ask=1',    emoji: '💬', bg: 'linear-gradient(135deg, #6FA8FF, #3182F6)' },
-  { key: 'trending',  label: '핫한 ETF',    href: '/etf/trending', emoji: '🔥', bg: 'linear-gradient(135deg, #FF8866, #FF4D4D)' },
-  { key: 'sparring',  label: '머니 스파링', href: '/sparring',  emoji: '⚔️', bg: 'linear-gradient(135deg, #B383FF, #7C4DFF)' },
-  { key: 'portfolio', label: '포트폴리오',  href: '/portfolio', emoji: '📊', bg: 'linear-gradient(135deg, #44C781, #2E9C5C)' },
-  { key: 'calendar',  label: '시장 캘린더', href: '/calendar',  emoji: '📅', bg: 'linear-gradient(135deg, #FFC36B, #FF9F1C)' },
-  { key: 'creators',  label: '핀플루언서',  href: '/creators',  emoji: '✨', bg: 'linear-gradient(135deg, #FF8FB7, #E94986)' },
-  { key: 'etf',       label: 'ETF 발견',    href: '/etf',       emoji: '🧭', bg: 'linear-gradient(135deg, #6FE0E0, #2BB1B1)' },
-  { key: 'blog',      label: '한입 블로그', href: 'https://hannipmoney.com', emoji: '📰', bg: 'linear-gradient(135deg, #A8B8D0, #6B7AA0)', isExternal: true },
+  { key: 'ask',       label: '질문하기',    href: '/?ask=1',       emoji: '💬', bg: 'linear-gradient(135deg, #DEEAFF 0%, #C2D8FF 100%)' },
+  { key: 'trending',  label: '핫한 ETF',    href: '/etf/trending', emoji: '🔥', bg: 'linear-gradient(135deg, #FFE0D6 0%, #FFC5B3 100%)' },
+  { key: 'portfolio', label: '포트폴리오 진단', href: '/portfolio',  emoji: '📊', bg: 'linear-gradient(135deg, #D6F2E3 0%, #B7E2C9 100%)' },
+  { key: 'calendar',  label: '시장 캘린더', href: '/calendar',     emoji: '📅', bg: 'linear-gradient(135deg, #FFEBC9 0%, #FFD89A 100%)' },
 ];
 
-export function HomeHeroAction() {
+export function HomeHeroAction({
+  tickerQuotes,
+  nextEvent,
+}: {
+  tickerQuotes?: (TickerQuote | null)[];
+  nextEvent?: { event: CalendarEvent; dDay: number } | null;
+} = {}) {
   const router = useRouter();
   const [qIndex, setQIndex] = useState(0);
 
@@ -109,6 +114,35 @@ export function HomeHeroAction() {
           );
         })}
       </div>
+
+      {/* 미니 시장 한 줄 — 정보 + 진입 */}
+      {tickerQuotes && tickerQuotes.length > 0 && (
+        <Link href="/etf" className={styles.miniTicker} aria-label="시장 흐름 보기">
+          {nextEvent && (
+            <span className={styles.miniDday}>
+              <span className={styles.miniDdayBadge}>D-{nextEvent.dDay}</span>
+              <span className={styles.miniEventTitle}>{nextEvent.event.title}</span>
+            </span>
+          )}
+          {TICKER_INDICES.slice(0, 3).map((idx, i) => {
+            const q = tickerQuotes[i];
+            if (!q) return null;
+            const up = q.change >= 0;
+            const pct = `${up ? '+' : ''}${q.changePct.toFixed(2)}%`;
+            return (
+              <span key={idx.symbol} className={styles.miniQuote}>
+                <span className={styles.miniName}>{idx.name}</span>
+                <span className={`${styles.miniPct} ${up ? styles.up : styles.down}`}>{pct}</span>
+              </span>
+            );
+          })}
+          <span className={styles.miniMore} aria-hidden="true">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M9 6l6 6-6 6" />
+            </svg>
+          </span>
+        </Link>
+      )}
     </section>
   );
 }
