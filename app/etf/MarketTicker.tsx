@@ -179,17 +179,6 @@ export function MarketTickerView({
       </div>
 
       <TickerScroller>
-        {/* 첫 카드: 증시 캘린더 D-X (가장 가까운 major 이벤트) */}
-        {nextEvent && (
-          <Link href="/calendar" className={`${styles.item} ${styles.itemCalendar}`}>
-            <span className={styles.dBadge}>D-{nextEvent.dDay}</span>
-            <div className={styles.body}>
-              <span className={styles.name}>증시캘린더</span>
-              <span className={styles.priceCal}>{nextEvent.event.title}</span>
-            </div>
-          </Link>
-        )}
-
         {TICKER_INDICES.map((idx, i) => {
           const q = quotes[i];
           if (!q) {

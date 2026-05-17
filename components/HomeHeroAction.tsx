@@ -42,7 +42,7 @@ const FEATURES: FeatureItem[] = [
   { key: 'ask',       label: '질문하기',    href: '/questions/create', emoji: '💬', bg: 'linear-gradient(135deg, #DEEAFF 0%, #C2D8FF 100%)' },
   { key: 'trending',  label: '핫한 ETF',    href: '/etf/trending', emoji: '🔥', bg: 'linear-gradient(135deg, #FFE0D6 0%, #FFC5B3 100%)' },
   { key: 'portfolio', label: '포트폴리오 진단', href: '/portfolio',  emoji: '📊', bg: 'linear-gradient(135deg, #D6F2E3 0%, #B7E2C9 100%)' },
-  { key: 'calendar',  label: '시장 캘린더', href: '/calendar',     emoji: '📅', bg: 'linear-gradient(135deg, #FFEBC9 0%, #FFD89A 100%)' },
+  { key: 'tracker',   label: '내 종목 트래커', href: '/my/portfolio', emoji: '💼', bg: 'linear-gradient(135deg, #FFEBC9 0%, #FFD89A 100%)' },
 ];
 
 export function HomeHeroAction({
