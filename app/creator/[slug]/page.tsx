@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/server';
 import { SITE_NAME, SITE_URL } from '@/lib/seo';
 import type { Creator, CreatorPost } from '@/lib/creator';
 import { fetchCreatorStats } from '@/lib/creatorStats';
+import { fetchSimilarCreators } from '@/lib/creatorRecommend';
 import { CreatorPageClient } from './CreatorPageClient';
 
 export const revalidate = 60;
@@ -62,14 +63,21 @@ export default async function CreatorPage({ params }: Props) {
   const { data: { user } } = await supabase.auth.getUser();
   const isOwner = !!user && user.id === creator.user_id;
 
-  const [posts, stats] = await Promise.all([
+  const [posts, stats, similar] = await Promise.all([
     fetchPosts(creator.id),
     fetchCreatorStats(creator.id),
+    fetchSimilarCreators(creator.id, creator.topics || [], 4),
   ]);
 
   return (
     <AppShell active="my" wide hideSlogan minimalNav>
-      <CreatorPageClient creator={creator} posts={posts} stats={stats} isOwner={isOwner} />
+      <CreatorPageClient
+        creator={creator}
+        posts={posts}
+        stats={stats}
+        similar={similar}
+        isOwner={isOwner}
+      />
     </AppShell>
   );
 }

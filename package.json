@@ -20,6 +20,7 @@
     "@tiptap/starter-kit": "^3.23.4",
     "lucide-react": "^0.400.0",
     "next": "14.2.5",
+    "posthog-js": "^1.373.5",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },

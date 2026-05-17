@@ -3,6 +3,8 @@ import { SITE_NAME, SITE_URL } from '@/lib/seo';
 import '@fortawesome/fontawesome-free/css/all.css';
 import './globals.css';
 import { PageViewTracker } from '@/components/PageViewTracker';
+import { AnalyticsProvider } from '@/components/AnalyticsProvider';
+import { Suspense } from 'react';
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -95,7 +97,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body>
         <PageViewTracker />
-        {children}
+        <Suspense fallback={null}>
+          <AnalyticsProvider>{children}</AnalyticsProvider>
+        </Suspense>
       </body>
     </html>
   );

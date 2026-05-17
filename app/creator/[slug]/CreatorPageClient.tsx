@@ -38,11 +38,13 @@ export function CreatorPageClient({
   creator,
   posts,
   stats,
+  similar = [],
   isOwner,
 }: {
   creator: Creator & { verified?: boolean; credential?: string; coverGradient?: string; badge?: string };
   posts: CreatorPost[];
   stats: CreatorStats;
+  similar?: Creator[];
   isOwner: boolean;
 }) {
   const [userId, setUserId] = useState<string | null>(null);
@@ -177,6 +179,9 @@ export function CreatorPageClient({
               <Link href={`/creator/${creator.slug}/write`} className={styles.btnPrimary}>
                 + 글 작성
               </Link>
+              <Link href={`/creator/${creator.slug}/dashboard`} className={styles.btnSecondary}>
+                📊 대시보드
+              </Link>
               <Link href={`/creator/${creator.slug}/edit`} className={styles.btnSecondary}>
                 편집
               </Link>
@@ -280,6 +285,34 @@ export function CreatorPageClient({
               </Link>
             )}
           </div>
+
+          {similar.length > 0 && (
+            <div className={styles.sideSimilar}>
+              <span className={styles.sideEyebrow}>이 채널 보는 사람이 본 채널</span>
+              <ul>
+                {similar.map(s => (
+                  <li key={s.id}>
+                    <Link href={`/creator/${s.slug}`} className={styles.similarItem}>
+                      <div className={styles.similarAvatar}>
+                        {s.avatar_url && s.avatar_url.length <= 4 ? (
+                          <span>{s.avatar_url}</span>
+                        ) : s.avatar_url ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={s.avatar_url} alt="" />
+                        ) : (
+                          <span>{s.display_name.slice(0, 1)}</span>
+                        )}
+                      </div>
+                      <div className={styles.similarBody}>
+                        <strong>{s.display_name}</strong>
+                        <span>{s.follower_count.toLocaleString()} 팔로워</span>
+                      </div>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
         </aside>
       </div>
 
