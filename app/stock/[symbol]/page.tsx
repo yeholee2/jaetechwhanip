@@ -7,6 +7,7 @@ import { fetchPostsBySymbol } from '@/lib/postMentions';
 import { SITE_NAME, SITE_URL } from '@/lib/seo';
 import { StockDetailView } from '@/components/stock/StockDetailView';
 import { MentionedPosts } from '@/components/stock/MentionedPosts';
+import { StockPageShareBar } from './StockPageShareBar';
 import styles from './StockPage.module.css';
 
 export const revalidate = 3600;
@@ -60,8 +61,11 @@ export default async function StockPage({ params }: Props) {
           <Link href="/etf">ETF</Link>
           <span>·</span>
           <span>{sym}</span>
+          <span style={{ marginLeft: 'auto' }}>
+            <StockPageShareBar symbol={sym} targetId="stock-capture-area" />
+          </span>
         </nav>
-        <div className={styles.panel}>
+        <div id="stock-capture-area" className={styles.panel}>
           <StockDetailView
             symbol={sym}
             displayName={profile?.name}

@@ -515,14 +515,14 @@ export default async function EtfDetailPage({ params }: Props) {
                       : '구성종목'}
                 </h2>
                 {(() => {
-                  // Naver 폴백 감지: 비중 합 < 0.75 면 Naver 추정치
+                  // Naver 폴백 감지: 비중 합 < 0.92 면 Naver (Yahoo 는 ~1.0)
                   const isNaverFallback = liveHoldings?.holdings?.length
-                    ? liveHoldings.holdings.reduce((s, h) => s + h.weight, 0) < 0.75
+                    ? liveHoldings.holdings.reduce((s, h) => s + h.weight, 0) < 0.92
                     : false;
                   return (
                     <span>
                       {liveHoldings?.holdings?.length
-                        ? (isNaverFallback ? '네이버 · 주요 구성종목 (비중 미공개)' : 'Yahoo Finance · 실데이터')
+                        ? (isNaverFallback ? '네이버 · 시총 가중 추정' : 'Yahoo Finance · 실데이터')
                         : etf.holdings?.length
                           ? '참고용 비중'
                           : '운용사 공시'}
@@ -533,9 +533,9 @@ export default async function EtfDetailPage({ params }: Props) {
               {(() => {
                 if (liveHoldings?.holdings?.length) {
                   const totalWeight = liveHoldings.holdings.reduce((s, h) => s + h.weight, 0);
-                  const isNaverFallback = totalWeight < 0.75;
+                  const isNaverFallback = totalWeight < 0.92;
                   const max = Math.max(...liveHoldings.holdings.map(h => h.weight), 0.01);
-                  const showDonut = !isNaverFallback && liveHoldings.holdings.length >= 5;
+                  const showDonut = liveHoldings.holdings.length >= 5;
                   const topN = liveHoldings.holdings.slice(0, 10);
                   const topSum = topN.reduce((s, h) => s + h.weight, 0);
                   const segments = topN.map(h => ({
@@ -554,13 +554,12 @@ export default async function EtfDetailPage({ params }: Props) {
                               <strong>{h.name}</strong>
                               <p>{h.symbol}</p>
                             </div>
-                            {!isNaverFallback && (
-                              <div className={styles.holdingBar} aria-hidden="true">
-                                <span style={{ width: `${(h.weight / max) * 100}%` }} />
-                              </div>
-                            )}
+                            <div className={styles.holdingBar} aria-hidden="true">
+                              <span style={{ width: `${(h.weight / max) * 100}%` }} />
+                            </div>
                             <b className={styles.holdingPct}>
-                              {isNaverFallback ? '포함' : `${(h.weight * 100).toFixed(2)}%`}
+                              {(h.weight * 100).toFixed(2)}%
+                              {isNaverFallback && <span style={{ fontSize: 10, color: 'var(--rw-text-muted)', marginLeft: 4 }}>≈</span>}
                             </b>
                           </div>
                         );
@@ -572,6 +571,20 @@ export default async function EtfDetailPage({ params }: Props) {
                           <div key={h.name}>{row}</div>
                         );
                       })}
+                      {isNaverFallback && (
+                        <div style={{
+                          padding: '10px 12px',
+                          background: 'var(--rw-card-muted)',
+                          borderRadius: 8,
+                          fontSize: 12,
+                          fontWeight: 600,
+                          color: 'var(--rw-text-muted)',
+                          marginTop: 6,
+                          lineHeight: 1.5,
+                        }}>
+                          ≈ 비중은 종목 시가총액 가중으로 추정한 값이에요. 정확한 비중은 운용사 공시(보통 매월 갱신)를 참고하세요.
+                        </div>
+                      )}
                     </div>
                   );
                   if (!showDonut) return list;

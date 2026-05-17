@@ -23,6 +23,7 @@ import {
   type Time,
   type UTCTimestamp,
 } from 'lightweight-charts';
+import { ScreenshotButton } from '@/components/share/ScreenshotButton';
 import styles from './ChartBlock.module.css';
 
 type Candle = { time: string; open: number; high: number; low: number; close: number };
@@ -59,6 +60,7 @@ export function ChartBlock({
   onChange?: (next: ChartBlockData) => void;
   onRemove?: () => void;
 }) {
+  const wrapRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const svgRef = useRef<SVGSVGElement>(null);
   const chartRef = useRef<IChartApi | null>(null);
@@ -321,7 +323,7 @@ export function ChartBlock({
   })();
 
   return (
-    <div className={styles.wrap}>
+    <div ref={wrapRef} className={styles.wrap}>
       <header className={styles.header}>
         <div className={styles.headerLeft}>
           <strong className={styles.code}>{data.code.toUpperCase()}</strong>
@@ -350,12 +352,19 @@ export function ChartBlock({
             <option value="line">라인</option>
           </select>
         </div>
-        {editable && (
-          <div className={styles.headerRight}>
-            <button type="button" onClick={clearAll} className={styles.ghostBtn}>모두 지우기</button>
-            {onRemove && <button type="button" onClick={onRemove} className={styles.ghostBtnDanger}>차트 삭제</button>}
-          </div>
-        )}
+        <div className={styles.headerRight}>
+          <ScreenshotButton
+            target={() => wrapRef.current}
+            filename={`${data.code}-chart`}
+            label="📷"
+          />
+          {editable && (
+            <>
+              <button type="button" onClick={clearAll} className={styles.ghostBtn}>모두 지우기</button>
+              {onRemove && <button type="button" onClick={onRemove} className={styles.ghostBtnDanger}>차트 삭제</button>}
+            </>
+          )}
+        </div>
       </header>
 
       {editable && (

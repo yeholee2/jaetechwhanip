@@ -1,14 +1,15 @@
 /**
- * KR ETF 구성종목 — 네이버 증권 cu_more 페이지 스크래이핑.
+ * KR ETF 구성종목 — 네이버 cu_more + Yahoo 시총 배치 → 시총 가중 추정.
+ *
+ * 흐름:
+ *  1. 네이버 cu_more 페이지에서 Top 20-22 종목명+코드 추출
+ *  2. Yahoo /v7/quote 배치로 각 종목 marketCap 한 번에
+ *  3. 비중 = 종목 시총 / Top N 시총 합 × 0.85 (잔여 0.15 는 "기타 미공개" 의미)
+ *  4. 시총 못 받으면 rank 기반 placeholder 로 fallback
  *
  * 한계:
- *  - 비중(%) 정보는 없음 — Top 20-22개 종목명+코드만
- *  - 우리는 placeholder weight 로 저장 (1/N) — 인덱싱·역검색 용도
- *  - "비중 공개됨" 시그널이 따로 있는 게 좋음 → source='naver_top'
- *
- * 사용:
- *   const items = await fetchNaverHoldings('069500')
- *   → [{ symbol: '005930', name: '삼성전자', weight: 0.045 }, ...]
+ *  - 시가총액 가중 ETF (KODEX 200, S&P500 ETF 등) 에는 정확
+ *  - Equal Weight·Smart Beta·Theme 액티브 ETF 에는 부정확 (라벨 "추정" 명시)
  */
 
 import type { HoldingItem } from '@/lib/etfHoldings';
@@ -43,7 +44,10 @@ export async function fetchNaverHoldings(etfCode: string): Promise<HoldingItem[]
       html = new TextDecoder('utf-8').decode(buf);
     }
 
-    return parseConstituents(html, etfCode);
+    const items = parseConstituents(html, etfCode);
+    if (items.length === 0) return [];
+    // 시총 가중치 추정
+    return await assignMarketCapWeights(items);
   } catch {
     return [];
   }
@@ -51,31 +55,102 @@ export async function fetchNaverHoldings(etfCode: string): Promise<HoldingItem[]
 
 /** HTML 에서 종목명 + 코드 추출 */
 function parseConstituents(html: string, selfCode: string): HoldingItem[] {
-  // <a ... href="...code=XXXXXX...">종목명</a> 패턴
   const re = /<a[^>]*href="[^"]*code=(\d{6})[^"]*"[^>]*>([^<]+)<\/a>/g;
   const seen = new Set<string>();
   const items: HoldingItem[] = [];
   let m: RegExpExecArray | null;
   while ((m = re.exec(html)) !== null) {
     const code = m[1];
-    if (code === selfCode) continue; // 본인 제외
+    if (code === selfCode) continue;
     if (seen.has(code)) continue;
     seen.add(code);
     const name = m[2].trim();
     if (!name || name.length > 30) continue;
-    items.push({ symbol: code, name, weight: 0 }); // weight 는 호출자가 채움
+    items.push({ symbol: code, name, weight: 0 });
   }
+  return items;
+}
 
-  // 등장 순서대로 (Naver 가 보통 비중 큰 순으로 표시)
-  // 비중은 미공개이므로 placeholder: rank 기반 가중
-  // 첫번째 종목 큰 가중치 → 마지막은 작게 (조화감)
+/**
+ * Yahoo /v7/quote 배치 호출로 marketCap 받아서 시총 가중 분배.
+ * Yahoo 가 실패한 종목은 rank 기반 추정.
+ */
+async function assignMarketCapWeights(items: HoldingItem[]): Promise<HoldingItem[]> {
   const N = items.length;
   if (N === 0) return [];
-  // weight = (N-i)/sum 로 정규화 → 합 1.0
-  // 단, "정확한 비중 아님" 시그널이 필요할 수 있어 합 0.5 로 표시 (= 50% 미공개 의미)
-  const totalRank = (N * (N + 1)) / 2;
-  for (let i = 0; i < N; i++) {
-    items[i].weight = ((N - i) / totalRank) * 0.6; // 합 0.6 — 잔여 0.4 는 "기타/미공개"
+
+  const symbols = items.map(it => `${it.symbol}.KS`).join(',');
+  const url = `https://query1.finance.yahoo.com/v7/finance/quote?symbols=${encodeURIComponent(symbols)}`;
+  const mcaps = new Map<string, number>();
+
+  try {
+    const r = await fetch(url, {
+      headers: { 'User-Agent': UA },
+      next: { revalidate: 86400 },
+    });
+    if (r.ok) {
+      const j = await r.json();
+      for (const q of j?.quoteResponse?.result || []) {
+        const code = (q.symbol || '').replace('.KS', '');
+        const mc = q.marketCap;
+        if (code && Number.isFinite(mc) && mc > 0) {
+          mcaps.set(code, mc);
+        }
+      }
+    }
+  } catch { /* fallback to rank */ }
+
+  // KOSDAQ 은 .KQ — 못 받았으면 한 번 더
+  const missing = items.filter(it => !mcaps.has(it.symbol));
+  if (missing.length > 0) {
+    const ksqSymbols = missing.map(it => `${it.symbol}.KQ`).join(',');
+    try {
+      const r = await fetch(
+        `https://query1.finance.yahoo.com/v7/finance/quote?symbols=${encodeURIComponent(ksqSymbols)}`,
+        { headers: { 'User-Agent': UA }, next: { revalidate: 86400 } },
+      );
+      if (r.ok) {
+        const j = await r.json();
+        for (const q of j?.quoteResponse?.result || []) {
+          const code = (q.symbol || '').replace('.KQ', '');
+          const mc = q.marketCap;
+          if (code && Number.isFinite(mc) && mc > 0) {
+            mcaps.set(code, mc);
+          }
+        }
+      }
+    } catch { /* swallow */ }
   }
+
+  // 시총 합산
+  const totalMcap = Array.from(mcaps.values()).reduce((s, v) => s + v, 0);
+
+  // 시총 정보 있는 종목 비율 (커버리지)
+  const coverage = mcaps.size / N;
+
+  // 잔여 비중 (Top N 밖 + 기타) — 시총 가중 ETF 라면 Top 20이 보통 50-80%
+  const allocated = 0.85; // 합 0.85, 잔여 0.15 = "기타"
+
+  if (totalMcap > 0 && coverage >= 0.5) {
+    // 시총 가중 적용
+    for (const it of items) {
+      const mc = mcaps.get(it.symbol);
+      if (mc != null) {
+        it.weight = (mc / totalMcap) * allocated;
+      } else {
+        // 시총 못 받은 종목은 평균값
+        it.weight = (allocated / N) * 0.5; // 절반 가중
+      }
+    }
+    // weight 내림차순 정렬 (시총 큰 거 위로)
+    items.sort((a, b) => b.weight - a.weight);
+  } else {
+    // 시총 다 못 받음 → rank 기반 fallback
+    const totalRank = (N * (N + 1)) / 2;
+    for (let i = 0; i < N; i++) {
+      items[i].weight = ((N - i) / totalRank) * 0.6;
+    }
+  }
+
   return items;
 }

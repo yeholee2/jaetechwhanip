@@ -1,0 +1,57 @@
+.wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn {
+  padding: 7px 12px;
+  border: none;
+  border-radius: 8px;
+  background: var(--rw-card-muted);
+  color: var(--rw-text-body);
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: background 140ms, color 140ms;
+}
+.btn:hover:not(:disabled) {
+  background: var(--rw-primary-bg);
+  color: var(--rw-primary);
+}
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btnGhost {
+  padding: 7px 10px;
+  border: 1px solid var(--rw-border);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--rw-text-muted);
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: background 140ms, color 140ms;
+}
+.btnGhost:hover:not(:disabled) {
+  background: var(--rw-card-muted);
+  color: var(--rw-text-body);
+}
+.btnGhost:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.toast {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--rw-green50);
+  margin-left: 4px;
+  animation: toastFade 200ms ease-out;
+}
+@keyframes toastFade {
+  from { opacity: 0; transform: translateX(-4px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
