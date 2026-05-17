@@ -41,7 +41,7 @@ import { fetchEtfHoldingsWithCache } from '@/lib/holdingsCache';
 import { ShareButton } from '../ShareButton';
 import { RecordEtfView } from '../RecordEtfView';
 import { EtfChart } from '../EtfChart';
-import { EtfChat } from '../EtfChat';
+// import { EtfChat } from '../EtfChat'; // 일단 제거
 import styles from './EtfDetailPage.module.css';
 
 type Props = { params: { slug: string } };
@@ -706,21 +706,7 @@ export default async function EtfDetailPage({ params }: Props) {
 
             {/* (분배금 mock 섹션 제거 — 실데이터 KRX API 연동 후 다시 추가) */}
 
-            {/* ──────────── ④ 궁합: AI 매칭 ──────────── */}
-            <div id="sec-match">
-              <EtfChat
-                etf={{
-                  code: etf.code,
-                  name: etf.name,
-                  summary: etf.summary,
-                  theme: etf.theme,
-                  fee: etf.fee,
-                  distribution: etf.distribution,
-                  hedge: etf.hedge,
-                  aum: etf.aum,
-                }}
-              />
-            </div>
+            {/* ④ AI 챗 섹션 제거됨 (재추가 시 EtfChat) */}
 
             {/* ──────────── ⑤ 사회적 증거: 유사·대가·운용사 ──────────── */}
             {/* 유사 ETF (점수 기반: 추종지수/추종국가/카테고리/테마/운용사 매칭) */}
