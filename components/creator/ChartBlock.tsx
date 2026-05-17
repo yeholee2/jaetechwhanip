@@ -53,7 +53,32 @@ export type ChartBlockData = {
   showVolume?: boolean;
 };
 
-type Tool = 'select' | 'trendline' | 'hline' | 'rect' | 'text';
+type Tool = 'select' | 'trendline' | 'hline' | 'rect' | 'text' | 'ruler';
+
+/** 좌측 세로 툴바 아이콘 — TradingView/빗썸 스타일 SVG */
+function ToolIcon({ name, size = 18 }: { name: string; size?: number }) {
+  const s = { width: size, height: size, fill: 'none', stroke: 'currentColor', strokeWidth: 1.5, strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const };
+  switch (name) {
+    case 'select':  // 십자선 커서
+      return <svg viewBox="0 0 24 24" {...s}><path d="M12 3v18M3 12h18" /><circle cx="12" cy="12" r="1.2" fill="currentColor" stroke="none" /></svg>;
+    case 'trendline':
+      return <svg viewBox="0 0 24 24" {...s}><circle cx="5" cy="19" r="1.6" /><circle cx="19" cy="5" r="1.6" /><path d="M6 18 18 6" /></svg>;
+    case 'hline':
+      return <svg viewBox="0 0 24 24" {...s}><circle cx="5" cy="12" r="1.4" /><path d="M7 12h12" strokeDasharray="0" /></svg>;
+    case 'rect':
+      return <svg viewBox="0 0 24 24" {...s}><rect x="4" y="6" width="16" height="12" rx="1" /></svg>;
+    case 'text':
+      return <svg viewBox="0 0 24 24" {...s} style={{ fontFamily: 'serif' }}><text x="12" y="17" textAnchor="middle" fontSize="16" fontWeight="700" fill="currentColor" stroke="none">T</text></svg>;
+    case 'ruler':
+      return <svg viewBox="0 0 24 24" {...s}><path d="M3 16l13-13 5 5L8 21z" /><path d="M7 16l2 2M10 13l2 2M13 10l2 2M16 7l2 2" /></svg>;
+    case 'magnet':
+      return <svg viewBox="0 0 24 24" {...s}><path d="M5 4v9a7 7 0 0 0 14 0V4M5 4h4v9M15 4h4v9" /></svg>;
+    case 'clear':
+      return <svg viewBox="0 0 24 24" {...s}><path d="M6 6l12 12M18 6L6 18" /></svg>;
+    default:
+      return null;
+  }
+}
 
 const COLORS = ['#3182F6', '#E42939', '#00A86B', '#F59E0B', '#191F28'];
 
@@ -118,6 +143,7 @@ export function ChartBlock({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [tool, setTool] = useState<Tool>('select');
+  const [magnet, setMagnet] = useState(false);
   const [color, setColor] = useState(COLORS[0]);
   const [draft, setDraft] = useState<{ a: Pt } | null>(null);
   const [hoverXY, setHoverXY] = useState<{ x: number; y: number } | null>(null);
@@ -268,7 +294,24 @@ export function ChartBlock({
     const p = series.coordinateToPrice(y);
     if (t == null || p == null) return null;
     const tNum = typeof t === 'number' ? t : timeStrToUnix(t as any);
-    return { t: tNum, p };
+    if (!magnet) return { t: tNum, p };
+    // 자석 모드: 가장 가까운 캔들의 가장 가까운 OHLC 값으로 스냅
+    let nearest = candles[0];
+    let minDt = Infinity;
+    for (const c of candles) {
+      const ct = typeof c.time === 'number' ? c.time : timeStrToUnix(String(c.time));
+      const dt = Math.abs(ct - tNum);
+      if (dt < minDt) { minDt = dt; nearest = c; }
+    }
+    if (!nearest) return { t: tNum, p };
+    const snapT = typeof nearest.time === 'number' ? nearest.time : timeStrToUnix(String(nearest.time));
+    const choices = [nearest.open, nearest.high, nearest.low, nearest.close];
+    let snapP = nearest.close, mind = Infinity;
+    for (const v of choices) {
+      const d = Math.abs(v - p);
+      if (d < mind) { mind = d; snapP = v; }
+    }
+    return { t: snapT, p: snapP };
   };
   const priceAtY = (y: number): number | null => {
     const p = priceSeriesRef.current?.coordinateToPrice(y);
@@ -315,6 +358,23 @@ export function ChartBlock({
         } as Drawing);
         setDraft(null);
       }
+      return;
+    }
+    if (tool === 'ruler') {
+      // 측정 도구 — 저장 X, 그냥 미리보기로만
+      const pt = unproject(x, y);
+      if (!pt) return;
+      if (!draft) {
+        setDraft({ a: pt });
+      } else {
+        // 두 번째 클릭 → 측정 결과를 텍스트 마커로 잠깐 저장 (선택)
+        const dp = pt.p - draft.a.p;
+        const dpPct = draft.a.p > 0 ? (dp / draft.a.p) * 100 : 0;
+        const dDays = Math.round((pt.t - draft.a.t) / 86400);
+        alert(`측정 결과\n가격: ${dp > 0 ? '+' : ''}${dp.toFixed(2)} (${dpPct > 0 ? '+' : ''}${dpPct.toFixed(2)}%)\n기간: ${dDays}일`);
+        setDraft(null);
+      }
+      return;
     }
   };
 
@@ -397,7 +457,7 @@ export function ChartBlock({
   }, [drawings, w, h, editable]); // eslint-disable-line
 
   const draftPreview = (() => {
-    if (!draft || !hoverXY || (tool !== 'trendline' && tool !== 'rect')) return null;
+    if (!draft || !hoverXY) return null;
     const a = project(draft.a);
     if (!a) return null;
     if (tool === 'trendline') {
@@ -407,6 +467,29 @@ export function ChartBlock({
       const x = Math.min(a.x, hoverXY.x), y = Math.min(a.y, hoverXY.y);
       const rw = Math.abs(hoverXY.x - a.x), rh = Math.abs(hoverXY.y - a.y);
       return <rect x={x} y={y} width={rw} height={rh} fill={color + '22'} stroke={color} strokeWidth={1.5} strokeDasharray="3 3" opacity={0.6} />;
+    }
+    if (tool === 'ruler') {
+      const p1 = priceAtY(a.y) ?? 0;
+      const p2 = priceAtY(hoverXY.y) ?? 0;
+      const dp = p2 - p1;
+      const dpPct = p1 > 0 ? (dp / p1) * 100 : 0;
+      const midX = (a.x + hoverXY.x) / 2;
+      const midY = (a.y + hoverXY.y) / 2;
+      const tone = dp >= 0 ? '#E42939' : '#3182F6';
+      return (
+        <g>
+          <line x1={a.x} y1={a.y} x2={hoverXY.x} y2={hoverXY.y} stroke={tone} strokeWidth={2} strokeDasharray="2 3" opacity={0.85} />
+          <circle cx={a.x} cy={a.y} r={4} fill={tone} />
+          <circle cx={hoverXY.x} cy={hoverXY.y} r={4} fill={tone} />
+          <rect x={midX - 50} y={midY - 18} width={100} height={30} rx={6} fill={tone} />
+          <text x={midX} y={midY - 4} fontSize={11} fontWeight={800} fill="#fff" textAnchor="middle">
+            {dp > 0 ? '+' : ''}{dp.toFixed(2)}
+          </text>
+          <text x={midX} y={midY + 7} fontSize={10} fontWeight={700} fill="#fff" textAnchor="middle">
+            {dpPct > 0 ? '+' : ''}{dpPct.toFixed(2)}%
+          </text>
+        </g>
+      );
     }
     return null;
   })();
@@ -478,43 +561,53 @@ export function ChartBlock({
         </div>
       )}
 
-      {editable && (
-        <div className={styles.toolbar}>
-          <button type="button" onClick={() => { setTool('select'); setDraft(null); }} className={`${styles.tool} ${tool === 'select' ? styles.toolOn : ''}`}>✋ 선택</button>
-          <button type="button" onClick={() => { setTool('trendline'); setDraft(null); }} className={`${styles.tool} ${tool === 'trendline' ? styles.toolOn : ''}`}>📈 추세선</button>
-          <button type="button" onClick={() => { setTool('hline'); setDraft(null); }} className={`${styles.tool} ${tool === 'hline' ? styles.toolOn : ''}`}>━ 수평선</button>
-          <button type="button" onClick={() => { setTool('rect'); setDraft(null); }} className={`${styles.tool} ${tool === 'rect' ? styles.toolOn : ''}`}>▭ 박스</button>
-          <button type="button" onClick={() => { setTool('text'); setDraft(null); }} className={`${styles.tool} ${tool === 'text' ? styles.toolOn : ''}`}>T 텍스트</button>
-          <div className={styles.colorRow}>
-            {COLORS.map(c => (
-              <button key={c} type="button" onClick={() => setColor(c)}
-                className={`${styles.swatch} ${color === c ? styles.swatchOn : ''}`}
-                style={{ background: c }} aria-label={`색 ${c}`}
-              />
-            ))}
+      <div className={styles.chartLayout}>
+        {/* 좌측 세로 툴바 — 빗썸/트레이딩뷰 스타일 */}
+        {editable && (
+          <div className={styles.vToolbar}>
+            <ToolBtn icon="select" label="선택" active={tool === 'select'} onClick={() => { setTool('select'); setDraft(null); }} />
+            <div className={styles.toolDiv} />
+            <ToolBtn icon="trendline" label="추세선" active={tool === 'trendline'} onClick={() => { setTool('trendline'); setDraft(null); }} />
+            <ToolBtn icon="hline" label="수평선" active={tool === 'hline'} onClick={() => { setTool('hline'); setDraft(null); }} />
+            <ToolBtn icon="rect" label="박스" active={tool === 'rect'} onClick={() => { setTool('rect'); setDraft(null); }} />
+            <ToolBtn icon="text" label="텍스트" active={tool === 'text'} onClick={() => { setTool('text'); setDraft(null); }} />
+            <div className={styles.toolDiv} />
+            <ToolBtn icon="ruler" label="자 (측정)" active={tool === 'ruler'} onClick={() => { setTool('ruler'); setDraft(null); }} />
+            <ToolBtn icon="magnet" label="자석 (OHLC 스냅)" active={magnet} onClick={() => setMagnet(m => !m)} />
+            <div className={styles.toolDiv} />
+            <div className={styles.colorCol}>
+              {COLORS.map(c => (
+                <button key={c} type="button" onClick={() => setColor(c)}
+                  className={`${styles.swatchV} ${color === c ? styles.swatchVOn : ''}`}
+                  style={{ background: c }} aria-label={`색 ${c}`}
+                />
+              ))}
+            </div>
+            <div className={styles.toolDiv} />
+            <ToolBtn icon="clear" label="모두 지우기" onClick={clearAll} danger />
           </div>
-        </div>
-      )}
-
-      <div className={styles.chartArea}>
-        <div ref={containerRef} className={styles.chart} />
-        <svg
-          ref={svgRef}
-          className={styles.overlay}
-          style={{ pointerEvents: editable ? 'auto' : 'none', cursor: editable && tool !== 'select' ? 'crosshair' : 'default' }}
-          onMouseMove={onSvgMove}
-          onMouseLeave={onSvgLeave}
-          onClick={onSvgClick}
-        >
-          {renderedDrawings}
-          {draftPreview}
-        </svg>
-
-        {loading && <div className={styles.statusOverlay}>불러오는 중…</div>}
-        {error && !loading && <div className={styles.statusOverlay}>{error}</div>}
-        {!loading && !error && candles.length === 0 && (
-          <div className={styles.statusOverlay}>가격 데이터가 없어요</div>
         )}
+
+        <div className={styles.chartArea}>
+          <div ref={containerRef} className={styles.chart} />
+          <svg
+            ref={svgRef}
+            className={styles.overlay}
+            style={{ pointerEvents: editable ? 'auto' : 'none', cursor: editable && tool !== 'select' ? 'crosshair' : 'default' }}
+            onMouseMove={onSvgMove}
+            onMouseLeave={onSvgLeave}
+            onClick={onSvgClick}
+          >
+            {renderedDrawings}
+            {draftPreview}
+          </svg>
+
+          {loading && <div className={styles.statusOverlay}>불러오는 중…</div>}
+          {error && !loading && <div className={styles.statusOverlay}>{error}</div>}
+          {!loading && !error && candles.length === 0 && (
+            <div className={styles.statusOverlay}>가격 데이터가 없어요</div>
+          )}
+        </div>
       </div>
 
       {editable && draft && (
@@ -523,6 +616,20 @@ export function ChartBlock({
         </div>
       )}
     </div>
+  );
+}
+
+function ToolBtn({ icon, label, active, danger, onClick }: { icon: string; label: string; active?: boolean; danger?: boolean; onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`${styles.vTool} ${active ? styles.vToolOn : ''} ${danger ? styles.vToolDanger : ''}`}
+      title={label}
+      aria-label={label}
+    >
+      <ToolIcon name={icon} />
+    </button>
   );
 }
 

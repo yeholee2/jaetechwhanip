@@ -170,9 +170,80 @@
 .swatch:hover { transform: scale(1.1); }
 .swatchOn { border-color: #fff; box-shadow: 0 0 0 2px var(--rw-text-strong); }
 
+/* 차트 레이아웃 — 좌측 세로 툴바 + 차트 본체 */
+.chartLayout {
+  display: flex;
+  gap: 8px;
+  align-items: stretch;
+}
+
+.vToolbar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 4px;
+  background: var(--rw-card-muted);
+  border-radius: 10px;
+  width: 40px;
+  flex-shrink: 0;
+}
+.vTool {
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--rw-text-muted);
+  cursor: pointer;
+  transition: background 120ms, color 120ms;
+}
+.vTool:hover {
+  background: var(--rw-card);
+  color: var(--rw-text-strong);
+}
+.vToolOn {
+  background: var(--rw-primary-bg);
+  color: var(--rw-primary);
+  box-shadow: 0 1px 2px rgba(0,27,55,0.10);
+}
+.vToolDanger:hover {
+  background: rgba(228,41,57,0.10);
+  color: var(--rw-red60);
+}
+.toolDiv {
+  width: 22px;
+  height: 1px;
+  background: var(--rw-border);
+  margin: 4px 0;
+}
+
+.colorCol {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: center;
+}
+.swatchV {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  padding: 0;
+  cursor: pointer;
+}
+.swatchVOn {
+  border-color: #fff;
+  box-shadow: 0 0 0 2px var(--rw-text-strong);
+}
+
 .chartArea {
   position: relative;
   width: 100%;
+  flex: 1;
   height: 440px;
   border-radius: 10px;
   overflow: hidden;
