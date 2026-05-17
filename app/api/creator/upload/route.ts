@@ -17,7 +17,7 @@ export const dynamic = 'force-dynamic';
 const BUCKET = 'creator-assets';
 const MAX_SIZE = 5 * 1024 * 1024; // 5MB
 const ALLOWED_MIME = ['image/png', 'image/jpeg', 'image/webp', 'image/gif'];
-const ALLOWED_SCOPES = ['avatar', 'cover', 'post-thumb'];
+const ALLOWED_SCOPES = ['avatar', 'cover', 'post-thumb', 'user-avatar'];
 
 export async function POST(req: NextRequest) {
   const supabase = createServerSupabase();
@@ -54,20 +54,24 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // 본인이 크리에이터인지 또는 admin 인지 확인
-  const { data: creator } = await supabase
-    .from('creators')
-    .select('id, slug')
-    .eq('user_id', user.id)
-    .maybeSingle();
-  if (!creator) {
-    const { data: profile } = await supabase
-      .from('users')
-      .select('role')
-      .eq('id', user.id)
+  // user-avatar 는 로그인한 모든 유저 OK. 그 외 scope 는 크리에이터/admin 만.
+  let creator: { id: string; slug: string } | null = null;
+  if (scope !== 'user-avatar') {
+    const { data: c } = await supabase
+      .from('creators')
+      .select('id, slug')
+      .eq('user_id', user.id)
       .maybeSingle();
-    if (profile?.role !== 'admin') {
-      return NextResponse.json({ error: 'creator only' }, { status: 403 });
+    creator = (c as { id: string; slug: string } | null) || null;
+    if (!creator) {
+      const { data: profile } = await supabase
+        .from('users')
+        .select('role')
+        .eq('id', user.id)
+        .maybeSingle();
+      if (profile?.role !== 'admin') {
+        return NextResponse.json({ error: 'creator only' }, { status: 403 });
+      }
     }
   }
 
@@ -75,7 +79,7 @@ export async function POST(req: NextRequest) {
   if (!admin) return NextResponse.json({ error: 'admin client not configured' }, { status: 503 });
 
   const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '-') || `${scope}.png`;
-  const slug = creator?.slug || 'admin';
+  const slug = scope === 'user-avatar' ? `users/${user.id}` : (creator?.slug || 'admin');
   const path = `${slug}/${scope}/${Date.now()}-${safeName}`;
   const arrayBuffer = await file.arrayBuffer();
 
