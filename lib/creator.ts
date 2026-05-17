@@ -1,5 +1,5 @@
 /**
- * Creator Platform — 핀플루언서 신청·승인·콘텐츠 타입.
+ * Creator Platform — 재프콘 신청·승인·콘텐츠 타입.
  */
 
 export type CreatorApplicationStatus = 'pending' | 'approved' | 'rejected';

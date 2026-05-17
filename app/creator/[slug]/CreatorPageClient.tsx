@@ -99,8 +99,12 @@ export function CreatorPageClient({
   };
 
   const subscribe = () => {
-    setToast(creator.membership_enabled ? '멤버십 결제는 곧 연결돼요' : '곧 멤버십이 오픈돼요');
-    setTimeout(() => setToast(''), 2400);
+    if (!creator.membership_enabled) {
+      setToast('곧 멤버십이 오픈돼요');
+      setTimeout(() => setToast(''), 2400);
+      return;
+    }
+    window.location.href = `/creator/${creator.slug}/subscribe`;
   };
 
   const perks = (creator.membership_perks || '').split('\n').map(p => p.trim()).filter(Boolean);

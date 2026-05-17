@@ -102,7 +102,7 @@ async function searchCreators(supabase: any, q: string): Promise<SearchHit[]> {
     title: row.display_name,
     subtitle: row.bio?.slice(0, 80) || null,
     url: `/creator/${encodeURIComponent(row.slug)}`,
-    meta: `핀플루언서 · ${(row.topics || []).slice(0, 2).join(' · ') || ''}`,
+    meta: `재프콘 · ${(row.topics || []).slice(0, 2).join(' · ') || ''}`,
   }));
 }
 

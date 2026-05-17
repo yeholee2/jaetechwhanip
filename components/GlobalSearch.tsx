@@ -6,7 +6,7 @@
  * - ⌘+K (mac) / Ctrl+K (win) 으로 토글
  * - ESC 로 닫기
  * - 검색어 입력 시 디바운스 후 /api/search 호출
- * - 카테고리별 그룹핑 (ETF / 핀플루언서 / Q&A / 블로그)
+ * - 카테고리별 그룹핑 (ETF / 재프콘 / Q&A / 블로그)
  * - ↑↓ 화살표 키 탐색 + Enter 진입
  */
 
@@ -18,7 +18,7 @@ import styles from './GlobalSearch.module.css';
 
 const KIND_LABEL: Record<SearchHit['kind'], { label: string; emoji: string }> = {
   etf: { label: 'ETF', emoji: '📊' },
-  creator: { label: '핀플루언서', emoji: '✨' },
+  creator: { label: '재프콘', emoji: '✨' },
   qa: { label: 'Q&A', emoji: '💬' },
   blog: { label: '재테크 한입 블로그', emoji: '📰' },
 };

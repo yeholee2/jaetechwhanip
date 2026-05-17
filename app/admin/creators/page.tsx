@@ -7,7 +7,7 @@ import { AdminCreatorsClient } from './AdminCreatorsClient';
 
 export const metadata: Metadata = {
   title: '크리에이터 관리',
-  description: '핀플루언서 신청 검토 + 승인',
+  description: '재프콘 신청 검토 + 승인',
   robots: { index: false, follow: false },
 };
 

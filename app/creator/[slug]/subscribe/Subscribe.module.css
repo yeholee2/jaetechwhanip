@@ -1,0 +1,243 @@
+.page {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 24px 20px 80px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.head {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.back {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--rw-text-muted);
+  text-decoration: none;
+  align-self: flex-start;
+  padding: 6px 0;
+}
+.back:hover { color: var(--rw-primary); }
+.head h1 {
+  margin: 8px 0 0;
+  font-size: 26px;
+  font-weight: 900;
+  letter-spacing: -0.5px;
+  color: var(--rw-text-strong);
+  text-align: center;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: 340px minmax(0, 1fr);
+  gap: var(--space-5);
+}
+@media (max-width: 880px) {
+  .layout { grid-template-columns: 1fr; }
+}
+
+/* 좌측 채널 정보 카드 (네프콘식) */
+.side {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 32px 28px;
+  background: var(--rw-card);
+  border-radius: var(--rw-radius-lg);
+  text-align: center;
+}
+.sideAvatar {
+  width: 92px;
+  height: 92px;
+  margin: 0 auto;
+  border-radius: 50%;
+  background: var(--rw-card-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 44px;
+  font-weight: 900;
+  color: var(--rw-primary);
+  overflow: hidden;
+}
+.sideAvatar img { width: 100%; height: 100%; object-fit: cover; }
+.sideName {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 900;
+  color: var(--rw-text-strong);
+  letter-spacing: -0.4px;
+}
+.divider {
+  height: 1px;
+  background: var(--rw-border);
+  margin: 4px 0;
+}
+.sideSection {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  text-align: left;
+}
+.sideSection h3 {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 900;
+  color: var(--rw-text-strong);
+}
+.sideSection p {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--rw-text-body);
+  line-height: 1.55;
+}
+.sidePremium {
+  font-size: 12px !important;
+  font-weight: 800 !important;
+  color: #C9A654 !important;
+}
+.sideSection ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.sideSection li {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--rw-text-body);
+  line-height: 1.55;
+}
+
+/* 우측 플랜 카드들 (네프콘 골드 톤) */
+.plans {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  align-content: start;
+}
+@media (max-width: 640px) {
+  .plans { grid-template-columns: 1fr; }
+}
+.planCard {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 22px 22px 18px;
+  background: #FFFCF4;
+  border: 2px solid #E6D5A0;
+  border-radius: 14px;
+  font-family: inherit;
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 160ms, transform 160ms, box-shadow 160ms;
+}
+.planCard:hover {
+  border-color: #C9A654;
+  transform: translateY(-2px);
+}
+.planCardOn {
+  border-color: #C9A654;
+  box-shadow: 0 6px 22px rgba(201, 166, 84, 0.20);
+}
+.planCardYearly {
+  background: linear-gradient(135deg, #FFF9E7 0%, #FFFCF4 100%);
+}
+
+.planLabel {
+  font-size: 11.5px;
+  font-weight: 800;
+  color: #997838;
+  letter-spacing: -0.1px;
+}
+.planTitle {
+  font-size: 16px;
+  font-weight: 900;
+  color: var(--rw-text-strong);
+  letter-spacing: -0.3px;
+}
+.planPriceRow {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  margin: 6px 0 2px;
+}
+.planPrice {
+  font-size: 28px;
+  font-weight: 900;
+  letter-spacing: -0.6px;
+  color: var(--rw-text-strong);
+  font-feature-settings: 'tnum';
+}
+.planUnit {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--rw-text-muted);
+}
+.planSaving {
+  font-size: 11.5px;
+  font-weight: 800;
+  color: #B5832F;
+  letter-spacing: -0.1px;
+}
+.planBenefits {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--rw-text-body);
+  margin-top: 8px;
+  line-height: 1.55;
+}
+.planBenefitLabel {
+  flex-shrink: 0;
+  color: var(--rw-text-muted);
+  font-weight: 800;
+}
+.planBadge {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  padding: 5px 10px;
+  background: #E6D5A0;
+  color: #6B4F1A;
+  border-radius: 6px;
+  font-size: 10.5px;
+  font-weight: 900;
+  letter-spacing: -0.1px;
+}
+.planBadgeYearly { background: #C9A654; color: #fff; }
+
+.proceedBtn {
+  grid-column: 1 / -1;
+  margin-top: 8px;
+  padding: 16px;
+  background: var(--rw-text-strong);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 900;
+  cursor: pointer;
+  transition: background 140ms;
+}
+.proceedBtn:hover { opacity: 0.9; }
+
+.legalFooter {
+  margin-top: var(--space-6);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--rw-border);
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--rw-text-muted);
+  text-align: center;
+}

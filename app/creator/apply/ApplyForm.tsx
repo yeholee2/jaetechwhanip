@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * 핀플루언서 신청 폼 — 비공개 베타.
+ * 재프콘 신청 폼 — 비공개 베타.
  * 로그인 필수, 한 사용자당 1 신청 (중복 차단은 DB에서).
  */
 
@@ -12,7 +12,7 @@ import { normalizeSlug } from '@/lib/creator';
 import styles from './Apply.module.css';
 
 const TOPIC_OPTIONS = [
-  'ETF', '주식', '채권', '부동산', '코인', '은퇴 설계',
+  'ETF', '주식', '채권', '자산관리', '코인', '은퇴 설계',
   '절세', '월급쟁이 재테크', '대가 분석', '시장 인사이트',
 ];
 
@@ -157,7 +157,7 @@ export function ApplyForm() {
           <span className={`${styles.sparkle} tf`} aria-hidden="true">✨</span>
           비공개 베타
         </span>
-        <h1>핀플루언서로 시작하기</h1>
+        <h1>재프콘로 시작하기</h1>
         <p className={styles.lead}>
           재테크 콘텐츠를 우리 플랫폼에 올리고 멤버십 구독으로 수익화하세요.
           베타 기간엔 초청 심사로 운영해요.
@@ -290,7 +290,7 @@ export function ApplyForm() {
         </button>
 
         <p className={styles.disclaimer}>
-          신청 시 핀플루언서 운영 약관에 동의한 것으로 봅니다.
+          신청 시 재프콘 운영 약관에 동의한 것으로 봅니다.
           금융 콘텐츠는 자본시장법상 투자권유에 해당할 수 있어 면책 조항이 의무입니다.
         </p>
       </form>

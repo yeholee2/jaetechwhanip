@@ -1,5 +1,5 @@
 /**
- * 핀플루언서 디렉토리 mock data — 와꾸 미리보기용.
+ * 재프콘 디렉토리 mock data — 와꾸 미리보기용.
  *
  * 실제 DB의 creators 가 부족할 때 채워서 layout 검증.
  * 실제 user_id 가 아니므로 클릭해도 페이지 진입 안 됨 (slug 클릭은 작동).
@@ -104,18 +104,18 @@ export const MOCK_CREATORS: MockCreator[] = [
   {
     id: 'mock-5',
     user_id: 'mock-u5',
-    slug: 'realestate-bite',
-    display_name: '내집한입',
-    bio: '서울·수도권 분양·청약·재건축까지. 데이터로 보는 부동산.',
-    avatar_url: '🏠',
+    slug: 'asset-bite',
+    display_name: '자산관리한입',
+    bio: '계좌 분리·세제 혜택·자산 배분까지. 직장인 자산관리 종합 가이드.',
+    avatar_url: '🗂️',
     cover_url: null,
     coverGradient: 'linear-gradient(135deg, #E94986 0%, #FF8FB7 100%)',
     channel_url: null,
-    topics: ['부동산'],
+    topics: ['자산관리', '월급쟁이 재테크'],
     membership_enabled: true,
     membership_price_won: 14900,
-    membership_tier_name: '내집 멤버',
-    membership_perks: '주간 청약 단지 분석\n월간 시세 리포트\n전세·매매 타이밍 알림',
+    membership_tier_name: '자산관리 멤버',
+    membership_perks: '월간 자산 점검 체크리스트\n계좌 분리 가이드\n세제 혜택 정리',
     follower_count: 980,
     member_count: 45,
     post_count: 58,

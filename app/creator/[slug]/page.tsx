@@ -39,9 +39,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     return { title: '크리에이터를 찾을 수 없어요', robots: { index: false } };
   }
   return {
-    title: `${creator.display_name} | 핀플루언서`,
+    title: `${creator.display_name} | 재프콘`,
     description: creator.bio || `${creator.display_name} 의 재테크 콘텐츠 멤버십.`,
-    keywords: [creator.display_name, '핀플루언서', ...(creator.topics || []), SITE_NAME],
+    keywords: [creator.display_name, '재프콘', ...(creator.topics || []), SITE_NAME],
     alternates: { canonical: `/creator/${creator.slug}` },
     openGraph: {
       title: `${creator.display_name} | ${SITE_NAME}`,

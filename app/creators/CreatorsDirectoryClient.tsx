@@ -8,7 +8,7 @@ import styles from './CreatorsDirectory.module.css';
 type Sort = 'popular' | 'recent' | 'posts';
 
 const TOPIC_FILTERS = [
-  '전체', 'ETF', '주식', '해외주식·ETF', '국내주식·ETF', '채권', '부동산', '코인',
+  '전체', 'ETF', '주식', '해외주식·ETF', '국내주식·ETF', '채권', '자산관리', '코인',
   '은퇴 설계', '절세', '월급쟁이 재테크', '대가 분석', '시장 인사이트',
 ];
 
@@ -71,12 +71,12 @@ export function CreatorsDirectoryClient({ creators }: { creators: Creator[] }) {
 
   return (
     <div className={styles.wrap}>
-      {/* Hero — 이 주의 추천 핀플루언서 */}
+      {/* Hero — 이 주의 추천 재프콘 */}
       {hero && (
         <section className={styles.hero}>
           <div className={styles.heroCover} style={coverStyle(hero)} aria-hidden />
           <div className={styles.heroOverlay}>
-            <span className={styles.heroEyebrow}>✨ 이 주의 추천 핀플루언서</span>
+            <span className={styles.heroEyebrow}>✨ 이 주의 추천 재프콘</span>
             <div className={styles.heroInfo}>
               <div className={styles.heroAvatar}>
                 {hero.avatar_url && hero.avatar_url.length <= 4 ? (
@@ -155,7 +155,7 @@ export function CreatorsDirectoryClient({ creators }: { creators: Creator[] }) {
       {activeTopic === '전체' && !query && top5.length >= 3 && (
         <section className={styles.topSection}>
           <div className={styles.sectionHead}>
-            <h2>🔥 인기 핀플루언서 TOP 5</h2>
+            <h2>🔥 인기 재프콘 TOP 5</h2>
             <span>지난 7일 가장 많이 팔로우</span>
           </div>
           <div className={styles.topScroll}>
@@ -190,7 +190,7 @@ export function CreatorsDirectoryClient({ creators }: { creators: Creator[] }) {
       {/* 전체 그리드 */}
       <section className={styles.gridSection}>
         <div className={styles.sectionHead}>
-          <h2>전체 핀플루언서</h2>
+          <h2>전체 재프콘</h2>
           <span>{filtered.length}명</span>
         </div>
         {filtered.length === 0 ? (
@@ -250,11 +250,11 @@ export function CreatorsDirectoryClient({ creators }: { creators: Creator[] }) {
       {/* 신청 CTA */}
       <section className={styles.applyBanner}>
         <div>
-          <strong>나도 핀플루언서가 되고 싶다면?</strong>
+          <strong>나도 재프콘가 되고 싶다면?</strong>
           <p>재테크 경험·인사이트를 멤버에게 직접 전달하고 수익도 만들어보세요.</p>
         </div>
         <Link href="/creator/apply" className={styles.applyBtn}>
-          + 핀플루언서 신청하기
+          + 재프콘 신청하기
         </Link>
       </section>
     </div>

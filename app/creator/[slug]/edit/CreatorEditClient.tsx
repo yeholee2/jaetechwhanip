@@ -13,7 +13,7 @@ import type { Creator } from '@/lib/creator';
 import styles from './CreatorEdit.module.css';
 
 const TOPIC_OPTIONS = [
-  'ETF', '주식', '채권', '부동산', '코인',
+  'ETF', '주식', '채권', '자산관리', '코인',
   '은퇴 설계', '절세', '월급쟁이 재테크', '대가 분석', '시장 인사이트',
 ];
 

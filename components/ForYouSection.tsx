@@ -78,7 +78,7 @@ export function ForYouSection({ data }: { data: ForYouBundle }) {
                 </li>
               ))}
             </ul>
-            <Link href="/creators" className={styles.colMore}>모든 핀플루언서 →</Link>
+            <Link href="/creators" className={styles.colMore}>모든 재프콘 →</Link>
           </div>
         )}
 

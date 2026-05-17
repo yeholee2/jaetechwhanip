@@ -151,7 +151,7 @@ export function AdminCreatorsClient({
     <main className={styles.wrap}>
       <header className={styles.head}>
         <h1>크리에이터 관리</h1>
-        <p>핀플루언서 신청 검토 + 승인 + 운영.</p>
+        <p>재프콘 신청 검토 + 승인 + 운영.</p>
       </header>
 
       <nav className={styles.tabs}>
