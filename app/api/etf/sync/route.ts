@@ -95,9 +95,9 @@ function pickCategoryFromName(name: string): string {
   if (/리츠|REIT|부동산/i.test(name)) return '부동산';
   if (/원유|천연가스|구리|니켈|코코아|원자재|금|은\b/.test(name)) return '원자재';
   if (/(국고채|국채|회사채|단기채|중기채|장기채|크레딧|MMF|머니마켓|채권)/.test(name)) return '채권';
+  if (/(배당|월배당|고배당|SCHD|JEPI)/.test(name)) return '배당주·ETF';
+  if (/(반도체|2차전지|전기차|바이오|AI|인공지능|로봇|메타버스|블록체인|클라우드|우주)/i.test(name)) return '테마·트렌드';
   if (/(미국|S&P|나스닥|다우|글로벌|선진국|이머징|신흥국|중국|차이나|일본|인도|베트남|유럽|독일|영국)/i.test(name)) return '해외주식·ETF';
-  if (/(반도체|2차전지|전기차|바이오|AI|인공지능|로봇|메타버스|블록체인|클라우드)/i.test(name)) return '테마형';
-  if (/(배당|월배당|고배당)/.test(name)) return '배당형';
   if (/(코스피|코스닥|국내|K-|한국)/.test(name)) return '국내주식·ETF';
   return '국내주식·ETF';
 }

@@ -8,7 +8,9 @@ import styles from './CreatorsDirectory.module.css';
 type Sort = 'popular' | 'recent' | 'posts';
 
 const TOPIC_FILTERS = [
-  '전체', 'ETF', '주식', '해외주식·ETF', '국내주식·ETF', '채권', '자산관리', '코인',
+  '전체', 'ETF', '주식', '해외주식·ETF', '국내주식·ETF',
+  '배당주·ETF', '적립식·연금', '테마·트렌드',
+  '채권', '자산관리', '코인',
   '은퇴 설계', '절세', '월급쟁이 재테크', '대가 분석', '시장 인사이트',
 ];
 
