@@ -81,6 +81,10 @@ export function StockDetailView({
   const [topEtfs, setTopEtfs] = useState<EtfExposure[]>(initialTopEtfs || []);
   const [loading, setLoading] = useState(initialProfile === undefined);
   const [error, setError] = useState('');
+  const [liveQuote, setLiveQuote] = useState<{
+    price: number; change: number; changePercent: number;
+    source: string; delayed: boolean; fetchedAt: string;
+  } | null>(null);
 
   useEffect(() => {
     // 서버에서 데이터 주입한 경우 스킵
@@ -103,8 +107,35 @@ export function StockDetailView({
     return () => { aborted = true; };
   }, [symbol, initialProfile]);
 
-  const currency = profile?.currency || 'USD';
-  const changePct = profile?.regularMarketChangePercent;
+  // 실시간 시세 — 15초마다 폴링 (KR: Naver, US: Finnhub, fallback Yahoo)
+  useEffect(() => {
+    let aborted = false;
+    let timer: any;
+    const poll = async () => {
+      try {
+        const r = await fetch(`/api/quote/${encodeURIComponent(symbol)}`, { cache: 'no-store' });
+        if (!r.ok) return;
+        const j = await r.json();
+        if (aborted || !j?.price) return;
+        setLiveQuote({
+          price: j.price,
+          change: j.change,
+          changePercent: j.changePercent,
+          source: j.source,
+          delayed: j.delayed,
+          fetchedAt: j.fetchedAt,
+        });
+      } catch { /* ignore */ }
+      if (!aborted) timer = setTimeout(poll, 15000);
+    };
+    poll();
+    return () => { aborted = true; if (timer) clearTimeout(timer); };
+  }, [symbol]);
+
+  const currency = profile?.currency || (/^[0-9]{6}$/.test(symbol) ? 'KRW' : 'USD');
+  // 실시간 시세 우선, 없으면 profile 의 정적 데이터
+  const displayPrice = liveQuote?.price ?? profile?.regularMarketPrice;
+  const changePct = liveQuote?.changePercent ?? profile?.regularMarketChangePercent;
   const tone = changePct == null ? 'flat' : changePct > 0 ? 'up' : changePct < 0 ? 'down' : 'flat';
 
   return (
@@ -121,12 +152,22 @@ export function StockDetailView({
           )}
         </div>
         <div className={styles.headRight}>
-          {profile?.regularMarketPrice != null && (
+          {displayPrice != null && (
             <>
-              <strong className={styles.price}>{fmtPrice(profile.regularMarketPrice, currency)}</strong>
+              <strong className={styles.price}>{fmtPrice(displayPrice, currency)}</strong>
               {changePct != null && (
                 <span className={`${styles.change} ${styles[`change_${tone}`]}`}>
                   {changePct > 0 ? '+' : ''}{(changePct * 100).toFixed(2)}%
+                </span>
+              )}
+              {liveQuote && (
+                <span className={`${styles.liveBadge} ${liveQuote.delayed ? styles.liveBadgeDelayed : styles.liveBadgeLive}`}>
+                  {liveQuote.delayed ? '15분 지연' : (
+                    <>
+                      <span className={styles.liveDot} aria-hidden="true" />
+                      실시간 · {liveQuote.source}
+                    </>
+                  )}
                 </span>
               )}
             </>
