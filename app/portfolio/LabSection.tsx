@@ -101,7 +101,7 @@ export function LabSection() {
           <strong>어떤 실험이 가장 궁금하세요?</strong>
           <br />
           “시나리오 드래그가 제일 필요해요”, “세금 시뮬도 넣어주세요” —
-          {' '}<Link href="/?ask=1">한입에 알려주시면</Link> 우선순위에 반영합니다.
+          {' '}<Link href="/questions/create">한입에 알려주시면</Link> 우선순위에 반영합니다.
         </p>
       </div>
     </div>

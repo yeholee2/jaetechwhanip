@@ -67,7 +67,7 @@ export function AppShell({
   const userName = dbProfile?.name || getUserName(user);
   const userAvatar = getUserAvatar(user, dbProfile);
   const profileHref = user ? `/u/${user.id}` : '/auth';
-  const ask = () => router.push(user ? '/?ask=1' : '/auth?next=/?ask=1');
+  const ask = () => router.push(user ? '/questions/create' : '/auth?next=/questions/create');
 
   // 검색 popup 외부 클릭 닫기
   useEffect(() => {

@@ -132,7 +132,7 @@ export function RelatedContent({
             <br />
             궁금한 게 있으면 한입에 먼저 물어보세요.
           </p>
-          <Link href="/?ask=1" className={styles.sparseCta}>한입에 질문하기 →</Link>
+          <Link href="/questions/create" className={styles.sparseCta}>한입에 질문하기 →</Link>
         </div>
       )}
     </section>

@@ -311,7 +311,7 @@ export default async function EtfDetailPage({ params }: Props) {
               <WatchButton code={etf.code} shortName={etf.shortName} mode="icon" />
               <AlertButton etfCode={etf.code} etfName={etf.shortName} currentPrice={etf.price} />
               <Button href={`/etf/compare?a=${etf.code}`} variant="ghost" size="md">비교</Button>
-              <Button href="/?ask=1" variant="primary" size="md">질문하기</Button>
+              <Button href="/questions/create" variant="primary" size="md">질문하기</Button>
             </div>
           </div>
           <div className={styles.heroPrice}>
@@ -811,7 +811,7 @@ export default async function EtfDetailPage({ params }: Props) {
                 <Link href={`/etf/compare?a=${etf.code}`} className={styles.stickyActBtn} aria-label="비교">
                   <FaIcon name="scale-balanced" size={14} />
                 </Link>
-                <Link href="/?ask=1" className={`${styles.stickyActBtn} ${styles.stickyActPrimary}`} aria-label="질문하기">
+                <Link href="/questions/create" className={`${styles.stickyActBtn} ${styles.stickyActPrimary}`} aria-label="질문하기">
                   <FaIcon name="comment-dots" size={14} />
                 </Link>
               </div>

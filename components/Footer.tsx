@@ -25,7 +25,7 @@ export function Footer() {
             <Link href="/etf?tab=watch">관심 ETF</Link>
             <Link href="/etf?tab=diagnostic">포트폴리오 진단</Link>
             <Link href="/feed?tab=report">리포트</Link>
-            <Link href="/?ask=1">질문하기</Link>
+            <Link href="/questions/create">질문하기</Link>
           </div>
           <div className={styles.col}>
             <h3>안내</h3>

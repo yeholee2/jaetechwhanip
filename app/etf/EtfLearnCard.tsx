@@ -32,7 +32,7 @@ export function EtfLearnCard() {
 
       <div className={styles.actions}>
         <Button href="/etf/all" variant="primary" size="md">전체 ETF 둘러보기</Button>
-        <Link href="/?ask=1" className={styles.helpLink}>아직 모르겠다면 질문해보세요 →</Link>
+        <Link href="/questions/create" className={styles.helpLink}>아직 모르겠다면 질문해보세요 →</Link>
       </div>
     </Card>
   );

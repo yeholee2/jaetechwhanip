@@ -147,7 +147,7 @@ export default function HomeClient({
       return;
     }
 
-    router.replace('/auth?next=/?ask=1');
+    router.replace('/auth?next=/questions/create');
   }, [authLoading, router, user]);
 
   // 질문 로드 — DB에서 페이지네이션

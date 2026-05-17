@@ -52,7 +52,7 @@ function HelpWidget() {
       <p className={styles.helpBody}>
         ETF가 처음이거나 헷갈리는 게 있다면 질문으로 남겨보세요.
       </p>
-      <Link href="/?ask=1" className={styles.helpCta}>질문하기 →</Link>
+      <Link href="/questions/create" className={styles.helpCta}>질문하기 →</Link>
     </div>
   );
 }

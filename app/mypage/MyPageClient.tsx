@@ -307,7 +307,7 @@ export default function MyPageClient() {
 
         {/* 빠른 액션 */}
         <section className={styles.quickActions}>
-          <Link href="/?ask=1" className={styles.actionBtn}>
+          <Link href="/questions/create" className={styles.actionBtn}>
             <Plus size={16} /> 질문하기
           </Link>
           <Link href="/portfolio?tab=build" className={styles.actionBtn}>
