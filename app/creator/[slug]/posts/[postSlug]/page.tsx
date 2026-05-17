@@ -186,6 +186,17 @@ export default async function CreatorPostPage({ params }: Props) {
           <PostBody body={renderedBody} />
         )}
 
+        {!locked && (
+          <footer className={styles.disclaimer}>
+            <span className={styles.disclaimerIcon} aria-hidden>📅</span>
+            <span>
+              데이터 기준일{' '}
+              <strong>{new Date(post.published_at).toLocaleDateString('ko-KR')}</strong>
+              {' · '}이 글은 투자 권유가 아니며, 모든 결정과 결과의 책임은 본인에게 있어요.
+            </span>
+          </footer>
+        )}
+
         <PostInteractions
           postId={post.id}
           initialLikeCount={post.like_count}

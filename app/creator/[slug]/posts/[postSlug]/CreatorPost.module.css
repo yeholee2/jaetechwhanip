@@ -125,6 +125,55 @@
 }
 .body :global(strong) { font-weight: 900; color: var(--rw-text-strong); }
 
+/* 한입 콜아웃 — 4종 (info/key/warn/disclaimer) */
+.body :global(aside[data-callout]) {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px 18px;
+  margin: 20px 0;
+  border-radius: 12px;
+  border: 1px solid transparent;
+}
+.body :global(aside[data-callout])::before {
+  content: attr(data-emoji);
+  flex-shrink: 0;
+  font-size: 20px;
+  line-height: 1.5;
+  font-family: 'Tossface', sans-serif;
+}
+.body :global(aside[data-callout] > *) {
+  margin: 0 0 6px;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.6;
+  letter-spacing: -0.2px;
+}
+.body :global(aside[data-callout] > *:last-child) { margin-bottom: 0; }
+
+.body :global(aside[data-callout="info"]) {
+  background: var(--rw-card-muted);
+  border-color: var(--rw-border);
+}
+.body :global(aside[data-callout="key"]) {
+  background: rgba(49, 130, 246, 0.08);
+  border-color: rgba(49, 130, 246, 0.18);
+}
+.body :global(aside[data-callout="warn"]) {
+  background: rgba(254, 152, 0, 0.1);
+  border-color: rgba(254, 152, 0, 0.28);
+}
+.body :global(aside[data-callout="warn"] > *) { color: #7a4a00; }
+.body :global(aside[data-callout="disclaimer"]) {
+  background: rgba(0, 27, 55, 0.04);
+  border-color: rgba(0, 27, 55, 0.12);
+}
+.body :global(aside[data-callout="disclaimer"] > *) {
+  color: var(--rw-text-muted);
+  font-weight: 600;
+  font-size: 12.5px;
+}
+
 .preview {
   position: relative;
   max-height: 320px;
@@ -145,6 +194,30 @@
   text-align: center;
 }
 .paywallIcon { font-size: 38px; line-height: 1; }
+
+.disclaimer {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-top: var(--space-4);
+  padding: 12px 14px;
+  background: var(--rw-card-muted);
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--rw-text-muted);
+  line-height: 1.6;
+  letter-spacing: -0.1px;
+}
+.disclaimer strong {
+  font-weight: 800;
+  color: var(--rw-text-body);
+}
+.disclaimerIcon {
+  flex-shrink: 0;
+  font-size: 14px;
+  line-height: 1.5;
+}
 .paywall strong {
   font-size: 18px;
   font-weight: 900;

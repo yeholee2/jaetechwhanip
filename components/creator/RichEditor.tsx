@@ -22,6 +22,8 @@ import Placeholder from '@tiptap/extension-placeholder';
 import { useCallback, useRef } from 'react';
 import { ChartNode } from './ChartNode';
 import { PaywallNode } from './PaywallNode';
+import { CalloutNode, type CalloutVariant } from './CalloutNode';
+import { TickerCardNode } from './TickerCardNode';
 import styles from './RichEditor.module.css';
 
 type Props = {
@@ -48,6 +50,8 @@ export function RichEditor({ value, onChange, placeholder = '본문을 작성하
       Placeholder.configure({ placeholder }),
       ChartNode,
       PaywallNode,
+      CalloutNode,
+      TickerCardNode,
     ],
     content: value,
     onUpdate: ({ editor }) => onChange(editor.getHTML()),
@@ -78,6 +82,18 @@ export function RichEditor({ value, onChange, placeholder = '본문을 작성하
     if (f) void uploadImage(f);
     e.target.value = '';
   };
+
+  const insertCallout = useCallback((variant: CalloutVariant) => {
+    if (!editor) return;
+    editor.chain().focus().insertCallout(variant).run();
+  }, [editor]);
+
+  const insertTicker = useCallback(() => {
+    if (!editor) return;
+    const code = window.prompt('종목 코드 입력 (예: NVDA, AAPL, 005930)');
+    if (!code) return;
+    editor.chain().focus().insertTickerCard(code).run();
+  }, [editor]);
 
   const insertPaywall = useCallback(() => {
     if (!editor) return;
@@ -227,6 +243,47 @@ export function RichEditor({ value, onChange, placeholder = '본문을 작성하
           title="차트 삽입 — 티커로 가격 차트 + 그림 도구"
         >
           📊
+        </button>
+        <button
+          type="button"
+          className={btn(false)}
+          onClick={insertTicker}
+          title="종목 카드 삽입 — 코드로 실시간 가격/등락률"
+        >
+          📈
+        </button>
+        <span className={styles.toolSep} />
+        <button
+          type="button"
+          className={btn(false)}
+          onClick={() => insertCallout('info')}
+          title="콜아웃 — 인사이트"
+        >
+          💡
+        </button>
+        <button
+          type="button"
+          className={btn(false)}
+          onClick={() => insertCallout('key')}
+          title="콜아웃 — 핵심 수치"
+        >
+          📌
+        </button>
+        <button
+          type="button"
+          className={btn(false)}
+          onClick={() => insertCallout('warn')}
+          title="콜아웃 — 주의·리스크"
+        >
+          ⚠️
+        </button>
+        <button
+          type="button"
+          className={btn(false)}
+          onClick={() => insertCallout('disclaimer')}
+          title="콜아웃 — 면책고지"
+        >
+          🚫
         </button>
         <span className={styles.toolSep} />
         <button

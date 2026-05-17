@@ -9,6 +9,7 @@
 
 import { useMemo } from 'react';
 import { ChartBlock, type ChartBlockData, type Drawing } from '@/components/creator/ChartBlock';
+import { TickerCard } from '@/components/creator/TickerCard';
 import styles from './CreatorPost.module.css';
 
 function escapeHtml(s: string) {
@@ -102,12 +103,12 @@ function isLikelyHtml(s: string): boolean {
  */
 type Segment =
   | { kind: 'html'; html: string }
-  | { kind: 'chart'; data: ChartBlockData };
+  | { kind: 'chart'; data: ChartBlockData }
+  | { kind: 'ticker'; code: string };
 
-function splitByCharts(html: string): Segment[] {
-  // <div data-chart="..." data-range="..." data-type="..." data-drawings="..."></div>
-  // (TipTap 가 self-close 가 아니라 빈 컨테이너로 직렬화)
-  const re = /<div\b[^>]*\bdata-chart="([^"]*)"[^>]*><\/div>/gi;
+function splitByEmbeds(html: string): Segment[] {
+  // 차트 + 종목 카드 임베드 모두 처리 (모두 빈 <div data-X> 컨테이너)
+  const re = /<div\b[^>]*?\bdata-(chart|ticker)="([^"]*)"[^>]*><\/div>/gi;
   const segments: Segment[] = [];
   let lastIndex = 0;
   let m: RegExpExecArray | null;
@@ -116,30 +117,35 @@ function splitByCharts(html: string): Segment[] {
       segments.push({ kind: 'html', html: html.slice(lastIndex, m.index) });
     }
     const tag = m[0];
-    const code = m[1];
-    const rangeMatch = /\bdata-range="([^"]*)"/.exec(tag);
-    const typeMatch = /\bdata-type="([^"]*)"/.exec(tag);
-    const drawingsMatch = /\bdata-drawings='([^']*)'|\bdata-drawings="([^"]*)"/.exec(tag);
-    let drawings: Drawing[] = [];
-    const drRaw = drawingsMatch?.[1] || drawingsMatch?.[2];
-    if (drRaw) {
-      try {
-        const decoded = drRaw
-          .replace(/&quot;/g, '"')
-          .replace(/&#39;/g, "'")
-          .replace(/&amp;/g, '&');
-        drawings = JSON.parse(decoded);
-      } catch { drawings = []; }
+    const kind = m[1] as 'chart' | 'ticker';
+    const value = m[2];
+    if (kind === 'ticker') {
+      segments.push({ kind: 'ticker', code: value });
+    } else {
+      const rangeMatch = /\bdata-range="([^"]*)"/.exec(tag);
+      const typeMatch = /\bdata-type="([^"]*)"/.exec(tag);
+      const drawingsMatch = /\bdata-drawings='([^']*)'|\bdata-drawings="([^"]*)"/.exec(tag);
+      let drawings: Drawing[] = [];
+      const drRaw = drawingsMatch?.[1] || drawingsMatch?.[2];
+      if (drRaw) {
+        try {
+          const decoded = drRaw
+            .replace(/&quot;/g, '"')
+            .replace(/&#39;/g, "'")
+            .replace(/&amp;/g, '&');
+          drawings = JSON.parse(decoded);
+        } catch { drawings = []; }
+      }
+      segments.push({
+        kind: 'chart',
+        data: {
+          code: value,
+          range: (rangeMatch?.[1] as any) || '1y',
+          type: (typeMatch?.[1] as any) || 'candle',
+          drawings,
+        },
+      });
     }
-    segments.push({
-      kind: 'chart',
-      data: {
-        code,
-        range: (rangeMatch?.[1] as any) || '1y',
-        type: (typeMatch?.[1] as any) || 'candle',
-        drawings,
-      },
-    });
     lastIndex = m.index + m[0].length;
   }
   if (lastIndex < html.length) {
@@ -151,7 +157,7 @@ function splitByCharts(html: string): Segment[] {
 export function PostBody({ body, className }: { body: string; className?: string }) {
   const segments = useMemo(() => {
     const html = isLikelyHtml(body) ? body : toHtml(body);
-    return splitByCharts(html);
+    return splitByEmbeds(html);
   }, [body]);
 
   return (
@@ -159,6 +165,9 @@ export function PostBody({ body, className }: { body: string; className?: string
       {segments.map((seg, i) => {
         if (seg.kind === 'chart') {
           return <ChartBlock key={`c${i}`} data={seg.data} editable={false} />;
+        }
+        if (seg.kind === 'ticker') {
+          return <TickerCard key={`t${i}`} code={seg.code} />;
         }
         return <div key={`h${i}`} dangerouslySetInnerHTML={{ __html: seg.html }} />;
       })}
