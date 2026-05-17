@@ -10,7 +10,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { ChartBlock } from '@/components/creator/ChartBlock';
+import { ChartBlock, type Drawing } from '@/components/creator/ChartBlock';
 import styles from './StockDetailModal.module.css';
 
 export type EtfExposure = {
@@ -85,6 +85,11 @@ export function StockDetailView({
     price: number; change: number; changePercent: number;
     source: string; delayed: boolean; fetchedAt: string;
   } | null>(null);
+  const [drawMode, setDrawMode] = useState(false);
+  const [drawings, setDrawings] = useState<Drawing[]>([]);
+  const [chartTf, setChartTf] = useState<'5m' | '1d' | '1w' | '1mo' | '1y'>('1d');
+  const [chartShowMA, setChartShowMA] = useState(true);
+  const [chartShowVolume, setChartShowVolume] = useState(true);
 
   useEffect(() => {
     // 서버에서 데이터 주입한 경우 스킵
@@ -176,7 +181,42 @@ export function StockDetailView({
       </header>
 
       <section className={styles.chartWrap}>
-        <ChartBlock data={{ code: symbol, range: '1y', type: 'candle', drawings: [] }} editable={false} />
+        <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 6 }}>
+          <button
+            type="button"
+            onClick={() => setDrawMode(m => !m)}
+            style={{
+              padding: '6px 12px',
+              fontSize: 12,
+              fontWeight: 800,
+              border: '1px solid var(--rw-border)',
+              borderRadius: 8,
+              background: drawMode ? 'var(--rw-primary-bg)' : 'transparent',
+              color: drawMode ? 'var(--rw-primary)' : 'var(--rw-text-muted)',
+              cursor: 'pointer',
+            }}
+            title="좌측에 그림 도구 툴바를 표시해요"
+          >
+            {drawMode ? '✓ 그림 도구' : '✏️ 그림 그리기'}
+          </button>
+        </div>
+        <ChartBlock
+          data={{
+            code: symbol,
+            tf: chartTf,
+            type: 'candle',
+            drawings,
+            showMA: chartShowMA,
+            showVolume: chartShowVolume,
+          }}
+          editable={drawMode}
+          onChange={next => {
+            if (next.tf) setChartTf(next.tf);
+            if (next.showMA !== undefined) setChartShowMA(next.showMA);
+            if (next.showVolume !== undefined) setChartShowVolume(next.showVolume);
+            setDrawings(next.drawings);
+          }}
+        />
       </section>
 
       {profile && (
