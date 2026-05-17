@@ -97,18 +97,7 @@ export function AppShell({
   };
 
   // Cmd/Ctrl+K 단축키로 검색 열기
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
-        e.preventDefault();
-        if (showSearch) setShowSearch(false);
-        else openSearch();
-      }
-      if (e.key === 'Escape' && showSearch) setShowSearch(false);
-    };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [showSearch]);
+  // ⌘+K 는 GlobalSearch 컴포넌트가 처리 (모달). AppShell 내부 토글은 사용 안 함.
 
   // 인라인 결과 + 최근 검색
   const [recents, setRecents] = useState<string[]>([]);
@@ -226,15 +215,13 @@ export function AppShell({
         </ul>
         <div className={styles.pcRight}>
           <div className={styles.searchWrap} ref={searchRef}>
-            <button
+            <Link
               className={styles.iconBtn}
               aria-label="검색"
-              aria-expanded={showSearch}
-              type="button"
-              onClick={() => showSearch ? setShowSearch(false) : openSearch()}
+              href="/search"
             >
               <FaIcon name="magnifying-glass" size={18} />
-            </button>
+            </Link>
             {showSearch && (
               <div className={styles.searchDropdown}>
                 <form className={styles.searchPopup} onSubmit={submitSearch} role="search">
@@ -441,14 +428,13 @@ export function AppShell({
         <div className={styles.moTop}>
           <Link className={`${styles.moLogo} logo-font`} href="/">재테크<em>한입</em></Link>
           <div className={styles.moIcons}>
-            <button
+            <Link
               className={styles.moIcon}
               aria-label="검색"
-              type="button"
-              onClick={() => showSearch ? setShowSearch(false) : openSearch()}
+              href="/search"
             >
               <FaIcon name="magnifying-glass" size={19} />
-            </button>
+            </Link>
             {user ? (
               <NotificationBell />
             ) : (
