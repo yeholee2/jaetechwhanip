@@ -403,6 +403,9 @@ export function AppShell({
                   <Link href="/mypage" onClick={() => setShowProfile(false)} role="menuitem">
                     🏠 마이페이지
                   </Link>
+                  <Link href="/my/portfolio" onClick={() => setShowProfile(false)} role="menuitem">
+                    📊 내 종목 트래커
+                  </Link>
                   <Link href={profileHref} onClick={() => setShowProfile(false)} role="menuitem">
                     공개 프로필
                   </Link>
