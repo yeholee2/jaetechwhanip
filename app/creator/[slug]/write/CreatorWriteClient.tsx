@@ -76,6 +76,12 @@ export function CreatorWriteClient({ creator, templates = [] }: { creator: Creat
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ postId: data!.id }),
       }).catch(() => {});
+      // 종목/ETF 자동 인덱싱 — 본문 스캔해서 post_mentions 채움
+      fetch('/api/creator/posts/index', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ postId: data!.id }),
+      }).catch(() => {});
       router.push(`/creator/${creator.slug}/posts/${data!.slug}`);
     } finally {
       setSaving(false);

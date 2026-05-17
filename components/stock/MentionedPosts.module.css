@@ -1,0 +1,124 @@
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+.title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 900;
+  color: var(--rw-text-strong);
+  letter-spacing: -0.3px;
+}
+.count {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--rw-text-muted);
+}
+.empty {
+  padding: 20px;
+  text-align: center;
+  background: var(--rw-card-muted);
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--rw-text-muted);
+}
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.card {
+  display: flex;
+  gap: 12px;
+  padding: 12px;
+  background: var(--rw-card-muted);
+  border-radius: 12px;
+  text-decoration: none;
+  color: inherit;
+  transition: background 140ms, transform 140ms;
+}
+.card:hover {
+  background: var(--rw-primary-bg);
+}
+.cover {
+  width: 88px;
+  height: 66px;
+  object-fit: cover;
+  border-radius: 8px;
+  flex-shrink: 0;
+}
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  flex: 1;
+}
+.cardTitle {
+  font-size: 14.5px;
+  font-weight: 900;
+  color: var(--rw-text-strong);
+  letter-spacing: -0.2px;
+  line-height: 1.35;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.preview {
+  margin: 0;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--rw-text-muted);
+  line-height: 1.45;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--rw-text-muted);
+  margin-top: 2px;
+}
+.creator {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--rw-text-body);
+}
+.avatar {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+.avatarFallback {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--rw-card);
+  color: var(--rw-text-body);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 900;
+}
+.lock {
+  color: var(--rw-primary);
+  font-weight: 800;
+}

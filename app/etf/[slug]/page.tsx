@@ -26,6 +26,8 @@ import { buildEtfInsight, computeFeeStats, type EtfTag } from '@/lib/etfInsights
 import { buildSectorBreakdown } from '@/lib/etfBreakdown';
 import { DonutChart, CompareBar, RiskMeter } from '@/components/ui';
 import { HoldingClickable } from '@/components/stock/HoldingClickable';
+import { MentionedPosts } from '@/components/stock/MentionedPosts';
+import { fetchPostsBySymbol } from '@/lib/postMentions';
 import { buildEtfRisk } from '@/lib/etfRisk';
 import { countryInfo } from '@/lib/etfCountry';
 import { WatchButton } from '../WatchButton';
@@ -122,6 +124,8 @@ export default async function EtfDetailPage({ params }: Props) {
     fetchEtfHoldingsWithCache(etf.code),
     fetchEtfRelatedQuestions(etf as any, 3),
   ]);
+
+  const creatorPosts = await fetchPostsBySymbol(etf.code, 6).catch(() => []);
   const benchmarks = [
     { key: 'kospi',    name: 'KOSPI',       color: '#1B64DA', history: kospiHistory },
     { key: 'sp500',    name: 'S&P500(H)',   color: '#8AD504', history: sp500History },
@@ -957,6 +961,15 @@ export default async function EtfDetailPage({ params }: Props) {
                 )}
               </div>
             </div>
+
+            {creatorPosts.length > 0 && (
+              <section className={styles.sideCard}>
+                <MentionedPosts
+                  posts={creatorPosts}
+                  title={`📝 ${etf.shortName} 을(를) 다룬 글`}
+                />
+              </section>
+            )}
 
             <RelatedContent
               heading={`${etf.shortName} 관련 콘텐츠`}

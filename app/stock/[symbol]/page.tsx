@@ -3,8 +3,10 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { AppShell } from '@/components/AppShell';
 import { fetchStockProfile, fetchTopEtfsHolding } from '@/lib/stockDetail';
+import { fetchPostsBySymbol } from '@/lib/postMentions';
 import { SITE_NAME, SITE_URL } from '@/lib/seo';
 import { StockDetailView } from '@/components/stock/StockDetailView';
+import { MentionedPosts } from '@/components/stock/MentionedPosts';
 import styles from './StockPage.module.css';
 
 export const revalidate = 3600;
@@ -33,9 +35,10 @@ export default async function StockPage({ params }: Props) {
   const sym = decodeURIComponent(params.symbol || '').toUpperCase();
   if (!sym) notFound();
 
-  const [profile, topEtfs] = await Promise.all([
+  const [profile, topEtfs, mentionedPosts] = await Promise.all([
     fetchStockProfile(sym).catch(() => null),
     fetchTopEtfsHolding(sym, 10).catch(() => []),
+    fetchPostsBySymbol(sym, 8).catch(() => []),
   ]);
 
   if (!profile && topEtfs.length === 0) {
@@ -64,6 +67,13 @@ export default async function StockPage({ params }: Props) {
             displayName={profile?.name}
             initialProfile={profile}
             initialTopEtfs={topEtfs}
+          />
+        </div>
+        <div className={styles.panel}>
+          <MentionedPosts
+            posts={mentionedPosts}
+            title={`📝 ${profile?.name || sym} 을(를) 다룬 글`}
+            emptyText="아직 이 종목을 다룬 크리에이터 글이 없어요."
           />
         </div>
       </main>
