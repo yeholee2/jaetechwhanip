@@ -423,6 +423,15 @@ export function AppShell({
                 ) : (
                   userName[0]?.toUpperCase() || 'U'
                 )}
+                {creatorSlug && (
+                  <span
+                    className={`${styles.modeDot} ${mode === 'creator' ? styles.modeDotCreator : styles.modeDotFan}`}
+                    aria-hidden
+                    title={mode === 'creator' ? '크리에이터 모드' : '팬 모드'}
+                  >
+                    {mode === 'creator' ? '🪄' : '👀'}
+                  </span>
+                )}
               </button>
               {showProfile && (
                 <div className={styles.profileMenu} role="menu">
@@ -459,6 +468,9 @@ export function AppShell({
                     </>
                   ) : (
                     <>
+                      <Link href="/feeds" onClick={() => setShowProfile(false)} role="menuitem">
+                        📰 내 뉴스피드
+                      </Link>
                       <Link href="/mypage" onClick={() => setShowProfile(false)} role="menuitem">
                         🏠 마이페이지
                       </Link>

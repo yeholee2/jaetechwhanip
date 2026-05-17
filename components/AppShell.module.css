@@ -409,6 +409,29 @@
   white-space: nowrap;
 }
 
+/* 헤더 아바타 모서리 모드 점 — Fanding 패턴 */
+.modeDot {
+  position: absolute;
+  right: -4px;
+  bottom: -4px;
+  width: 18px;
+  height: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: #fff;
+  border: 2px solid var(--white, #fff);
+  font-size: 9.5px;
+  line-height: 1;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
+}
+.modeDotCreator { background: linear-gradient(135deg, #fef5e6, #ffd89a); }
+.modeDotFan { background: linear-gradient(135deg, #e8f3ff, #c9e2ff); }
+
+/* profileButton 이 relative 여야 modeDot absolute 위치 적용 가능 */
+.profileButton { position: relative; }
+
 .profileMenu .modeSwitch {
   margin-top: 6px;
   border-top: 1px solid var(--line);
