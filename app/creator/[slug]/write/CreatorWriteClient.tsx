@@ -9,6 +9,8 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { normalizeSlug, type Creator } from '@/lib/creator';
+import { ImageUploader } from '@/components/creator/ImageUploader';
+import { RichEditor } from '@/components/creator/RichEditor';
 import styles from './CreatorWrite.module.css';
 
 export function CreatorWriteClient({ creator }: { creator: Creator }) {
@@ -90,23 +92,21 @@ export function CreatorWriteClient({ creator }: { creator: Creator }) {
         </div>
 
         <div className={styles.field}>
-          <label>썸네일 URL <span className={styles.optional}>(선택)</span></label>
-          <input
-            type="url"
+          <ImageUploader
+            label="썸네일 이미지 (선택, 16:9 권장)"
             value={form.cover_url}
-            onChange={e => setForm(f => ({ ...f, cover_url: e.target.value }))}
-            placeholder="https://..."
+            onChange={url => setForm(f => ({ ...f, cover_url: url }))}
+            scope="post-thumb"
+            shape="wide"
           />
         </div>
 
         <div className={styles.field}>
-          <label>본문 <span className={styles.optional}>(Markdown 지원)</span></label>
-          <textarea
-            rows={18}
+          <label>본문</label>
+          <RichEditor
             value={form.body}
-            onChange={e => setForm(f => ({ ...f, body: e.target.value }))}
-            placeholder="# 제목&#10;&#10;본문을 작성하세요. Markdown 문법을 지원해요."
-            className={styles.bodyTextarea}
+            onChange={html => setForm(f => ({ ...f, body: html }))}
+            placeholder="멤버에게 어떤 인사이트를 전달할지 적어보세요. 헤딩·인용·이미지·링크 모두 지원해요."
           />
         </div>
 

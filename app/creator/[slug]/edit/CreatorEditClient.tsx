@@ -10,6 +10,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import type { Creator } from '@/lib/creator';
+import { ImageUploader } from '@/components/creator/ImageUploader';
 import styles from './CreatorEdit.module.css';
 
 const TOPIC_OPTIONS = [
@@ -119,22 +120,22 @@ export function CreatorEditClient({ creator }: { creator: Creator }) {
           </div>
 
           <div className={styles.field}>
-            <label>아바타 이미지 URL <span className={styles.optional}>(선택)</span></label>
-            <input
-              type="url"
+            <ImageUploader
+              label="아바타 이미지"
               value={form.avatar_url}
-              onChange={e => setForm(f => ({ ...f, avatar_url: e.target.value }))}
-              placeholder="https://..."
+              onChange={url => setForm(f => ({ ...f, avatar_url: url }))}
+              scope="avatar"
+              shape="circle"
             />
           </div>
 
           <div className={styles.field}>
-            <label>커버 이미지 URL <span className={styles.optional}>(선택)</span></label>
-            <input
-              type="url"
+            <ImageUploader
+              label="커버 이미지 (16:9 권장)"
               value={form.cover_url}
-              onChange={e => setForm(f => ({ ...f, cover_url: e.target.value }))}
-              placeholder="https://..."
+              onChange={url => setForm(f => ({ ...f, cover_url: url }))}
+              scope="cover"
+              shape="wide"
             />
           </div>
 

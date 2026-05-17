@@ -31,6 +31,9 @@ export function Footer() {
             <h3>안내</h3>
             <a href="https://hannipmoney.com" target="_blank" rel="noreferrer">한입머니 블로그</a>
             <a href="mailto:imyeho@gmail.com">문의 보내기</a>
+            <Link href="/legal/terms">이용약관</Link>
+            <Link href="/legal/privacy">개인정보처리방침</Link>
+            <Link href="/legal/refund">환불 정책</Link>
           </div>
         </nav>
       </div>

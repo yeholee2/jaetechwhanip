@@ -691,3 +691,39 @@
   color: var(--rw-primary);
   line-height: 1.5;
 }
+
+/* ── 모바일 종합 정리 ──────────────────────────────────── */
+@media (max-width: 640px) {
+  .profileHead {
+    margin-top: -48px;
+  }
+  .avatar { width: 88px; height: 88px; font-size: 40px; border-width: 4px; }
+  .nameRow h1 { font-size: 19px; }
+  .nameRow { gap: 6px; }
+  .verifiedBadge,
+  .normalBadge,
+  .activityBadge { padding: 2px 8px; font-size: 10.5px; }
+  .credential { font-size: 11.5px; }
+  .bio { font-size: 13px; }
+  .stats {
+    gap: 12px;
+    font-size: 12px;
+  }
+  .stats strong { font-size: 12.5px; }
+
+  .tab { padding: 12px 14px; font-size: 13px; }
+  .tabOn::after { left: 14px; right: 14px; }
+
+  .postCover { width: 80px; height: 56px; }
+  .postTitle { font-size: 14.5px; -webkit-line-clamp: 2; }
+  .postPreview { font-size: 12px; -webkit-line-clamp: 1; }
+  .postMeta { gap: 6px; font-size: 11px; }
+}
+
+@media (max-width: 380px) {
+  .nameRow h1 { font-size: 18px; }
+  .verifiedBadge,
+  .normalBadge,
+  .activityBadge { display: none; }
+  /* 좁은 화면에서는 배지 숨겨 가독성 우선 */
+}

@@ -102,11 +102,21 @@ function toHtml(body: string): string {
   return out.join('\n');
 }
 
+/**
+ * TipTap 에디터에서 저장한 HTML 인지, legacy markdown 인지 자동 감지.
+ * HTML 이면 그대로, markdown 이면 toHtml() 로 변환.
+ */
+function isLikelyHtml(s: string): boolean {
+  const trimmed = s.trim();
+  return /^<(p|h[1-6]|ul|ol|blockquote|pre|div|img|figure|a)\s|^<(p|h[1-6]|ul|ol|blockquote|pre|div|img|figure)>/i.test(trimmed);
+}
+
 export function PostBody({ body, className }: { body: string; className?: string }) {
+  const html = isLikelyHtml(body) ? body : toHtml(body);
   return (
     <article
       className={`${styles.body} ${className || ''}`}
-      dangerouslySetInnerHTML={{ __html: toHtml(body) }}
+      dangerouslySetInnerHTML={{ __html: html }}
     />
   );
 }
