@@ -61,6 +61,10 @@ export function AppShell({
   const [user, setUser] = useState<any>(null);
   const [dbProfile, setDbProfile] = useState<{ avatar_url?: string | null; name?: string | null } | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
+  // 본인 크리에이터 페이지 슬러그 (있으면 크리에이터 모드 가능)
+  const [creatorSlug, setCreatorSlug] = useState<string | null>(null);
+  // 현재 모드: 'fan' (기본) | 'creator' (크리에이터 본인 페이지 보유 시 선택 가능)
+  const [mode, setMode] = useState<'fan' | 'creator'>('fan');
   const [showProfile, setShowProfile] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -135,7 +139,30 @@ export function AppShell({
           setIsAdmin(profile?.role === 'admin');
           setDbProfile({ avatar_url: profile?.avatar_url ?? null, name: profile?.name ?? null });
         });
+      // 본인 크리에이터 페이지 슬러그 — 있으면 크리에이터 모드 토글 가능
+      supabase.from('creators').select('slug').eq('user_id', uid).maybeSingle()
+        .then(({ data }) => {
+          const slug = (data?.slug as string | undefined) || null;
+          setCreatorSlug(slug);
+          // 모드 초기화: localStorage 우선, 없으면 creator 있으면 creator, 아니면 fan
+          try {
+            const stored = window.localStorage.getItem('hannip_mode');
+            if (stored === 'fan' || stored === 'creator') {
+              setMode(slug && stored === 'creator' ? 'creator' : 'fan');
+            } else {
+              setMode(slug ? 'creator' : 'fan');
+            }
+          } catch {
+            setMode(slug ? 'creator' : 'fan');
+          }
+        });
     };
+
+    const switchMode = (next: 'fan' | 'creator') => {
+      setMode(next);
+      try { window.localStorage.setItem('hannip_mode', next); } catch {}
+    };
+    (window as any).__hannipSwitchMode = switchMode;
 
     const { data: authSub } = supabase.auth.onAuthStateChange((_event, session) => {
       const nextUser = session?.user ?? null;
@@ -399,22 +426,78 @@ export function AppShell({
               </button>
               {showProfile && (
                 <div className={styles.profileMenu} role="menu">
-                  <div className={styles.profileName}>{userName}</div>
-                  <Link href="/mypage" onClick={() => setShowProfile(false)} role="menuitem">
-                    🏠 마이페이지
-                  </Link>
-                  <Link href="/my/portfolio" onClick={() => setShowProfile(false)} role="menuitem">
-                    📊 내 종목 트래커
-                  </Link>
-                  <Link href={profileHref} onClick={() => setShowProfile(false)} role="menuitem">
-                    공개 프로필
-                  </Link>
+                  <div className={styles.profileName}>
+                    {userName}
+                    {creatorSlug && (
+                      <span className={styles.modeBadge}>
+                        {mode === 'creator' ? '🪄 크리에이터 모드' : '👀 팬 모드'}
+                      </span>
+                    )}
+                  </div>
+
+                  {/* 모드별 메뉴 */}
+                  {mode === 'creator' && creatorSlug ? (
+                    <>
+                      <Link href={`/creator/${creatorSlug}`} onClick={() => setShowProfile(false)} role="menuitem">
+                        🏠 내 크리에이터 페이지
+                      </Link>
+                      <Link href={`/creator/${creatorSlug}/write`} onClick={() => setShowProfile(false)} role="menuitem">
+                        ✍️ 글 작성
+                      </Link>
+                      <Link href={`/creator/${creatorSlug}/dashboard`} onClick={() => setShowProfile(false)} role="menuitem">
+                        📊 대시보드
+                      </Link>
+                      <Link href={`/creator/${creatorSlug}/series`} onClick={() => setShowProfile(false)} role="menuitem">
+                        📚 시리즈 관리
+                      </Link>
+                      <Link href={`/creator/${creatorSlug}/edit`} onClick={() => setShowProfile(false)} role="menuitem">
+                        ⚙️ 페이지 편집
+                      </Link>
+                      <Link href="/mypage" onClick={() => setShowProfile(false)} role="menuitem">
+                        🐯 내 프로필
+                      </Link>
+                    </>
+                  ) : (
+                    <>
+                      <Link href="/mypage" onClick={() => setShowProfile(false)} role="menuitem">
+                        🏠 마이페이지
+                      </Link>
+                      <Link href="/my/portfolio" onClick={() => setShowProfile(false)} role="menuitem">
+                        📊 내 종목 트래커
+                      </Link>
+                      <Link href={profileHref} onClick={() => setShowProfile(false)} role="menuitem">
+                        공개 프로필
+                      </Link>
+                      {!creatorSlug && (
+                        <Link href="/creator/apply" onClick={() => setShowProfile(false)} role="menuitem">
+                          ✨ 재프콘 시작하기
+                        </Link>
+                      )}
+                    </>
+                  )}
+
+                  {/* 모드 토글 — 크리에이터 페이지가 있을 때만 */}
+                  {creatorSlug && (
+                    <button
+                      type="button"
+                      className={styles.modeSwitch}
+                      role="menuitem"
+                      onClick={() => {
+                        const next = mode === 'creator' ? 'fan' : 'creator';
+                        setMode(next);
+                        try { window.localStorage.setItem('hannip_mode', next); } catch {}
+                        setShowProfile(false);
+                      }}
+                    >
+                      {mode === 'creator' ? '👀 팬 모드로 전환' : '🪄 크리에이터 모드로 전환'}
+                    </button>
+                  )}
+
                   {isAdmin && (
                     <Link href="/admin" onClick={() => setShowProfile(false)} role="menuitem">
                       🛠 관리자 대시보드
                     </Link>
                   )}
-                  {/* 화면 테마 토글 — 우측 하단 floating 버튼으로 이동 */}
                   <button className={styles.signOut} onClick={handleSignOut} role="menuitem" type="button">
                     로그아웃
                   </button>
