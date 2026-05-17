@@ -48,11 +48,14 @@ export function AppShell({
   children,
   wide = false,
   hideSlogan = false,
+  minimalNav = false,
 }: {
   active: AppNavKey;
   children: ReactNode;
   wide?: boolean;
   hideSlogan?: boolean;
+  /** 크리에이터 페이지 등 — 한입 로고만 노출, 메뉴 숨김 */
+  minimalNav?: boolean;
 }) {
   const router = useRouter();
   const [user, setUser] = useState<any>(null);
@@ -202,17 +205,19 @@ export function AppShell({
     <div className={styles.shell}>
       <nav className={styles.pcNav}>
         <Link className={`${styles.logo} logo-font`} href="/">재테크<em>한입</em></Link>
-        <ul className={styles.pcMenu}>
-          {NAV_ITEMS.map(item => (
-            <li key={item.key}>
-              <Link href={item.href} className={active === item.key ? styles.active : ''}>
-                {item.label}
-              </Link>
-            </li>
-          ))}
-          <li><div className={styles.sep} /></li>
-          <li><a href="#" style={{ fontSize: 13, color: 'var(--t3)' }}>전문가 신청</a></li>
-        </ul>
+        {!minimalNav && (
+          <ul className={styles.pcMenu}>
+            {NAV_ITEMS.map(item => (
+              <li key={item.key}>
+                <Link href={item.href} className={active === item.key ? styles.active : ''}>
+                  {item.label}
+                </Link>
+              </li>
+            ))}
+            <li><div className={styles.sep} /></li>
+            <li><a href="#" style={{ fontSize: 13, color: 'var(--t3)' }}>전문가 신청</a></li>
+          </ul>
+        )}
         <div className={styles.pcRight}>
           <div className={styles.searchWrap} ref={searchRef}>
             <Link
@@ -525,24 +530,26 @@ export function AppShell({
         <FaIcon name="pen" size={20} color="#fff" />
       </button>
 
-      <nav className={styles.bottomNav}>
-        <Link className={`${styles.bnav} ${active === 'home' ? styles.active : ''}`} href="/">
-          <FaIcon name="house" size={21} /><span>홈</span>
-        </Link>
-        <Link className={`${styles.bnav} ${active === 'etf' ? styles.active : ''}`} href="/etf">
-          <FaIcon name="chart-line" size={21} /><span>ETF</span>
-        </Link>
-        <Link className={`${styles.bnav} ${styles.bnavAsk} ${active === 'home' ? styles.active : ''}`} href="/">
-          <span className={styles.bnavAskIcon}><FaIcon name="comments" size={22} /></span>
-          <span>Q&amp;A</span>
-        </Link>
-        <Link className={`${styles.bnav} ${active === 'sparring' ? styles.active : ''}`} href="/sparring">
-          <Swords size={22} /><span>스파링</span>
-        </Link>
-        <Link className={`${styles.bnav} ${active === 'my' ? styles.active : ''}`} href={profileHref}>
-          <FaIcon name="user" size={21} /><span>마이</span>
-        </Link>
-      </nav>
+      {!minimalNav && (
+        <nav className={styles.bottomNav}>
+          <Link className={`${styles.bnav} ${active === 'home' ? styles.active : ''}`} href="/">
+            <FaIcon name="house" size={21} /><span>홈</span>
+          </Link>
+          <Link className={`${styles.bnav} ${active === 'etf' ? styles.active : ''}`} href="/etf">
+            <FaIcon name="chart-line" size={21} /><span>ETF</span>
+          </Link>
+          <Link className={`${styles.bnav} ${styles.bnavAsk} ${active === 'home' ? styles.active : ''}`} href="/">
+            <span className={styles.bnavAskIcon}><FaIcon name="comments" size={22} /></span>
+            <span>Q&amp;A</span>
+          </Link>
+          <Link className={`${styles.bnav} ${active === 'sparring' ? styles.active : ''}`} href="/sparring">
+            <Swords size={22} /><span>스파링</span>
+          </Link>
+          <Link className={`${styles.bnav} ${active === 'my' ? styles.active : ''}`} href={profileHref}>
+            <FaIcon name="user" size={21} /><span>마이</span>
+          </Link>
+        </nav>
+      )}
     </div>
   );
 }

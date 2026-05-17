@@ -8,10 +8,10 @@ import type { Creator } from './creator';
 
 type MockCreator = Omit<Creator, 'created_at' | 'updated_at'> & {
   // 디렉토리 카드에서만 쓰는 추가 필드 (UI 전용)
-  accuracy?: number;          // 픽 적중률 (0-100)
-  avgYield?: number;          // 평균 수익률
-  badge?: string;             // "공식·검증 / 인기" 등
+  badge?: string;             // "공식·검증 / 인기 / 회계사 인증" 등
   coverGradient?: string;     // 커버 이미지 대신 그라디언트
+  verified?: boolean;         // 전문가 인증 (자격증/경력 검증)
+  credential?: string;        // "회계사 12년차 / CFA 보유" 등 자격 표시
 };
 
 export const MOCK_CREATORS: MockCreator[] = [
@@ -34,7 +34,6 @@ export const MOCK_CREATORS: MockCreator[] = [
     member_count: 32,
     post_count: 47,
     is_published: true,
-    accuracy: 78,
     badge: '공식·검증',
   },
   {
@@ -63,7 +62,7 @@ export const MOCK_CREATORS: MockCreator[] = [
     user_id: 'mock-u3',
     slug: 'buffett-junior',
     display_name: '버핏주니어',
-    bio: '가치투자 한 우물 10년. 종목 픽 적중률·수익률 자동 공개.',
+    bio: '가치투자 한 우물 10년. 매주 투자 일지·매수 근거를 멤버에게 공개.',
     avatar_url: '🦬',
     cover_url: null,
     coverGradient: 'linear-gradient(135deg, #2E9C5C 0%, #44C781 100%)',
@@ -72,13 +71,11 @@ export const MOCK_CREATORS: MockCreator[] = [
     membership_enabled: true,
     membership_price_won: 19900,
     membership_tier_name: '버크셔 멤버',
-    membership_perks: '주간 종목 픽 + 매수 근거\n월간 포트폴리오 공개\n자체 적중률 리포트',
+    membership_perks: '주간 투자 일지 + 매수 근거\n월간 포트폴리오 공개\n질문 답변 우선',
     follower_count: 3210,
     member_count: 95,
     post_count: 86,
     is_published: true,
-    accuracy: 80,
-    avgYield: 12.4,
     badge: '🔥 인기 TOP 3',
   },
   {
@@ -101,6 +98,8 @@ export const MOCK_CREATORS: MockCreator[] = [
     post_count: 23,
     is_published: true,
     badge: '회계사 인증',
+    verified: true,
+    credential: '한국공인회계사 · 12년 경력',
   },
   {
     id: 'mock-5',
@@ -168,7 +167,7 @@ export const MOCK_CREATORS: MockCreator[] = [
     user_id: 'mock-u8',
     slug: 'dividend-farmer',
     display_name: '배당농부',
-    bio: '월배당·분기배당으로 현금흐름 만들기. 평균 배당률 5.2%.',
+    bio: '월배당·분기배당으로 현금흐름 만들기. 매주 배당 캘린더와 종목 리뷰.',
     avatar_url: '🌾',
     cover_url: null,
     coverGradient: 'linear-gradient(135deg, #00A86B 0%, #44C781 100%)',
@@ -182,7 +181,6 @@ export const MOCK_CREATORS: MockCreator[] = [
     member_count: 78,
     post_count: 62,
     is_published: true,
-    avgYield: 5.2,
     badge: '월배당 전문',
   },
   {
@@ -205,6 +203,8 @@ export const MOCK_CREATORS: MockCreator[] = [
     post_count: 73,
     is_published: true,
     badge: '전문가 인증',
+    verified: true,
+    credential: 'CFA · 글로벌 펀드 운용역',
   },
   {
     id: 'mock-10',

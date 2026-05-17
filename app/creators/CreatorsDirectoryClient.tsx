@@ -95,8 +95,8 @@ export function CreatorsDirectoryClient({ creators }: { creators: Creator[] }) {
                   <span><strong>{hero.follower_count.toLocaleString()}</strong> 팔로워</span>
                   <span><strong>{hero.member_count.toLocaleString()}</strong> 멤버</span>
                   <span><strong>{hero.post_count.toLocaleString()}</strong> 글</span>
-                  {(hero as any).accuracy && (
-                    <span className={styles.heroAccuracy}>적중률 <strong>{(hero as any).accuracy}%</strong></span>
+                  {(hero as any).verified && (
+                    <span className={styles.heroAccuracy}>✓ {(hero as any).credential || '전문가 인증'}</span>
                   )}
                 </div>
               </div>
@@ -178,7 +178,7 @@ export function CreatorsDirectoryClient({ creators }: { creators: Creator[] }) {
                   {c.bio && <p>{c.bio}</p>}
                   <div className={styles.topStats}>
                     <span>{c.follower_count.toLocaleString()} 팔로워</span>
-                    {(c as any).accuracy && <span>적중률 {(c as any).accuracy}%</span>}
+                    {(c as any).verified && <span className={styles.verifiedTag}>✓ 전문가</span>}
                   </div>
                 </div>
               </Link>
@@ -230,8 +230,8 @@ export function CreatorsDirectoryClient({ creators }: { creators: Creator[] }) {
                   <div className={styles.cardStats}>
                     <span><strong>{c.follower_count.toLocaleString()}</strong> 팔로워</span>
                     <span><strong>{c.member_count.toLocaleString()}</strong> 멤버</span>
-                    {(c as any).accuracy && (
-                      <span className={styles.cardAccuracy}>적중률 {(c as any).accuracy}%</span>
+                    {(c as any).verified && (
+                      <span className={styles.cardAccuracy}>✓ 전문가</span>
                     )}
                   </div>
                   {c.membership_enabled && (

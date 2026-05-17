@@ -64,10 +64,8 @@ export default async function CreatorPage({ params }: Props) {
   const posts = await fetchPosts(creator.id);
 
   return (
-    <AppShell active="my" wide hideSlogan>
-      <main className="pc-layout-stack">
-        <CreatorPageClient creator={creator} posts={posts} isOwner={isOwner} />
-      </main>
+    <AppShell active="my" wide hideSlogan minimalNav>
+      <CreatorPageClient creator={creator} posts={posts} isOwner={isOwner} />
     </AppShell>
   );
 }
