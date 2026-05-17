@@ -44,6 +44,70 @@
 }
 .rangeSelect:disabled { cursor: default; opacity: 0.8; }
 
+/* 타임프레임 (5분/일/주/월/년) */
+.tfRow {
+  display: inline-flex;
+  gap: 2px;
+  padding: 3px;
+  background: var(--rw-card-muted);
+  border-radius: 8px;
+}
+.tfBtn {
+  padding: 5px 12px;
+  border: none;
+  background: transparent;
+  border-radius: 5px;
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--rw-text-muted);
+  cursor: pointer;
+  transition: background 120ms, color 120ms;
+}
+.tfBtn:hover:not(:disabled) { color: var(--rw-text-body); }
+.tfBtnOn {
+  background: var(--rw-card);
+  color: var(--rw-text-strong);
+  box-shadow: 0 1px 2px rgba(0,27,55,0.08);
+}
+.tfBtn:disabled { cursor: default; opacity: 0.7; }
+
+/* MA · 거래량 토글 */
+.toggleBtn {
+  padding: 5px 9px;
+  border: 1px solid var(--rw-border);
+  background: transparent;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--rw-text-muted);
+  cursor: pointer;
+  transition: background 120ms, border 120ms, color 120ms;
+}
+.toggleBtn:hover:not(:disabled) { color: var(--rw-text-body); border-color: var(--rw-primary); }
+.toggleBtnOn {
+  background: var(--rw-primary-bg);
+  border-color: var(--rw-primary);
+  color: var(--rw-primary);
+}
+.toggleBtn:disabled { cursor: default; opacity: 0.7; }
+
+/* MA 라벨 (차트 위 작은 표시) */
+.maLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--rw-text-muted);
+  padding: 0 2px;
+}
+.maChip {
+  padding: 1px 7px;
+  border-radius: 4px;
+  background: var(--rw-card-muted);
+  font-weight: 800;
+}
+
 .headerRight { display: flex; gap: 6px; }
 .ghostBtn,
 .ghostBtnDanger {
@@ -109,7 +173,7 @@
 .chartArea {
   position: relative;
   width: 100%;
-  height: 360px;
+  height: 440px;
   border-radius: 10px;
   overflow: hidden;
   background: var(--rw-card-muted);
