@@ -256,7 +256,15 @@ export function ChartBlock({
       volSeriesRef.current = null;
       maSeriesRefs.current = [];
     };
-  }, [data.type, editable, showVolume, showMA]);
+  }, [data.type, showVolume, showMA]);
+
+  // editable 변경 시 차트 인스턴스 재생성 없이 옵션만 갱신 → 데이터 유지
+  useEffect(() => {
+    chartRef.current?.applyOptions({
+      handleScale: editable ? { mouseWheel: true, pinch: true, axisPressedMouseMove: true } : false,
+      handleScroll: editable ? true : false,
+    });
+  }, [editable]);
 
   /* ---------- 데이터 → 차트 시리즈 ---------- */
   useEffect(() => {
