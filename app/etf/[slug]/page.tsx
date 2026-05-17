@@ -25,6 +25,7 @@ import { lookupGlossary } from '@/lib/etfGlossary';
 import { buildEtfInsight, computeFeeStats, type EtfTag } from '@/lib/etfInsights';
 import { buildSectorBreakdown } from '@/lib/etfBreakdown';
 import { DonutChart, CompareBar, RiskMeter } from '@/components/ui';
+import { HoldingClickable } from '@/components/stock/HoldingClickable';
 import { buildEtfRisk } from '@/lib/etfRisk';
 import { countryInfo } from '@/lib/etfCountry';
 import { WatchButton } from '../WatchButton';
@@ -532,18 +533,27 @@ export default async function EtfDetailPage({ params }: Props) {
                   }
                   const list = (
                     <div className={styles.holdingList}>
-                      {liveHoldings.holdings.map(h => (
-                        <div key={h.symbol || h.name} className={styles.holdingRow}>
-                          <div className={styles.holdingInfo}>
-                            <strong>{h.name}</strong>
-                            <p>{h.symbol}</p>
+                      {liveHoldings.holdings.map(h => {
+                        const row = (
+                          <div className={styles.holdingRow}>
+                            <div className={styles.holdingInfo}>
+                              <strong>{h.name}</strong>
+                              <p>{h.symbol}</p>
+                            </div>
+                            <div className={styles.holdingBar} aria-hidden="true">
+                              <span style={{ width: `${(h.weight / max) * 100}%` }} />
+                            </div>
+                            <b className={styles.holdingPct}>{(h.weight * 100).toFixed(2)}%</b>
                           </div>
-                          <div className={styles.holdingBar} aria-hidden="true">
-                            <span style={{ width: `${(h.weight / max) * 100}%` }} />
-                          </div>
-                          <b className={styles.holdingPct}>{(h.weight * 100).toFixed(2)}%</b>
-                        </div>
-                      ))}
+                        );
+                        return h.symbol ? (
+                          <HoldingClickable key={h.symbol} symbol={h.symbol} displayName={h.name}>
+                            {row}
+                          </HoldingClickable>
+                        ) : (
+                          <div key={h.name}>{row}</div>
+                        );
+                      })}
                     </div>
                   );
                   if (!showDonut) return list;
