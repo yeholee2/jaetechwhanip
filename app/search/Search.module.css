@@ -144,3 +144,15 @@
   white-space: nowrap;
 }
 .searchBtn:hover { opacity: 0.9; }
+
+/* 결과 메타 (q 있을 때만) */
+.resultMeta {
+  margin: 20px 0 12px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--rw-text-muted);
+}
+.resultMeta strong {
+  color: var(--rw-text-strong);
+  font-weight: 900;
+}
