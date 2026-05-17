@@ -24,6 +24,7 @@ const NAV_ITEMS: { key: AppNavKey; label: string; href: string }[] = [
   { key: 'etf', label: 'ETF', href: '/etf' },
   { key: 'portfolio', label: 'MY포트폴리오', href: '/portfolio' },
   { key: 'creators', label: '재프콘', href: '/creators' },
+  { key: 'feed', label: '뉴스피드', href: '/feeds' },
   { key: 'sparring', label: '스파링', href: '/sparring' },
 ];
 
