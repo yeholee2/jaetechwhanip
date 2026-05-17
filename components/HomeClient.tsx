@@ -25,7 +25,6 @@ import SparringMiniCard from './sparring/SparringMiniCard';
 import { HomeWatchWidget } from './HomeWatchWidget';
 import { ForYouSection } from './ForYouSection';
 import type { ForYouBundle } from '@/lib/forYou';
-import { HomeHeroAction } from './HomeHeroAction';
 import { etfs, etfPath } from '@/lib/etfs';
 import styles from './HomeClient.module.css';
 
@@ -323,8 +322,12 @@ export default function HomeClient({
 
   return (
     <AppShell active="home" wide hideSlogan>
-      {/* 홈 hero — 질문 CTA + 핵심 4 아이콘 + 미니 시장 */}
-      <HomeHeroAction tickerQuotes={tickerQuotes} nextEvent={nextEvent} />
+      {/* 시장 시세 ticker — 페이지 최상단, 전체 폭 */}
+      {tickerQuotes && tickerQuotes.length > 0 && (
+        <div className={styles.tickerWrap}>
+          <MarketTickerView quotes={tickerQuotes} nextEvent={nextEvent} />
+        </div>
+      )}
 
       {/* PC 본문 */}
       <div className={styles.pcBody}>
