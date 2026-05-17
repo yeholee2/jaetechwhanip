@@ -34,6 +34,7 @@ import { WatchButton } from '../WatchButton';
 import { AlertButton } from '../AlertButton';
 import { Suspense } from 'react';
 import { EtfReturns } from './EtfReturns';
+import { EtfCandleChart } from './EtfCandleChart';
 import { EtfSectionNav } from './EtfSectionNav';
 import { fetchMaxHistory } from '@/lib/etfPriceHistory';
 import { fetchEtfHoldings } from '@/lib/etfHoldings';
@@ -357,8 +358,11 @@ export default async function EtfDetailPage({ params }: Props) {
 
         <div className={styles.layout}>
           <div className={styles.mainColumn}>
-            {/* ──────────── ① 시세: 차트 + 수익률 ──────────── */}
+            {/* ──────────── ① 시세: 캔들 차트 + 수익률 ──────────── */}
             <div id="sec-quote">
+              {/* 캔들 차트 (이평선·거래량·그림 도구) */}
+              <EtfCandleChart code={etf.code} />
+              {/* 수익률 비교 차트 (벤치마크 토글) */}
               <EtfChart
                 code={etf.code}
                 price={etf.price}
