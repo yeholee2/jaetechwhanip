@@ -6,28 +6,35 @@
 }
 
 /* ── Pill CTA ────────────────────────────────────────── */
+/* 그라디언트 보더 + 안쪽은 거의 흰색 (잡플래닛 레퍼런스 톤) */
 .pill {
   display: inline-flex;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
   align-self: center;
-  padding: 10px 18px 10px 12px;
-  background: linear-gradient(135deg, #EEF1FF 0%, #F4F2FE 100%);
-  border: 1px solid rgba(124, 77, 255, 0.12);
+  padding: 12px 24px 12px 14px;
+  /* 보더 = 그라디언트, 배경 = 흰. background-clip 트릭. */
+  background:
+    linear-gradient(#FAFBFF, #FAFBFF) padding-box,
+    linear-gradient(135deg, #C5D2FF 0%, #E0CBFF 60%, #FFD9E8 100%) border-box;
+  border: 1.5px solid transparent;
   border-radius: 999px;
   cursor: pointer;
   font-family: inherit;
-  transition: transform 200ms, box-shadow 200ms, background 200ms;
-  max-width: 100%;
-  box-shadow: 0 4px 14px rgba(124, 77, 255, 0.08);
+  transition: transform 200ms, box-shadow 200ms;
+  /* 사이즈 고정 — 텍스트 길이 변해도 너비 그대로 */
+  width: clamp(360px, 60%, 520px);
+  box-shadow: 0 4px 16px rgba(124, 77, 255, 0.06);
 }
 .pill:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 22px rgba(124, 77, 255, 0.14);
-  background: linear-gradient(135deg, #E8ECFF 0%, #EFE9FE 100%);
+  box-shadow: 0 10px 26px rgba(124, 77, 255, 0.14);
 }
 .pill:active {
   transform: translateY(0);
+}
+@media (max-width: 640px) {
+  .pill { width: 100%; }
 }
 
 .pillAvatar {
@@ -47,30 +54,34 @@
   color: #fff;
 }
 
+/* 텍스트 영역 — 고정 높이 + overflow hidden 으로 텍스트만 슬라이드 */
 .pillText {
-  display: inline-flex;
-  align-items: baseline;
-  gap: 8px;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  height: 24px;
   min-width: 0;
   white-space: nowrap;
   overflow: hidden;
+  position: relative;
 }
 .pillQuestion {
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 900;
   color: var(--rw-text-strong);
   letter-spacing: -0.3px;
-  animation: questionIn 360ms ease-out;
+  line-height: 24px;
+  animation: questionRoll 480ms cubic-bezier(0.4, 0, 0.2, 1);
+  /* white-space nowrap 으로 한 줄 유지 */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
 }
-@keyframes questionIn {
-  from { transform: translateY(-4px); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
-}
-.pillCta {
-  font-size: 12.5px;
-  font-weight: 700;
-  color: var(--rw-text-muted);
-  letter-spacing: -0.1px;
+@keyframes questionRoll {
+  0% { transform: translateY(100%); opacity: 0; }
+  20% { opacity: 0.4; }
+  100% { transform: translateY(0); opacity: 1; }
 }
 
 .pillArrow {
@@ -143,9 +154,7 @@
 }
 
 @media (max-width: 480px) {
-  .pillText { gap: 6px; }
-  .pillQuestion { font-size: 13px; }
-  .pillCta { display: none; }
+  .pillQuestion { font-size: 13.5px; }
   .iconBubble { width: 48px; height: 48px; border-radius: 14px; }
   .iconEmoji { font-size: 22px; }
   .iconLabel { font-size: 11px; }

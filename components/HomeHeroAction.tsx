@@ -77,7 +77,6 @@ export function HomeHeroAction({
           <strong key={qIndex} className={styles.pillQuestion}>
             {ROTATING_QUESTIONS[qIndex]}
           </strong>
-          <span className={styles.pillCta}>— 한입 AI 에게 물어보기</span>
         </span>
         <span className={styles.pillArrow} aria-hidden="true">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
