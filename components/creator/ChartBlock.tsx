@@ -3,12 +3,24 @@
 /**
  * 차트 블록 — Lightweight Charts 기반 토스 스타일 UI.
  *
+ * 사용처 4곳에서 동일 컴포넌트:
+ *  1) 글 작성 에디터 (ChartNode editable=true)
+ *  2) 발행된 글 본문 (PostBody readonly)
+ *  3) /stock/[symbol] (StockDetailView)
+ *  4) /etf/[slug] (EtfCandleChart)
+ *
+ * 그림 도구는 `chart-drawings:${code}` localStorage 키로 모든 화면에서 공유 — 한 종목 그림은 어디서나 같이 보임.
+ *
  * 기능:
  *  - 캔들 + 거래량 보조 패널
  *  - 이동평균선 (기본 5·20·60·120, 토글 가능)
  *  - 타임프레임 (5분/일/주/월/년)
  *  - SVG 오버레이로 그림 도구 (추세선·수평선·박스·텍스트)
  *  - 좌표는 (timestamp, price) 로 저장 → 줌·기간 변경에도 정확
+ *
+ * TradingView Charting Library 업그레이드:
+ *  현재 `lightweight-charts` (무료 오픈소스) 사용. 정식 Charting Library 라이선스 발급 시
+ *  이 파일 내부만 swap — 외부 API (`ChartBlockData`, props, onChange) 는 그대로 유지하면 4곳 모두 호환.
  */
 
 import { useEffect, useMemo, useRef, useState } from 'react';

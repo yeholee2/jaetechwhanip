@@ -59,6 +59,7 @@ export function CreatorWriteClient({ creator, templates = [] }: { creator: Creat
   const [form, setForm] = useState<FormState>(emptyForm);
   const [saving, setSaving] = useState(false);
   const [err, setErr] = useState('');
+  const [step, setStep] = useState(0);
 
   // 자동저장 상태
   const [lastSavedAt, setLastSavedAt] = useState<number | null>(null);
@@ -277,133 +278,186 @@ export function CreatorWriteClient({ creator, templates = [] }: { creator: Creat
         </div>
       )}
 
-      <form onSubmit={submit} className={styles.form}>
-        <div className={styles.field}>
-          <input
-            type="text"
-            value={form.title}
-            onChange={e => setForm(f => ({ ...f, title: e.target.value }))}
-            placeholder="제목을 입력하세요"
-            className={styles.titleInput}
-            maxLength={120}
-          />
-        </div>
-
-        <div className={styles.field}>
-          <ImageUploader
-            label="썸네일 이미지 (선택, 16:9 권장)"
-            value={form.cover_url}
-            onChange={url => setForm(f => ({ ...f, cover_url: url }))}
-            scope="post-thumb"
-            shape="wide"
-          />
-        </div>
-
-        <div className={styles.field}>
-          <label>본문</label>
-          <RichEditor
-            value={form.body}
-            onChange={html => setForm(f => ({ ...f, body: html }))}
-            placeholder="멤버에게 어떤 인사이트를 전달할지 적어보세요. 헤딩·인용·이미지·차트·페이월 모두 지원해요."
-          />
-        </div>
-
-        <div className={styles.field}>
-          <label>태그 <span className={styles.optional}>(검색·발견·시리즈 묶기에 사용)</span></label>
-          <TagsInput
-            value={form.tags}
-            onChange={tags => setForm(f => ({ ...f, tags }))}
-          />
-        </div>
-
-        {seriesList.length > 0 && (
-          <div className={styles.field}>
-            <label>시리즈 <span className={styles.optional}>(선택)</span></label>
-            <select
-              value={form.series_id || ''}
-              onChange={e => setForm(f => ({ ...f, series_id: e.target.value || null }))}
-              className={styles.select}
+      <ol className={styles.stepper} aria-label="발행 단계">
+        {(['작성', '메타', '권한', '발행'] as const).map((label, i) => (
+          <li
+            key={label}
+            className={`${styles.stepItem} ${i === step ? styles.stepItemOn : ''} ${i < step ? styles.stepItemDone : ''}`}
+            aria-current={i === step ? 'step' : undefined}
+          >
+            <button
+              type="button"
+              className={styles.stepDot}
+              onClick={() => { if (i < step) setStep(i); }}
+              disabled={i > step}
+              aria-label={`${i + 1}단계 ${label}로 이동`}
             >
-              <option value="">묶지 않음</option>
-              {seriesList.map(s => (
-                <option key={s.id} value={s.id}>{s.title}</option>
-              ))}
-            </select>
-          </div>
-        )}
+              {i < step ? '✓' : i + 1}
+            </button>
+            <span className={styles.stepLabel}>{label}</span>
+          </li>
+        ))}
+      </ol>
 
-        <div className={styles.memberToggle}>
-          <label className={styles.toggle}>
-            <input
-              type="checkbox"
-              checked={form.is_member_only}
-              onChange={e => setForm(f => ({ ...f, is_member_only: e.target.checked }))}
-              disabled={!creator.membership_enabled}
-            />
-            <div>
-              <strong>멤버 전용 글</strong>
-              <span>
-                {creator.membership_enabled
-                  ? `월 ${creator.membership_price_won?.toLocaleString()}원 ${creator.membership_tier_name}만 전체 본문을 볼 수 있어요.`
-                  : '멤버십이 비활성화된 상태예요. 페이지 편집에서 멤버십을 켜야 사용할 수 있어요.'}
-              </span>
+      <form onSubmit={submit} className={styles.form}>
+        {step === 0 && (
+          <>
+            <div className={styles.field}>
+              <input
+                type="text"
+                value={form.title}
+                onChange={e => setForm(f => ({ ...f, title: e.target.value }))}
+                placeholder="제목을 입력하세요"
+                className={styles.titleInput}
+                maxLength={120}
+              />
             </div>
-          </label>
-        </div>
-
-        {form.is_member_only && (
-          <div className={styles.field}>
-            <label>무료 미리보기 <span className={styles.optional}>(paywall 위에 노출)</span></label>
-            <textarea
-              rows={4}
-              value={form.preview}
-              onChange={e => setForm(f => ({ ...f, preview: e.target.value }))}
-              placeholder="멤버가 아닌 사람도 볼 수 있는 첫 단락을 적어주세요. 호기심을 끄는 한두 문단이 좋아요."
-              maxLength={400}
-            />
-          </div>
+            <div className={styles.field}>
+              <label>본문</label>
+              <RichEditor
+                value={form.body}
+                onChange={html => setForm(f => ({ ...f, body: html }))}
+                placeholder="멤버에게 어떤 인사이트를 전달할지 적어보세요. 헤딩·인용·이미지·차트·페이월 모두 지원해요."
+              />
+            </div>
+          </>
         )}
 
-        <div className={styles.publishCard}>
-          <div className={styles.publishHead}>📅 발행 시점</div>
-          <div className={styles.publishGroup}>
-            <label className={`${styles.publishOption} ${form.publish_mode === 'now' ? styles.publishOptionOn : ''}`}>
-              <input
-                type="radio"
-                name="publish_mode"
-                value="now"
-                checked={form.publish_mode === 'now'}
-                onChange={() => setForm(f => ({ ...f, publish_mode: 'now', publish_at_local: '' }))}
+        {step === 1 && (
+          <>
+            <div className={styles.field}>
+              <ImageUploader
+                label="썸네일 이미지 (선택, 16:9 권장)"
+                value={form.cover_url}
+                onChange={url => setForm(f => ({ ...f, cover_url: url }))}
+                scope="post-thumb"
+                shape="wide"
               />
-              <div>
-                <strong>지금 바로</strong>
-                <span>발행 즉시 팔로워에게 알림이 가요.</span>
-              </div>
-            </label>
-            <label className={`${styles.publishOption} ${form.publish_mode === 'scheduled' ? styles.publishOptionOn : ''}`}>
-              <input
-                type="radio"
-                name="publish_mode"
-                value="scheduled"
-                checked={form.publish_mode === 'scheduled'}
-                onChange={() => setForm(f => ({ ...f, publish_mode: 'scheduled' }))}
+            </div>
+            <div className={styles.field}>
+              <label>태그 <span className={styles.optional}>(검색·발견·시리즈 묶기에 사용)</span></label>
+              <TagsInput
+                value={form.tags}
+                onChange={tags => setForm(f => ({ ...f, tags }))}
               />
-              <div>
-                <strong>예약 발행</strong>
-                <span>선택한 시각이 되면 노출돼요.</span>
+            </div>
+            <div className={styles.field}>
+              <label>
+                시리즈 <span className={styles.optional}>(선택)</span>
+              </label>
+              {seriesList.length > 0 ? (
+                <select
+                  value={form.series_id || ''}
+                  onChange={e => setForm(f => ({ ...f, series_id: e.target.value || null }))}
+                  className={styles.select}
+                >
+                  <option value="">묶지 않음</option>
+                  {seriesList.map(s => (
+                    <option key={s.id} value={s.id}>{s.title}</option>
+                  ))}
+                </select>
+              ) : (
+                <div className={styles.emptyHint}>
+                  시리즈가 없어요. <a href={`/creator/${creator.slug}/series`}>시리즈 관리</a>에서 만들 수 있어요.
+                </div>
+              )}
+            </div>
+          </>
+        )}
+
+        {step === 2 && (
+          <>
+            <div className={styles.memberToggle}>
+              <label className={styles.toggle}>
+                <input
+                  type="checkbox"
+                  checked={form.is_member_only}
+                  onChange={e => setForm(f => ({ ...f, is_member_only: e.target.checked }))}
+                  disabled={!creator.membership_enabled}
+                />
+                <div>
+                  <strong>멤버 전용 글</strong>
+                  <span>
+                    {creator.membership_enabled
+                      ? `월 ${creator.membership_price_won?.toLocaleString()}원 ${creator.membership_tier_name}만 전체 본문을 볼 수 있어요.`
+                      : '멤버십이 비활성화된 상태예요. 페이지 편집에서 멤버십을 켜야 사용할 수 있어요.'}
+                  </span>
+                </div>
+              </label>
+            </div>
+            {form.is_member_only && (
+              <div className={styles.field}>
+                <label>무료 미리보기 <span className={styles.optional}>(paywall 위에 노출)</span></label>
+                <textarea
+                  rows={4}
+                  value={form.preview}
+                  onChange={e => setForm(f => ({ ...f, preview: e.target.value }))}
+                  placeholder="멤버가 아닌 사람도 볼 수 있는 첫 단락을 적어주세요. 호기심을 끄는 한두 문단이 좋아요."
+                  maxLength={400}
+                />
               </div>
-            </label>
-          </div>
-          {form.publish_mode === 'scheduled' && (
-            <input
-              type="datetime-local"
-              value={form.publish_at_local}
-              onChange={e => setForm(f => ({ ...f, publish_at_local: e.target.value }))}
-              className={styles.dtInput}
-              min={new Date(Date.now() - new Date().getTimezoneOffset() * 60_000).toISOString().slice(0, 16)}
-            />
-          )}
-        </div>
+            )}
+            <p className={styles.hintBlock}>
+              ℹ️ 본문 안에 <strong>🔒 페이월</strong>을 넣으면 본문 일부만 멤버 전용으로 만들 수도 있어요. (작성 단계 툴바)
+            </p>
+          </>
+        )}
+
+        {step === 3 && (
+          <>
+            <div className={styles.publishCard}>
+              <div className={styles.publishHead}>📅 발행 시점</div>
+              <div className={styles.publishGroup}>
+                <label className={`${styles.publishOption} ${form.publish_mode === 'now' ? styles.publishOptionOn : ''}`}>
+                  <input
+                    type="radio"
+                    name="publish_mode"
+                    value="now"
+                    checked={form.publish_mode === 'now'}
+                    onChange={() => setForm(f => ({ ...f, publish_mode: 'now', publish_at_local: '' }))}
+                  />
+                  <div>
+                    <strong>지금 바로</strong>
+                    <span>발행 즉시 팔로워에게 알림이 가요.</span>
+                  </div>
+                </label>
+                <label className={`${styles.publishOption} ${form.publish_mode === 'scheduled' ? styles.publishOptionOn : ''}`}>
+                  <input
+                    type="radio"
+                    name="publish_mode"
+                    value="scheduled"
+                    checked={form.publish_mode === 'scheduled'}
+                    onChange={() => setForm(f => ({ ...f, publish_mode: 'scheduled' }))}
+                  />
+                  <div>
+                    <strong>예약 발행</strong>
+                    <span>선택한 시각이 되면 노출돼요.</span>
+                  </div>
+                </label>
+              </div>
+              {form.publish_mode === 'scheduled' && (
+                <input
+                  type="datetime-local"
+                  value={form.publish_at_local}
+                  onChange={e => setForm(f => ({ ...f, publish_at_local: e.target.value }))}
+                  className={styles.dtInput}
+                  min={new Date(Date.now() - new Date().getTimezoneOffset() * 60_000).toISOString().slice(0, 16)}
+                />
+              )}
+            </div>
+
+            <div className={styles.reviewCard}>
+              <div className={styles.reviewHead}>발행 직전 한 번 더 확인</div>
+              <ul className={styles.reviewList}>
+                <li><span>제목</span><strong>{form.title || '— 비어있음 —'}</strong></li>
+                <li><span>썸네일</span><strong>{form.cover_url ? '있음' : '없음'}</strong></li>
+                <li><span>태그</span><strong>{form.tags.length ? `${form.tags.length}개` : '없음'}</strong></li>
+                <li><span>시리즈</span><strong>{form.series_id ? seriesList.find(s => s.id === form.series_id)?.title || '선택됨' : '없음'}</strong></li>
+                <li><span>접근 권한</span><strong>{form.is_member_only ? '멤버 전용 (전체 잠금)' : (form.body.includes('data-paywall') ? '일부 멤버 전용' : '전체 공개')}</strong></li>
+              </ul>
+            </div>
+          </>
+        )}
 
         {err && <div className={styles.errorBox}>{err}</div>}
 
@@ -411,9 +465,35 @@ export function CreatorWriteClient({ creator, templates = [] }: { creator: Creat
           <button type="button" onClick={() => router.back()} className={styles.btnSecondary}>
             취소
           </button>
-          <button type="submit" disabled={saving} className={styles.btnPrimary}>
-            {saving ? '발행 중…' : form.publish_mode === 'scheduled' ? '예약 발행' : '발행'}
-          </button>
+          {step > 0 && (
+            <button type="button" onClick={() => { setErr(''); setStep(s => s - 1); }} className={styles.btnSecondary}>
+              이전
+            </button>
+          )}
+          {step < 3 ? (
+            <button
+              type="button"
+              onClick={() => {
+                setErr('');
+                if (step === 0) {
+                  if (!form.title.trim()) { setErr('제목을 입력해주세요.'); return; }
+                  if (!form.body.trim()) { setErr('본문을 입력해주세요.'); return; }
+                }
+                if (step === 2 && form.is_member_only && !creator.membership_enabled) {
+                  setErr('멤버 전용 글은 멤버십을 먼저 활성화해야 해요.');
+                  return;
+                }
+                setStep(s => s + 1);
+              }}
+              className={styles.btnPrimary}
+            >
+              다음
+            </button>
+          ) : (
+            <button type="submit" disabled={saving} className={styles.btnPrimary}>
+              {saving ? '발행 중…' : form.publish_mode === 'scheduled' ? '예약 발행' : '발행'}
+            </button>
+          )}
         </div>
       </form>
     </main>
