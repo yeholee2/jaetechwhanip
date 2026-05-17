@@ -14,6 +14,8 @@ const NAV_ITEMS = [
   { href: '/admin/comments', label: '댓글' },
   { href: '/admin/users', label: '사용자' },
   { href: '/admin/sparring', label: '스파링' },
+  { href: '/admin/creators', label: '크리에이터' },
+  { href: '/admin/payouts', label: '정산' },
   { href: '/admin/reports', label: '리포트' },
   { href: '/admin/settings', label: '설정' },
   { href: '/admin/setup', label: '⚙️ 초기 설정' },

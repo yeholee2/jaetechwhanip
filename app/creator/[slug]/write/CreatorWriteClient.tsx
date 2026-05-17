@@ -60,12 +60,18 @@ export function CreatorWriteClient({ creator }: { creator: Creator }) {
           is_member_only: form.is_member_only,
           is_published: true,
         })
-        .select('slug')
+        .select('id, slug')
         .single();
       if (error) {
         setErr(error.message);
         return;
       }
+      // 팔로워/멤버 알림 메일 — 실패해도 발행은 성공으로.
+      fetch('/api/creator/posts/notify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ postId: data!.id }),
+      }).catch(() => {});
       router.push(`/creator/${creator.slug}/posts/${data!.slug}`);
     } finally {
       setSaving(false);
