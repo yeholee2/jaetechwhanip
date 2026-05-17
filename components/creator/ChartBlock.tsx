@@ -53,7 +53,9 @@ export type ChartBlockData = {
   showVolume?: boolean;
 };
 
-type Tool = 'select' | 'trendline' | 'hline' | 'rect' | 'text' | 'ruler';
+type Tool = 'select' | 'trendline' | 'hline' | 'rect' | 'text' | 'ruler' | 'emoji';
+
+const EMOJI_PALETTE = ['🚀', '💎', '🔥', '⚠️', '🎯', '💰', '📌', '👀', '✅', '❌'];
 
 /** 좌측 세로 툴바 아이콘 — TradingView/빗썸 스타일 SVG */
 function ToolIcon({ name, size = 18 }: { name: string; size?: number }) {
@@ -75,6 +77,16 @@ function ToolIcon({ name, size = 18 }: { name: string; size?: number }) {
       return <svg viewBox="0 0 24 24" {...s}><path d="M5 4v9a7 7 0 0 0 14 0V4M5 4h4v9M15 4h4v9" /></svg>;
     case 'clear':
       return <svg viewBox="0 0 24 24" {...s}><path d="M6 6l12 12M18 6L6 18" /></svg>;
+    case 'emoji':
+      return <svg viewBox="0 0 24 24" {...s}><circle cx="12" cy="12" r="9" /><circle cx="9" cy="10" r="0.8" fill="currentColor" /><circle cx="15" cy="10" r="0.8" fill="currentColor" /><path d="M9 14.5c1 1 2 1.5 3 1.5s2-.5 3-1.5" /></svg>;
+    case 'zoomfit':
+      return <svg viewBox="0 0 24 24" {...s}><circle cx="11" cy="11" r="6" /><path d="M15.5 15.5 20 20M9 11h4M11 9v4" /></svg>;
+    case 'lock':
+      return <svg viewBox="0 0 24 24" {...s}><rect x="5" y="11" width="14" height="9" rx="1.5" /><path d="M8 11V7a4 4 0 0 1 8 0v4" /></svg>;
+    case 'eye':
+      return <svg viewBox="0 0 24 24" {...s}><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z" /><circle cx="12" cy="12" r="3" /></svg>;
+    case 'layers':
+      return <svg viewBox="0 0 24 24" {...s}><path d="M12 3 3 8l9 5 9-5-9-5z" /><path d="M3 13l9 5 9-5M3 18l9 5 9-5" /></svg>;
     default:
       return null;
   }
@@ -144,6 +156,11 @@ export function ChartBlock({
   const [error, setError] = useState('');
   const [tool, setTool] = useState<Tool>('select');
   const [magnet, setMagnet] = useState(false);
+  const [locked, setLocked] = useState(false);
+  const [drawingsVisible, setDrawingsVisible] = useState(true);
+  const [showLayers, setShowLayers] = useState(false);
+  const [emojiChar, setEmojiChar] = useState<string>('🚀');
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [color, setColor] = useState(COLORS[0]);
   const [draft, setDraft] = useState<{ a: Pt } | null>(null);
   const [hoverXY, setHoverXY] = useState<{ x: number; y: number } | null>(null);
@@ -346,6 +363,12 @@ export function ChartBlock({
       pushDrawing({ id: uid(), kind: 'text', t: pt.t, p: pt.p, text, color });
       return;
     }
+    if (tool === 'emoji') {
+      const pt = unproject(x, y);
+      if (!pt) return;
+      pushDrawing({ id: uid(), kind: 'text', t: pt.t, p: pt.p, text: emojiChar });
+      return;
+    }
     if (tool === 'trendline' || tool === 'rect') {
       const pt = unproject(x, y);
       if (!pt) return;
@@ -378,12 +401,20 @@ export function ChartBlock({
     }
   };
 
-  const pushDrawing = (d: Drawing) => onChange?.({ ...data, drawings: [...drawings, d] });
-  const removeDrawing = (id: string) => onChange?.({ ...data, drawings: drawings.filter(d => d.id !== id) });
+  const pushDrawing = (d: Drawing) => {
+    if (locked) return;
+    onChange?.({ ...data, drawings: [...drawings, d] });
+  };
+  const removeDrawing = (id: string) => {
+    if (locked) return;
+    onChange?.({ ...data, drawings: drawings.filter(d => d.id !== id) });
+  };
   const clearAll = () => {
+    if (locked) { alert('🔒 잠금 해제 후 시도해주세요'); return; }
     if (!confirm('모든 그림을 지울까요?')) return;
     onChange?.({ ...data, drawings: [] });
   };
+  const zoomFit = () => chartRef.current?.timeScale().fitContent();
 
   /* ---------- 그림 렌더 ---------- */
   const w = containerRef.current?.clientWidth || 600;
@@ -571,9 +602,23 @@ export function ChartBlock({
             <ToolBtn icon="hline" label="수평선" active={tool === 'hline'} onClick={() => { setTool('hline'); setDraft(null); }} />
             <ToolBtn icon="rect" label="박스" active={tool === 'rect'} onClick={() => { setTool('rect'); setDraft(null); }} />
             <ToolBtn icon="text" label="텍스트" active={tool === 'text'} onClick={() => { setTool('text'); setDraft(null); }} />
+            <div className={styles.emojiWrap}>
+              <ToolBtn icon="emoji" label={`이모지 (현재: ${emojiChar})`} active={tool === 'emoji'} onClick={() => { setTool('emoji'); setShowEmojiPicker(s => !s); setDraft(null); }} />
+              {showEmojiPicker && (
+                <div className={styles.emojiPicker}>
+                  {EMOJI_PALETTE.map(e => (
+                    <button key={e} type="button" onClick={() => { setEmojiChar(e); setShowEmojiPicker(false); }} className={`${styles.emojiOpt} ${emojiChar === e ? styles.emojiOptOn : ''}`}>{e}</button>
+                  ))}
+                </div>
+              )}
+            </div>
             <div className={styles.toolDiv} />
             <ToolBtn icon="ruler" label="자 (측정)" active={tool === 'ruler'} onClick={() => { setTool('ruler'); setDraft(null); }} />
+            <ToolBtn icon="zoomfit" label="줌 맞춤" onClick={zoomFit} />
+            <div className={styles.toolDiv} />
             <ToolBtn icon="magnet" label="자석 (OHLC 스냅)" active={magnet} onClick={() => setMagnet(m => !m)} />
+            <ToolBtn icon="lock" label={locked ? '잠금 해제' : '편집 잠금'} active={locked} onClick={() => setLocked(l => !l)} />
+            <ToolBtn icon="eye" label={drawingsVisible ? '그림 숨기기' : '그림 보이기'} active={!drawingsVisible} onClick={() => setDrawingsVisible(v => !v)} />
             <div className={styles.toolDiv} />
             <div className={styles.colorCol}>
               {COLORS.map(c => (
@@ -585,6 +630,30 @@ export function ChartBlock({
             </div>
             <div className={styles.toolDiv} />
             <ToolBtn icon="clear" label="모두 지우기" onClick={clearAll} danger />
+            <ToolBtn icon="layers" label={`그림 목록 (${drawings.length})`} active={showLayers} onClick={() => setShowLayers(s => !s)} />
+          </div>
+        )}
+
+        {/* 레이어 패널 — 그림 목록 + 개별 삭제 */}
+        {editable && showLayers && (
+          <div className={styles.layersPanel}>
+            <header>
+              <strong>그림 목록</strong>
+              <button type="button" onClick={() => setShowLayers(false)}>×</button>
+            </header>
+            {drawings.length === 0 ? (
+              <p className={styles.layersEmpty}>아직 그린 게 없어요</p>
+            ) : (
+              <ul>
+                {drawings.map((d, i) => (
+                  <li key={d.id}>
+                    <span style={{ color: d.color || '#3182F6' }}>●</span>
+                    <span>{labelFor(d)}</span>
+                    <button type="button" onClick={() => removeDrawing(d.id)} disabled={locked} aria-label="삭제">×</button>
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
         )}
 
@@ -598,7 +667,7 @@ export function ChartBlock({
             onMouseLeave={onSvgLeave}
             onClick={onSvgClick}
           >
-            {renderedDrawings}
+            {drawingsVisible && renderedDrawings}
             {draftPreview}
           </svg>
 
@@ -617,6 +686,14 @@ export function ChartBlock({
       )}
     </div>
   );
+}
+
+function labelFor(d: Drawing): string {
+  if (d.kind === 'trendline') return '추세선';
+  if (d.kind === 'hline') return `수평선 ${d.price.toFixed(2)}`;
+  if (d.kind === 'rect') return '박스';
+  if (d.kind === 'text') return d.text.length > 14 ? d.text.slice(0, 14) + '…' : d.text;
+  return '그림';
 }
 
 function ToolBtn({ icon, label, active, danger, onClick }: { icon: string; label: string; active?: boolean; danger?: boolean; onClick: () => void }) {

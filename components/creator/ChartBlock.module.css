@@ -221,6 +221,118 @@
   margin: 4px 0;
 }
 
+/* 이모지 피커 — 툴바 오른쪽 floating */
+.emojiWrap {
+  position: relative;
+}
+.emojiPicker {
+  position: absolute;
+  left: 36px;
+  top: 0;
+  z-index: 10;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 4px;
+  padding: 6px;
+  background: var(--rw-card);
+  border: 1px solid var(--rw-border);
+  border-radius: 8px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.10);
+}
+.emojiOpt {
+  width: 28px;
+  height: 28px;
+  border: 1px solid transparent;
+  background: transparent;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 18px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 100ms, border 100ms;
+}
+.emojiOpt:hover { background: var(--rw-card-muted); }
+.emojiOptOn { border-color: var(--rw-primary); background: var(--rw-primary-bg); }
+
+/* 레이어(그림 목록) 패널 */
+.layersPanel {
+  width: 220px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px;
+  background: var(--rw-card);
+  border: 1px solid var(--rw-border);
+  border-radius: 10px;
+  max-height: 440px;
+  overflow-y: auto;
+}
+.layersPanel header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--rw-border);
+}
+.layersPanel header strong {
+  font-size: 13px;
+  font-weight: 900;
+  color: var(--rw-text-strong);
+}
+.layersPanel header button {
+  border: none;
+  background: transparent;
+  font-size: 16px;
+  cursor: pointer;
+  color: var(--rw-text-muted);
+  line-height: 1;
+}
+.layersEmpty {
+  margin: 0;
+  padding: 20px 0;
+  font-size: 12px;
+  text-align: center;
+  color: var(--rw-text-muted);
+}
+.layersPanel ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.layersPanel li {
+  display: grid;
+  grid-template-columns: 14px 1fr 22px;
+  gap: 8px;
+  align-items: center;
+  padding: 6px 4px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--rw-text-body);
+}
+.layersPanel li:hover { background: var(--rw-card-muted); }
+.layersPanel li button {
+  border: none;
+  background: transparent;
+  color: var(--rw-text-muted);
+  font-size: 16px;
+  cursor: pointer;
+  line-height: 1;
+  border-radius: 4px;
+  padding: 0;
+}
+.layersPanel li button:hover:not(:disabled) {
+  background: rgba(228,41,57,0.10);
+  color: var(--rw-red60);
+}
+.layersPanel li button:disabled { opacity: 0.3; cursor: not-allowed; }
+
 .colorCol {
   display: flex;
   flex-direction: column;
