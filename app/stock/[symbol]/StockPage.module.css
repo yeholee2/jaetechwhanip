@@ -1,0 +1,63 @@
+.wrap {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 24px 16px 80px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.crumb {
+  display: flex;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--rw-text-muted);
+}
+.crumb a {
+  color: var(--rw-primary);
+  text-decoration: none;
+}
+.crumb a:hover { text-decoration: underline; }
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 28px 24px;
+  background: var(--rw-card);
+  border: 1px solid var(--rw-border);
+  border-radius: 18px;
+}
+
+.empty {
+  max-width: 640px;
+  margin: 80px auto;
+  padding: 0 20px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.empty h1 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 900;
+  color: var(--rw-text-strong);
+}
+.empty p {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--rw-text-body);
+}
+.empty code {
+  background: var(--rw-card-muted);
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+.empty a {
+  color: var(--rw-primary);
+  font-weight: 800;
+  text-decoration: none;
+}
+.empty a:hover { text-decoration: underline; }

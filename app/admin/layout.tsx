@@ -16,6 +16,7 @@ const NAV_ITEMS = [
   { href: '/admin/sparring', label: '스파링' },
   { href: '/admin/creators', label: '크리에이터' },
   { href: '/admin/payouts', label: '정산' },
+  { href: '/admin/holdings', label: 'ETF 보유종목' },
   { href: '/admin/reports', label: '리포트' },
   { href: '/admin/settings', label: '설정' },
   { href: '/admin/setup', label: '⚙️ 초기 설정' },

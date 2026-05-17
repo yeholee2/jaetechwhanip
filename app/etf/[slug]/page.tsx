@@ -35,6 +35,7 @@ import { EtfReturns } from './EtfReturns';
 import { EtfSectionNav } from './EtfSectionNav';
 import { fetchMaxHistory } from '@/lib/etfPriceHistory';
 import { fetchEtfHoldings } from '@/lib/etfHoldings';
+import { fetchEtfHoldingsWithCache } from '@/lib/holdingsCache';
 import { ShareButton } from '../ShareButton';
 import { RecordEtfView } from '../RecordEtfView';
 import { EtfChart } from '../EtfChart';
@@ -118,7 +119,7 @@ export default async function EtfDetailPage({ params }: Props) {
     fetchMaxHistory('^KS11'),
     fetchMaxHistory('^GSPC'),
     fetchMaxHistory('^NDX'),
-    fetchEtfHoldings(etf.code),
+    fetchEtfHoldingsWithCache(etf.code),
     fetchEtfRelatedQuestions(etf as any, 3),
   ]);
   const benchmarks = [

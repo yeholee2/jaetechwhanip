@@ -10,6 +10,7 @@
  */
 import { fetchEtfHoldings } from '@/lib/etfHoldings';
 import { fetchEtfs } from '@/lib/etfsDb';
+import { findEtfsHoldingSymbol, getHoldingsCached, upsertHoldings, normalizeSymbol } from '@/lib/holdingsCache';
 
 const UA = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 14_0) AppleWebKit/605.1.15';
 
@@ -125,44 +126,66 @@ async function parallelLimit<T, R>(items: T[], limit: number, fn: (t: T) => Prom
 }
 
 /**
- * 이 종목을 가장 많이 담은 ETF Top N.
+ * 이 종목을 가장 많이 담은 ETF Top N — Supabase 캐시 우선.
  *
- * 전략:
- *  - 시드/DB ETF 중 미국 시장 위주 스캔 (한국 ETF는 Yahoo topHoldings 잘 안 줌)
- *  - 종목 심볼 정규화 (BRK.B / BRK-B 매칭)
- *  - 비중 내림차순
+ * 흐름:
+ *  1. etf_holdings_cache 에서 symbol 인덱스로 한 방 조회 (O(1))
+ *  2. 캐시 빈약하면 live scan (Yahoo) 으로 채우고 다시 조회
+ *  3. live scan 도 캐시에 upsert 해서 다음 번에는 O(1)
  */
 export async function fetchTopEtfsHolding(symbol: string, limit = 10): Promise<EtfExposure[]> {
-  const target = symbol.toUpperCase().replace(/[.\-_]/g, '');
-  const all = await fetchEtfs(1000).catch(() => [] as Awaited<ReturnType<typeof fetchEtfs>>);
-  // 미국/해외 ETF 우선 스캔. (KR ETF holdings는 Yahoo가 잘 못줌)
-  const candidates = all
-    .filter(e => !/^[0-9]{6}$/.test(e.code))
-    .slice(0, 80); // 안전 캡
+  // 1) 캐시 우선
+  const cached = await findEtfsHoldingSymbol(symbol, limit);
+  if (cached.length >= 3) {
+    return cached.map(row => ({
+      etfCode: row.etf_code,
+      etfSlug: row.etfs?.slug,
+      etfName: row.etfs?.name || row.etf_code,
+      etfShortName: row.etfs?.short_name,
+      issuer: row.etfs?.issuer,
+      weight: row.weight,
+      aum: row.etfs?.aum || undefined,
+    }));
+  }
 
-  const results = await parallelLimit(candidates, 8, async (etf) => {
+  // 2) 캐시 부족 → live scan 으로 채우기
+  const target = normalizeSymbol(symbol);
+  const all = await fetchEtfs(1000).catch(() => [] as Awaited<ReturnType<typeof fetchEtfs>>);
+  const candidates = all
+    .filter(e => !/^[0-9]{6}$/.test(e.code)) // KR ETF는 Yahoo 부족
+    .slice(0, 80);
+
+  await parallelLimit(candidates, 8, async (etf) => {
     try {
       const data = await fetchEtfHoldings(etf.code);
-      if (!data?.holdings) return null;
-      const hit = data.holdings.find(h => {
-        const s = (h.symbol || '').toUpperCase().replace(/[.\-_]/g, '');
-        return s === target;
-      });
-      if (!hit) return null;
-      const exposure: EtfExposure = {
-        etfCode: etf.code,
-        etfSlug: etf.slug,
-        etfName: etf.name,
-        etfShortName: etf.shortName,
-        issuer: etf.issuer,
-        weight: hit.weight,
-        aum: etf.aum,
-      };
-      return exposure;
-    } catch { return null; }
+      if (data?.holdings?.length) {
+        await upsertHoldings(etf.code, data.holdings, 'yahoo');
+      }
+    } catch { /* ignore */ }
   });
 
-  return (results.filter(Boolean) as EtfExposure[])
-    .sort((a, b) => b.weight - a.weight)
-    .slice(0, limit);
+  // 3) 다시 캐시에서 조회 — 이번엔 풍부함
+  const refreshed = await findEtfsHoldingSymbol(symbol, limit);
+  if (refreshed.length > 0) {
+    return refreshed.map(row => ({
+      etfCode: row.etf_code,
+      etfSlug: row.etfs?.slug,
+      etfName: row.etfs?.name || row.etf_code,
+      etfShortName: row.etfs?.short_name,
+      issuer: row.etfs?.issuer,
+      weight: row.weight,
+      aum: row.etfs?.aum || undefined,
+    }));
+  }
+
+  // 4) 그래도 없으면 캐시에 있는 것만이라도
+  return cached.map(row => ({
+    etfCode: row.etf_code,
+    etfSlug: row.etfs?.slug,
+    etfName: row.etfs?.name || row.etf_code,
+    etfShortName: row.etfs?.short_name,
+    issuer: row.etfs?.issuer,
+    weight: row.weight,
+    aum: row.etfs?.aum || undefined,
+  }));
 }
