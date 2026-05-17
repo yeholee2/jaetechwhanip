@@ -20,6 +20,7 @@ import Image from '@tiptap/extension-image';
 import Link from '@tiptap/extension-link';
 import Placeholder from '@tiptap/extension-placeholder';
 import { useCallback, useRef } from 'react';
+import { ChartNode } from './ChartNode';
 import styles from './RichEditor.module.css';
 
 type Props = {
@@ -44,6 +45,7 @@ export function RichEditor({ value, onChange, placeholder = '본문을 작성하
         HTMLAttributes: { rel: 'noopener noreferrer', target: '_blank' },
       }),
       Placeholder.configure({ placeholder }),
+      ChartNode,
     ],
     content: value,
     onUpdate: ({ editor }) => onChange(editor.getHTML()),
@@ -74,6 +76,25 @@ export function RichEditor({ value, onChange, placeholder = '본문을 작성하
     if (f) void uploadImage(f);
     e.target.value = '';
   };
+
+  const insertChart = useCallback(() => {
+    if (!editor) return;
+    const code = window.prompt('티커를 입력하세요 (예: AAPL, SPY, 005930)');
+    if (!code) return;
+    editor
+      .chain()
+      .focus()
+      .insertContent({
+        type: 'chart',
+        attrs: {
+          code: code.trim().toUpperCase(),
+          range: '1y',
+          type: 'candle',
+          drawings: [],
+        },
+      })
+      .run();
+  }, [editor]);
 
   const addLink = useCallback(() => {
     if (!editor) return;
@@ -187,6 +208,14 @@ export function RichEditor({ value, onChange, placeholder = '본문을 작성하
           title="이미지 삽입"
         >
           🖼
+        </button>
+        <button
+          type="button"
+          className={btn(false)}
+          onClick={insertChart}
+          title="차트 삽입 — 티커로 가격 차트 + 그림 도구"
+        >
+          📊
         </button>
       </div>
 

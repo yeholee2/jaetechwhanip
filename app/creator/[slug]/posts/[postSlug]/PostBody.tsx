@@ -1,8 +1,14 @@
+'use client';
+
 /**
- * 가벼운 Markdown 렌더러 — h1-3, bold, italic, 링크, 리스트, 인용, 코드블록.
- * 외부 라이브러리 없이 안전한 변환.
+ * 본문 렌더러.
+ * - HTML 본문은 dangerouslySetInnerHTML
+ * - `<div data-chart>` 임베드는 ChartBlock 으로 치환 (읽기 전용)
+ * - legacy Markdown 도 자동 감지해 변환
  */
 
+import { useMemo } from 'react';
+import { ChartBlock, type ChartBlockData, type Drawing } from '@/components/creator/ChartBlock';
 import styles from './CreatorPost.module.css';
 
 function escapeHtml(s: string) {
@@ -16,13 +22,9 @@ function escapeHtml(s: string) {
 
 function renderInline(text: string): string {
   let out = escapeHtml(text);
-  // **bold**
   out = out.replace(/\*\*([^*\n]+)\*\*/g, '<strong>$1</strong>');
-  // *italic*
   out = out.replace(/(?<!\*)\*([^*\n]+)\*(?!\*)/g, '<em>$1</em>');
-  // [text](url)
   out = out.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
-  // `code`
   out = out.replace(/`([^`\n]+)`/g, '<code>$1</code>');
   return out;
 }
@@ -33,8 +35,6 @@ function toHtml(body: string): string {
   let i = 0;
   while (i < lines.length) {
     const line = lines[i];
-
-    // 코드 블록 ```
     if (line.trim().startsWith('```')) {
       const buf: string[] = [];
       i++;
@@ -46,17 +46,12 @@ function toHtml(body: string): string {
       out.push(`<pre><code>${buf.join('\n')}</code></pre>`);
       continue;
     }
-
-    // 헤딩
     const h = line.match(/^(#{1,3})\s+(.+)$/);
     if (h) {
-      const level = h[1].length;
-      out.push(`<h${level}>${renderInline(h[2])}</h${level}>`);
+      out.push(`<h${h[1].length}>${renderInline(h[2])}</h${h[1].length}>`);
       i++;
       continue;
     }
-
-    // 인용
     if (line.startsWith('> ')) {
       const buf: string[] = [];
       while (i < lines.length && lines[i].startsWith('> ')) {
@@ -66,8 +61,6 @@ function toHtml(body: string): string {
       out.push(`<blockquote>${buf.join('<br/>')}</blockquote>`);
       continue;
     }
-
-    // 리스트
     if (/^[-*]\s+/.test(line)) {
       const buf: string[] = [];
       while (i < lines.length && /^[-*]\s+/.test(lines[i])) {
@@ -86,11 +79,7 @@ function toHtml(body: string): string {
       out.push(`<ol>${buf.join('')}</ol>`);
       continue;
     }
-
-    // 빈 줄
     if (!line.trim()) { i++; continue; }
-
-    // 일반 단락 (연속 줄 묶기)
     const buf: string[] = [line];
     i++;
     while (i < lines.length && lines[i].trim() && !/^(#{1,3}\s|>\s|[-*]\s|\d+\.\s|```)/.test(lines[i])) {
@@ -102,21 +91,77 @@ function toHtml(body: string): string {
   return out.join('\n');
 }
 
-/**
- * TipTap 에디터에서 저장한 HTML 인지, legacy markdown 인지 자동 감지.
- * HTML 이면 그대로, markdown 이면 toHtml() 로 변환.
- */
 function isLikelyHtml(s: string): boolean {
   const trimmed = s.trim();
   return /^<(p|h[1-6]|ul|ol|blockquote|pre|div|img|figure|a)\s|^<(p|h[1-6]|ul|ol|blockquote|pre|div|img|figure)>/i.test(trimmed);
 }
 
+/**
+ * HTML 을 차트 임베드 기준으로 분할.
+ * 반환: [{ kind: 'html', html }, { kind: 'chart', data }, ...]
+ */
+type Segment =
+  | { kind: 'html'; html: string }
+  | { kind: 'chart'; data: ChartBlockData };
+
+function splitByCharts(html: string): Segment[] {
+  // <div data-chart="..." data-range="..." data-type="..." data-drawings="..."></div>
+  // (TipTap 가 self-close 가 아니라 빈 컨테이너로 직렬화)
+  const re = /<div\b[^>]*\bdata-chart="([^"]*)"[^>]*><\/div>/gi;
+  const segments: Segment[] = [];
+  let lastIndex = 0;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(html)) !== null) {
+    if (m.index > lastIndex) {
+      segments.push({ kind: 'html', html: html.slice(lastIndex, m.index) });
+    }
+    const tag = m[0];
+    const code = m[1];
+    const rangeMatch = /\bdata-range="([^"]*)"/.exec(tag);
+    const typeMatch = /\bdata-type="([^"]*)"/.exec(tag);
+    const drawingsMatch = /\bdata-drawings='([^']*)'|\bdata-drawings="([^"]*)"/.exec(tag);
+    let drawings: Drawing[] = [];
+    const drRaw = drawingsMatch?.[1] || drawingsMatch?.[2];
+    if (drRaw) {
+      try {
+        const decoded = drRaw
+          .replace(/&quot;/g, '"')
+          .replace(/&#39;/g, "'")
+          .replace(/&amp;/g, '&');
+        drawings = JSON.parse(decoded);
+      } catch { drawings = []; }
+    }
+    segments.push({
+      kind: 'chart',
+      data: {
+        code,
+        range: (rangeMatch?.[1] as any) || '1y',
+        type: (typeMatch?.[1] as any) || 'candle',
+        drawings,
+      },
+    });
+    lastIndex = m.index + m[0].length;
+  }
+  if (lastIndex < html.length) {
+    segments.push({ kind: 'html', html: html.slice(lastIndex) });
+  }
+  return segments;
+}
+
 export function PostBody({ body, className }: { body: string; className?: string }) {
-  const html = isLikelyHtml(body) ? body : toHtml(body);
+  const segments = useMemo(() => {
+    const html = isLikelyHtml(body) ? body : toHtml(body);
+    return splitByCharts(html);
+  }, [body]);
+
   return (
-    <article
-      className={`${styles.body} ${className || ''}`}
-      dangerouslySetInnerHTML={{ __html: html }}
-    />
+    <article className={`${styles.body} ${className || ''}`}>
+      {segments.map((seg, i) => {
+        if (seg.kind === 'chart') {
+          return <ChartBlock key={`c${i}`} data={seg.data} editable={false} />;
+        }
+        return <div key={`h${i}`} dangerouslySetInnerHTML={{ __html: seg.html }} />;
+      })}
+    </article>
   );
 }

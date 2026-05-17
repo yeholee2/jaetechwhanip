@@ -1,0 +1,208 @@
+.wrap {
+  max-width: 920px;
+  margin: 0 auto;
+  padding: 32px 20px 80px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+.head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.head h1 {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 900;
+  color: var(--rw-text-strong);
+  letter-spacing: -0.5px;
+}
+.head p {
+  margin: 8px 0 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--rw-text-body);
+}
+.newBtn {
+  padding: 11px 18px;
+  border: none;
+  border-radius: 10px;
+  background: var(--rw-primary);
+  color: #fff;
+  font-size: 13.5px;
+  font-weight: 900;
+  cursor: pointer;
+  transition: background 140ms;
+}
+.newBtn:hover { background: var(--rw-primary-hover); }
+
+.editor {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 20px;
+  background: var(--rw-card);
+  border: 1px solid var(--rw-primary);
+  border-radius: 14px;
+  box-shadow: 0 8px 24px rgba(27,100,218,0.10);
+}
+.editor h2 {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 900;
+  color: var(--rw-text-strong);
+}
+.editorRow {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.emojiInput {
+  width: 56px;
+  padding: 10px;
+  text-align: center;
+  font-size: 20px;
+  border: 1px solid var(--rw-border);
+  border-radius: 8px;
+  background: var(--rw-card-muted);
+}
+.nameInput {
+  flex: 1 1 240px;
+  padding: 10px 12px;
+  font-size: 14px;
+  font-weight: 700;
+  border: 1px solid var(--rw-border);
+  border-radius: 8px;
+  background: var(--rw-card-muted);
+}
+.kindSelect {
+  padding: 10px 12px;
+  font-size: 13px;
+  font-weight: 700;
+  border: 1px solid var(--rw-border);
+  border-radius: 8px;
+  background: var(--rw-card-muted);
+  cursor: pointer;
+}
+.descInput {
+  padding: 10px 12px;
+  font-size: 13.5px;
+  border: 1px solid var(--rw-border);
+  border-radius: 8px;
+  background: var(--rw-card-muted);
+}
+
+.errorBox {
+  padding: 10px 12px;
+  background: rgba(228,41,57,0.08);
+  color: var(--rw-red60);
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.editorActions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+.btnSecondary,
+.btnPrimary {
+  padding: 10px 18px;
+  border: none;
+  border-radius: 8px;
+  font-size: 13.5px;
+  font-weight: 900;
+  cursor: pointer;
+  transition: background 140ms;
+}
+.btnPrimary { background: var(--rw-primary); color: #fff; }
+.btnPrimary:hover:not(:disabled) { background: var(--rw-primary-hover); }
+.btnPrimary:disabled { opacity: 0.5; cursor: not-allowed; }
+.btnSecondary { background: var(--rw-card-muted); color: var(--rw-text-body); }
+.btnSecondary:hover { background: var(--rw-primary-bg); color: var(--rw-primary); }
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.sectionTitle {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--rw-text-muted);
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+}
+.empty {
+  padding: 28px;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--rw-text-muted);
+  background: var(--rw-card-muted);
+  border-radius: 12px;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.item {
+  padding: 14px 16px;
+  background: var(--rw-card);
+  border: 1px solid var(--rw-border);
+  border-radius: 12px;
+}
+.itemReadonly { background: var(--rw-card-muted); border-style: dashed; }
+.itemHead {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.itemEmoji {
+  font-size: 22px;
+  width: 36px;
+  text-align: center;
+}
+.itemBody {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.itemBody strong {
+  font-size: 14.5px;
+  font-weight: 900;
+  color: var(--rw-text-strong);
+}
+.itemBody span {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--rw-text-muted);
+}
+.itemActions {
+  display: flex;
+  gap: 4px;
+}
+.btnGhost,
+.btnGhostDanger {
+  padding: 6px 12px;
+  border: none;
+  background: transparent;
+  border-radius: 6px;
+  font-size: 12.5px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: background 120ms, color 120ms;
+}
+.btnGhost { color: var(--rw-primary); }
+.btnGhost:hover { background: var(--rw-primary-bg); }
+.btnGhostDanger { color: var(--rw-red60); }
+.btnGhostDanger:hover { background: rgba(228,41,57,0.10); }

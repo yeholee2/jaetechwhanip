@@ -15,7 +15,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
 import type { Creator, CreatorPost } from '@/lib/creator';
-import { type CreatorStats, activityBadge, summarize } from '@/lib/creatorStats';
+import { type CreatorStats, activityBadge, summarize } from '@/lib/creatorStatsTypes';
 import styles from './CreatorPage.module.css';
 
 type Tab = 'posts' | 'about' | 'membership';
@@ -181,6 +181,9 @@ export function CreatorPageClient({
               </Link>
               <Link href={`/creator/${creator.slug}/dashboard`} className={styles.btnSecondary}>
                 📊 대시보드
+              </Link>
+              <Link href={`/creator/${creator.slug}/templates`} className={styles.btnSecondary}>
+                🗂️ 템플릿
               </Link>
               <Link href={`/creator/${creator.slug}/edit`} className={styles.btnSecondary}>
                 편집

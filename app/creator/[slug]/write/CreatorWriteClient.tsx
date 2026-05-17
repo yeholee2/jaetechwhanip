@@ -9,11 +9,15 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { normalizeSlug, type Creator } from '@/lib/creator';
+import type { PostTemplate } from '@/lib/creatorTemplatesTypes';
 import { ImageUploader } from '@/components/creator/ImageUploader';
 import { RichEditor } from '@/components/creator/RichEditor';
+import { TemplatePicker } from '@/components/creator/TemplatePicker';
 import styles from './CreatorWrite.module.css';
 
-export function CreatorWriteClient({ creator }: { creator: Creator }) {
+export function CreatorWriteClient({ creator, templates = [] }: { creator: Creator; templates?: PostTemplate[] }) {
+  const [showTemplatePicker, setShowTemplatePicker] = useState(templates.length > 0);
+  const [pickedTemplate, setPickedTemplate] = useState<PostTemplate | null>(null);
   const router = useRouter();
   const [form, setForm] = useState({
     title: '',
@@ -78,11 +82,47 @@ export function CreatorWriteClient({ creator }: { creator: Creator }) {
     }
   };
 
+  if (showTemplatePicker) {
+    return (
+      <main className={styles.wrap}>
+        <header className={styles.head}>
+          <h1>글 작성</h1>
+          <p>{creator.display_name} · {creator.membership_enabled ? '멤버십 활성' : '무료 페이지'}</p>
+        </header>
+        <TemplatePicker
+          templates={templates}
+          onPick={t => {
+            setPickedTemplate(t);
+            setForm(f => ({ ...f, body: t.body_html }));
+            setShowTemplatePicker(false);
+          }}
+          onSkip={() => setShowTemplatePicker(false)}
+        />
+      </main>
+    );
+  }
+
   return (
     <main className={styles.wrap}>
       <header className={styles.head}>
         <h1>글 작성</h1>
-        <p>{creator.display_name} · {creator.membership_enabled ? '멤버십 활성' : '무료 페이지'}</p>
+        <p>
+          {creator.display_name} · {creator.membership_enabled ? '멤버십 활성' : '무료 페이지'}
+          {pickedTemplate && (
+            <>
+              {' · '}
+              <span style={{ color: 'var(--rw-primary)' }}>{pickedTemplate.emoji} {pickedTemplate.name} 템플릿</span>
+              {' '}
+              <button
+                type="button"
+                onClick={() => setShowTemplatePicker(true)}
+                style={{ background: 'none', border: 'none', color: 'var(--rw-text-muted)', cursor: 'pointer', fontSize: 12, textDecoration: 'underline' }}
+              >
+                변경
+              </button>
+            </>
+          )}
+        </p>
       </header>
 
       <form onSubmit={submit} className={styles.form}>

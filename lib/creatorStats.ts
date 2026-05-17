@@ -5,15 +5,10 @@
  * 네프콘식 "최근 30일 65건 발행" 자동 표시.
  */
 import { createClient } from '@/lib/supabase/server';
+import type { CreatorStats } from '@/lib/creatorStatsTypes';
 
-export type CreatorStats = {
-  posts30d: number;            // 최근 30일 발행 글
-  posts7d: number;             // 최근 7일 발행 글
-  members30d: number;          // 최근 30일 신규 멤버
-  followers30d: number;        // 최근 30일 신규 팔로워
-  lastPostAt: string | null;   // 마지막 발행일 (ISO)
-  totalLikes: number;          // 받은 좋아요 합
-};
+export type { CreatorStats } from '@/lib/creatorStatsTypes';
+export { activityBadge, summarize } from '@/lib/creatorStatsTypes';
 
 const EMPTY: CreatorStats = {
   posts30d: 0,
@@ -82,19 +77,3 @@ export async function fetchCreatorStats(creatorId: string): Promise<CreatorStats
   };
 }
 
-/** 활동 등급 — 라벨로 표시 */
-export function activityBadge(stats: CreatorStats): { label: string; tone: 'hot' | 'active' | 'steady' | 'quiet' } | null {
-  if (stats.posts7d >= 3) return { label: '🔥 활발', tone: 'hot' };
-  if (stats.posts30d >= 8) return { label: '✓ 꾸준히', tone: 'active' };
-  if (stats.posts30d >= 3) return { label: '월간 발행', tone: 'steady' };
-  return null;
-}
-
-/** "최근 30일 N건 발행" 같은 사람이 읽기 좋은 문장 */
-export function summarize(stats: CreatorStats): string[] {
-  const lines: string[] = [];
-  if (stats.posts30d > 0) lines.push(`최근 30일 ${stats.posts30d}건 발행`);
-  if (stats.members30d > 0) lines.push(`최근 30일 ${stats.members30d}명 신규 멤버`);
-  if (stats.totalLikes >= 10) lines.push(`누적 ${stats.totalLikes.toLocaleString()} 좋아요`);
-  return lines;
-}

@@ -4,10 +4,10 @@ import { AppShell } from '@/components/AppShell';
 import { createClient } from '@/lib/supabase/server';
 import type { Creator } from '@/lib/creator';
 import { fetchTemplatesForCreator } from '@/lib/creatorTemplates';
-import { CreatorWriteClient } from './CreatorWriteClient';
+import { TemplatesClient } from './TemplatesClient';
 
 export const metadata: Metadata = {
-  title: '글 작성',
+  title: '템플릿 관리',
   robots: { index: false, follow: false },
 };
 
@@ -15,10 +15,10 @@ export const dynamic = 'force-dynamic';
 
 type Props = { params: { slug: string } };
 
-export default async function CreatorWritePage({ params }: Props) {
+export default async function TemplatesPage({ params }: Props) {
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) redirect(`/auth?next=/creator/${params.slug}/write`);
+  if (!user) redirect(`/auth?next=/creator/${params.slug}/templates`);
 
   const { data } = await supabase
     .from('creators')
@@ -27,29 +27,21 @@ export default async function CreatorWritePage({ params }: Props) {
     .maybeSingle();
   const creator = data as Creator | null;
   if (!creator) notFound();
-
   if (creator.user_id !== user.id) {
-    const { data: profile } = await supabase
-      .from('users')
-      .select('role')
-      .eq('id', user.id)
-      .maybeSingle();
-    if (profile?.role !== 'admin') {
-      return (
-        <AppShell active="my" hideSlogan>
-          <main style={{ maxWidth: 640, margin: '80px auto', padding: '0 20px', textAlign: 'center' }}>
-            <h1 style={{ fontSize: 24, fontWeight: 900 }}>작성 권한이 없어요</h1>
-          </main>
-        </AppShell>
-      );
-    }
+    return (
+      <AppShell active="my" hideSlogan>
+        <main style={{ maxWidth: 640, margin: '80px auto', padding: '0 20px', textAlign: 'center' }}>
+          <h1 style={{ fontSize: 22, fontWeight: 900 }}>접근 권한이 없어요</h1>
+        </main>
+      </AppShell>
+    );
   }
 
   const templates = await fetchTemplatesForCreator(creator.id);
 
   return (
     <AppShell active="my" hideSlogan>
-      <CreatorWriteClient creator={creator} templates={templates} />
+      <TemplatesClient creator={creator} initialTemplates={templates} />
     </AppShell>
   );
 }
