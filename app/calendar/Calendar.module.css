@@ -21,70 +21,6 @@
   color: var(--rw-text-muted);
 }
 
-/* ── D-day Hero 카드 ── */
-.hero {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-4);
-  padding: var(--space-5);
-  background: linear-gradient(135deg, var(--rw-primary), #2563EB);
-  color: #fff;
-  border-radius: var(--rw-radius-lg);
-  box-shadow: 0 10px 30px rgba(27, 100, 218, 0.18);
-}
-.heroLeft {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  min-width: 0;
-}
-.heroEyebrow {
-  font-size: 11px;
-  font-weight: 900;
-  letter-spacing: 0.4px;
-  text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.78);
-}
-.heroTitle {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 22px;
-  font-weight: 900;
-  letter-spacing: -0.4px;
-  line-height: 1.3;
-}
-.heroFlag { font-size: 22px; line-height: 1; }
-.heroMeta {
-  font-size: 12.5px;
-  font-weight: 650;
-  color: rgba(255, 255, 255, 0.85);
-}
-.heroRight {
-  display: flex;
-  align-items: baseline;
-  gap: 2px;
-  flex-shrink: 0;
-}
-.heroDdayLabel {
-  font-size: 18px;
-  font-weight: 900;
-  color: rgba(255, 255, 255, 0.7);
-}
-.heroDday {
-  font-size: 56px;
-  font-weight: 900;
-  letter-spacing: -2px;
-  line-height: 1;
-  font-feature-settings: 'tnum';
-}
-@media (max-width: 640px) {
-  .hero { padding: var(--space-4); }
-  .heroTitle { font-size: 17px; }
-  .heroDday { font-size: 40px; }
-}
-
 /* Layout */
 .layout {
   display: grid;
@@ -145,11 +81,6 @@
   line-height: 1;
 }
 .miniNav button:hover { background: var(--rw-primary-bg); color: var(--rw-primary); }
-.todayBtn {
-  width: auto !important;
-  padding: 0 8px;
-  font-size: 11px !important;
-}
 
 .miniDayRow {
   display: grid;
@@ -232,10 +163,24 @@
 .aiBody {
   margin: 0;
   font-size: 13px;
-  font-weight: 650;
-  color: var(--rw-text-body);
+  font-weight: 700;
+  color: var(--rw-text-strong);
   line-height: 1.55;
+  letter-spacing: -0.2px;
 }
+.aiMore {
+  align-self: flex-start;
+  margin-top: 4px;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--rw-text-muted);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  letter-spacing: -0.1px;
+}
+.aiMore:hover { color: var(--rw-primary); }
 
 /* ── 우측 메인 ── */
 .main {
@@ -307,70 +252,56 @@
 .weekBlock {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
 }
 .weekHead {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 6px 4px;
-  font-size: 15px;
+  padding: 14px 4px 8px;
+}
+.weekTitle {
+  font-size: 16px;
   font-weight: 900;
   color: var(--rw-text-strong);
-  letter-spacing: -0.2px;
+  letter-spacing: -0.3px;
 }
-.weekCount {
+.weekColHead {
+  display: grid;
+  grid-template-columns: repeat(3, 92px);
+  gap: 12px;
+  padding-right: 16px;
   font-size: 12px;
   font-weight: 700;
   color: var(--rw-text-muted);
+  letter-spacing: -0.1px;
 }
-.weekEmpty {
-  padding: 24px 16px;
-  background: var(--rw-card-muted);
-  border-radius: 10px;
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--rw-text-muted);
-  text-align: center;
-}
+.weekColHead span { text-align: right; }
 
+/* 일자 row */
 .daysWrap {
   display: flex;
   flex-direction: column;
-  gap: 8px;
 }
-.dayGroup {
-  background: var(--rw-card);
-  border: 1px solid var(--rw-border);
-  border-radius: var(--rw-radius-lg);
-  overflow: hidden;
-  transition: border-color 200ms, box-shadow 200ms;
+.dayRow {
+  display: grid;
+  grid-template-columns: 56px minmax(0, 1fr);
+  gap: 12px;
+  align-items: start;
+  padding: 4px 0;
 }
-.dayGroupToday {
-  border-color: var(--rw-primary);
-  box-shadow: 0 0 0 1px var(--rw-primary);
-}
-.dayGroupSel {
-  border-color: var(--rw-primary);
-  box-shadow: 0 8px 24px rgba(27, 100, 218, 0.12);
-}
-.dayHead {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px 16px;
-  background: var(--rw-card-muted);
-  border-bottom: 1px solid var(--rw-border);
-}
-.dayGroupToday .dayHead { background: var(--rw-primary-bg); }
-.dayDate {
+.dayLabel {
   display: inline-flex;
   align-items: baseline;
-  gap: 8px;
-  font-size: 18px;
+  gap: 4px;
+  padding: 14px 4px 0;
+  font-feature-settings: 'tnum';
+}
+.dayNum {
+  font-size: 15px;
   font-weight: 900;
   color: var(--rw-text-strong);
-  letter-spacing: -0.4px;
+  letter-spacing: -0.3px;
   line-height: 1;
 }
 .dayDow {
@@ -378,54 +309,63 @@
   font-weight: 800;
   color: var(--rw-text-muted);
 }
-.dayGroupToday .dayDate { color: var(--rw-primary); }
-.dayDday {
-  padding: 3px 10px;
-  border-radius: 999px;
-  background: var(--rw-primary);
-  color: #fff;
-  font-size: 11px;
-  font-weight: 900;
-  letter-spacing: 0.3px;
-}
-.dayDdayPale {
-  font-size: 11.5px;
-  font-weight: 800;
+.dayRowToday .dayNum { color: var(--rw-primary); }
+.dayRowToday .dayDow { color: var(--rw-primary); }
+.dayRowSel .dayLabel { color: var(--rw-primary); }
+
+/* 빈 날 */
+.dayEmpty {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 14px 4px;
+  font-size: 13px;
+  font-weight: 650;
   color: var(--rw-text-muted);
 }
+.dayEmptyIcon { font-size: 14px; }
 
 /* 이벤트 행 */
 .eventList {
   list-style: none;
   margin: 0;
   padding: 0;
+  display: flex;
+  flex-direction: column;
 }
 .event {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
-  gap: 16px;
+  gap: 12px;
   padding: 12px 16px;
-  border-bottom: 1px solid var(--rw-hairline);
-  transition: background-color 120ms;
+  background: var(--rw-card-muted);
+  border-radius: 10px;
+  margin-bottom: 4px;
 }
-.event:hover { background: var(--rw-card-muted); }
-.event:last-child { border-bottom: none; }
-.eventMajor {
-  background: linear-gradient(to right, rgba(27, 100, 218, 0.04), transparent 50%);
-}
-.eventMajor:hover { background: linear-gradient(to right, rgba(27, 100, 218, 0.08), var(--rw-card-muted) 60%); }
+.event:hover { background: var(--rw-gray10); }
 
 .eventBody {
   display: flex;
   align-items: center;
   gap: 8px;
   min-width: 0;
-  flex: 1;
 }
-.eventFlag {
-  font-size: 15px;
+.eventIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
   flex-shrink: 0;
+}
+.eventFlag { font-size: 18px; line-height: 1; }
+.eventLogo {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: #fff;
 }
 .eventTitle {
   font-size: 13.5px;
@@ -435,65 +375,86 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  min-width: 0;
 }
-.eventMajor .eventTitle { font-weight: 900; }
-.eventTicker {
+.eventMajorBadge {
+  flex-shrink: 0;
   padding: 2px 8px;
-  background: var(--rw-card-muted);
+  background: var(--rw-gray15);
   border-radius: 6px;
   font-size: 11px;
-  font-weight: 900;
-  color: var(--rw-text-body);
-  font-family: 'SF Mono', Menlo, Consolas, monospace;
-  flex-shrink: 0;
+  font-weight: 800;
+  color: var(--rw-gray70);
+  letter-spacing: -0.1px;
 }
-.eventMajorDot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--rw-primary);
+.eventEarningsCall {
   flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px 3px 8px;
+  background: var(--rw-gray10);
+  border-radius: 999px;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--rw-gray80);
+  text-decoration: none;
+  letter-spacing: -0.1px;
+}
+.eventEarningsCall:hover {
+  background: var(--rw-gray15);
+  color: var(--rw-gray90);
+}
+.eventEarningsCallIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--rw-gray40);
+  color: #fff;
+  font-size: 7px;
+  padding-left: 1px;
 }
 
 .eventMetrics {
   display: grid;
-  grid-template-columns: repeat(3, 78px);
+  grid-template-columns: repeat(3, 92px);
   gap: 12px;
   flex-shrink: 0;
 }
 .metric {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 1px;
-}
-.metric em {
-  font-style: normal;
-  font-size: 10px;
-  font-weight: 700;
-  color: var(--rw-text-muted);
-  letter-spacing: 0.3px;
-}
-.metric strong {
+  text-align: right;
   font-size: 13px;
-  font-weight: 900;
+  font-weight: 800;
   color: var(--rw-text-strong);
   font-feature-settings: 'tnum';
+  letter-spacing: -0.2px;
 }
-.metricPrev {
-  color: var(--rw-text-muted) !important;
-  font-weight: 700 !important;
-}
+.metricPrev { color: var(--rw-text-muted); font-weight: 700; }
 
-@media (max-width: 720px) {
-  .event { gap: 8px; flex-wrap: wrap; }
+@media (max-width: 880px) {
+  .weekColHead { display: none; }
+  .dayRow { grid-template-columns: 44px minmax(0, 1fr); gap: 8px; }
+  .event {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 6px;
+  }
   .eventMetrics {
     grid-template-columns: repeat(3, 1fr);
     gap: 8px;
-    width: 100%;
-    margin-top: 4px;
   }
-  .metric { align-items: flex-start; }
+  .metric { text-align: left; }
+  .metric::before {
+    content: attr(data-label);
+    display: block;
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--rw-text-muted);
+    letter-spacing: 0.2px;
+    margin-bottom: 1px;
+  }
 }
 
 /* ── 월별 큰 뷰 ── */

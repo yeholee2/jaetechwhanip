@@ -37,19 +37,6 @@ export function CalendarClient({ events, weeks, aiSummary, todayIso }: Props) {
     [weeks, filterKind, filterRegion],
   );
 
-  // D-day Hero
-  const nextMajor = useMemo(() => {
-    const upcoming = filteredEvents
-      .filter(e => e.importance === 'major' && e.date >= todayIso)
-      .sort((a, b) => a.date.localeCompare(b.date));
-    if (upcoming.length === 0) return null;
-    const ev = upcoming[0];
-    const dDay = Math.round(
-      (new Date(ev.date).getTime() - new Date(todayIso).getTime()) / 86_400_000,
-    );
-    return { event: ev, dDay };
-  }, [filteredEvents, todayIso]);
-
   // 월간 그리드 셀
   const monthGrid = useMemo(() => buildMonthGrid(cursor), [cursor]);
   const eventsByDate = useMemo(() => {
@@ -80,11 +67,6 @@ export function CalendarClient({ events, weeks, aiSummary, todayIso }: Props) {
     d.setMonth(d.getMonth() + 1);
     setCursor(d);
   };
-  const goToday = () => {
-    setCursor(new Date(todayIso));
-    setSelectedDate(todayIso);
-  };
-
   return (
     <div className={styles.wrap}>
       <header className={styles.head}>
@@ -94,28 +76,6 @@ export function CalendarClient({ events, weeks, aiSummary, todayIso }: Props) {
         </div>
       </header>
 
-      {/* ── Hero: 다음 major 이벤트 D-day ── */}
-      {nextMajor && (
-        <section className={styles.hero}>
-          <div className={styles.heroLeft}>
-            <span className={styles.heroEyebrow}>다음 핵심 이벤트</span>
-            <strong className={styles.heroTitle}>
-              <span className={styles.heroFlag}>{nextMajor.event.region === 'us' ? '🇺🇸' : '🇰🇷'}</span>
-              {nextMajor.event.title}
-            </strong>
-            <span className={styles.heroMeta}>
-              {formatFullDate(nextMajor.event.date)}
-              {nextMajor.event.forecast && ` · 예측 ${nextMajor.event.forecast}`}
-              {nextMajor.event.previous && ` · 이전 ${nextMajor.event.previous}`}
-            </span>
-          </div>
-          <div className={styles.heroRight}>
-            <span className={styles.heroDdayLabel}>D-</span>
-            <span className={styles.heroDday}>{nextMajor.dDay === 0 ? 'DAY' : nextMajor.dDay}</span>
-          </div>
-        </section>
-      )}
-
       <div className={styles.layout}>
         {/* ── 좌측: 미니 캘린더 + AI 요약 ── */}
         <aside className={styles.side}>
@@ -124,9 +84,6 @@ export function CalendarClient({ events, weeks, aiSummary, todayIso }: Props) {
               <span className={styles.monthLabel}>{monthLabel}</span>
               <div className={styles.miniNav}>
                 <button type="button" onClick={prevMonth} aria-label="이전 달">‹</button>
-                <button type="button" onClick={goToday} aria-label="오늘로" className={styles.todayBtn}>
-                  오늘
-                </button>
                 <button type="button" onClick={nextMonth} aria-label="다음 달">›</button>
               </div>
             </div>
@@ -165,6 +122,7 @@ export function CalendarClient({ events, weeks, aiSummary, todayIso }: Props) {
               이번주 AI 요약
             </span>
             <p className={styles.aiBody}>{aiSummary}</p>
+            <button type="button" className={styles.aiMore}>자세히 보기 ›</button>
           </section>
         </aside>
 
@@ -244,7 +202,7 @@ export function CalendarClient({ events, weeks, aiSummary, todayIso }: Props) {
   );
 }
 
-// ── 주별 뷰: 요일별 그룹핑 ──
+// ── 주별 뷰: 요일별 그룹핑 (토스풍 — 7일 모두 렌더, 빈 날은 "소식이 없어요") ──
 function WeekView({
   weeks,
   todayIso,
@@ -259,48 +217,53 @@ function WeekView({
   return (
     <>
       {weeks.map(w => {
-        const grouped = groupByDate(w.events);
+        const eventsByDay = new Map<string, CalendarEvent[]>();
+        for (const e of w.events) {
+          const arr = eventsByDay.get(e.date) || [];
+          arr.push(e);
+          eventsByDay.set(e.date, arr);
+        }
+        const days = expandWeekDays(w.startDate);
         return (
           <div key={w.startDate} className={styles.weekBlock}>
             <div className={styles.weekHead}>
-              <strong>{w.week}</strong>
-              <span className={styles.weekCount}>{w.events.length}건</span>
-            </div>
-            {w.events.length === 0 ? (
-              <div className={styles.weekEmpty}>일정이 없어요</div>
-            ) : (
-              <div className={styles.daysWrap}>
-                {grouped.map(({ date, events }) => {
-                  const isToday = date === todayIso;
-                  const isSelected = date === selectedDate;
-                  const dDay = Math.round(
-                    (new Date(date).getTime() - new Date(todayIso).getTime()) / 86_400_000,
-                  );
-                  return (
-                    <div
-                      key={date}
-                      ref={el => { dayRefs.current[date] = el; }}
-                      className={`${styles.dayGroup} ${isToday ? styles.dayGroupToday : ''} ${isSelected ? styles.dayGroupSel : ''}`}
-                    >
-                      <div className={styles.dayHead}>
-                        <span className={styles.dayDate}>
-                          {new Date(date).getDate()}
-                          <span className={styles.dayDow}>{KOR_DAY[new Date(date).getDay()]}</span>
-                        </span>
-                        {isToday ? (
-                          <span className={styles.dayDday}>오늘</span>
-                        ) : dDay > 0 && dDay <= 14 ? (
-                          <span className={styles.dayDdayPale}>D-{dDay}</span>
-                        ) : null}
-                      </div>
-                      <ul className={styles.eventList}>
-                        {events.map(e => <EventRow key={e.id} event={e} />)}
-                      </ul>
-                    </div>
-                  );
-                })}
+              <strong className={styles.weekTitle}>{w.week}</strong>
+              <div className={styles.weekColHead} aria-hidden="true">
+                <span>발표</span>
+                <span>예측</span>
+                <span>이전</span>
               </div>
-            )}
+            </div>
+            <div className={styles.daysWrap}>
+              {days.map(date => {
+                const dayEvents = eventsByDay.get(date) || [];
+                const isToday = date === todayIso;
+                const isSelected = date === selectedDate;
+                const d = new Date(date);
+                return (
+                  <div
+                    key={date}
+                    ref={el => { dayRefs.current[date] = el; }}
+                    className={`${styles.dayRow} ${isToday ? styles.dayRowToday : ''} ${isSelected ? styles.dayRowSel : ''}`}
+                  >
+                    <div className={styles.dayLabel}>
+                      <span className={styles.dayNum}>{d.getDate()}</span>
+                      <span className={styles.dayDow}>{KOR_DAY[d.getDay()]}</span>
+                    </div>
+                    {dayEvents.length === 0 ? (
+                      <div className={styles.dayEmpty}>
+                        <span className={styles.dayEmptyIcon} aria-hidden="true">🗒️</span>
+                        <span>소식이 없어요</span>
+                      </div>
+                    ) : (
+                      <ul className={styles.eventList}>
+                        {dayEvents.map(e => <EventRow key={e.id} event={e} />)}
+                      </ul>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
           </div>
         );
       })}
@@ -369,31 +332,38 @@ function MonthView({
 }
 
 function EventRow({ event }: { event: CalendarEvent }) {
-  const flag = event.region === 'us' ? '🇺🇸' : '🇰🇷';
   const isMajor = event.importance === 'major';
+  const isEarnings = event.kind === 'earnings';
+  const hasMetrics = event.actual != null || event.forecast != null || event.previous != null;
   return (
-    <li className={`${styles.event} ${isMajor ? styles.eventMajor : ''}`}>
+    <li className={styles.event}>
       <div className={styles.eventBody}>
-        <span className={`${styles.eventFlag} tf`} aria-hidden="true">{flag}</span>
+        <span className={styles.eventIcon} aria-hidden="true">
+          {isEarnings && event.logo ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={event.logo} alt="" className={styles.eventLogo} />
+          ) : (
+            <span className={`${styles.eventFlag} tf`}>{event.region === 'us' ? '🇺🇸' : '🇰🇷'}</span>
+          )}
+        </span>
         <span className={styles.eventTitle}>{event.title}</span>
-        {event.kind === 'earnings' && event.ticker && (
-          <span className={styles.eventTicker}>{event.ticker}</span>
+        {isMajor && <span className={styles.eventMajorBadge}>주요</span>}
+        {isEarnings && event.earningsCallUrl && (
+          <a
+            href={event.earningsCallUrl}
+            target="_blank"
+            rel="noreferrer"
+            className={styles.eventEarningsCall}
+          >
+            <span className={styles.eventEarningsCallIcon} aria-hidden="true">▶</span>
+            어닝콜 다시 듣기
+          </a>
         )}
-        {isMajor && <span className={styles.eventMajorDot} aria-hidden="true" />}
       </div>
       <div className={styles.eventMetrics}>
-        <span className={styles.metric}>
-          <em>발표</em>
-          <strong>{event.actual ?? '—'}</strong>
-        </span>
-        <span className={styles.metric}>
-          <em>예측</em>
-          <strong>{event.forecast ?? '—'}</strong>
-        </span>
-        <span className={styles.metric}>
-          <em>이전</em>
-          <strong className={styles.metricPrev}>{event.previous ?? '—'}</strong>
-        </span>
+        <span className={styles.metric} data-label="발표">{hasMetrics ? (event.actual ?? '-') : ''}</span>
+        <span className={styles.metric} data-label="예측">{hasMetrics ? (event.forecast ?? '-') : ''}</span>
+        <span className={`${styles.metric} ${styles.metricPrev}`} data-label="이전">{hasMetrics ? (event.previous ?? '-') : ''}</span>
       </div>
     </li>
   );
@@ -427,19 +397,14 @@ function isoDate(d: Date): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
 
-function groupByDate(events: CalendarEvent[]): { date: string; events: CalendarEvent[] }[] {
-  const m = new Map<string, CalendarEvent[]>();
-  for (const e of events) {
-    const arr = m.get(e.date) || [];
-    arr.push(e);
-    m.set(e.date, arr);
+function expandWeekDays(startDate: string): string[] {
+  const days: string[] = [];
+  const base = new Date(startDate);
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(base);
+    d.setDate(base.getDate() + i);
+    days.push(isoDate(d));
   }
-  return Array.from(m.entries())
-    .sort(([a], [b]) => a.localeCompare(b))
-    .map(([date, events]) => ({ date, events }));
+  return days;
 }
 
-function formatFullDate(iso: string): string {
-  const d = new Date(iso);
-  return `${d.getMonth() + 1}월 ${d.getDate()}일 (${KOR_DAY[d.getDay()]})`;
-}
