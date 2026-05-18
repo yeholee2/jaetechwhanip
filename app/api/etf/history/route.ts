@@ -12,6 +12,8 @@
  */
 
 import { NextResponse } from 'next/server';
+import { isKrEtfCode, normalizeEtfCode } from '@/lib/etfCodes';
+import { fetchNaverDailyPrices } from '@/lib/naverEtfData';
 import { createAdminClient } from '@/lib/supabase/admin';
 
 export const runtime = 'nodejs';
@@ -127,9 +129,9 @@ async function saveToCache(code: string, items: Array<NonNullable<Awaited<Return
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
-  const code = (searchParams.get('code') || '').replace(/\D/g, '').padStart(6, '0');
+  const code = normalizeEtfCode(searchParams.get('code') || '');
   const period = (searchParams.get('period') || '3M').toUpperCase();
-  if (!/^[0-9]{6}$/.test(code)) {
+  if (!isKrEtfCode(code)) {
     return NextResponse.json({ error: 'invalid code' }, { status: 400 });
   }
   const days = PERIOD_DAYS[period] || PERIOD_DAYS['3M'];
@@ -151,6 +153,16 @@ export async function GET(request: Request) {
     return NextResponse.json({
       items: fresh.map(f => ({ date: f.date, close: f.close, nav: f.nav, volume: f.volume })),
       source: 'api',
+    });
+  }
+
+  const naver = await fetchNaverDailyPrices(code, 20);
+  if (naver.length > 0) {
+    const begin = ymdDash(beginDate);
+    const end = ymdDash(endDate);
+    return NextResponse.json({
+      items: naver.filter(item => item.date >= begin && item.date <= end),
+      source: 'naver',
     });
   }
 

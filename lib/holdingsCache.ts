@@ -182,17 +182,18 @@ export async function fetchEtfHoldingsWithCache(etfCode: string): Promise<EtfHol
         source: 'yahoo',
       }).catch(() => {});
     }
-    return data;
+    return { ...data, source: 'yahoo' };
   }
 
   // 2) KR ETF (6자리 코드) 면 Naver cu_more 폴백
-  if (/^[0-9]{6}$/.test(etfCode)) {
+  if (/^[0-9A-Z]{6}$/.test(etfCode.toUpperCase())) {
     const naverItems = await fetchNaverHoldings(etfCode).catch(() => []);
     if (naverItems.length > 0) {
       upsertHoldings(etfCode, naverItems, 'naver_top').catch(() => {});
       return {
         holdings: naverItems,
         sectors: [],
+        source: 'naver',
         // expenseRatio/dividendYield 는 모름
       };
     }

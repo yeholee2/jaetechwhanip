@@ -29,6 +29,7 @@ export async function fetchMaxHistory(code: string): Promise<PricePoint[]> {
     const r = await fetch(url, {
       headers: { 'User-Agent': 'Mozilla/5.0' },
       next: { revalidate: 86400 },
+      signal: AbortSignal.timeout(5000),
     });
     if (!r.ok) return [];
     const j = await r.json();

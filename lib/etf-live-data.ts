@@ -1,8 +1,9 @@
 import { etfs, stripEtfMarketSnapshot, type EtfInfo } from '@/lib/etfs';
+import { applyResolvedEtfCode, compactEtfName, normalizeEtfCode } from '@/lib/etfCodes';
 
 type PublicEtfPriceRow = Record<string, string | number | null | undefined>;
 
-export type EtfDataSource = 'public-api' | 'database' | 'static' | 'missing' | 'us-market';
+export type EtfDataSource = 'public-api' | 'naver' | 'database' | 'static' | 'missing' | 'us-market';
 
 export type EtfInfoWithMarketData = EtfInfo & {
   dataSource: EtfDataSource;
@@ -34,12 +35,19 @@ export async function getEtfsWithMarketData(baseEtfs: EtfInfo[] = etfs): Promise
 
   // 공공 API 결과 매핑용 인덱스 (O(n²) 회피)
   const rowByCode = new Map<string, PublicEtfPriceRow>();
+  const rowByName = new Map<string, PublicEtfPriceRow>();
   for (const row of publicRows) {
     const code = normalizeCode(readField(row, 'srtnCd'));
     if (code) rowByCode.set(code, row);
+    const name = compactEtfName(readField(row, 'itmsNm'));
+    if (name) rowByName.set(name, row);
   }
 
-  const inputEtfs = baseEtfs === etfs ? baseEtfs.map(stripEtfMarketSnapshot) : baseEtfs;
+  const inputEtfs = (baseEtfs === etfs ? baseEtfs.map(stripEtfMarketSnapshot) : baseEtfs)
+    .map(etf => {
+      const resolved = applyResolvedEtfCode(etf);
+      return resolved.code !== etf.code ? stripEtfMarketSnapshot(resolved) : resolved;
+    });
 
   return inputEtfs.map(etf => {
     // 1) 미국 상장 ETF — 한국 공공 API 대상 아님. 별도 미국 시세 API가 붙기 전까지 캐시/공백만 표시.
@@ -53,7 +61,7 @@ export async function getEtfsWithMarketData(baseEtfs: EtfInfo[] = etfs): Promise
     }
 
     // 3) 한국 ETF — 공공 API 매칭
-    const row = rowByCode.get(etf.code);
+    const row = rowByCode.get(normalizeCode(etf.code)) || rowByName.get(compactEtfName(etf.name));
     if (!row) {
       return withCachedOrMissing(etf, '공공데이터 ETF 시세 API에서 종목 미수신');
     }
@@ -65,6 +73,7 @@ export async function getEtfsWithMarketData(baseEtfs: EtfInfo[] = etfs): Promise
 
     return {
       ...etf,
+      code: normalizeCode(readField(row, 'srtnCd')) || etf.code,
       price: formatWon(readField(row, 'clpr')),
       change: formatRate(changeRate),
       changeTone: changeRate > 0 ? 'up' : changeRate < 0 ? 'down' : 'flat',
@@ -142,7 +151,7 @@ async function fetchAllPublicEtfPriceRows(): Promise<PublicEtfPriceRow[]> {
         resultType: 'json',
       });
       const url = `${FSC_ETF_PRICE_ENDPOINT}?serviceKey=${encodedServiceKey}&${params.toString()}`;
-      const response = await fetch(url, { next: { revalidate } });
+      const response = await fetch(url, { next: { revalidate }, signal: AbortSignal.timeout(6000) });
       if (!response.ok) {
         console.error(`[etf-live-data] HTTP ${response.status} on page ${pageNo}`);
         break;
@@ -176,7 +185,7 @@ function readField(row: PublicEtfPriceRow, key: string) {
 }
 
 function normalizeCode(value: string) {
-  return value.replace(/\D/g, '').padStart(6, '0');
+  return normalizeEtfCode(value).replace(/[^0-9A-Z]/g, '');
 }
 
 function parseNumber(value: string) {

@@ -23,6 +23,7 @@ export type SectorWeight = {
 export type EtfHoldingsData = {
   holdings: HoldingItem[];
   sectors: SectorWeight[];
+  source?: 'yahoo' | 'naver';
   /** 운용보수 (예: 0.0007 = 0.07%) */
   expenseRatio?: number;
   /** 배당수익률 (예: 0.0123 = 1.23%) */

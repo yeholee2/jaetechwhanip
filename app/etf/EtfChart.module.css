@@ -206,6 +206,39 @@
 .down { color: var(--rw-blue70); }
 .flat { color: var(--rw-text-muted); }
 
+.modeTabs {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 4px;
+  padding: 4px;
+  border: 1px solid var(--rw-hairline);
+  border-radius: var(--rw-radius-sm);
+  background: var(--rw-card-muted);
+}
+
+.modeTab {
+  min-width: 0;
+  height: 34px;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--rw-text-muted);
+  font-size: 12px;
+  font-weight: 900;
+  cursor: pointer;
+  transition: background-color 120ms ease, color 120ms ease, box-shadow 120ms ease;
+}
+
+.modeTab:hover {
+  color: var(--rw-text-body);
+}
+
+.modeTabOn {
+  background: var(--rw-card);
+  color: var(--rw-text-strong);
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.08);
+}
+
 /* 기간 토글 — 펀ETF 스타일 segmented control */
 .tabs {
   display: flex;

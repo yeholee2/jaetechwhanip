@@ -13,7 +13,7 @@ export type EtfLivePrice = {
   aum?: string;
   nav?: string;
   baseDate?: string;
-  dataSource: 'public-api' | 'database' | 'static' | 'missing' | 'us-market';
+  dataSource: 'public-api' | 'naver' | 'database' | 'static' | 'missing' | 'us-market';
 };
 
 export type EtfLivePricesResponse = {

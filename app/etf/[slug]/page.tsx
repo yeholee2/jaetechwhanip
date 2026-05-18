@@ -39,6 +39,8 @@ import { ShareButton } from '../ShareButton';
 import { RecordEtfView } from '../RecordEtfView';
 import { EtfChart } from '../EtfChart';
 import { RangeBar } from '@/components/etf/RangeBar';
+import { applyResolvedEtfCode, isKrEtfCode } from '@/lib/etfCodes';
+import { fetchNaverDailyPrices, fetchNaverEtfNavHistory, fetchNaverEtfRealtime } from '@/lib/naverEtfData';
 // import { EtfChat } from '../EtfChat'; // 일단 제거
 import styles from './EtfDetailPage.module.css';
 
@@ -74,9 +76,34 @@ function returnToneClass(pct: number | null) {
   return pct > 0 ? styles.returnUp : styles.returnDown;
 }
 
+function parsePercentValue(value: string | null | undefined) {
+  const n = Number(String(value || '').replace(/[^\d.-]/g, ''));
+  return Number.isFinite(n) ? n : null;
+}
+
+function metricToneLabel(kind: 'fee' | 'premium' | 'volume', value: string | number | null | undefined) {
+  if (kind === 'fee') {
+    const pct = typeof value === 'number' ? value : parsePercentValue(value as string);
+    if (pct == null) return '공시 확인';
+    if (pct <= 0.1) return '낮음';
+    if (pct <= 0.5) return '보통';
+    return '높음';
+  }
+  if (kind === 'premium') {
+    const pct = typeof value === 'number' ? value : parsePercentValue(value as string);
+    if (pct == null) return '공시 확인';
+    const abs = Math.abs(pct);
+    if (abs <= 0.2) return '정상 범위';
+    if (abs <= 0.5) return '확인 필요';
+    return '주의';
+  }
+  return hasFactValue(String(value || '')) ? '거래 확인' : '공시 확인';
+}
+
 type Props = { params: { slug: string } };
 
 export const revalidate = 300;
+export const dynamic = 'force-dynamic';
 
 export function generateStaticParams() {
   return etfs.map(etf => ({ slug: etf.slug }));
@@ -84,9 +111,10 @@ export function generateStaticParams() {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const decodedSlug = decodeURIComponent(params.slug);
-  const etf = await fetchEtfBySlug(decodedSlug)
+  const rawEtf = await fetchEtfBySlug(decodedSlug)
     || await fetchEtfByCode(decodedSlug)
     || getEtfBySlug(decodedSlug);
+  const etf = rawEtf ? applyResolvedEtfCode(rawEtf) : undefined;
   if (!etf) return { title: 'ETF를 찾을 수 없어요', robots: { index: false, follow: true } };
 
   const description = truncateDescription(`${etf.name}: ${etf.summary} 현재가, 순자산, 총보수, 분배금, 환헤지, 구성종목과 관련 질문을 함께 봅니다.`, 150);
@@ -123,31 +151,56 @@ export default async function EtfDetailPage({ params }: Props) {
 
   if (!baseEtf) notFound();
 
-  // 2) 선택된 ETF 1개에만 공공 시세 API를 코드로 매칭한다. 실패 시 시드 가격으로 대체하지 않는다.
-  const [etf] = await getEtfsWithMarketData([baseEtf]);
+  const resolvedBaseEtf = applyResolvedEtfCode(baseEtf);
+
+  // 2) 선택된 ETF 1개에만 실제 시세 API를 코드로 매칭한다. 실패 시 시드 가격으로 대체하지 않는다.
+  const [marketEtf] = await getEtfsWithMarketData([resolvedBaseEtf]);
+  const naverRealtime = isKrEtfCode(marketEtf.code)
+    ? await fetchNaverEtfRealtime(marketEtf.code)
+    : null;
+  const etf = naverRealtime
+    ? {
+        ...marketEtf,
+        code: naverRealtime.code,
+        price: naverRealtime.price || marketEtf.price,
+        change: naverRealtime.change || marketEtf.change,
+        changeTone: naverRealtime.changeTone,
+        volume: naverRealtime.volume || marketEtf.volume,
+        aum: naverRealtime.aum || marketEtf.aum,
+        nav: naverRealtime.nav || marketEtf.nav,
+        tradeValue: naverRealtime.tradeValue || marketEtf.tradeValue,
+        baseDate: naverRealtime.baseDate || marketEtf.baseDate,
+        premium: typeof naverRealtime.premium === 'number' ? naverRealtime.premium : marketEtf.premium,
+        dataSource: 'naver' as const,
+        dataNotice: '네이버증권 실시간 시세 기준',
+      }
+    : marketEtf;
 
   const etfNav = 'nav' in etf ? etf.nav : undefined;
   const etfBaseDate = 'baseDate' in etf ? etf.baseDate : undefined;
   const etfPremium = 'premium' in etf ? (etf as any).premium as number | undefined : undefined;
 
   // 분절 해소: ETF 키워드로 4페이지 + 리포트 연결 + DB 풀(유사/운용사용)
-  const contentBaseEtf = dbEtfByCode || staticEtf || etf;
+  const contentBaseEtf = applyResolvedEtfCode(dbEtfByCode || staticEtf || etf);
 
   // 멀티 벤치마크 — 펀ETF 톤: KOSPI · S&P500(H) · 나스닥100(H) 동시 fetch
   const [
     sparringRes, articles, reports, dbPool, priceHistory,
     kospiHistory, sp500History, nasdaq100History,
-    liveHoldings, relatedQs,
+    liveHoldings, navHistory, relatedQs,
   ] = await Promise.all([
     listSparrings(),
     fetchGhostArticles(),
     fetchRecentReportsWithFallback(),
     fetchEtfs(2000),
-    fetchMaxHistory(etf.code),
+    isKrEtfCode(etf.code) && /[A-Z]/.test(etf.code)
+      ? fetchNaverDailyPrices(etf.code, 8).then(items => items.length > 0 ? items : fetchMaxHistory(etf.code))
+      : fetchMaxHistory(etf.code),
     fetchMaxHistory('^KS11'),
     fetchMaxHistory('^GSPC'),
     fetchMaxHistory('^NDX'),
     fetchEtfHoldingsWithCache(etf.code),
+    isKrEtfCode(etf.code) ? fetchNaverEtfNavHistory(etf.code) : Promise.resolve([]),
     fetchEtfRelatedQuestions(etf as any, 3),
   ]);
 
@@ -159,7 +212,10 @@ export default async function EtfDetailPage({ params }: Props) {
   ];
   // DB 기반 유사 ETF + 같은 운용사
   const similarResults = findSimilarEtfs(etf as any, dbPool, 6);
-  const relatedEtfs = similarResults.map(r => r.etf).slice(0, 5);
+  const similarLiveList = similarResults.length > 0
+    ? await getEtfsWithMarketData(similarResults.slice(0, 4).map(result => applyResolvedEtfCode(result.etf)))
+    : [];
+  const similarLiveBySlug = new Map(similarLiveList.map(item => [item.slug, item]));
   // 같은 운용사 — 비슷한 ETF 와 중복되면 표시 안 함 (정보 가치 낮음)
   const similarCodes = new Set(similarResults.map(r => r.etf.code));
   const issuerRaw = buildIssuerSummary(etf as any, dbPool);
@@ -185,7 +241,7 @@ export default async function EtfDetailPage({ params }: Props) {
   const latestHistoryDate = priceHistory.length > 0
     ? priceHistory[priceHistory.length - 1].date
     : etfBaseDate;
-  const naverFinanceUrl = /^[0-9]{6}$/.test(etf.code)
+  const naverFinanceUrl = isKrEtfCode(etf.code)
     ? `https://finance.naver.com/item/main.naver?code=${etf.code}`
     : null;
 
@@ -219,6 +275,50 @@ export default async function EtfDetailPage({ params }: Props) {
         label: '국내 자산',
         sub: '원화 기준',
       };
+
+  const oneMonthReturn = returnSummary.find(item => item.key === 'm1')?.pct ?? null;
+  const threeMonthReturn = returnSummary.find(item => item.key === 'm3')?.pct ?? null;
+  const premiumLabel = typeof etfPremium === 'number'
+    ? `${etfPremium > 0 ? '+' : ''}${etfPremium.toFixed(2)}%`
+    : '';
+  const decisionCards = [
+    {
+      label: '현재가',
+      value: etf.price,
+      sub: etf.change || etfBaseDate || etf.dataNotice,
+      tone: etf.changeTone,
+    },
+    {
+      label: '1개월',
+      value: formatReturn(oneMonthReturn),
+      sub: latestHistoryDate ? `${latestHistoryDate} 종가` : '가격 데이터 기준',
+      tone: oneMonthReturn && oneMonthReturn > 0 ? 'up' : oneMonthReturn && oneMonthReturn < 0 ? 'down' : 'flat',
+    },
+    {
+      label: '3개월',
+      value: formatReturn(threeMonthReturn),
+      sub: threeMonthReturn == null ? '상장/가격 데이터 부족' : '단순 종가 기준',
+      tone: threeMonthReturn && threeMonthReturn > 0 ? 'up' : threeMonthReturn && threeMonthReturn < 0 ? 'down' : 'flat',
+    },
+    {
+      label: '순자산',
+      value: etf.aum,
+      sub: hasFactValue(etf.aum) ? '실제 수집값' : '공시 확인 필요',
+      tone: 'flat',
+    },
+    {
+      label: '총보수',
+      value: etf.fee,
+      sub: metricToneLabel('fee', etf.fee),
+      tone: 'flat',
+    },
+    {
+      label: '괴리율',
+      value: premiumLabel,
+      sub: metricToneLabel('premium', etfPremium),
+      tone: typeof etfPremium === 'number' && etfPremium > 0 ? 'up' : typeof etfPremium === 'number' && etfPremium < 0 ? 'down' : 'flat',
+    },
+  ];
 
   // 분배금 히스토리 (분배 있는 ETF만)
 
@@ -358,10 +458,17 @@ export default async function EtfDetailPage({ params }: Props) {
               </div>
             )}
             <div className={styles.actions}>
-              <WatchButton code={etf.code} shortName={etf.shortName} mode="icon" />
+              <WatchButton code={etf.code} shortName={etf.shortName} mode="full" />
+              <Button href={`/etf/compare?a=${etf.code}`} variant="primary" size="md">
+                <FaIcon name="scale-balanced" size={13} />
+                비교
+              </Button>
+              <Button href="/etf?tab=watch&view=recent" variant="outline" size="md">
+                <FaIcon name="clock-rotate-left" size={13} />
+                최근 본
+              </Button>
               <AlertButton etfCode={etf.code} etfName={etf.shortName} currentPrice={etf.price} />
-              <Button href={`/etf/compare?a=${etf.code}`} variant="primary" size="md">비교하기</Button>
-              <Button href="/questions/create" variant="ghost" size="md">질문하기</Button>
+              <Button href="/questions/create" variant="ghost" size="md">질문</Button>
             </div>
           </div>
           <div className={styles.heroPrice}>
@@ -393,6 +500,27 @@ export default async function EtfDetailPage({ params }: Props) {
                 </p>
               );
             })()}
+          </div>
+        </section>
+
+        <section className={styles.decisionSummary} aria-label="투자 판단 요약">
+          <div className={styles.decisionIntro}>
+            <span>투자 판단 요약</span>
+            <strong>{insight.oneLiner}</strong>
+            <p>{etf.dataNotice || (etfBaseDate ? `${etfBaseDate} 기준` : '실제 수집 데이터 기준')}</p>
+          </div>
+          <div className={styles.decisionGrid}>
+            {decisionCards.map(card => (
+              <div key={card.label} className={styles.decisionCard}>
+                <span>{card.label}</span>
+                {hasFactValue(card.value) ? (
+                  <strong className={styles[`delta_${card.tone}`] || undefined}>{card.value}</strong>
+                ) : (
+                  <FactValue value={null} />
+                )}
+                {card.sub && <p>{card.sub}</p>}
+              </div>
+            ))}
           </div>
         </section>
 
@@ -473,6 +601,7 @@ export default async function EtfDetailPage({ params }: Props) {
                 price={etf.price}
                 changeTone={etf.changeTone}
                 history={priceHistory}
+                navHistory={navHistory}
                 benchmarks={benchmarks}
               />
               {returnSummary.some(item => item.pct != null) && (
@@ -783,92 +912,85 @@ export default async function EtfDetailPage({ params }: Props) {
             {/* ──────────── ③ 구성종목: 보유 종목 + 섹터 ──────────── */}
             <section id="sec-inside" className={styles.section}>
               <div className={styles.sectionHead}>
-                <h2>
-                  {(() => {
-                    const isNaverFallback = liveHoldings?.holdings?.length
-                      ? liveHoldings.holdings.reduce((s, h) => s + h.weight, 0) < 0.92
-                      : false;
-                    if (liveHoldings?.holdings?.length) {
-                      return `${isNaverFallback ? '구성종목 추정' : '구성종목'} Top ${Math.min(liveHoldings.holdings.length, 10)}`;
-                    }
-                    if (etf.holdings?.length) return `구성종목 참고 Top ${etf.holdings.length}`;
-                    return '구성종목';
-                  })()}
-                </h2>
-                {(() => {
-                  // Naver 폴백 감지: 비중 합 < 0.92 면 Naver (Yahoo 는 ~1.0)
-                  const isNaverFallback = liveHoldings?.holdings?.length
-                    ? liveHoldings.holdings.reduce((s, h) => s + h.weight, 0) < 0.92
-                    : false;
-                  return (
-                    <span>
-                      {liveHoldings?.holdings?.length
-                        ? (isNaverFallback ? '공식 PDF 전 확인용' : '외부 데이터 기준')
-                        : etf.holdings?.length
-                          ? '참고용 데이터'
-                          : '운용사 공시'}
-                    </span>
-                  );
-                })()}
+                <h2>{liveHoldings?.holdings?.length ? `구성종목 Top ${Math.min(liveHoldings.holdings.length, 10)}` : '구성종목'}</h2>
+                <span>
+                  {liveHoldings?.source === 'naver'
+                    ? '네이버 ETF분석 기준'
+                    : liveHoldings?.source === 'yahoo'
+                      ? 'Yahoo Finance 기준'
+                      : etf.holdings?.length
+                        ? '참고용 데이터'
+                        : '운용사 공시'}
+                </span>
               </div>
               {(() => {
                 if (liveHoldings?.holdings?.length) {
-                  const totalWeight = liveHoldings.holdings.reduce((s, h) => s + h.weight, 0);
-                  const isNaverFallback = totalWeight < 0.92;
-                  const max = Math.max(...liveHoldings.holdings.map(h => h.weight), 0.01);
-                  const showDonut = liveHoldings.holdings.length >= 5;
+                  const hasWeights = liveHoldings.holdings.some(h => h.weight > 0);
                   const topN = liveHoldings.holdings.slice(0, 10);
+                  const topHolding = topN[0];
                   const topSum = topN.reduce((s, h) => s + h.weight, 0);
-                  const segments = topN.map(h => ({
+                  const showDonut = hasWeights && liveHoldings.holdings.length >= 5;
+                  const segments = topN.filter(h => h.weight > 0).map(h => ({
                     label: h.name,
                     value: h.weight * 100,
                   }));
-                  if (topSum < 1) {
+                  if (hasWeights && topSum < 1) {
                     segments.push({ label: '기타', value: (1 - topSum) * 100 });
                   }
-                  const list = (
-                    <div className={styles.holdingList}>
-                      {liveHoldings.holdings.map(h => {
-                        const row = (
-                          <div className={styles.holdingRow}>
-                            <div className={styles.holdingInfo}>
-                              <strong>{h.name}</strong>
-                              <p>{h.symbol}</p>
-                            </div>
-                            <div className={styles.holdingBar} aria-hidden="true">
-                              <span style={{ width: `${(h.weight / max) * 100}%` }} />
-                            </div>
-                            <b className={styles.holdingPct}>
-                              {(h.weight * 100).toFixed(2)}%
-                              {isNaverFallback && <span style={{ fontSize: 10, color: 'var(--rw-text-muted)', marginLeft: 4 }}>≈</span>}
-                            </b>
-                          </div>
-                        );
-                        return h.symbol ? (
-                          <HoldingClickable key={h.symbol} symbol={h.symbol} displayName={h.name}>
-                            {row}
-                          </HoldingClickable>
-                        ) : (
-                          <div key={h.name}>{row}</div>
-                        );
-                      })}
-                      {isNaverFallback && (
-                        <div style={{
-                          padding: '10px 12px',
-                          background: 'var(--rw-card-muted)',
-                          borderRadius: 8,
-                          fontSize: 12,
-                          fontWeight: 600,
-                          color: 'var(--rw-text-muted)',
-                          marginTop: 6,
-                          lineHeight: 1.5,
-                        }}>
-                          ≈ 비중은 네이버 구성종목과 종목 시가총액으로 계산한 참고용 추정치예요. 정확한 비중은 운용사 공식 PDF를 확인하세요.
-                        </div>
-                      )}
+                  const sourceLabel = liveHoldings.source === 'naver' ? '네이버 구성비중' : '외부 구성비중';
+                  const table = (
+                    <div className={styles.holdingsTableWrap}>
+                      <table className={styles.holdingsTable}>
+                        <thead>
+                          <tr>
+                            <th>종목</th>
+                            <th>코드</th>
+                            <th>비중</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {topN.map((h, index) => (
+                            <tr key={`${h.symbol || h.name}-${index}`}>
+                              <td>
+                                {h.symbol ? (
+                                  <HoldingClickable symbol={h.symbol} displayName={h.name}>
+                                    <span className={styles.holdingNameButton}>{h.name}</span>
+                                  </HoldingClickable>
+                                ) : (
+                                  <span className={styles.holdingNameButton}>{h.name}</span>
+                                )}
+                              </td>
+                              <td>{h.symbol || '—'}</td>
+                              <td>{h.weight > 0 ? `${(h.weight * 100).toFixed(2)}%` : '비중 미제공'}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
                     </div>
                   );
-                  if (!showDonut) return list;
+                  const content = (
+                    <>
+                      <div className={styles.holdingSummaryGrid}>
+                        <div>
+                          <span>상위 보유</span>
+                          <strong>{topHolding?.name || '—'}</strong>
+                          <p>{topHolding?.weight ? `${(topHolding.weight * 100).toFixed(2)}%` : '비중 미제공'}</p>
+                        </div>
+                        <div>
+                          <span>Top 5 합계</span>
+                          <strong>{hasWeights ? `${(topN.slice(0, 5).reduce((s, h) => s + h.weight, 0) * 100).toFixed(1)}%` : '—'}</strong>
+                          <p>{hasWeights ? sourceLabel : '실제 비중 없음'}</p>
+                        </div>
+                        <div>
+                          <span>구성 종목</span>
+                          <strong>{liveHoldings.holdings.length}개</strong>
+                          <p>{sourceLabel}</p>
+                        </div>
+                      </div>
+                      {table}
+                    </>
+                  );
+                  if (!showDonut) return content;
                   return (
                     <div className={styles.holdingsLayout}>
                       <div className={styles.holdingsDonut}>
@@ -880,55 +1002,11 @@ export default async function EtfDetailPage({ params }: Props) {
                           thickness={28}
                         />
                       </div>
-                      {list}
+                      <div>{content}</div>
                     </div>
                   );
                 }
-                if (etf.holdings?.length) {
-                  const parsed = etf.holdings.map(h => ({
-                    ...h,
-                    pct: parseFloat(String(h.weight).replace(/[^\d.]/g, '')) || 0,
-                  })).sort((a, b) => b.pct - a.pct);
-                  const max = Math.max(...parsed.map(p => p.pct), 1);
-                  const showDonut = parsed.length >= 5;
-                  const topSum = parsed.reduce((s, p) => s + p.pct, 0);
-                  const segments = parsed.map(p => ({ label: p.name, value: p.pct }));
-                  if (topSum < 100) {
-                    segments.push({ label: '기타', value: 100 - topSum });
-                  }
-                  const list = (
-                    <div className={styles.holdingList}>
-                      {parsed.map(holding => (
-                        <div key={holding.name} className={styles.holdingRow}>
-                          <div className={styles.holdingInfo}>
-                            <strong>{holding.name}</strong>
-                            <p>{holding.note}</p>
-                          </div>
-                          <div className={styles.holdingBar} aria-hidden="true">
-                            <span style={{ width: `${(holding.pct / max) * 100}%` }} />
-                          </div>
-                          <b className={styles.holdingPct}>{holding.weight}</b>
-                        </div>
-                      ))}
-                    </div>
-                  );
-                  if (!showDonut) return list;
-                  return (
-                    <div className={styles.holdingsLayout}>
-                      <div className={styles.holdingsDonut}>
-                        <DonutChart
-                          segments={segments}
-                          centerLabel="Top 보유"
-                          centerValue={`${topSum.toFixed(0)}%`}
-                          size={180}
-                          thickness={28}
-                        />
-                      </div>
-                      {list}
-                    </div>
-                  );
-                }
-                const isKR = /^[0-9]{6}$/.test(etf.code);
+                const isKR = isKrEtfCode(etf.code);
                 const disclosureUrl = isKR
                   ? `https://finance.naver.com/item/coinfo.naver?code=${etf.code}`
                   : `https://www.google.com/search?q=${encodeURIComponent(`${etf.shortName || etf.name} ETF holdings`)}`;
@@ -953,7 +1031,7 @@ export default async function EtfDetailPage({ params }: Props) {
                 );
               })()}
               {/* 전체 구성종목 링크 — 데이터 있을 때만 */}
-              {(liveHoldings?.holdings?.length || etf.holdings?.length) && /^[0-9]{6}$/.test(etf.code) && (
+              {liveHoldings?.holdings?.length && isKrEtfCode(etf.code) && (
                 <a
                   href={`https://finance.naver.com/item/coinfo.naver?code=${etf.code}`}
                   target="_blank"
@@ -997,15 +1075,16 @@ export default async function EtfDetailPage({ params }: Props) {
               <section className={styles.section}>
                 <div className={styles.sectionHead}>
                   <h2>비슷한 ETF</h2>
-                  <span>{similarResults.length}개</span>
+                  <span>보수·순자산·거래량 비교</span>
                 </div>
-                <div className={styles.relatedList}>
-                  {similarResults.map(({ etf: item, reasons }) => {
+                <div className={styles.similarGrid}>
+                  {similarResults.slice(0, 4).map(({ etf: item, reasons }) => {
+                    const liveItem = similarLiveBySlug.get(item.slug) || item;
                     // 추천 이유 칩 — 기본 reasons + 보수/순자산 비교 강화
                     type Chip = { label: string; good?: boolean };
                     const chips: Chip[] = reasons.map(r => ({ label: r }));
                     const feeBase = parseFloat(String(etf.fee || '').replace(/[^\d.]/g, ''));
-                    const feeItem = parseFloat(String(item.fee || '').replace(/[^\d.]/g, ''));
+                    const feeItem = parseFloat(String(liveItem.fee || item.fee || '').replace(/[^\d.]/g, ''));
                     if (feeBase > 0 && feeItem > 0 && feeItem < feeBase) {
                       chips.push({ label: '보수 더 낮음', good: true });
                     }
@@ -1016,13 +1095,21 @@ export default async function EtfDetailPage({ params }: Props) {
                       const n = parseFloat(m[1]);
                       return m[2] === '조' ? n * 10000 : n;
                     };
-                    if (aumNum(item.aum) > aumNum(etf.aum) * 1.5) {
+                    if (aumNum(liveItem.aum) > aumNum(etf.aum) * 1.5) {
                       chips.push({ label: '순자산 더 큼', good: true });
                     }
                     return (
-                    <Link href={etfPath(item.slug)} key={item.slug}>
+                    <Link href={etfPath(item.slug)} key={item.slug} className={styles.similarCard}>
+                      <div className={styles.similarCardHead}>
+                        <div>
+                          <strong>{item.shortName || item.name}</strong>
+                          <span>{liveItem.code}</span>
+                        </div>
+                        {liveItem.change && (
+                          <b className={liveItem.changeTone === 'down' ? styles.down : styles.up}>{liveItem.change}</b>
+                        )}
+                      </div>
                       <div>
-                        <strong>{item.shortName || item.name}</strong>
                         <div className={styles.reasonChips}>
                           {chips.slice(0, 3).map((c, i) => (
                             <span
@@ -1033,12 +1120,21 @@ export default async function EtfDetailPage({ params }: Props) {
                             </span>
                           ))}
                         </div>
-                        <p>
-                          {item.fee && `보수 ${item.fee}`}
-                          {item.aum && (item.fee ? ` · ${item.aum}` : item.aum)}
-                        </p>
                       </div>
-                      <span className={item.changeTone === 'down' ? styles.down : styles.up}>{item.change}</span>
+                      <dl className={styles.similarMetrics}>
+                        <div>
+                          <dt>총보수</dt>
+                          <dd>{hasFactValue(liveItem.fee) ? liveItem.fee : '공시 확인'}</dd>
+                        </div>
+                        <div>
+                          <dt>순자산</dt>
+                          <dd>{hasFactValue(liveItem.aum) ? liveItem.aum : '공시 확인'}</dd>
+                        </div>
+                        <div>
+                          <dt>거래량</dt>
+                          <dd>{hasFactValue(liveItem.volume) ? liveItem.volume : '공시 확인'}</dd>
+                        </div>
+                      </dl>
                     </Link>);
                   })}
                 </div>
