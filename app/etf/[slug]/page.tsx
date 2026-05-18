@@ -40,6 +40,7 @@ import { RecordEtfView } from '../RecordEtfView';
 import { EtfChart } from '../EtfChart';
 import { RangeBar } from '@/components/etf/RangeBar';
 import { applyResolvedEtfCode, isKrEtfCode } from '@/lib/etfCodes';
+import { getEtfAccountEligibility } from '@/lib/etfAccountEligibility';
 import { fetchNaverDailyPrices, fetchNaverEtfNavHistory, fetchNaverEtfRealtime } from '@/lib/naverEtfData';
 // import { EtfChat } from '../EtfChat'; // 일단 제거
 import styles from './EtfDetailPage.module.css';
@@ -390,6 +391,7 @@ export default async function EtfDetailPage({ params }: Props) {
     etf.underlyingCountry === 'KR' &&
     !/채권|원자재|금|커버드콜/i.test(etf.theme || etf.category || '');
   const capitalGainsTax = isDomesticEquity ? '비과세' : '15.4%';
+  const accountEligibility = getEtfAccountEligibility(etf);
   const actualWeightedHoldings = liveHoldings?.holdings?.filter(h => h.weight > 0) ?? [];
   const visibleHoldingCount = Math.min(actualWeightedHoldings.length, 8);
   const compactDescription = buildCompactEtfDescription(etf);
@@ -675,6 +677,14 @@ export default async function EtfDetailPage({ params }: Props) {
               <strong>{visibleHoldingCount > 0 ? `${visibleHoldingCount}개` : '확인 전'}</strong>
               <p>{visibleHoldingCount > 0 ? '상위 보유 종목 표시' : '비중 확인 필요'}</p>
             </div>
+          </div>
+          <div className={styles.accountEligibility} aria-label="계좌별 매수 가능 여부">
+            {accountEligibility.map(item => (
+              <div key={item.key} className={styles.accountEligibilityCell}>
+                <span>{item.label}</span>
+                <strong className={styles[`account_${item.status}`]}>{item.value}</strong>
+              </div>
+            ))}
           </div>
           <div className={styles.preTradeActions}>
             <Link href={`/etf/compare?a=${etf.code}`}>

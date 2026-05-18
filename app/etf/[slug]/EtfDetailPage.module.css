@@ -1730,6 +1730,58 @@
   text-overflow: ellipsis;
 }
 
+.accountEligibility {
+  grid-column: 2;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  min-width: 0;
+}
+
+.accountEligibilityCell {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 38px;
+  padding: 0 12px;
+  border: 1px solid var(--rw-hairline);
+  border-radius: var(--rw-radius-sm);
+  background: var(--rw-card);
+}
+
+.accountEligibilityCell span {
+  color: var(--rw-text-muted);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.2px;
+}
+
+.accountEligibilityCell strong {
+  color: var(--rw-text-strong);
+  font-size: 13px;
+  font-weight: 900;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.account_available {
+  color: var(--rw-green50) !important;
+}
+
+.account_limited {
+  color: var(--rw-primary) !important;
+}
+
+.account_unavailable {
+  color: var(--rw-text-muted) !important;
+}
+
+.account_check {
+  color: var(--rw-text-muted) !important;
+}
+
 .preTradeActions {
   grid-column: 2;
   display: flex;
@@ -1775,6 +1827,9 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
   .preTradeActions {
+    grid-column: auto;
+  }
+  .accountEligibility {
     grid-column: auto;
   }
   .preTradeActions a {
