@@ -211,14 +211,17 @@ export default async function EtfDetailPage({ params }: Props) {
     { key: 'nasdaq',   name: '나스닥100(H)', color: '#8B00FF', history: nasdaq100History },
   ];
   // DB 기반 유사 ETF + 같은 운용사
-  const similarResults = findSimilarEtfs(etf as any, dbPool, 6);
+  const normalizedDbPool = dbPool.map(item => applyResolvedEtfCode(item));
+  const similarResults = findSimilarEtfs(etf as any, normalizedDbPool, 8)
+    .filter(result => result.etf.slug !== etf.slug && result.etf.code !== etf.code)
+    .slice(0, 4);
   const similarLiveList = similarResults.length > 0
-    ? await getEtfsWithMarketData(similarResults.slice(0, 4).map(result => applyResolvedEtfCode(result.etf)))
+    ? await getEtfsWithMarketData(similarResults.map(result => applyResolvedEtfCode(result.etf)))
     : [];
   const similarLiveBySlug = new Map(similarLiveList.map(item => [item.slug, item]));
   // 같은 운용사 — 비슷한 ETF 와 중복되면 표시 안 함 (정보 가치 낮음)
   const similarCodes = new Set(similarResults.map(r => r.etf.code));
-  const issuerRaw = buildIssuerSummary(etf as any, dbPool);
+  const issuerRaw = buildIssuerSummary(etf as any, normalizedDbPool);
   const issuerSummary = (() => {
     if (!issuerRaw) return null;
     const filtered = issuerRaw.topEtfs.filter(e => !similarCodes.has(e.code));
@@ -241,10 +244,6 @@ export default async function EtfDetailPage({ params }: Props) {
   const latestHistoryDate = priceHistory.length > 0
     ? priceHistory[priceHistory.length - 1].date
     : etfBaseDate;
-  const naverFinanceUrl = isKrEtfCode(etf.code)
-    ? `https://finance.naver.com/item/main.naver?code=${etf.code}`
-    : null;
-
   // 자동 한줄평 + 태그
   const insight = buildEtfInsight(etf as any);
 
@@ -319,6 +318,26 @@ export default async function EtfDetailPage({ params }: Props) {
       tone: typeof etfPremium === 'number' && etfPremium > 0 ? 'up' : typeof etfPremium === 'number' && etfPremium < 0 ? 'down' : 'flat',
     },
   ];
+
+  const currentPriceNumber = parseFloat(String(etf.price || '').replace(/[^\d.]/g, ''));
+  const yearAgoTimestamp = Date.now() - 365 * 24 * 60 * 60 * 1000;
+  const recentYearPrices = priceHistory.filter(p => new Date(p.date).getTime() >= yearAgoTimestamp);
+  const yearlyRange = currentPriceNumber && recentYearPrices.length >= 10
+    ? (() => {
+        const closes = recentYearPrices.map(p => p.close);
+        const rangeValues = [...closes, currentPriceNumber];
+        return {
+          low: Math.min(...rangeValues),
+          high: Math.max(...rangeValues),
+          current: currentPriceNumber,
+        };
+      })()
+    : null;
+  const formatWon = (value: number) => `${Math.round(value).toLocaleString('ko-KR')}원`;
+  const isDomesticEquity =
+    etf.underlyingCountry === 'KR' &&
+    !/채권|원자재|금|커버드콜/i.test(etf.theme || etf.category || '');
+  const capitalGainsTax = isDomesticEquity ? '비과세' : '15.4%';
 
   // 분배금 히스토리 (분배 있는 ETF만)
 
@@ -526,19 +545,15 @@ export default async function EtfDetailPage({ params }: Props) {
 
         {/* 52주 범위 range bar (Toss증권 패턴) — priceHistory 1년치에서 산출 */}
         {(() => {
-          if (!priceHistory || priceHistory.length < 30) return null;
-          const yearAgo = Date.now() - 365 * 24 * 60 * 60 * 1000;
-          const recent = priceHistory.filter(p => new Date(p.date).getTime() >= yearAgo);
-          if (recent.length < 10) return null;
-          const currentPrice = parseFloat(String(etf.price || '').replace(/[^\d.]/g, ''));
-          const closes = recent.map(p => p.close);
-          const rangeValues = currentPrice ? [...closes, currentPrice] : closes;
-          const low = Math.min(...rangeValues);
-          const high = Math.max(...rangeValues);
-          if (!currentPrice || low === high) return null;
+          if (!yearlyRange || yearlyRange.low === yearlyRange.high) return null;
           return (
             <div style={{ marginBottom: 'var(--space-3)' }}>
-              <RangeBar label="52주 범위" low={low} high={high} current={currentPrice} />
+              <RangeBar
+                label="52주 범위"
+                low={yearlyRange.low}
+                high={yearlyRange.high}
+                current={yearlyRange.current}
+              />
             </div>
           );
         })()}
@@ -575,19 +590,6 @@ export default async function EtfDetailPage({ params }: Props) {
             </strong>
           </div>
         </div>
-
-        {naverFinanceUrl && (
-          <div className={styles.referenceBar}>
-            <div>
-              <strong>네이버증권으로 교차 확인</strong>
-              <span>호가·뉴스공시·NAV 추이는 네이버증권 원문에서 확인할 수 있어요.</span>
-            </div>
-            <a href={naverFinanceUrl} target="_blank" rel="noopener noreferrer">
-              <FaIcon name="arrow-up-right-from-square" size={11} />
-              네이버증권
-            </a>
-          </div>
-        )}
 
         {/* 섹션 앵커 nav — 전체 폭 (사이드 카드와 동선 충돌 방지) */}
         <EtfSectionNav />
@@ -626,10 +628,10 @@ export default async function EtfDetailPage({ params }: Props) {
             </div>
 
             {/* ──────────── ETF 개요 테이블 (ETF Check 톤) ──────────── */}
-            <section className={styles.section} aria-label="ETF 개요">
+            <section className={styles.section} aria-label="상품 정보">
               <div className={styles.sectionHead}>
-                <h2>ETF 개요</h2>
-                <span>운용사·상장일·기초자산</span>
+                <h2>상품 정보</h2>
+                <span>운용사·상장일·기초지수</span>
               </div>
               <dl className={styles.overviewTable}>
                 <div className={styles.overviewRow}>
@@ -654,24 +656,12 @@ export default async function EtfDetailPage({ params }: Props) {
                     <dd>{etf.trackingIndex}</dd>
                   </div>
                 )}
-                <div className={styles.overviewRow}>
-                  <dt>순자산(AUM)</dt>
-                  <dd><FactValue value={etf.aum} /></dd>
-                </div>
-                <div className={styles.overviewRow}>
-                  <dt>총보수</dt>
-                  <dd><FactValue value={etf.fee} /></dd>
-                </div>
                 {liveHoldings?.holdings?.length && (
                   <div className={styles.overviewRow}>
                     <dt>구성종목수</dt>
                     <dd>{liveHoldings.holdings.length}종목</dd>
                   </div>
                 )}
-                <div className={styles.overviewRow}>
-                  <dt>거래량</dt>
-                  <dd><FactValue value={etf.volume} /></dd>
-                </div>
                 {etf.distribution && (
                   <div className={styles.overviewRow}>
                     <dt>분배</dt>
@@ -690,90 +680,39 @@ export default async function EtfDetailPage({ params }: Props) {
             {/* ──────────── 거래정보 + 세금 테이블 (ETF Check 패턴) ──────────── */}
             <section className={styles.section} aria-label="거래정보·세금">
               <div className={styles.sectionHead}>
-                <h2>거래정보·세금</h2>
-                <span>52주 고저 · 세율</span>
+                <h2>거래·세금 요약</h2>
+                <span>일반 위탁계좌 기준</span>
               </div>
-              <div className={styles.dualTable}>
-                {/* 거래정보 */}
-                <div>
-                  <h3 className={styles.subHead}>거래정보</h3>
-                  <dl className={styles.overviewTable}>
-                    {(() => {
-                      if (!priceHistory || priceHistory.length < 10) {
-                        return (
-                          <div className={styles.overviewRow}>
-                            <dt>52주 고저</dt>
-                            <dd><FactValue value={null} emptyLabel="가격 데이터 부족" /></dd>
-                          </div>
-                        );
-                      }
-                      const yearAgo = Date.now() - 365 * 24 * 60 * 60 * 1000;
-                      const recent = priceHistory.filter(p => new Date(p.date).getTime() >= yearAgo);
-                      const currentPrice = parseFloat(String(etf.price || '').replace(/[^\d.]/g, ''));
-                      const closes = recent.map(p => p.close);
-                      const rangeValues = currentPrice ? [...closes, currentPrice] : closes;
-                      const high52 = Math.max(...rangeValues);
-                      const low52 = Math.min(...rangeValues);
-                      const fmt = (n: number) => Math.round(n).toLocaleString('ko-KR') + '원';
-                      return (
-                        <>
-                          <div className={styles.overviewRow}>
-                            <dt>52주 최고</dt>
-                            <dd>{fmt(high52)}</dd>
-                          </div>
-                          <div className={styles.overviewRow}>
-                            <dt>52주 최저</dt>
-                            <dd>{fmt(low52)}</dd>
-                          </div>
-                        </>
-                      );
-                    })()}
-                    <div className={styles.overviewRow}>
-                      <dt>일일 거래량</dt>
-                      <dd><FactValue value={etf.volume} /></dd>
-                    </div>
-                    {etf.currency && (
-                      <div className={styles.overviewRow}>
-                        <dt>거래통화</dt>
-                        <dd>{etf.currency}</dd>
-                      </div>
-                    )}
-                  </dl>
+              <div className={styles.tradeTaxGrid}>
+                <div className={styles.tradeTaxCell}>
+                  <span>52주 최고</span>
+                  <strong>{yearlyRange ? formatWon(yearlyRange.high) : <FactValue value={null} emptyLabel="가격 데이터 부족" />}</strong>
                 </div>
-
-                {/* 세금 */}
-                <div>
-                  <h3 className={styles.subHead}>세금</h3>
-                  <dl className={styles.overviewTable}>
-                    <div className={styles.overviewRow}>
-                      <dt>증권거래세</dt>
-                      <dd>비과세</dd>
-                    </div>
-                    <div className={styles.overviewRow}>
-                      <dt>매매차익</dt>
-                      <dd>
-                        {(() => {
-                          // 국내주식형은 비과세, 그 외(해외/채권/원자재 등)는 15.4%
-                          const isDomesticEquity =
-                            etf.underlyingCountry === 'KR' &&
-                            !/채권|원자재|금|커버드콜/i.test(etf.theme || etf.category || '');
-                          return isDomesticEquity ? '비과세' : '15.4%';
-                        })()}
-                      </dd>
-                    </div>
-                    <div className={styles.overviewRow}>
-                      <dt>현금배당</dt>
-                      <dd>15.4% (배당소득세)</dd>
-                    </div>
-                    <div className={styles.overviewRow}>
-                      <dt>금융소득 종합과세</dt>
-                      <dd>연 2천만원 초과 시</dd>
-                    </div>
-                  </dl>
+                <div className={styles.tradeTaxCell}>
+                  <span>52주 최저</span>
+                  <strong>{yearlyRange ? formatWon(yearlyRange.low) : <FactValue value={null} emptyLabel="가격 데이터 부족" />}</strong>
+                </div>
+                <div className={styles.tradeTaxCell}>
+                  <span>일일 거래량</span>
+                  <strong><FactValue value={etf.volume} /></strong>
+                </div>
+                {etf.currency && (
+                  <div className={styles.tradeTaxCell}>
+                    <span>거래통화</span>
+                    <strong>{etf.currency}</strong>
+                  </div>
+                )}
+                <div className={styles.tradeTaxCell}>
+                  <span>매매차익</span>
+                  <strong>{capitalGainsTax}</strong>
+                </div>
+                <div className={styles.tradeTaxCell}>
+                  <span>분배금 세금</span>
+                  <strong>15.4%</strong>
                 </div>
               </div>
               <p className={styles.taxNote}>
-                ※ 일반 위탁계좌 기준이에요. ISA·연금저축·IRP 계좌는 비과세·과세이연 혜택이 있어요.
+                ISA·연금저축·IRP 계좌는 과세 방식이 달라질 수 있어요.
               </p>
             </section>
 
@@ -934,42 +873,34 @@ export default async function EtfDetailPage({ params }: Props) {
 
                   const topHolding = topN[0];
                   const topSum = topN.reduce((s, h) => s + h.weight, 0);
-                  const showDonut = topN.length >= 5;
-                  const segments = topN.map(h => ({
-                    label: h.name,
-                    value: h.weight * 100,
-                  }));
-                  if (topSum < 1) {
-                    segments.push({ label: '기타', value: (1 - topSum) * 100 });
-                  }
-                  const table = (
-                    <div className={styles.holdingsTableWrap}>
-                      <table className={styles.holdingsTable}>
-                        <thead>
-                          <tr>
-                            <th>종목</th>
-                            <th>코드</th>
-                            <th>비중</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {topN.map((h, index) => (
-                            <tr key={`${h.symbol || h.name}-${index}`}>
-                              <td>
-                                {h.symbol ? (
-                                  <HoldingClickable symbol={h.symbol} displayName={h.name}>
-                                    <span className={styles.holdingNameButton}>{h.name}</span>
-                                  </HoldingClickable>
-                                ) : (
-                                  <span className={styles.holdingNameButton}>{h.name}</span>
-                                )}
-                              </td>
-                              <td>{h.symbol || '—'}</td>
-                              <td>{(h.weight * 100).toFixed(2)}%</td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
+                  const maxWeight = Math.max(...topN.map(h => h.weight));
+                  const holdingRows = (
+                    <div className={styles.holdingList}>
+                      {topN.map((h, index) => {
+                        const pct = h.weight * 100;
+                        const barWidth = maxWeight > 0
+                          ? Math.max(7, (h.weight / maxWeight) * 100)
+                          : 0;
+                        const name = (
+                          <span className={styles.holdingNameButton}>{h.name}</span>
+                        );
+                        return (
+                          <div className={styles.holdingRow} key={`${h.symbol || h.name}-${index}`}>
+                            <div className={styles.holdingInfo}>
+                              {h.symbol ? (
+                                <HoldingClickable symbol={h.symbol} displayName={h.name}>
+                                  {name}
+                                </HoldingClickable>
+                              ) : name}
+                              <p>{h.symbol || '구성종목'}</p>
+                            </div>
+                            <div className={styles.holdingBar} aria-hidden="true">
+                              <span style={{ width: `${barWidth}%` }} />
+                            </div>
+                            <b className={styles.holdingPct}>{pct.toFixed(2)}%</b>
+                          </div>
+                        );
+                      })}
                     </div>
                   );
                   const content = (
@@ -991,24 +922,10 @@ export default async function EtfDetailPage({ params }: Props) {
                           <p>화면 안에서만 확인</p>
                         </div>
                       </div>
-                      {table}
+                      {holdingRows}
                     </>
                   );
-                  if (!showDonut) return content;
-                  return (
-                    <div className={styles.holdingsLayout}>
-                      <div className={styles.holdingsDonut}>
-                        <DonutChart
-                          segments={segments}
-                          centerLabel="Top 보유"
-                          centerValue={`${(topSum * 100).toFixed(0)}%`}
-                          size={180}
-                          thickness={28}
-                        />
-                      </div>
-                      <div>{content}</div>
-                    </div>
-                  );
+                  return content;
                 }
                 return (
                   <div className={styles.emptyHoldings}>
@@ -1057,7 +974,7 @@ export default async function EtfDetailPage({ params }: Props) {
                   <span>보수·순자산·거래량 비교</span>
                 </div>
                 <div className={styles.similarGrid}>
-                  {similarResults.slice(0, 4).map(({ etf: item, reasons }) => {
+                  {similarResults.map(({ etf: item, reasons }) => {
                     const liveItem = similarLiveBySlug.get(item.slug) || item;
                     // 추천 이유 칩 — 기본 reasons + 보수/순자산 비교 강화
                     type Chip = { label: string; good?: boolean };
@@ -1078,17 +995,18 @@ export default async function EtfDetailPage({ params }: Props) {
                       chips.push({ label: '순자산 더 큼', good: true });
                     }
                     return (
-                    <Link href={etfPath(item.slug)} key={item.slug} className={styles.similarCard}>
-                      <div className={styles.similarCardHead}>
-                        <div>
-                          <strong>{item.shortName || item.name}</strong>
-                          <span>{liveItem.code}</span>
+                      <article key={item.slug} className={styles.similarCard}>
+                        <div className={styles.similarCardHead}>
+                          <div>
+                            <Link href={etfPath(item.slug)} className={styles.similarTitleLink}>
+                              <strong>{item.shortName || item.name}</strong>
+                            </Link>
+                            <span>{liveItem.code}</span>
+                          </div>
+                          {liveItem.change && (
+                            <b className={liveItem.changeTone === 'down' ? styles.down : styles.up}>{liveItem.change}</b>
+                          )}
                         </div>
-                        {liveItem.change && (
-                          <b className={liveItem.changeTone === 'down' ? styles.down : styles.up}>{liveItem.change}</b>
-                        )}
-                      </div>
-                      <div>
                         <div className={styles.reasonChips}>
                           {chips.slice(0, 3).map((c, i) => (
                             <span
@@ -1099,22 +1017,34 @@ export default async function EtfDetailPage({ params }: Props) {
                             </span>
                           ))}
                         </div>
-                      </div>
-                      <dl className={styles.similarMetrics}>
-                        <div>
-                          <dt>총보수</dt>
-                          <dd>{hasFactValue(liveItem.fee) ? liveItem.fee : '공시 확인'}</dd>
+                        <dl className={styles.similarMetrics}>
+                          <div>
+                            <dt>현재가</dt>
+                            <dd>{hasFactValue(liveItem.price) ? liveItem.price : '공시 확인'}</dd>
+                          </div>
+                          <div>
+                            <dt>총보수</dt>
+                            <dd>{hasFactValue(liveItem.fee) ? liveItem.fee : '공시 확인'}</dd>
+                          </div>
+                          <div>
+                            <dt>순자산</dt>
+                            <dd>{hasFactValue(liveItem.aum) ? liveItem.aum : '공시 확인'}</dd>
+                          </div>
+                          <div>
+                            <dt>거래량</dt>
+                            <dd>{hasFactValue(liveItem.volume) ? liveItem.volume : '공시 확인'}</dd>
+                          </div>
+                        </dl>
+                        <div className={styles.similarActions}>
+                          <Link href={etfPath(item.slug)} className={styles.similarDetailLink}>
+                            상세
+                          </Link>
+                          <Link href={`/etf/compare?a=${etf.code}&b=${liveItem.code}`} className={styles.similarCompareLink}>
+                            비교
+                          </Link>
                         </div>
-                        <div>
-                          <dt>순자산</dt>
-                          <dd>{hasFactValue(liveItem.aum) ? liveItem.aum : '공시 확인'}</dd>
-                        </div>
-                        <div>
-                          <dt>거래량</dt>
-                          <dd>{hasFactValue(liveItem.volume) ? liveItem.volume : '공시 확인'}</dd>
-                        </div>
-                      </dl>
-                    </Link>);
+                      </article>
+                    );
                   })}
                 </div>
               </section>

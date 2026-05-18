@@ -575,7 +575,7 @@
 .holdingList,
 .relatedList {
   display: grid;
-  gap: 8px;
+  gap: 10px;
 }
 
 .relatedList a {
@@ -596,8 +596,8 @@
   align-items: center;
   gap: var(--space-3);
   padding: var(--space-3) var(--space-4);
-  border: 1px solid var(--line);
-  border-radius: var(--rw-radius-md);
+  border: 1px solid var(--rw-hairline);
+  border-radius: var(--rw-radius-sm);
   background: var(--rw-card);
 }
 
@@ -620,6 +620,7 @@
   color: var(--rw-text-muted);
   font-weight: var(--weight-semibold);
   margin-top: 2px;
+  margin-bottom: 0;
 }
 
 .holdingBar {
@@ -682,53 +683,6 @@
   color: var(--rw-text-muted);
   font-size: 11px;
   font-weight: 700;
-}
-
-.holdingsTableWrap {
-  overflow-x: auto;
-  border: 1px solid var(--rw-hairline);
-  border-radius: var(--rw-radius-sm);
-}
-
-.holdingsTable {
-  width: 100%;
-  border-collapse: collapse;
-  min-width: 520px;
-}
-
-.holdingsTable th,
-.holdingsTable td {
-  padding: 12px 14px;
-  border-bottom: 1px solid var(--rw-hairline);
-  text-align: left;
-  vertical-align: middle;
-}
-
-.holdingsTable th {
-  color: var(--rw-text-muted);
-  font-size: 11px;
-  font-weight: 900;
-  letter-spacing: 0.2px;
-  background: var(--rw-card-muted);
-}
-
-.holdingsTable td {
-  color: var(--rw-text-strong);
-  font-size: 13px;
-  font-weight: 800;
-  font-feature-settings: 'tnum';
-}
-
-.holdingsTable tr:last-child td {
-  border-bottom: none;
-}
-
-.holdingsTable th:nth-child(2),
-.holdingsTable th:nth-child(3),
-.holdingsTable td:nth-child(2),
-.holdingsTable td:nth-child(3) {
-  text-align: right;
-  white-space: nowrap;
 }
 
 .holdingNameButton {
@@ -910,6 +864,16 @@
   transform: translateY(-1px);
 }
 
+.similarTitleLink {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+}
+
+.similarTitleLink:hover strong {
+  color: var(--rw-primary);
+}
+
 .similarCardHead {
   display: flex;
   align-items: flex-start;
@@ -943,7 +907,7 @@
 
 .similarMetrics {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 6px;
   margin: 0;
 }
@@ -973,6 +937,51 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.similarActions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: auto;
+}
+
+.similarDetailLink,
+.similarCompareLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 34px;
+  border-radius: var(--rw-radius-sm);
+  font-size: 12px;
+  font-weight: 900;
+  text-decoration: none;
+  transition: background-color 120ms ease, color 120ms ease, transform 120ms ease;
+}
+
+.similarDetailLink {
+  background: var(--rw-card-muted);
+  color: var(--rw-text-body);
+}
+
+.similarCompareLink {
+  background: var(--rw-primary);
+  color: #fff;
+}
+
+.similarDetailLink:hover,
+.similarCompareLink:hover {
+  transform: translateY(-1px);
+}
+
+.similarDetailLink:hover {
+  background: var(--rw-primary-bg);
+  color: var(--rw-primary);
+}
+
+.similarCompareLink:hover {
+  background: var(--rw-primary-hover);
+  color: #fff;
 }
 
 @media (max-width: 600px) {
@@ -1455,30 +1464,6 @@
   flex-wrap: wrap;
 }
 
-/* 구성종목 도넛 + 리스트 레이아웃 */
-.holdingsLayout {
-  display: grid;
-  grid-template-columns: 200px 1fr;
-  gap: 28px;
-  align-items: start;
-}
-.holdingsDonut {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 8px 0;
-}
-
-@media (max-width: 760px) {
-  .holdingsLayout {
-    grid-template-columns: 1fr;
-    gap: 16px;
-  }
-  .holdingsDonut {
-    padding: 4px 0 12px;
-  }
-}
-
 /* 메인 차트: 상세 페이지에서는 하나의 판단 차트만 노출 */
 .quoteBlock {
   display: grid;
@@ -1646,61 +1631,6 @@
   text-align: center;
 }
 
-.referenceBar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-3);
-  margin: 0 0 var(--space-3);
-  padding: 12px 14px;
-  border: 1px solid var(--rw-hairline);
-  border-radius: var(--rw-radius-md);
-  background: var(--rw-card);
-}
-
-.referenceBar div {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-  min-width: 0;
-}
-
-.referenceBar strong {
-  color: var(--rw-text-strong);
-  font-size: 13px;
-  font-weight: 900;
-  letter-spacing: -0.1px;
-}
-
-.referenceBar span {
-  color: var(--rw-text-muted);
-  font-size: 12px;
-  font-weight: 600;
-  line-height: 1.45;
-}
-
-.referenceBar a {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  min-height: 34px;
-  padding: 0 12px;
-  border-radius: var(--rw-radius-sm);
-  background: var(--rw-card-muted);
-  color: var(--rw-text-body);
-  font-size: 12px;
-  font-weight: 900;
-  text-decoration: none;
-  white-space: nowrap;
-  transition: background-color 120ms ease, color 120ms ease;
-}
-
-.referenceBar a:hover {
-  background: var(--rw-primary-bg);
-  color: var(--rw-primary);
-}
-
 @media (max-width: 600px) {
   .heroStripValue {
     font-size: 14px;
@@ -1708,29 +1638,44 @@
   .heroStripCell {
     padding: 10px 8px;
   }
-  .referenceBar {
-    align-items: flex-start;
-    flex-direction: column;
-  }
-  .referenceBar a {
-    width: 100%;
-  }
 }
 
-/* 거래정보 + 세금 듀얼 테이블 */
-.dualTable {
+/* 거래 + 세금 요약 */
+.tradeTaxGrid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 32px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
 }
-.subHead {
-  font-size: 13px;
-  font-weight: 800;
+
+.tradeTaxCell {
+  min-width: 0;
+  padding: 12px;
+  border-radius: var(--rw-radius-sm);
+  background: var(--rw-card-muted);
+}
+
+.tradeTaxCell span {
+  display: block;
+  font-size: 11px;
+  font-weight: 900;
   color: var(--rw-text-muted);
-  letter-spacing: 0.3px;
-  text-transform: uppercase;
-  margin: 0 0 8px;
+  letter-spacing: 0.2px;
 }
+
+.tradeTaxCell strong {
+  display: block;
+  margin-top: 6px;
+  color: var(--rw-text-strong);
+  font-size: 15px;
+  line-height: 1.25;
+  font-weight: 900;
+  letter-spacing: -0.2px;
+  font-feature-settings: 'tnum';
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .taxNote {
   margin: 14px 0 0;
   font-size: 12px;
@@ -1740,8 +1685,7 @@
 }
 
 @media (max-width: 760px) {
-  .dualTable {
-    grid-template-columns: 1fr;
-    gap: 20px;
+  .tradeTaxGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }

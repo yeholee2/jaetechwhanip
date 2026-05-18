@@ -49,7 +49,7 @@ export function findSimilarEtfs(target: EtfInfo, pool: EtfInfo[], limit = 6): Si
 
   const results: SimilarResult[] = [];
   for (const e of pool) {
-    if (e.code === target.code) continue;
+    if (e.code === target.code || e.slug === target.slug || e.name === target.name) continue;
     if (!targetIsLeverage && isLeverage(e)) continue;
     let score = 0;
     const reasons: string[] = [];
