@@ -362,6 +362,39 @@ export default async function EtfDetailPage({ params }: Props) {
           </div>
         </section>
 
+        {/* iNAV · 괴리율 · 거래량 미니 통계 띠 (ETF Check 패턴) */}
+        <div className={styles.heroStrip}>
+          <div className={styles.heroStripCell}>
+            <span className={styles.heroStripLabel}>iNAV</span>
+            <strong className={styles.heroStripValue}>
+              {etfNav || <FactValue value={null} />}
+            </strong>
+          </div>
+          <div className={styles.heroStripCell}>
+            <span className={styles.heroStripLabel}>괴리율</span>
+            <strong className={styles.heroStripValue}>
+              {(() => {
+                if (typeof etfPremium !== 'number') return <FactValue value={null} />;
+                const sign = etfPremium > 0 ? '+' : '';
+                const tone = Math.abs(etfPremium) > 0.5
+                  ? styles.delta_down
+                  : Math.abs(etfPremium) > 0.2
+                    ? ''
+                    : styles.delta_up;
+                return (
+                  <span className={tone}>{sign}{etfPremium.toFixed(2)}%</span>
+                );
+              })()}
+            </strong>
+          </div>
+          <div className={styles.heroStripCell}>
+            <span className={styles.heroStripLabel}>거래량</span>
+            <strong className={styles.heroStripValue}>
+              <FactValue value={etf.volume} />
+            </strong>
+          </div>
+        </div>
+
         {/* 섹션 앵커 nav — 전체 폭 (사이드 카드와 동선 충돌 방지) */}
         <EtfSectionNav />
 
