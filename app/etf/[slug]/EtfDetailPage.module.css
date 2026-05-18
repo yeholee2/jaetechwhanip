@@ -1330,3 +1330,32 @@
     padding: 10px 8px;
   }
 }
+
+/* 거래정보 + 세금 듀얼 테이블 */
+.dualTable {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+}
+.subHead {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--rw-text-muted);
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  margin: 0 0 8px;
+}
+.taxNote {
+  margin: 14px 0 0;
+  font-size: 12px;
+  color: var(--rw-text-muted);
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+@media (max-width: 760px) {
+  .dualTable {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+}

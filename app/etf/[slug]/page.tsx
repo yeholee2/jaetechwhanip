@@ -42,6 +42,7 @@ import { fetchEtfHoldingsWithCache } from '@/lib/holdingsCache';
 import { ShareButton } from '../ShareButton';
 import { RecordEtfView } from '../RecordEtfView';
 import { EtfChart } from '../EtfChart';
+import { RangeBar } from '@/components/etf/RangeBar';
 // import { EtfChat } from '../EtfChat'; // 일단 제거
 import styles from './EtfDetailPage.module.css';
 
@@ -362,6 +363,24 @@ export default async function EtfDetailPage({ params }: Props) {
           </div>
         </section>
 
+        {/* 52주 범위 range bar (Toss증권 패턴) — priceHistory 1년치에서 산출 */}
+        {(() => {
+          if (!priceHistory || priceHistory.length < 30) return null;
+          const yearAgo = Date.now() - 365 * 24 * 60 * 60 * 1000;
+          const recent = priceHistory.filter(p => new Date(p.date).getTime() >= yearAgo);
+          if (recent.length < 10) return null;
+          const closes = recent.map(p => p.close);
+          const low = Math.min(...closes);
+          const high = Math.max(...closes);
+          const currentPrice = parseFloat(String(etf.price || '').replace(/[^\d.]/g, ''));
+          if (!currentPrice || low === high) return null;
+          return (
+            <div style={{ marginBottom: 'var(--space-3)' }}>
+              <RangeBar label="52주 범위" low={low} high={high} current={currentPrice} />
+            </div>
+          );
+        })()}
+
         {/* iNAV · 괴리율 · 거래량 미니 통계 띠 (ETF Check 패턴) */}
         <div className={styles.heroStrip}>
           <div className={styles.heroStripCell}>
@@ -489,6 +508,94 @@ export default async function EtfDetailPage({ params }: Props) {
                   </div>
                 )}
               </dl>
+            </section>
+
+            {/* ──────────── 거래정보 + 세금 테이블 (ETF Check 패턴) ──────────── */}
+            <section className={styles.section} aria-label="거래정보·세금">
+              <div className={styles.sectionHead}>
+                <h2>거래정보·세금</h2>
+                <span>52주 고저 · 세율</span>
+              </div>
+              <div className={styles.dualTable}>
+                {/* 거래정보 */}
+                <div>
+                  <h3 className={styles.subHead}>거래정보</h3>
+                  <dl className={styles.overviewTable}>
+                    {(() => {
+                      if (!priceHistory || priceHistory.length < 10) {
+                        return (
+                          <div className={styles.overviewRow}>
+                            <dt>52주 고저</dt>
+                            <dd><FactValue value={null} /></dd>
+                          </div>
+                        );
+                      }
+                      const yearAgo = Date.now() - 365 * 24 * 60 * 60 * 1000;
+                      const recent = priceHistory.filter(p => new Date(p.date).getTime() >= yearAgo);
+                      const closes = recent.map(p => p.close);
+                      const high52 = Math.max(...closes);
+                      const low52 = Math.min(...closes);
+                      const fmt = (n: number) => Math.round(n).toLocaleString('ko-KR') + '원';
+                      return (
+                        <>
+                          <div className={styles.overviewRow}>
+                            <dt>52주 최고</dt>
+                            <dd>{fmt(high52)}</dd>
+                          </div>
+                          <div className={styles.overviewRow}>
+                            <dt>52주 최저</dt>
+                            <dd>{fmt(low52)}</dd>
+                          </div>
+                        </>
+                      );
+                    })()}
+                    <div className={styles.overviewRow}>
+                      <dt>일일 거래량</dt>
+                      <dd><FactValue value={etf.volume} /></dd>
+                    </div>
+                    {etf.currency && (
+                      <div className={styles.overviewRow}>
+                        <dt>거래통화</dt>
+                        <dd>{etf.currency}</dd>
+                      </div>
+                    )}
+                  </dl>
+                </div>
+
+                {/* 세금 */}
+                <div>
+                  <h3 className={styles.subHead}>세금</h3>
+                  <dl className={styles.overviewTable}>
+                    <div className={styles.overviewRow}>
+                      <dt>증권거래세</dt>
+                      <dd>비과세</dd>
+                    </div>
+                    <div className={styles.overviewRow}>
+                      <dt>매매차익</dt>
+                      <dd>
+                        {(() => {
+                          // 국내주식형은 비과세, 그 외(해외/채권/원자재 등)는 15.4%
+                          const isDomesticEquity =
+                            etf.underlyingCountry === 'KR' &&
+                            !/채권|원자재|금|커버드콜/i.test(etf.theme || etf.category || '');
+                          return isDomesticEquity ? '비과세' : '15.4%';
+                        })()}
+                      </dd>
+                    </div>
+                    <div className={styles.overviewRow}>
+                      <dt>현금배당</dt>
+                      <dd>15.4% (배당소득세)</dd>
+                    </div>
+                    <div className={styles.overviewRow}>
+                      <dt>금융소득 종합과세</dt>
+                      <dd>연 2천만원 초과 시</dd>
+                    </div>
+                  </dl>
+                </div>
+              </div>
+              <p className={styles.taxNote}>
+                ※ 일반 위탁계좌 기준이에요. ISA·연금저축·IRP 계좌는 비과세·과세이연 혜택이 있어요.
+              </p>
             </section>
 
             {/* ──────────── ② 건전성: 핵심 5 그리드 + 위험 등급 ──────────── */}
