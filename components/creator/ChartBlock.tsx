@@ -143,11 +143,14 @@ function calcSMA(candles: Candle[], period: number): { time: Time; value: number
 export function ChartBlock({
   data,
   editable = false,
+  showCode = true,
   onChange,
   onRemove,
 }: {
   data: ChartBlockData;
   editable?: boolean;
+  /** 헤더에 종목코드 큰 글씨 노출. ETF 상세처럼 페이지 헤더에 이미 코드가 있으면 false. */
+  showCode?: boolean;
   onChange?: (next: ChartBlockData) => void;
   onRemove?: () => void;
 }) {
@@ -549,7 +552,7 @@ export function ChartBlock({
     <div ref={wrapRef} className={styles.wrap}>
       <header className={styles.header}>
         <div className={styles.headerLeft}>
-          <strong className={styles.code}>{data.code.toUpperCase()}</strong>
+          {showCode && <strong className={styles.code}>{data.code.toUpperCase()}</strong>}
 
           {/* 타임프레임 (5분/일/주/월/년) */}
           <div className={styles.tfRow}>
@@ -557,8 +560,7 @@ export function ChartBlock({
               <button
                 key={t.key}
                 type="button"
-                onClick={editable ? () => onChange?.({ ...data, tf: t.key }) : undefined}
-                disabled={!editable}
+                onClick={() => onChange?.({ ...data, tf: t.key })}
                 className={`${styles.tfBtn} ${tf === t.key ? styles.tfBtnOn : ''}`}
               >
                 {t.label}
@@ -566,11 +568,10 @@ export function ChartBlock({
             ))}
           </div>
 
-          {/* 이평선/거래량 토글 */}
+          {/* 이평선/거래량 토글 — editable과 무관하게 조회 기능으로 항상 작동 */}
           <button
             type="button"
-            onClick={editable ? () => onChange?.({ ...data, showMA: !showMA }) : undefined}
-            disabled={!editable}
+            onClick={() => onChange?.({ ...data, showMA: !showMA })}
             className={`${styles.toggleBtn} ${showMA ? styles.toggleBtnOn : ''}`}
             title="이동평균선 (5/20/60/120)"
           >
@@ -578,8 +579,7 @@ export function ChartBlock({
           </button>
           <button
             type="button"
-            onClick={editable ? () => onChange?.({ ...data, showVolume: !showVolume }) : undefined}
-            disabled={!editable}
+            onClick={() => onChange?.({ ...data, showVolume: !showVolume })}
             className={`${styles.toggleBtn} ${showVolume ? styles.toggleBtnOn : ''}`}
             title="거래량"
           >

@@ -13,6 +13,8 @@ export function EtfCandleChart({ code }: { code: string }) {
   const [tf, setTf] = useState<'5m' | '1d' | '1w' | '1mo' | '1y'>('1d');
   const [showMA, setShowMA] = useState(true);
   const [showVolume, setShowVolume] = useState(true);
+  // 그리기 모드 — 기본 OFF (일반 사용자에게 11개 그리기 도구는 노이즈)
+  const [drawMode, setDrawMode] = useState(false);
 
   // drawings localStorage 영속화
   useEffect(() => {
@@ -32,12 +34,45 @@ export function EtfCandleChart({ code }: { code: string }) {
 
   return (
     <section style={{ marginBottom: 20 }} aria-label="가격 차트">
-      <h2 style={{ margin: '0 0 8px', fontSize: 17, fontWeight: 900, color: 'var(--rw-text-strong)', letterSpacing: '-0.3px' }}>
-        가격 차트
-      </h2>
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        margin: '0 0 8px',
+        gap: 12,
+      }}>
+        <h2 style={{
+          margin: 0,
+          fontSize: 17,
+          fontWeight: 900,
+          color: 'var(--rw-text-strong)',
+          letterSpacing: '-0.3px',
+        }}>
+          가격 차트
+        </h2>
+        <button
+          type="button"
+          onClick={() => setDrawMode(v => !v)}
+          style={{
+            padding: '6px 12px',
+            fontSize: 12,
+            fontWeight: 700,
+            borderRadius: 999,
+            border: drawMode ? '1.5px solid var(--rw-primary)' : '1px solid var(--rw-hairline)',
+            background: drawMode ? 'var(--rw-primary-bg)' : 'transparent',
+            color: drawMode ? 'var(--rw-primary)' : 'var(--rw-text-muted)',
+            cursor: 'pointer',
+            transition: 'all .12s',
+          }}
+          title={drawMode ? '그리기 종료' : '추세선·하이라이트 그리기'}
+        >
+          {drawMode ? '✓ 그리기 모드' : '✏️ 그리기'}
+        </button>
+      </div>
       <ChartBlock
         data={{ code, tf, type: 'candle', drawings, showMA, showVolume }}
-        editable
+        editable={drawMode}
+        showCode={false}
         onChange={next => {
           if (next.tf) setTf(next.tf);
           if (next.showMA !== undefined) setShowMA(next.showMA);
