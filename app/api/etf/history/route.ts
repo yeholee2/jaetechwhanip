@@ -4,11 +4,12 @@
  * GET /api/etf/history?code=360750&period=3M
  *
  * 동작:
- * 1. 먼저 Supabase public.etf_daily_prices 에서 hit 시도 (캐시)
- * 2. 부족하면 FSC ETF 시세 API 에서 fetch (beginBasDt/endBasDt 기간 지정)
- * 3. fetch 결과를 DB 에 upsert (다음 호출은 캐시 히트)
+ * 1. 알파뉴메릭 KRX 코드는 네이버 일별 시세를 직접 조회
+ * 2. 일반 숫자 코드는 Supabase public.etf_daily_prices 에서 hit 시도 (캐시)
+ * 3. 부족하면 FSC ETF 시세 API 에서 fetch (beginBasDt/endBasDt 기간 지정)
+ * 4. fetch 결과를 DB 에 upsert (다음 호출은 캐시 히트)
  *
- * 반환: { items: [{ date, close, ... }], source: 'cache'|'api'|'missing' }
+ * 반환: { items: [{ date, close, ... }], source: 'cache'|'api'|'naver'|'missing' }
  */
 
 import { NextResponse } from 'next/server';
@@ -37,6 +38,19 @@ function parseNumber(v: string | number | null | undefined) {
   if (v == null) return null;
   const n = Number(String(v).replace(/,/g, ''));
   return Number.isFinite(n) ? n : null;
+}
+
+function hasAlphabetCode(code: string) {
+  return /[A-Z]/.test(code);
+}
+
+async function fetchFromNaver(code: string, beginDate: Date, endDate: Date) {
+  const naver = await fetchNaverDailyPrices(code, 20);
+  if (naver.length === 0) return null;
+  const begin = ymdDash(beginDate);
+  const end = ymdDash(endDate);
+  const items = naver.filter(item => item.date >= begin && item.date <= end);
+  return items.length > 0 ? items : null;
 }
 
 async function fetchFromCache(code: string, beginDate: Date, endDate: Date) {
@@ -80,7 +94,7 @@ async function fetchFromApi(code: string, beginDate: Date, endDate: Date) {
   const url = `${FSC_ETF_PRICE_ENDPOINT}?serviceKey=${encoded}&${params.toString()}`;
 
   try {
-    const res = await fetch(url, { cache: 'no-store' });
+    const res = await fetch(url, { cache: 'no-store', signal: AbortSignal.timeout(6000) });
     if (!res.ok) return null;
     const json = await res.json();
     const item = json?.response?.body?.items?.item;
@@ -88,6 +102,8 @@ async function fetchFromApi(code: string, beginDate: Date, endDate: Date) {
     const rows = Array.isArray(item) ? item : [item];
     return rows
       .map((row: any) => {
+        const rowCode = normalizeEtfCode(row.srtnCd || row.srtncd || '');
+        if (rowCode && rowCode !== code) return null;
         const d = String(row.basDt || '').replace(/\D/g, '');
         if (d.length !== 8) return null;
         return {
@@ -139,6 +155,13 @@ export async function GET(request: Request) {
   const beginDate = new Date(endDate);
   beginDate.setDate(beginDate.getDate() - days);
 
+  // Data.go.kr ETF endpoint can ignore alphanumeric srtnCd filters such as 0177X0.
+  // Keep those codes on Naver only so we never cache or chart unrelated ETF rows.
+  if (hasAlphabetCode(code)) {
+    const naver = await fetchFromNaver(code, beginDate, endDate);
+    return NextResponse.json({ items: naver || [], source: naver ? 'naver' : 'missing' });
+  }
+
   // 1) cache 먼저
   const cached = await fetchFromCache(code, beginDate, endDate);
   if (cached) {
@@ -156,14 +179,9 @@ export async function GET(request: Request) {
     });
   }
 
-  const naver = await fetchNaverDailyPrices(code, 20);
-  if (naver.length > 0) {
-    const begin = ymdDash(beginDate);
-    const end = ymdDash(endDate);
-    return NextResponse.json({
-      items: naver.filter(item => item.date >= begin && item.date <= end),
-      source: 'naver',
-    });
+  const naver = await fetchFromNaver(code, beginDate, endDate);
+  if (naver) {
+    return NextResponse.json({ items: naver, source: 'naver' });
   }
 
   return NextResponse.json({ items: [], source: 'missing' });
