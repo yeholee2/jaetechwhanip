@@ -167,61 +167,37 @@ export function OnboardClient() {
 
     setSubmitting(true);
     try {
-      const supabase = createClient();
       const baseSlug = (form.slug.trim() ? normalizeSlug(form.slug) : autoSlug) || `c-${Date.now().toString(36)}`;
-      let finalSlug = baseSlug.slice(0, 32);
-
-      // slug 충돌 회피 — 최대 5회 시도
-      for (let i = 0; i < 5; i++) {
-        const { data: clash } = await supabase
-          .from('creators')
-          .select('id')
-          .eq('slug', finalSlug)
-          .maybeSingle();
-        if (!clash) break;
-        finalSlug = `${baseSlug.slice(0, 26)}-${Math.random().toString(36).slice(2, 6)}`;
-      }
 
       // 카테고리 → topics 배열에 자동 포함
       const baseTopics = form.topics.slice();
       const catLabel = CATEGORY_OPTIONS.find(c => c.v === form.category)?.label.replace(/^[^\s]+\s/, '');
       if (catLabel && !baseTopics.includes(catLabel)) baseTopics.push(catLabel);
 
-      // 1) creators insert — 즉시 활성
-      const { data: created, error: cErr } = await supabase
-        .from('creators')
-        .insert({
-          user_id: user.id,
-          slug: finalSlug,
-          display_name: form.displayName.trim(),
+      const referralFinal = form.referral === 'other' ? form.referralCustom.trim() : form.referral;
+      const useCaseFinal = form.useCase === 'other' ? form.useCaseCustom.trim() : form.useCase;
+      const res = await fetch('/api/creator/launch', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          slug: baseSlug,
+          displayName: form.displayName.trim(),
           bio: form.bio.trim(),
           avatar_url: form.avatar_url || null,
           cover_url: form.cover_url || null,
           topics: baseTopics,
-          membership_enabled: false,
-          is_published: true,
-        })
-        .select('slug')
-        .single();
-      if (cErr) { setErr(cErr.message); setSubmitting(false); return; }
+          referral_source: referralFinal,
+          intended_use: useCaseFinal,
+        }),
+      });
+      const result = await res.json().catch(() => null);
+      if (!res.ok || !result?.ok) {
+        setErr(result?.error || '페이지 생성 중 오류가 발생했어요.');
+        setSubmitting(false);
+        return;
+      }
 
-      // 2) creator_applications insert (마케팅 데이터 저장 — best effort)
-      const referralFinal = form.referral === 'other' ? form.referralCustom.trim() : form.referral;
-      const useCaseFinal = form.useCase === 'other' ? form.useCaseCustom.trim() : form.useCase;
-      await supabase.from('creator_applications').insert({
-        user_id: user.id,
-        display_name: form.displayName.trim(),
-        slug: finalSlug,
-        bio: form.bio.trim(),
-        topics: baseTopics,
-        referral_source: referralFinal,
-        intended_use: useCaseFinal,
-        status: 'approved',
-        reviewed_at: new Date().toISOString(),
-      }).then(() => {}, () => { /* 마케팅 저장 실패해도 발행은 OK */ });
-
-      // 3) 생성된 공개 페이지로 이동
-      router.push(`/creator/${created!.slug}`);
+      router.push(`/creator/${result.slug}`);
     } catch (e: any) {
       setErr(e?.message || '생성 중 오류가 발생했어요.');
       setSubmitting(false);
