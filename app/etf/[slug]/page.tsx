@@ -100,6 +100,54 @@ function metricToneLabel(kind: 'fee' | 'premium' | 'volume', value: string | num
   return hasFactValue(String(value || '')) ? '거래 확인' : '공시 확인';
 }
 
+function buildCompactEtfDescription(etf: {
+  name: string;
+  shortName?: string;
+  category?: string;
+  theme?: string;
+  trackingIndex?: string;
+  tags?: string[];
+  underlyingCountry?: string;
+  country?: string;
+}) {
+  const text = [
+    etf.name,
+    etf.shortName,
+    etf.category,
+    etf.theme,
+    etf.trackingIndex,
+    ...(etf.tags || []),
+  ].filter(Boolean).join(' ');
+  const hasUsSignal = /미국|S&P|나스닥|NASDAQ|다우존스|SCHD|필라델피아/i.test(text);
+  const country = etf.underlyingCountry
+    ? countryInfo(etf.underlyingCountry).label
+    : (hasUsSignal || (etf.country || '').toUpperCase() === 'US' ? '미국' : '');
+  const prefix = country && country !== '국내' ? `${country} ` : country === '국내' ? '국내 ' : '';
+
+  if (/휴머노이드|로봇/i.test(text)) return `${prefix}휴머노이드 로봇 관련 기업에 투자하는 ETF예요.`;
+  if (/S&P\s*500|에스앤피|스탠더드/i.test(text)) return `${prefix}S&P 500 내 기업에 투자하는 ETF예요.`;
+  if (/나스닥\s*100|NASDAQ\s*100/i.test(text)) return `${prefix}나스닥100 기업에 투자하는 ETF예요.`;
+  if (/필라델피아|반도체|semiconductor/i.test(text)) return `${prefix}반도체 기업에 투자하는 ETF예요.`;
+  if (/배당|SCHD|다우존스/i.test(text)) return `${prefix}배당주에 투자하는 ETF예요.`;
+  if (/AI|인공지능/i.test(text)) return `${prefix}AI 관련 기업에 투자하는 ETF예요.`;
+  if (/바이오|헬스케어|의료/i.test(text)) return `${prefix}바이오·헬스케어 기업에 투자하는 ETF예요.`;
+  if (/2차전지|이차전지|배터리/i.test(text)) return `${prefix}2차전지 관련 기업에 투자하는 ETF예요.`;
+  if (/코스피\s*200|KOSPI\s*200/i.test(text)) return '코스피200 기업에 투자하는 ETF예요.';
+  if (/코스닥\s*150|KOSDAQ\s*150/i.test(text)) return '코스닥150 기업에 투자하는 ETF예요.';
+  if (/채권|국고채|국채|회사채|bond/i.test(text)) return `${prefix}채권에 투자하는 ETF예요.`;
+  if (/금|골드|gold/i.test(text)) return '금에 투자하는 ETF예요.';
+  if (/원유|오일|oil/i.test(text)) return '원유에 투자하는 ETF예요.';
+  if (/리츠|부동산|REIT/i.test(text)) return `${prefix}리츠·부동산에 투자하는 ETF예요.`;
+
+  const theme = (etf.theme || '')
+    .replace(/테마/g, '')
+    .replace(/시장지수/g, '')
+    .trim();
+  if (theme) return `${prefix}${theme} 관련 자산에 투자하는 ETF예요.`;
+  if (/주식|equity/i.test(etf.category || '')) return `${prefix}기업에 분산 투자하는 ETF예요.`;
+  return '여러 자산에 나눠 투자하는 ETF예요.';
+}
+
 type Props = { params: { slug: string } };
 
 export const revalidate = 300;
@@ -340,6 +388,7 @@ export default async function EtfDetailPage({ params }: Props) {
   const capitalGainsTax = isDomesticEquity ? '비과세' : '15.4%';
   const actualWeightedHoldings = liveHoldings?.holdings?.filter(h => h.weight > 0) ?? [];
   const visibleHoldingCount = Math.min(actualWeightedHoldings.length, 8);
+  const compactDescription = buildCompactEtfDescription(etf);
 
   // 분배금 히스토리 (분배 있는 ETF만)
 
@@ -446,26 +495,7 @@ export default async function EtfDetailPage({ params }: Props) {
                 {etf.trackingIndex}
               </p>
             )}
-            {(() => {
-              // 기계적 DB 생성 패턴 감지 — "ETF명 (코드) — 운용사 운용 카테고리."
-              const isGeneric = !etf.summary
-                || etf.summary.startsWith(`${etf.name} (${etf.code})`)
-                || etf.summary === `${etf.name} (${etf.code}) — ${etf.issuer} 운용 ${etf.category}.`;
-              if (etf.summary && !isGeneric) {
-                return <p className={styles.heroSummary}>{etf.summary}</p>;
-              }
-              // 자동 1줄 설명 — 테마·추종지수·헤지 조합
-              const parts: string[] = [];
-              if (etf.theme) parts.push(`${etf.theme} 테마`);
-              if (etf.trackingIndex) parts.push(`${etf.trackingIndex} 추적`);
-              const hedge = etf.hedge || '';
-              if (/헤지|H\b/i.test(hedge)) parts.push('환헤지');
-              else if (etf.country === 'US' || /\bUS\b|미국/i.test(etf.category || '')) parts.push('환 노출');
-              const auto = parts.length > 0
-                ? `${parts.join(' · ')} 상품이에요.`
-                : `${etf.issuer}가 운용하는 ${etf.category} ETF예요.`;
-              return <p className={styles.heroSummary}>{auto}</p>;
-            })()}
+            <p className={styles.heroSummary}>{compactDescription}</p>
             {etf.tags && etf.tags.length > 0 && (
               <div className={styles.tags}>
                 {etf.tags.slice(0, 4).map(tag => {
