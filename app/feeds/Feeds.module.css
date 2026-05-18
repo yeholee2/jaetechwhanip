@@ -300,6 +300,9 @@
   border: 1px solid rgba(0, 27, 55, 0.06);
   border-radius: 14px;
   transition: background-color 140ms;
+  /* 화면 밖 카드는 paint 안 함 — 긴 피드 스크롤 성능 ↑ */
+  content-visibility: auto;
+  contain-intrinsic-size: 0 320px;
 }
 .postCard:hover { background: var(--rw-card-muted, #FAFBFC); }
 

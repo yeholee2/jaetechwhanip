@@ -614,6 +614,9 @@
   text-decoration: none;
   color: inherit;
   transition: background-color 140ms;
+  /* 화면 밖 카드는 paint 안 함 — 긴 피드 스크롤 성능 ↑ */
+  content-visibility: auto;
+  contain-intrinsic-size: 0 320px;
 }
 .postCard:hover {
   background: var(--rw-card-muted, #FAFBFC);

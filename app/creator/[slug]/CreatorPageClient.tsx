@@ -333,7 +333,7 @@ export function CreatorPageClient({
                           <span>{s.avatar_url}</span>
                         ) : s.avatar_url ? (
                           // eslint-disable-next-line @next/next/no-img-element
-                          <img src={s.avatar_url} alt="" />
+                          <img src={s.avatar_url} alt="" loading="lazy" decoding="async" />
                         ) : (
                           <span>{s.display_name.slice(0, 1)}</span>
                         )}
@@ -550,6 +550,8 @@ function PostsTab({ posts, slug, isOwner }: { posts: CreatorPost[]; slug: string
                   src={p.cover_url}
                   alt={p.title}
                   className={`${styles.postCover} ${locked ? styles.postCoverBlur : ''}`}
+                  loading="lazy"
+                  decoding="async"
                 />
               )}
               {p.preview && !locked && <p className={styles.postPreview}>{p.preview}</p>}

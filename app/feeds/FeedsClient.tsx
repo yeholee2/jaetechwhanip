@@ -111,7 +111,7 @@ export function FeedsClient({
                   >
                     {c.avatar_url ? (
                       // eslint-disable-next-line @next/next/no-img-element
-                      <img src={c.avatar_url} alt="" className={styles.creatorAvatar} />
+                      <img src={c.avatar_url} alt="" className={styles.creatorAvatar} loading="lazy" decoding="async" />
                     ) : (
                       <span className={styles.creatorAvatarPlaceholder}>
                         {c.display_name.slice(0, 1)}
@@ -194,7 +194,7 @@ export function FeedsClient({
                     <Link href={`/creator/${c.slug}`} className={styles.recLink}>
                       {c.avatar_url ? (
                         // eslint-disable-next-line @next/next/no-img-element
-                        <img src={c.avatar_url} alt="" className={styles.recAvatar} />
+                        <img src={c.avatar_url} alt="" className={styles.recAvatar} loading="lazy" decoding="async" />
                       ) : (
                         <span className={styles.recAvatarPlaceholder}>
                           {c.display_name.slice(0, 1)}
@@ -229,7 +229,7 @@ function PostCard({ post }: { post: FeedPost }) {
       <Link href={`/creator/${c.slug}`} className={styles.postCardHead}>
         {c.avatar_url ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={c.avatar_url} alt="" className={styles.postAuthorAvatar} />
+          <img src={c.avatar_url} alt="" className={styles.postAuthorAvatar} loading="lazy" decoding="async" />
         ) : (
           <span className={styles.postAuthorAvatarPlaceholder}>
             {c.display_name.slice(0, 1)}
@@ -256,6 +256,8 @@ function PostCard({ post }: { post: FeedPost }) {
             src={post.cover_url}
             alt={post.title}
             className={`${styles.postCover} ${post.locked ? styles.postCoverBlur : ''}`}
+            loading="lazy"
+            decoding="async"
           />
         )}
 
