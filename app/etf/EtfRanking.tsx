@@ -71,8 +71,13 @@ function hasMetric(etf: EtfInfo, key: SortKey): boolean {
   if (key === '거래량') return parseVol(etf.volume) > 0;
   return true;
 }
+function rankSourcePriority(etf: EtfInfo, key: SortKey): number {
+  if (key === '이름순' || !hasMetric(etf, key)) return 0;
+  return etf.dataSource === 'naver' ? 1 : 0;
+}
 function compareMetric(a: EtfInfo, b: EtfInfo, key: SortKey): number {
   return (
+    rankSourcePriority(b, key) - rankSourcePriority(a, key) ||
     Number(hasMetric(b, key)) - Number(hasMetric(a, key)) ||
     metricValue(b, key) - metricValue(a, key) ||
     a.shortName.localeCompare(b.shortName)

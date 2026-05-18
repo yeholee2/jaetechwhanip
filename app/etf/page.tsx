@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { AppShell } from '@/components/AppShell';
 import { ETF_HOME_PATH, ETF_HOME_URL } from '@/lib/etfs';
 import { getEtfsWithMarketData } from '@/lib/etf-live-data';
+import { enrichEtfRankingCandidatesWithNaver } from '@/lib/etfRankingRealtime';
 import { fetchEtfs } from '@/lib/etfsDb';
 import { SITE_NAME } from '@/lib/seo';
 import { PageHero, Badge, Card, Button } from '@/components/ui';
@@ -21,7 +22,7 @@ import { PortfolioDiagnostic } from './PortfolioDiagnostic';
 import { PageSidebar } from '@/components/PageSidebar';
 import { getFeaturedActiveSparring, listSparrings } from '@/lib/sparring';
 
-export const revalidate = 300;
+export const revalidate = 60;
 
 export const metadata: Metadata = {
   title: 'ETF',
@@ -61,7 +62,8 @@ export default async function EtfPage({
     listSparrings(),
     fetchEtfs(2000),
   ]);
-  const etfs = await getEtfsWithMarketData(baseEtfs).catch(() => baseEtfs);
+  const marketEtfs = await getEtfsWithMarketData(baseEtfs).catch(() => baseEtfs);
+  const etfs = await enrichEtfRankingCandidatesWithNaver(marketEtfs).catch(() => marketEtfs);
   const featured = getFeaturedActiveSparring(sparrings);
 
   const jsonLd = {
