@@ -14,11 +14,12 @@
 
 import Link from 'next/link';
 import { HomeWatchWidget } from './HomeWatchWidget';
+import { ColumnsWidget } from './ColumnsWidget';
 import SparringMiniCard from './sparring/SparringMiniCard';
 import type { Sparring } from '@/lib/sparring';
 import styles from './PageSidebar.module.css';
 
-export type SidebarWidget = 'watch' | 'sparring' | 'help';
+export type SidebarWidget = 'watch' | 'sparring' | 'help' | 'columns';
 
 export function PageSidebar({
   widgets,
@@ -31,11 +32,13 @@ export function PageSidebar({
     <aside className="pc-layout-side">
       {widgets.map(w => {
         if (w === 'sparring') {
-          return featuredSparring !== undefined
+          // 진행 중 스파링이 있을 때만 노출 (null/undefined 면 카드 숨김)
+          return featuredSparring
             ? <SparringMiniCard key="sparring" sparring={featuredSparring} />
             : null;
         }
         if (w === 'watch') return <HomeWatchWidget key="watch" />;
+        if (w === 'columns') return <ColumnsWidget key="columns" />;
         if (w === 'help') return <HelpWidget key="help" />;
         return null;
       })}

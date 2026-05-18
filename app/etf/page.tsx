@@ -57,7 +57,7 @@ export default async function EtfPage({
   const active = getActiveTab(searchParams?.tab);
   const savedListView = searchParams?.view === 'watch' ? 'watch' : 'recent';
   const sidebarWidgets: import('@/components/PageSidebar').SidebarWidget[] =
-    active === 'watch' ? ['sparring', 'help'] : ['sparring', 'watch', 'help'];
+    active === 'watch' ? ['sparring', 'columns', 'help'] : ['sparring', 'watch', 'columns', 'help'];
   const [{ sparrings }, baseEtfs] = await Promise.all([
     listSparrings(),
     fetchEtfs(2000),
