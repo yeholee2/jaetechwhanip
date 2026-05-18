@@ -6,6 +6,7 @@
  */
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
+import { FaIcon } from '@/components/FaIcon';
 import { listWatchedEtfCodes, subscribeWatchChanges } from '@/lib/etfWatch';
 import { listRecentEtfSlugs } from '@/lib/recentActivity';
 import styles from './EtfPageTabs.module.css';
@@ -53,25 +54,40 @@ export function EtfUtilityRow() {
   }, []);
   return (
     <div className={styles.utilRow} role="group" aria-label="ETF 도구">
-      <Link href="/etf/compare" className={styles.util}>
-        <span className={styles.utilIcon} aria-hidden="true">⚖️</span>
+      <Link href="/etf/all" className={styles.util}>
+        <span className={styles.utilIcon} aria-hidden="true">
+          <FaIcon name="magnifying-glass" size={15} />
+        </span>
         <span className={styles.utilLabel}>
-          <strong>ETF 비교</strong>
-          <span>두 ETF 나란히</span>
+          <strong>ETF 찾기</strong>
+          <span>코드·테마 검색</span>
+        </span>
+      </Link>
+      <Link href="/etf/compare" className={styles.util}>
+        <span className={styles.utilIcon} aria-hidden="true">
+          <FaIcon name="scale-balanced" size={15} />
+        </span>
+        <span className={styles.utilLabel}>
+          <strong>비교</strong>
+          <span>보수·순자산</span>
         </span>
       </Link>
       <Link href="/etf?tab=watch" className={styles.util}>
-        <span className={styles.utilIcon} aria-hidden="true">❤️</span>
+        <span className={styles.utilIcon} aria-hidden="true">
+          <FaIcon name="clock-rotate-left" size={15} />
+        </span>
         <span className={styles.utilLabel}>
           <strong>최근·관심{mounted && watchCount > 0 ? ` (${watchCount})` : ''}</strong>
           <span>{mounted && recentCount > 0 ? `최근 본 ${recentCount}개` : '본 종목 다시 보기'}</span>
         </span>
       </Link>
-      <Link href="/portfolio" className={styles.util}>
-        <span className={styles.utilIcon} aria-hidden="true">📊</span>
+      <Link href="/etf?tab=diagnostic" className={styles.util}>
+        <span className={styles.utilIcon} aria-hidden="true">
+          <FaIcon name="chart-pie" size={15} />
+        </span>
         <span className={styles.utilLabel}>
-          <strong>포트폴리오 진단</strong>
-          <span>섹터·환·보수 분석</span>
+          <strong>진단</strong>
+          <span>섹터·환·보수</span>
         </span>
       </Link>
     </div>

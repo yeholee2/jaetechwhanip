@@ -338,6 +338,8 @@ export default async function EtfDetailPage({ params }: Props) {
     etf.underlyingCountry === 'KR' &&
     !/채권|원자재|금|커버드콜/i.test(etf.theme || etf.category || '');
   const capitalGainsTax = isDomesticEquity ? '비과세' : '15.4%';
+  const actualWeightedHoldings = liveHoldings?.holdings?.filter(h => h.weight > 0) ?? [];
+  const visibleHoldingCount = Math.min(actualWeightedHoldings.length, 8);
 
   // 분배금 히스토리 (분배 있는 ETF만)
 
@@ -590,6 +592,50 @@ export default async function EtfDetailPage({ params }: Props) {
             </strong>
           </div>
         </div>
+
+        <section className={styles.preTradePanel} aria-label="ETF 매수 전 체크">
+          <div className={styles.preTradeHead}>
+            <span>매수 전 체크</span>
+            <strong>가격보다 먼저 볼 것</strong>
+            <p>{etf.dataNotice || (etfBaseDate ? `${etfBaseDate} 기준` : '실제 수집 데이터 기준')}</p>
+          </div>
+          <div className={styles.preTradeGrid}>
+            <div className={styles.preTradeCell}>
+              <span>거래량</span>
+              <strong><FactValue value={etf.volume} /></strong>
+              <p>{hasFactValue(etf.volume) ? '사고팔기 쉬운지 확인' : '거래 데이터 확인 필요'}</p>
+            </div>
+            <div className={styles.preTradeCell}>
+              <span>괴리율</span>
+              <strong>
+                {typeof etfPremium === 'number'
+                  ? `${etfPremium > 0 ? '+' : ''}${etfPremium.toFixed(2)}%`
+                  : <FactValue value={null} emptyLabel="공시 확인" />}
+              </strong>
+              <p>{metricToneLabel('premium', etfPremium)}</p>
+            </div>
+            <div className={styles.preTradeCell}>
+              <span>총보수</span>
+              <strong><FactValue value={etf.fee} /></strong>
+              <p>{metricToneLabel('fee', etf.fee)}</p>
+            </div>
+            <div className={styles.preTradeCell}>
+              <span>구성종목</span>
+              <strong>{visibleHoldingCount > 0 ? `${visibleHoldingCount}개` : '확인 전'}</strong>
+              <p>{visibleHoldingCount > 0 ? '상위 보유 종목 표시' : '비중 확인 필요'}</p>
+            </div>
+          </div>
+          <div className={styles.preTradeActions}>
+            <Link href={`/etf/compare?a=${etf.code}`}>
+              <FaIcon name="scale-balanced" size={12} />
+              비슷한 ETF와 비교
+            </Link>
+            <Link href="/etf?tab=watch">
+              <FaIcon name="clock-rotate-left" size={12} />
+              최근·관심 보기
+            </Link>
+          </div>
+        </section>
 
         {/* 섹션 앵커 nav — 전체 폭 (사이드 카드와 동선 충돌 방지) */}
         <EtfSectionNav />

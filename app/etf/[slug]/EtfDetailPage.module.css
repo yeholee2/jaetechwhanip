@@ -1631,12 +1631,147 @@
   text-align: center;
 }
 
+.preTradePanel {
+  display: grid;
+  grid-template-columns: minmax(180px, 0.8fr) minmax(0, 1.65fr);
+  gap: var(--space-3);
+  margin-bottom: var(--space-3);
+  padding: var(--space-4);
+  border: 1px solid var(--rw-hairline);
+  border-radius: var(--rw-radius-md);
+  background: var(--rw-card);
+}
+
+.preTradeHead {
+  min-width: 0;
+  padding: var(--space-3);
+  border-radius: var(--rw-radius-sm);
+  background: var(--rw-card-muted);
+}
+
+.preTradeHead span {
+  display: block;
+  color: var(--rw-primary);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.2px;
+}
+
+.preTradeHead strong {
+  display: block;
+  margin-top: 6px;
+  color: var(--rw-text-strong);
+  font-size: 15px;
+  line-height: 1.4;
+  font-weight: 900;
+  letter-spacing: -0.2px;
+}
+
+.preTradeHead p {
+  margin: 5px 0 0;
+  color: var(--rw-text-muted);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+.preTradeGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  min-width: 0;
+}
+
+.preTradeCell {
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid var(--rw-hairline);
+  border-radius: var(--rw-radius-sm);
+  background: var(--rw-card);
+}
+
+.preTradeCell span {
+  display: block;
+  color: var(--rw-text-muted);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.2px;
+}
+
+.preTradeCell strong {
+  display: block;
+  margin-top: 6px;
+  color: var(--rw-text-strong);
+  font-size: 16px;
+  line-height: 1.2;
+  font-weight: 900;
+  letter-spacing: -0.2px;
+  font-feature-settings: 'tnum';
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.preTradeCell p {
+  margin: 5px 0 0;
+  color: var(--rw-text-muted);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.35;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.preTradeActions {
+  grid-column: 2;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: -4px;
+}
+
+.preTradeActions a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 34px;
+  padding: 0 12px;
+  border-radius: var(--rw-radius-sm);
+  background: var(--rw-card-muted);
+  color: var(--rw-text-body);
+  font-size: 12px;
+  font-weight: 900;
+  text-decoration: none;
+  transition: background-color 120ms ease, color 120ms ease, transform 120ms ease;
+}
+
+.preTradeActions a:hover {
+  background: var(--rw-primary-bg);
+  color: var(--rw-primary);
+  transform: translateY(-1px);
+}
+
 @media (max-width: 600px) {
   .heroStripValue {
     font-size: 14px;
   }
   .heroStripCell {
     padding: 10px 8px;
+  }
+  .preTradePanel {
+    grid-template-columns: 1fr;
+    padding: 12px;
+  }
+  .preTradeGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .preTradeActions {
+    grid-column: auto;
+  }
+  .preTradeActions a {
+    flex: 1;
   }
 }
 
