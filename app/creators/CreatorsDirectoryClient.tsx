@@ -3,7 +3,14 @@
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import type { Creator } from '@/lib/creator';
-import { CATEGORY_EMOJI, CATEGORY_LABELS, getCategoryLabel, getCategoryLabelFromTopic, topicMatchesCategory } from '@/lib/categories';
+import {
+  CATEGORY_DEFINITIONS,
+  CATEGORY_EMOJI,
+  CATEGORY_LABELS,
+  getCategoryLabel,
+  getCategoryLabelFromTopic,
+  topicMatchesCategory,
+} from '@/lib/categories';
 import { trackEvent } from '@/lib/analytics';
 import { FaIcon } from '@/components/FaIcon';
 import { Chip } from '@/components/ui';
@@ -68,6 +75,8 @@ const DISCOVERY_SECTIONS = [
     topics: [],
   },
 ] as const;
+
+const CATEGORY_META = new Map(CATEGORY_DEFINITIONS.map(category => [category.key, category]));
 
 function displayTopics(creator: Creator, limit: number) {
   const seen = new Set<string>();
@@ -302,6 +311,8 @@ function CreatorsSpotlightCarousel({ creators }: { creators: DirectoryCreator[] 
 }
 
 function DiscoveryCard({ creator }: { creator: DirectoryCreator }) {
+  const topics = displayTopics(creator, 2);
+
   return (
     <Link href={`/creator/${creator.slug}`} className={styles.shelfCard}>
       <div className={styles.shelfCover} style={coverStyle(creator)} aria-hidden />
@@ -314,7 +325,15 @@ function DiscoveryCard({ creator }: { creator: DirectoryCreator }) {
         {creator.bio && <p>{creator.bio}</p>}
         <div className={styles.shelfMeta}>
           <span>{creator.follower_count.toLocaleString()} 팔로워</span>
+          <span>{creator.member_count.toLocaleString()} 멤버</span>
           <span>{creator.post_count.toLocaleString()}개 글</span>
+        </div>
+        <div className={styles.shelfProof}>
+          {creator.verified && <span>전문가 인증</span>}
+          {creator.membership_enabled && (
+            <span>월 {(creator.membership_price_won || 0).toLocaleString()}원</span>
+          )}
+          {!creator.membership_enabled && <span>무료로 팔로우</span>}
         </div>
         <div className={styles.trustLine}>
           {creator.membership_enabled ? (
@@ -322,12 +341,50 @@ function DiscoveryCard({ creator }: { creator: DirectoryCreator }) {
           ) : (
             <span className={styles.trustPill}>무료 채널</span>
           )}
-          {displayTopics(creator, 2).map(t => (
+          {topics.map(t => (
             <span key={t} className={styles.trustPill}>#{t}</span>
           ))}
         </div>
       </div>
     </Link>
+  );
+}
+
+function CategoryExplorer({
+  activeTopic,
+  counts,
+  onSelect,
+}: {
+  activeTopic: string;
+  counts: Record<string, number>;
+  onSelect: (topic: string) => void;
+}) {
+  return (
+    <section className={styles.categoryExplorer} aria-label="재프콘 카테고리">
+      <div className={styles.categoryRail}>
+        {CATEGORY_FILTERS.map(categoryKey => {
+          const meta = CATEGORY_META.get(categoryKey);
+          const active = activeTopic === categoryKey;
+          return (
+            <button
+              type="button"
+              key={categoryKey}
+              className={`${styles.categoryTile} ${active ? styles.categoryTileOn : ''}`}
+              onClick={() => onSelect(categoryKey)}
+              aria-pressed={active}
+            >
+              <span className={styles.categoryTileIcon} aria-hidden>
+                {categoryKey === '전체' ? <FaIcon name="bars" size={22} /> : meta?.emoji}
+              </span>
+              <span className={styles.categoryTileLabel}>
+                {categoryKey === '전체' ? '전체' : getCategoryLabel(categoryKey)}
+              </span>
+              <span className={styles.categoryTileCount}>{counts[categoryKey] || 0}개</span>
+            </button>
+          );
+        })}
+      </div>
+    </section>
   );
 }
 
@@ -357,10 +414,26 @@ export function CreatorsDirectoryClient({ creators }: { creators: Creator[] }) {
   }, [directoryCreators]);
 
   const discoverySections = useMemo(() => getDiscoverySections(directoryCreators), [directoryCreators]);
+  const categoryCounts = useMemo(() => {
+    return Object.fromEntries(
+      CATEGORY_FILTERS.map(category => [
+        category,
+        category === '전체'
+          ? directoryCreators.length
+          : directoryCreators.filter(creator => matchTopic(creator, category)).length,
+      ]),
+    ) as Record<string, number>;
+  }, [directoryCreators]);
+
+  const selectCategory = (category: string) => {
+    setActiveTopic(category);
+    trackEvent({ kind: 'click', target: 'creators_category_tile', meta: { category } });
+  };
 
   return (
     <div className={styles.wrap}>
       <CreatorsSpotlightCarousel creators={directoryCreators} />
+      <CategoryExplorer activeTopic={activeTopic} counts={categoryCounts} onSelect={selectCategory} />
 
       {/* 검색 + 정렬 */}
       <div className={styles.controls}>
@@ -394,7 +467,7 @@ export function CreatorsDirectoryClient({ creators }: { creators: Creator[] }) {
       {/* 카테고리 탭 */}
       <div className={styles.topics}>
         {CATEGORY_FILTERS.map(t => (
-          <Chip key={t} active={activeTopic === t} size="sm" onClick={() => setActiveTopic(t)}>
+          <Chip key={t} active={activeTopic === t} size="sm" onClick={() => selectCategory(t)}>
             {CAT_EMOJI[t] && <span className="tf">{CAT_EMOJI[t]}</span>}
             {t === '전체' ? t : getCategoryLabel(t)}
           </Chip>
@@ -472,48 +545,52 @@ export function CreatorsDirectoryClient({ creators }: { creators: Creator[] }) {
           </div>
         ) : (
           <div className={styles.grid}>
-            {filtered.map(c => (
-              <Link key={c.id} href={`/creator/${c.slug}`} className={styles.card}>
-                <div className={styles.cardCover} style={coverStyle(c)} aria-hidden />
-                {(c as any).badge && (
-                  <span className={styles.cardBadge}>{(c as any).badge}</span>
-                )}
-                <div className={styles.cardBody}>
-                  <div className={styles.avatar}>
-                    {c.avatar_url && c.avatar_url.length <= 4 ? (
-                      <span>{c.avatar_url}</span>
-                    ) : c.avatar_url ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={c.avatar_url} alt={c.display_name} />
-                    ) : (
-                      <span>{c.display_name.slice(0, 1)}</span>
+            {filtered.map(c => {
+              const topics = displayTopics(c, 3);
+              return (
+                <Link key={c.id} href={`/creator/${c.slug}`} className={styles.card}>
+                  <div className={styles.cardCover} style={coverStyle(c)} aria-hidden />
+                  {(c as any).badge && (
+                    <span className={styles.cardBadge}>{(c as any).badge}</span>
+                  )}
+                  <div className={styles.cardBody}>
+                    <div className={styles.avatar}>
+                      {c.avatar_url && c.avatar_url.length <= 4 ? (
+                        <span>{c.avatar_url}</span>
+                      ) : c.avatar_url ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={c.avatar_url} alt={c.display_name} />
+                      ) : (
+                        <span>{c.display_name.slice(0, 1)}</span>
+                      )}
+                    </div>
+                    <strong className={styles.cardName}>{c.display_name}</strong>
+                    {c.bio && <p className={styles.cardBio}>{c.bio}</p>}
+                    {topics.length > 0 && (
+                      <div className={styles.cardTopics}>
+                        {topics.map(t => (
+                          <span key={t} className={styles.cardTopicChip}>{t}</span>
+                        ))}
+                      </div>
+                    )}
+                    <div className={styles.cardStats}>
+                      <span><strong>{c.follower_count.toLocaleString()}</strong> 팔로워</span>
+                      <span><strong>{c.member_count.toLocaleString()}</strong> 멤버</span>
+                      <span><strong>{c.post_count.toLocaleString()}</strong> 글</span>
+                      {(c as any).verified && (
+                        <span className={styles.cardAccuracy}>✓ 전문가</span>
+                      )}
+                    </div>
+                    {c.membership_enabled && (
+                      <div className={styles.cardPrice}>
+                        월 {(c.membership_price_won || 0).toLocaleString()}원
+                        <span>{c.membership_tier_name}</span>
+                      </div>
                     )}
                   </div>
-                  <strong className={styles.cardName}>{c.display_name}</strong>
-                  {c.bio && <p className={styles.cardBio}>{c.bio}</p>}
-                  {displayTopics(c, 3).length > 0 && (
-                    <div className={styles.cardTopics}>
-                      {displayTopics(c, 3).map(t => (
-                        <span key={t} className={styles.cardTopicChip}>{t}</span>
-                      ))}
-                    </div>
-                  )}
-                  <div className={styles.cardStats}>
-                    <span><strong>{c.follower_count.toLocaleString()}</strong> 팔로워</span>
-                    <span><strong>{c.member_count.toLocaleString()}</strong> 멤버</span>
-                    {(c as any).verified && (
-                      <span className={styles.cardAccuracy}>✓ 전문가</span>
-                    )}
-                  </div>
-                  {c.membership_enabled && (
-                    <div className={styles.cardPrice}>
-                      월 {(c.membership_price_won || 0).toLocaleString()}원
-                      <span>{c.membership_tier_name}</span>
-                    </div>
-                  )}
-                </div>
-              </Link>
-            ))}
+                </Link>
+              );
+            })}
           </div>
         )}
       </section>

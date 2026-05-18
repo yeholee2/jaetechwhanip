@@ -1,7 +1,7 @@
 .wrap {
   display: flex;
   flex-direction: column;
-  gap: var(--space-5);
+  gap: var(--space-4);
   padding-bottom: var(--space-12);
 }
 
@@ -526,6 +526,150 @@
 }
 
 /* ─────────────────────────────────────────────────────────
+ * 팬딩식 카테고리 탐색 타일
+ * ───────────────────────────────────────────────────────── */
+.categoryExplorer {
+  padding: 18px 18px 16px;
+  border: 1px solid var(--rw-border);
+  border-radius: 16px;
+  background: var(--rw-card);
+  overflow: hidden;
+}
+
+.categoryRail {
+  display: grid;
+  grid-template-columns: repeat(11, minmax(74px, 1fr));
+  gap: 10px;
+}
+
+.categoryTile {
+  min-width: 0;
+  min-height: 118px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+  padding: 12px 7px 10px;
+  border: 1px solid transparent;
+  border-radius: 14px;
+  background: transparent;
+  color: var(--rw-text-body);
+  font-family: inherit;
+  cursor: pointer;
+  transition:
+    background var(--duration-instant) var(--ease-in-out),
+    border-color var(--duration-instant) var(--ease-in-out),
+    color var(--duration-instant) var(--ease-in-out),
+    transform var(--duration-instant) var(--ease-in-out);
+}
+
+.categoryTile:hover {
+  background: var(--rw-card-muted);
+  transform: translateY(-1px);
+}
+
+.categoryTileOn {
+  background: var(--rw-primary-bg);
+  border-color: rgba(27, 100, 218, .22);
+  color: var(--rw-primary);
+}
+
+.categoryTileIcon {
+  width: 54px;
+  height: 54px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 15px;
+  background:
+    linear-gradient(135deg, rgba(49, 130, 246, .10), rgba(0, 168, 107, .08)),
+    var(--rw-card-muted);
+  color: var(--rw-primary);
+  font-size: 24px;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .42);
+}
+
+.categoryTileOn .categoryTileIcon {
+  background: var(--rw-primary);
+  color: #fff;
+}
+
+.categoryTileLabel {
+  width: 100%;
+  min-height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: visible;
+  text-align: center;
+  white-space: normal;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+  color: inherit;
+  font-size: 12px;
+  font-weight: 900;
+  line-height: 1.25;
+  letter-spacing: 0;
+}
+
+.categoryTileCount {
+  color: var(--rw-text-muted);
+  font-size: 10.5px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.categoryTileOn .categoryTileCount {
+  color: var(--rw-primary);
+}
+
+@media (max-width: 980px) {
+  .categoryExplorer {
+    padding: 14px;
+  }
+
+  .categoryRail {
+    display: flex;
+    overflow-x: auto;
+    gap: 8px;
+    padding-bottom: 2px;
+    scrollbar-width: none;
+  }
+
+  .categoryRail::-webkit-scrollbar {
+    display: none;
+  }
+
+  .categoryTile {
+    flex: 0 0 82px;
+  }
+}
+
+@media (max-width: 560px) {
+  .categoryExplorer {
+    margin: 0 -4px;
+    border-radius: 14px;
+    padding: 12px;
+  }
+
+  .categoryTile {
+    flex-basis: 76px;
+    min-height: 112px;
+    padding: 10px 5px 9px;
+  }
+
+  .categoryTileIcon {
+    width: 48px;
+    height: 48px;
+    font-size: 22px;
+  }
+
+  .categoryTileLabel {
+    font-size: 11px;
+  }
+}
+
+/* ─────────────────────────────────────────────────────────
  * Hero — 이 주의 추천 핀플루언서 (네이버 프리미엄 컨텐츠 톤)
  * ───────────────────────────────────────────────────────── */
 .hero {
@@ -878,6 +1022,22 @@
   font-size: 11.5px;
   font-weight: 800;
   color: var(--rw-text-body);
+}
+.shelfProof {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+}
+.shelfProof span {
+  min-width: 0;
+  padding: 7px 8px;
+  border-radius: 9px;
+  background: var(--rw-card-muted);
+  color: var(--rw-text-body);
+  font-size: 11px;
+  font-weight: 900;
+  text-align: center;
+  white-space: nowrap;
 }
 .trustLine {
   display: flex;
