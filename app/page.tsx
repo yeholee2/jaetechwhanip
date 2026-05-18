@@ -27,6 +27,7 @@ export default async function HomePage() {
       marketIndices={indices}
       siteBanner={settings.banner}
       siteKeywords={settings.keywords}
+      rollingBanners={settings.rollingBanners}
       tickerQuotes={tickerQuotes}
       nextEvent={nextEvent}
       forYou={forYou}

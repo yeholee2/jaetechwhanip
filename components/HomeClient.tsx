@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
-import { Swords } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { createClient, hasSupabase } from '@/lib/supabase/client';
 import { CATEGORY_DEFINITIONS, CATEGORY_EMOJI, CATEGORY_LABELS, getCategoryLabel } from '@/lib/categories';
@@ -26,6 +25,7 @@ import { HomeWatchWidget } from './HomeWatchWidget';
 import { ForYouSection } from './ForYouSection';
 import type { ForYouBundle } from '@/lib/forYou';
 import { etfs, etfPath } from '@/lib/etfs';
+import type { HomeRollingBanner as HomeRollingBannerItem } from '@/lib/site-settings';
 import styles from './HomeClient.module.css';
 
 const HOME_INDICES_FALLBACK: { name: string; val: string; chg: string; up: boolean; series: number[] }[] = [
@@ -59,6 +59,7 @@ export default function HomeClient({
   marketIndices,
   siteBanner,
   siteKeywords,
+  rollingBanners,
   tickerQuotes,
   nextEvent,
   forYou,
@@ -68,6 +69,7 @@ export default function HomeClient({
   marketIndices?: { name: string; val: string; chg: string; up: boolean; series?: number[] }[];
   siteBanner?: { enabled: boolean; message: string; link: string };
   siteKeywords?: string[];
+  rollingBanners?: HomeRollingBannerItem[];
   tickerQuotes?: (TickerQuote | null)[];
   nextEvent?: { event: CalendarEvent; dDay: number } | null;
   forYou?: ForYouBundle;
@@ -329,13 +331,16 @@ export default function HomeClient({
         </div>
       )}
 
+      <div className={styles.homeHeroWrap}>
+        <HomeRollingBanner banners={rollingBanners || []} />
+      </div>
+
       {/* PC 본문 */}
       <div className={styles.pcBody}>
         <div className={styles.pcFeed}>
           {siteBanner?.enabled && siteBanner.message && (
             <SiteBannerStrip banner={siteBanner} />
           )}
-          <JaefconHomePanel />
           {/* 개인화 — 로그인 시 + 콘텐츠 있을 때만 자체 렌더 */}
           {forYou && <ForYouSection data={forYou} />}
           <div className={styles.feedTabs}>
@@ -435,7 +440,7 @@ export default function HomeClient({
       </div>
 
       <div className={styles.moMain}>
-        <JaefconHomePanel compact />
+        <HomeRollingBanner banners={rollingBanners || []} compact />
         <div className={styles.moFeedHd}>
           {FEED_TABS.map(tab => (
             <button
@@ -477,35 +482,81 @@ export default function HomeClient({
   );
 }
 
-function JaefconHomePanel({ compact = false }: { compact?: boolean }) {
+function HomeRollingBanner({
+  banners,
+  compact = false,
+}: {
+  banners: HomeRollingBannerItem[];
+  compact?: boolean;
+}) {
+  const activeBanners = banners.filter(banner => banner.enabled && banner.title.trim());
+  const [activeIndex, setActiveIndex] = useState(0);
+  const active = activeBanners[activeIndex] || activeBanners[0];
+
+  useEffect(() => {
+    if (activeBanners.length < 2) return;
+    const timer = window.setInterval(() => {
+      setActiveIndex(index => (index + 1) % activeBanners.length);
+    }, 6500);
+    return () => window.clearInterval(timer);
+  }, [activeBanners.length]);
+
+  useEffect(() => {
+    if (!active) return;
+    trackEvent({ kind: 'impression', target: 'home_rolling_banner', meta: { id: active.id, title: active.title } });
+  }, [active]);
+
+  if (!active) return null;
+
+  const go = (direction: -1 | 1) => {
+    if (activeBanners.length < 2) return;
+    setActiveIndex(index => (index + direction + activeBanners.length) % activeBanners.length);
+  };
+
   return (
-    <section className={`${styles.jaefconPanel} ${compact ? styles.jaefconPanelCompact : ''}`} aria-label="재프콘">
-      <div className={styles.jaefconMain}>
-        <span className={styles.jaefconEyebrow}>재프콘</span>
-        <h2>재테크 크리에이터를 팔로우하고 깊은 리포트는 멤버십으로</h2>
-        <p>ETF, 절세, 연금, 시장 인사이트 채널을 발견하고 내 뉴스피드에서 새 글을 모아보세요.</p>
-        <div className={styles.jaefconActions}>
-          <Link href="/creators" className={styles.jaefconPrimary}>재프콘 탐색</Link>
-          <Link href="/feeds" className={styles.jaefconSecondary}>뉴스피드</Link>
+    <section
+      className={`${styles.rollingHero} ${compact ? styles.rollingHeroCompact : ''}`}
+      aria-label="홈 롤링 배너"
+    >
+      {active.imageUrl && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          className={`${styles.rollingImage} ${active.dimImage ? styles.rollingImageDim : ''}`}
+          src={active.imageUrl}
+          alt=""
+          loading={compact ? 'lazy' : 'eager'}
+        />
+      )}
+      <div className={styles.rollingBackdrop} aria-hidden />
+      <div className={styles.rollingContent}>
+        <span className={styles.rollingEyebrow}>{active.eyebrow || '재테크한입'}</span>
+        <h2>{active.title}</h2>
+        {active.description && <p>{active.description}</p>}
+        {active.ctaLabel && active.link && (
+          <Link
+            href={active.link}
+            className={styles.rollingCta}
+            onClick={() => trackEvent({ kind: 'click', target: 'home_rolling_banner', meta: { id: active.id, link: active.link } })}
+          >
+            {active.ctaLabel}
+          </Link>
+        )}
+        {active.ctaLabel && !active.link && <span className={styles.rollingCta}>{active.ctaLabel}</span>}
+      </div>
+      {activeBanners.length > 1 && (
+        <div className={styles.rollingControls}>
+          <button type="button" onClick={(event) => { event.preventDefault(); go(-1); }} aria-label="이전 배너">
+            ‹
+          </button>
+          <span>{String(activeIndex + 1).padStart(2, '0')} / {String(activeBanners.length).padStart(2, '0')}</span>
+          <button type="button" onClick={(event) => { event.preventDefault(); go(1); }} aria-label="다음 배너">
+            ›
+          </button>
+          <div className={styles.rollingTrack}>
+            <span style={{ width: `${((activeIndex + 1) / activeBanners.length) * 100}%` }} />
+          </div>
         </div>
-      </div>
-      <div className={styles.jaefconSteps}>
-        <Link href="/creators" className={styles.jaefconStep}>
-          <span>01</span>
-          <strong>탐색</strong>
-          <p>토픽별 채널</p>
-        </Link>
-        <Link href="/feeds" className={styles.jaefconStep}>
-          <span>02</span>
-          <strong>팔로우</strong>
-          <p>내 뉴스피드</p>
-        </Link>
-        <Link href="/creator/apply" className={styles.jaefconStep}>
-          <span>03</span>
-          <strong>런칭</strong>
-          <p>내 채널 생성</p>
-        </Link>
-      </div>
+      )}
     </section>
   );
 }
