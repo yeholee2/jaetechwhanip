@@ -100,6 +100,14 @@ function metricToneLabel(kind: 'fee' | 'premium' | 'volume', value: string | num
   return hasFactValue(String(value || '')) ? '거래 확인' : '공시 확인';
 }
 
+const HIDDEN_DETAIL_TAGS = new Set(['시장지수', '테마형', 'KR', 'US']);
+
+function isVisibleDetailTag(tag: string) {
+  const trimmed = tag.trim();
+  if (!trimmed) return false;
+  return !HIDDEN_DETAIL_TAGS.has(trimmed) && !HIDDEN_DETAIL_TAGS.has(trimmed.toUpperCase());
+}
+
 function buildCompactEtfDescription(etf: {
   name: string;
   shortName?: string;
@@ -390,6 +398,7 @@ export default async function EtfDetailPage({ params }: Props) {
   const actualWeightedHoldings = liveHoldings?.holdings?.filter(h => h.weight > 0) ?? [];
   const visibleHoldingCount = Math.min(actualWeightedHoldings.length, 8);
   const compactDescription = buildCompactEtfDescription(etf);
+  const visibleTags = (etf.tags || []).filter(isVisibleDetailTag).slice(0, 4);
 
   // 분배금 히스토리 (분배 있는 ETF만)
 
@@ -497,9 +506,9 @@ export default async function EtfDetailPage({ params }: Props) {
               </p>
             )}
             <p className={styles.heroSummary}>{compactDescription}</p>
-            {etf.tags && etf.tags.length > 0 && (
+            {visibleTags.length > 0 && (
               <div className={styles.tags}>
-                {etf.tags.slice(0, 4).map(tag => {
+                {visibleTags.map(tag => {
                   const entry = lookupGlossary(tag);
                   const chip = <Chip subtle size="sm">#{tag}</Chip>;
                   return entry ? (
