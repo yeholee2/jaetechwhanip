@@ -912,32 +912,36 @@ export default async function EtfDetailPage({ params }: Props) {
             {/* ──────────── ③ 구성종목: 보유 종목 + 섹터 ──────────── */}
             <section id="sec-inside" className={styles.section}>
               <div className={styles.sectionHead}>
-                <h2>{liveHoldings?.holdings?.length ? `구성종목 Top ${Math.min(liveHoldings.holdings.length, 10)}` : '구성종목'}</h2>
-                <span>
-                  {liveHoldings?.source === 'naver'
-                    ? '네이버 ETF분석 기준'
-                    : liveHoldings?.source === 'yahoo'
-                      ? 'Yahoo Finance 기준'
-                      : etf.holdings?.length
-                        ? '참고용 데이터'
-                        : '운용사 공시'}
-                </span>
+                <h2>주요 구성종목</h2>
+                <span>상위 보유 종목만 표시</span>
               </div>
               {(() => {
                 if (liveHoldings?.holdings?.length) {
-                  const hasWeights = liveHoldings.holdings.some(h => h.weight > 0);
-                  const topN = liveHoldings.holdings.slice(0, 10);
+                  const topN = liveHoldings.holdings
+                    .filter(h => h.weight > 0)
+                    .slice(0, 8);
+                  if (topN.length === 0) {
+                    return (
+                      <div className={styles.emptyHoldings}>
+                        <FaIcon name="folder-open" size={22} />
+                        <p className={styles.emptyHoldingsTitle}>표시할 구성종목 비중이 아직 없어요</p>
+                        <p className={styles.emptyHoldingsBody}>
+                          실제 비중이 확인된 종목만 이 영역에 보여줄게요.
+                        </p>
+                      </div>
+                    );
+                  }
+
                   const topHolding = topN[0];
                   const topSum = topN.reduce((s, h) => s + h.weight, 0);
-                  const showDonut = hasWeights && liveHoldings.holdings.length >= 5;
-                  const segments = topN.filter(h => h.weight > 0).map(h => ({
+                  const showDonut = topN.length >= 5;
+                  const segments = topN.map(h => ({
                     label: h.name,
                     value: h.weight * 100,
                   }));
-                  if (hasWeights && topSum < 1) {
+                  if (topSum < 1) {
                     segments.push({ label: '기타', value: (1 - topSum) * 100 });
                   }
-                  const sourceLabel = liveHoldings.source === 'naver' ? '네이버 구성비중' : '외부 구성비중';
                   const table = (
                     <div className={styles.holdingsTableWrap}>
                       <table className={styles.holdingsTable}>
@@ -961,7 +965,7 @@ export default async function EtfDetailPage({ params }: Props) {
                                 )}
                               </td>
                               <td>{h.symbol || '—'}</td>
-                              <td>{h.weight > 0 ? `${(h.weight * 100).toFixed(2)}%` : '비중 미제공'}</td>
+                              <td>{(h.weight * 100).toFixed(2)}%</td>
                             </tr>
                           ))}
                         </tbody>
@@ -974,17 +978,17 @@ export default async function EtfDetailPage({ params }: Props) {
                         <div>
                           <span>상위 보유</span>
                           <strong>{topHolding?.name || '—'}</strong>
-                          <p>{topHolding?.weight ? `${(topHolding.weight * 100).toFixed(2)}%` : '비중 미제공'}</p>
+                          <p>{topHolding ? `${(topHolding.weight * 100).toFixed(2)}%` : '—'}</p>
                         </div>
                         <div>
                           <span>Top 5 합계</span>
-                          <strong>{hasWeights ? `${(topN.slice(0, 5).reduce((s, h) => s + h.weight, 0) * 100).toFixed(1)}%` : '—'}</strong>
-                          <p>{hasWeights ? sourceLabel : '실제 비중 없음'}</p>
+                          <strong>{`${(topN.slice(0, 5).reduce((s, h) => s + h.weight, 0) * 100).toFixed(1)}%`}</strong>
+                          <p>최근 수집 기준</p>
                         </div>
                         <div>
-                          <span>구성 종목</span>
-                          <strong>{liveHoldings.holdings.length}개</strong>
-                          <p>{sourceLabel}</p>
+                          <span>표시 범위</span>
+                          <strong>상위 {topN.length}개</strong>
+                          <p>화면 안에서만 확인</p>
                         </div>
                       </div>
                       {table}
@@ -1006,41 +1010,16 @@ export default async function EtfDetailPage({ params }: Props) {
                     </div>
                   );
                 }
-                const isKR = isKrEtfCode(etf.code);
-                const disclosureUrl = isKR
-                  ? `https://finance.naver.com/item/coinfo.naver?code=${etf.code}`
-                  : `https://www.google.com/search?q=${encodeURIComponent(`${etf.shortName || etf.name} ETF holdings`)}`;
-                const disclosureLabel = isKR ? '네이버 증권에서 구성종목 보기' : '운용사 공시 검색하기';
                 return (
                   <div className={styles.emptyHoldings}>
                     <FaIcon name="folder-open" size={22} />
                     <p className={styles.emptyHoldingsTitle}>구성종목 데이터를 아직 불러올 수 없어요</p>
                     <p className={styles.emptyHoldingsBody}>
-                      운용사 공식 공시(보통 매월 갱신)에서 전체 보유 종목을 확인할 수 있어요.
+                      실제 비중이 확인되면 상위 구성종목만 이 화면에 보여줄게요.
                     </p>
-                    <a
-                      href={disclosureUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className={styles.emptyHoldingsCta}
-                    >
-                      <FaIcon name="arrow-up-right-from-square" size={11} />
-                      {disclosureLabel}
-                    </a>
                   </div>
                 );
               })()}
-              {/* 전체 구성종목 링크 — 데이터 있을 때만 */}
-              {liveHoldings?.holdings?.length && isKrEtfCode(etf.code) && (
-                <a
-                  href={`https://finance.naver.com/item/coinfo.naver?code=${etf.code}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={styles.holdingAllLink}
-                >
-                  네이버 증권에서 전체 구성종목 보기 →
-                </a>
-              )}
             </section>
 
             {/* 섹터 비중 도넛 (Toss / FunETF 스타일) */}

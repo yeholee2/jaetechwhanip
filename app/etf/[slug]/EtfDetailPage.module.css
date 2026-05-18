@@ -742,24 +742,7 @@
   white-space: nowrap;
 }
 
-/* 구성종목 섹션 하단 — 전체 보기 링크 */
-.holdingAllLink {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  margin-top: var(--space-3);
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--rw-primary);
-  text-decoration: none;
-  letter-spacing: -0.1px;
-  transition: opacity 120ms ease;
-}
-.holdingAllLink:hover {
-  opacity: 0.75;
-}
-
-/* 구성종목 빈 화면 — 운용사 공시 CTA */
+/* 구성종목 빈 화면 */
 .emptyHoldings {
   display: flex;
   flex-direction: column;
@@ -788,25 +771,6 @@
   font-weight: 600;
   line-height: 1.55;
   color: var(--rw-text-muted);
-}
-.emptyHoldingsCta {
-  margin-top: 10px;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 9px 14px;
-  border-radius: 999px;
-  background: var(--rw-primary);
-  color: #fff;
-  font-size: 12px;
-  font-weight: 800;
-  text-decoration: none;
-  letter-spacing: -0.1px;
-  transition: background-color 120ms ease, transform 120ms ease;
-}
-.emptyHoldingsCta:hover {
-  background: var(--rw-primary-strong, var(--rw-primary));
-  transform: translateY(-1px);
 }
 
 /* 분배금 빈 상태 placeholder */
