@@ -43,7 +43,7 @@ const TOPIC_OPTIONS = CATEGORY_DEFINITIONS.map(category => ({
 }));
 const CATEGORY_OPTIONS = CATEGORY_DEFINITIONS.map(category => ({
   v: category.key,
-  label: `${category.emoji} ${category.label}`,
+  label: category.label,
 }));
 
 type FormState = {

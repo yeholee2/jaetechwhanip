@@ -429,9 +429,7 @@ export function AppShell({
                     className={`${styles.modeDot} ${mode === 'creator' ? styles.modeDotCreator : styles.modeDotFan}`}
                     aria-hidden
                     title={mode === 'creator' ? '크리에이터 모드' : '팬 모드'}
-                  >
-                    {mode === 'creator' ? '🪄' : '👀'}
-                  </span>
+                  />
                 )}
               </button>
               {showProfile && (
@@ -440,7 +438,7 @@ export function AppShell({
                     {userName}
                     {creatorSlug && (
                       <span className={styles.modeBadge}>
-                        {mode === 'creator' ? '🪄 크리에이터 모드' : '👀 팬 모드'}
+                        {mode === 'creator' ? '크리에이터' : '팬'}
                       </span>
                     )}
                   </div>
@@ -449,41 +447,41 @@ export function AppShell({
                   {mode === 'creator' && creatorSlug ? (
                     <>
                       <Link href={`/creator/${creatorSlug}`} onClick={() => setShowProfile(false)} role="menuitem">
-                        🏠 내 크리에이터 페이지
+                        내 크리에이터 페이지
                       </Link>
                       <Link href={`/creator/${creatorSlug}/write`} onClick={() => setShowProfile(false)} role="menuitem">
-                        ✍️ 글 작성
+                        글 작성
                       </Link>
                       <Link href={`/creator/${creatorSlug}/dashboard`} onClick={() => setShowProfile(false)} role="menuitem">
-                        📊 대시보드
+                        대시보드
                       </Link>
                       <Link href={`/creator/${creatorSlug}/series`} onClick={() => setShowProfile(false)} role="menuitem">
-                        📚 시리즈 관리
+                        시리즈 관리
                       </Link>
                       <Link href={`/creator/${creatorSlug}/edit`} onClick={() => setShowProfile(false)} role="menuitem">
-                        ⚙️ 페이지 편집
+                        페이지 편집
                       </Link>
                       <Link href="/mypage" onClick={() => setShowProfile(false)} role="menuitem">
-                        🐯 내 프로필
+                        내 프로필
                       </Link>
                     </>
                   ) : (
                     <>
                       <Link href="/feeds" onClick={() => setShowProfile(false)} role="menuitem">
-                        📰 내 뉴스피드
+                        내 뉴스피드
                       </Link>
                       <Link href="/mypage" onClick={() => setShowProfile(false)} role="menuitem">
-                        🏠 마이페이지
+                        마이페이지
                       </Link>
                       <Link href="/my/portfolio" onClick={() => setShowProfile(false)} role="menuitem">
-                        📊 내 종목 트래커
+                        내 종목 트래커
                       </Link>
                       <Link href={profileHref} onClick={() => setShowProfile(false)} role="menuitem">
                         공개 프로필
                       </Link>
                       {!creatorSlug && (
                         <Link href="/creator/apply" onClick={() => setShowProfile(false)} role="menuitem">
-                          ✨ 재프콘 시작하기
+                          재프콘 시작하기
                         </Link>
                       )}
                     </>
@@ -502,13 +500,13 @@ export function AppShell({
                         setShowProfile(false);
                       }}
                     >
-                      {mode === 'creator' ? '👀 팬 모드로 전환' : '🪄 크리에이터 모드로 전환'}
+                      {mode === 'creator' ? '팬 모드로 전환' : '크리에이터 모드로 전환'}
                     </button>
                   )}
 
                   {isAdmin && (
                     <Link href="/admin" onClick={() => setShowProfile(false)} role="menuitem">
-                      🛠 관리자 대시보드
+                      관리자 대시보드
                     </Link>
                   )}
                   <button className={styles.signOut} onClick={handleSignOut} role="menuitem" type="button">

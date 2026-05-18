@@ -236,9 +236,24 @@
   border-radius: 14px;
   text-align: center;
 }
+/* 라인 아이콘 — SVG 자물쇠 또는 박스 모양 (CSS만으로 단순 모양) */
 .emptyIcon {
-  font-size: 40px;
-  line-height: 1;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--rw-card-muted, #f2f4f6);
+  position: relative;
+}
+.emptyIcon::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 14px;
+  height: 14px;
+  border: 2px solid var(--rw-gray40, #b0b8c1);
+  border-radius: 3px;
+  transform: translate(-50%, -50%);
 }
 .empty strong {
   font-size: 15px;
@@ -397,7 +412,36 @@
   color: var(--rw-text-strong);
   letter-spacing: -0.2px;
 }
-.unlockIcon { font-size: 15px; }
+/* 자물쇠 라인 아이콘 (CSS 만으로 16x16) */
+.unlockIcon {
+  position: relative;
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+}
+.unlockIcon::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  transform: translateX(-50%);
+  width: 11px;
+  height: 8px;
+  border: 1.6px solid currentColor;
+  border-radius: 2px;
+}
+.unlockIcon::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 0;
+  transform: translateX(-50%);
+  width: 7px;
+  height: 6px;
+  border: 1.6px solid currentColor;
+  border-bottom: 0;
+  border-radius: 4px 4px 0 0;
+}
 
 .postTags {
   display: flex;

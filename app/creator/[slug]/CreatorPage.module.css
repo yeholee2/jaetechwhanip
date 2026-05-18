@@ -16,7 +16,7 @@
 .coverOverlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, rgba(0,0,0,0.08) 0%, rgba(0,0,0,0.40) 100%);
+  background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.10) 100%);
 }
 
 /* ─────────────────────────────────────────────────────────
@@ -499,7 +499,24 @@
   border-radius: var(--rw-radius-lg);
   text-align: center;
 }
-.emptyEmoji { font-size: 38px; }
+.emptyEmoji {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--rw-card-muted, #f2f4f6);
+  position: relative;
+}
+.emptyEmoji::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 14px;
+  height: 14px;
+  border: 2px solid var(--rw-gray40, #b0b8c1);
+  border-radius: 3px;
+  transform: translate(-50%, -50%);
+}
 .emptyPosts strong { font-size: 15px; font-weight: 900; color: var(--rw-text-strong); }
 .emptyPosts span { font-size: 13px; font-weight: 600; color: var(--rw-text-muted); }
 .emptyCta {
@@ -607,6 +624,35 @@
   letter-spacing: -0.2px;
 }
 .postUnlock span { font-size: 15px; }
+.postUnlockIcon {
+  position: relative;
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+}
+.postUnlockIcon::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  transform: translateX(-50%);
+  width: 11px;
+  height: 8px;
+  border: 1.6px solid currentColor;
+  border-radius: 2px;
+}
+.postUnlockIcon::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 0;
+  transform: translateX(-50%);
+  width: 7px;
+  height: 6px;
+  border: 1.6px solid currentColor;
+  border-bottom: 0;
+  border-radius: 4px 4px 0 0;
+}
 .postTags {
   display: flex;
   flex-wrap: wrap;

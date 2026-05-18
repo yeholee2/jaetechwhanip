@@ -195,7 +195,35 @@
   border-radius: var(--rw-radius-lg);
   text-align: center;
 }
-.paywallIcon { font-size: 38px; line-height: 1; }
+/* 자물쇠 라인 아이콘 32x32 */
+.paywallIcon {
+  position: relative;
+  width: 32px;
+  height: 32px;
+}
+.paywallIcon::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  transform: translateX(-50%);
+  width: 24px;
+  height: 18px;
+  border: 2px solid var(--rw-gray60, #6b7684);
+  border-radius: 4px;
+}
+.paywallIcon::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 0;
+  transform: translateX(-50%);
+  width: 16px;
+  height: 14px;
+  border: 2px solid var(--rw-gray60, #6b7684);
+  border-bottom: 0;
+  border-radius: 8px 8px 0 0;
+}
 
 .disclaimer {
   display: flex;

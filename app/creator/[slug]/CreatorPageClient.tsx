@@ -24,15 +24,8 @@ type Tab = 'home' | 'membership' | 'posts' | 'series' | 'info';
 function coverStyle(c: any): React.CSSProperties {
   if (c.cover_url) return { backgroundImage: `url(${c.cover_url})` };
   if (c.coverGradient) return { background: c.coverGradient };
-  const palette = [
-    'linear-gradient(135deg, #1B64DA, #3182F6)',
-    'linear-gradient(135deg, #7C4DFF, #B383FF)',
-    'linear-gradient(135deg, #2E9C5C, #44C781)',
-    'linear-gradient(135deg, #FF9F1C, #FFC36B)',
-    'linear-gradient(135deg, #E94986, #FF8FB7)',
-  ];
-  const hash = (c.slug || c.id || '').split('').reduce((a: number, ch: string) => a + ch.charCodeAt(0), 0);
-  return { background: palette[hash % palette.length] };
+  // 차분한 그레이 베이스 — AI 데모 같은 색감 제거
+  return { background: 'linear-gradient(180deg, #f2f4f6 0%, #e5e8eb 100%)' };
 }
 
 function displayTopics(topics: string[]) {
@@ -192,13 +185,13 @@ export function CreatorPageClient({
           {isOwner ? (
             <>
               <Link href={`/creator/${creator.slug}/write`} className={styles.btnPrimary}>
-                + 글 작성
+                글 작성
               </Link>
               <Link href={`/creator/${creator.slug}/dashboard`} className={styles.btnSecondary}>
-                📊 대시보드
+                대시보드
               </Link>
               <Link href={`/creator/${creator.slug}/templates`} className={styles.btnSecondary}>
-                🗂️ 템플릿
+                템플릿
               </Link>
               <Link href={`/creator/${creator.slug}/edit`} className={styles.btnSecondary}>
                 편집
@@ -492,11 +485,11 @@ function PostsTab({ posts, slug, isOwner }: { posts: CreatorPost[]; slug: string
   if (posts.length === 0) {
     return (
       <div className={styles.emptyPosts}>
-        <div className={styles.emptyEmoji}>📝</div>
+        <div className={styles.emptyEmoji} aria-hidden />
         <strong>아직 올라온 글이 없어요</strong>
         <span>{isOwner ? '첫 글을 작성해 보세요.' : '크리에이터의 첫 글을 기다려 주세요.'}</span>
         {isOwner && (
-          <Link href={`/creator/${slug}/write`} className={styles.emptyCta}>+ 글 작성</Link>
+          <Link href={`/creator/${slug}/write`} className={styles.emptyCta}>글 작성</Link>
         )}
       </div>
     );
@@ -511,7 +504,7 @@ function PostsTab({ posts, slug, isOwner }: { posts: CreatorPost[]; slug: string
             <Link href={`/creator/${slug}/posts/${p.slug}`} className={styles.postCard}>
               {locked && (
                 <div className={styles.postLockBadge}>
-                  {p.is_member_only ? '💎 멤버십 전용 공개' : '🔒 일부 멤버 전용'}
+                  {p.is_member_only ? '멤버 전용' : '일부 잠금'}
                 </div>
               )}
               <strong className={styles.postTitle}>{p.title}</strong>
@@ -531,7 +524,7 @@ function PostsTab({ posts, slug, isOwner }: { posts: CreatorPost[]; slug: string
               {p.preview && !locked && <p className={styles.postPreview}>{p.preview}</p>}
               {locked && (
                 <div className={styles.postUnlock}>
-                  <span>🔒</span> 잠긴 콘텐츠 열어보기
+                  <span className={styles.postUnlockIcon} aria-hidden /> 잠긴 콘텐츠 열어보기
                 </div>
               )}
               {p.tags && p.tags.length > 0 && (

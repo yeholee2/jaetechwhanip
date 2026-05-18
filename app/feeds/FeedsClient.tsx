@@ -160,14 +160,14 @@ export function FeedsClient({
               </div>
             ) : followed.length === 0 ? (
               <div className={styles.empty}>
-                <div className={styles.emptyIcon}>👀</div>
+                <div className={styles.emptyIcon} aria-hidden />
                 <strong>아직 팔로우한 크리에이터가 없어요</strong>
                 <p>아래 추천 크리에이터를 둘러보거나 검색해보세요.</p>
                 <Link href="/creators" className={styles.emptyCta}>크리에이터 둘러보기</Link>
               </div>
             ) : visiblePosts.length === 0 ? (
               <div className={styles.empty}>
-                <div className={styles.emptyIcon}>📭</div>
+                <div className={styles.emptyIcon} aria-hidden />
                 <strong>{filter === 'unlocked' ? '열람 가능한 글이 없어요' : '아직 글이 없어요'}</strong>
                 <p>크리에이터가 글을 올리면 여기에 표시돼요.</p>
               </div>
@@ -220,7 +220,7 @@ function PostCard({ post }: { post: FeedPost }) {
   const c = post.creator;
   if (!c) return null;
   const lockedBadge = post.locked
-    ? (post.is_member_only ? '💎 멤버십 전용 공개' : '🔒 일부 멤버 전용')
+    ? (post.is_member_only ? '멤버 전용' : '일부 잠금')
     : null;
 
   return (
@@ -265,7 +265,7 @@ function PostCard({ post }: { post: FeedPost }) {
 
         {post.locked && (
           <div className={styles.unlockCta}>
-            <span className={styles.unlockIcon}>🔒</span>
+            <span className={styles.unlockIcon} aria-hidden />
             <span>잠긴 콘텐츠 열어보기</span>
           </div>
         )}

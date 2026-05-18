@@ -133,11 +133,11 @@ export default async function CreatorPostPage({ params }: Props) {
         <header className={styles.head}>
           {post.is_member_only ? (
             <span className={styles.memberBadge}>
-              {isMember ? '✓ 멤버 전용' : '🔒 멤버 전용'}
+              {isMember ? '멤버 전용' : '멤버 전용'}
             </span>
           ) : hasInlinePaywall ? (
             <span className={styles.memberBadge}>
-              {isMember ? '✓ 일부 멤버 전용' : '🔒 일부 멤버 전용'}
+              {isMember ? '일부 잠금' : '일부 잠금'}
             </span>
           ) : null}
           <h1>{post.title}</h1>
@@ -154,7 +154,7 @@ export default async function CreatorPostPage({ params }: Props) {
           <>
             <PostBody body={renderedBody} />
             <div className={styles.paywall}>
-              <div className={styles.paywallIcon}>🔒</div>
+              <div className={styles.paywallIcon} aria-hidden />
               <strong>여기부터는 {creator.membership_tier_name}만 볼 수 있어요</strong>
               <p>
                 {creator.display_name}의 멤버가 되면 이 글의 나머지 내용과 모든 멤버 전용 콘텐츠를 볼 수 있어요.
@@ -170,7 +170,7 @@ export default async function CreatorPostPage({ params }: Props) {
           <>
             {post.preview && <PostBody body={post.preview} className={styles.preview} />}
             <div className={styles.paywall}>
-              <div className={styles.paywallIcon}>🔒</div>
+              <div className={styles.paywallIcon} aria-hidden />
               <strong>여기서부터는 {creator.membership_tier_name}만 볼 수 있어요</strong>
               <p>
                 {creator.display_name}의 멤버가 되면 이 글의 전체 내용과 모든 멤버 전용 콘텐츠를 볼 수 있어요.
@@ -188,7 +188,6 @@ export default async function CreatorPostPage({ params }: Props) {
 
         {!locked && (
           <footer className={styles.disclaimer}>
-            <span className={styles.disclaimerIcon} aria-hidden>📅</span>
             <span>
               데이터 기준일{' '}
               <strong>{new Date(post.published_at).toLocaleDateString('ko-KR')}</strong>
