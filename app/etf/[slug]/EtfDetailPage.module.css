@@ -1386,12 +1386,74 @@
   text-align: center;
 }
 
+.referenceBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin: 0 0 var(--space-3);
+  padding: 12px 14px;
+  border: 1px solid var(--rw-hairline);
+  border-radius: var(--rw-radius-md);
+  background: var(--rw-card);
+}
+
+.referenceBar div {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.referenceBar strong {
+  color: var(--rw-text-strong);
+  font-size: 13px;
+  font-weight: 900;
+  letter-spacing: -0.1px;
+}
+
+.referenceBar span {
+  color: var(--rw-text-muted);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.45;
+}
+
+.referenceBar a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 34px;
+  padding: 0 12px;
+  border-radius: var(--rw-radius-sm);
+  background: var(--rw-card-muted);
+  color: var(--rw-text-body);
+  font-size: 12px;
+  font-weight: 900;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background-color 120ms ease, color 120ms ease;
+}
+
+.referenceBar a:hover {
+  background: var(--rw-primary-bg);
+  color: var(--rw-primary);
+}
+
 @media (max-width: 600px) {
   .heroStripValue {
     font-size: 14px;
   }
   .heroStripCell {
     padding: 10px 8px;
+  }
+  .referenceBar {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .referenceBar a {
+    width: 100%;
   }
 }
 

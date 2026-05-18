@@ -185,6 +185,9 @@ export default async function EtfDetailPage({ params }: Props) {
   const latestHistoryDate = priceHistory.length > 0
     ? priceHistory[priceHistory.length - 1].date
     : etfBaseDate;
+  const naverFinanceUrl = /^[0-9]{6}$/.test(etf.code)
+    ? `https://finance.naver.com/item/main.naver?code=${etf.code}`
+    : null;
 
   // 자동 한줄평 + 태그
   const insight = buildEtfInsight(etf as any);
@@ -444,6 +447,19 @@ export default async function EtfDetailPage({ params }: Props) {
             </strong>
           </div>
         </div>
+
+        {naverFinanceUrl && (
+          <div className={styles.referenceBar}>
+            <div>
+              <strong>네이버증권으로 교차 확인</strong>
+              <span>호가·뉴스공시·NAV 추이는 네이버증권 원문에서 확인할 수 있어요.</span>
+            </div>
+            <a href={naverFinanceUrl} target="_blank" rel="noopener noreferrer">
+              <FaIcon name="arrow-up-right-from-square" size={11} />
+              네이버증권
+            </a>
+          </div>
+        )}
 
         {/* 섹션 앵커 nav — 전체 폭 (사이드 카드와 동선 충돌 방지) */}
         <EtfSectionNav />
