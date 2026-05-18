@@ -567,6 +567,37 @@ export default async function EtfDetailPage({ params }: Props) {
           </div>
         </section>
 
+        {/* ──────────── ① 시세: 상단 설명 직후에 보는 메인 차트 ──────────── */}
+        <div id="sec-quote" className={styles.quoteBlock}>
+          <EtfChart
+            code={etf.code}
+            price={etf.price}
+            changeTone={etf.changeTone}
+            history={priceHistory}
+            navHistory={navHistory}
+            benchmarks={benchmarks}
+          />
+          {returnSummary.some(item => item.pct != null) && (
+            <div className={styles.returnSummary} aria-label="기간별 수익률 요약">
+              <div className={styles.returnSummaryHead}>
+                <strong>기간별 성과</strong>
+                <span>{latestHistoryDate ? `${latestHistoryDate} 종가 기준` : '종가 기준'}</span>
+              </div>
+              <div className={styles.returnSummaryGrid}>
+                {returnSummary.map(item => (
+                  <div key={item.key} className={styles.returnSummaryItem}>
+                    <span>{item.label}</span>
+                    <strong className={returnToneClass(item.pct)}>{formatReturn(item.pct)}</strong>
+                  </div>
+                ))}
+              </div>
+              <p className={styles.returnSummaryNote}>
+                분배금 재투자·세금은 반영하지 않은 단순 종가 기준이에요.
+              </p>
+            </div>
+          )}
+        </div>
+
         <section className={styles.decisionSummary} aria-label="투자 판단 요약">
           <div className={styles.decisionIntro}>
             <span>투자 판단 요약</span>
@@ -685,37 +716,6 @@ export default async function EtfDetailPage({ params }: Props) {
 
         <div className={styles.layout}>
           <div className={styles.mainColumn}>
-            {/* ──────────── ① 시세: 한 개의 메인 차트 ──────────── */}
-            <div id="sec-quote" className={styles.quoteBlock}>
-              <EtfChart
-                code={etf.code}
-                price={etf.price}
-                changeTone={etf.changeTone}
-                history={priceHistory}
-                navHistory={navHistory}
-                benchmarks={benchmarks}
-              />
-              {returnSummary.some(item => item.pct != null) && (
-                <div className={styles.returnSummary} aria-label="기간별 수익률 요약">
-                  <div className={styles.returnSummaryHead}>
-                    <strong>기간별 성과</strong>
-                    <span>{latestHistoryDate ? `${latestHistoryDate} 종가 기준` : '종가 기준'}</span>
-                  </div>
-                  <div className={styles.returnSummaryGrid}>
-                    {returnSummary.map(item => (
-                      <div key={item.key} className={styles.returnSummaryItem}>
-                        <span>{item.label}</span>
-                        <strong className={returnToneClass(item.pct)}>{formatReturn(item.pct)}</strong>
-                      </div>
-                    ))}
-                  </div>
-                  <p className={styles.returnSummaryNote}>
-                    분배금 재투자·세금은 반영하지 않은 단순 종가 기준이에요.
-                  </p>
-                </div>
-              )}
-            </div>
-
             {/* ──────────── ETF 개요 테이블 (ETF Check 톤) ──────────── */}
             <section className={styles.section} aria-label="상품 정보">
               <div className={styles.sectionHead}>

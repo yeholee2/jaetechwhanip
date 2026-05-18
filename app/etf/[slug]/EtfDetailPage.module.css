@@ -1474,6 +1474,7 @@
 .quoteBlock {
   display: grid;
   gap: var(--space-3);
+  margin-bottom: var(--space-3);
   min-width: 0;
   scroll-margin-top: 150px;
 }
