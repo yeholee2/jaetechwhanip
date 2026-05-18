@@ -13,7 +13,7 @@
 .inner {
   max-width: 1180px;
   margin: 0 auto;
-  padding: var(--space-3) var(--space-5);
+  padding: 10px var(--space-5);
   display: flex;
   align-items: center;
   gap: var(--space-4);
@@ -62,22 +62,23 @@
 
 .close {
   flex-shrink: 0;
-  width: 32px;
-  height: 32px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, .15);
+  background: rgba(255, 255, 255, .22);
   color: #fff;
-  font-size: 14px;
-  font-weight: var(--weight-bold);
+  font-size: 16px;
+  font-weight: var(--weight-heavy);
   cursor: pointer;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border: none;
+  border: 1.5px solid rgba(255, 255, 255, .35);
   transition: background var(--duration-instant) var(--ease-in-out);
 }
 .close:hover {
-  background: rgba(255, 255, 255, .25);
+  background: rgba(255, 255, 255, .35);
+  border-color: rgba(255, 255, 255, .55);
 }
 
 @keyframes slideUp {
