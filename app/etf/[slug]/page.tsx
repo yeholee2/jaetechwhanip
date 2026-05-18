@@ -45,6 +45,15 @@ import { EtfChart } from '../EtfChart';
 // import { EtfChat } from '../EtfChat'; // 일단 제거
 import styles from './EtfDetailPage.module.css';
 
+/** 빈 값 처리 — "—" / null / 빈 문자열 시 시각 약화한 "정보 없음" */
+function FactValue({ value }: { value: string | null | undefined }) {
+  const v = value?.toString().trim();
+  if (!v || v === '—' || v === '-') {
+    return <span className={`${styles.factValue} ${styles.factValueEmpty}`}>정보 없음</span>;
+  }
+  return <span className={styles.factValue}>{v}</span>;
+}
+
 type Props = { params: { slug: string } };
 
 export const revalidate = 300;
@@ -362,6 +371,16 @@ export default async function EtfDetailPage({ params }: Props) {
             <div id="sec-quote">
               {/* 캔들 차트 (이평선·거래량·그림 도구) */}
               <EtfCandleChart code={etf.code} />
+
+              {/* 두 차트 사이 명확한 섹션 구분 */}
+              <div className={styles.chartSectionDivider}>
+                <span className={styles.chartSectionEyebrow}>벤치마크 비교</span>
+                <h3 className={styles.chartSectionTitle}>수익률 차트</h3>
+                <p className={styles.chartSectionLead}>
+                  KOSPI·S&P500·나스닥과 같은 기간 누적 수익률을 비교해서 어디까지 따라왔는지 확인하세요.
+                </p>
+              </div>
+
               {/* 수익률 비교 차트 (벤치마크 토글) */}
               <EtfChart
                 code={etf.code}
@@ -863,7 +882,7 @@ export default async function EtfDetailPage({ params }: Props) {
                       ETF가 매년 자동으로 떼가는 수수료. <strong>0.5% 이하면 저렴한 편</strong>이에요.
                     </Tooltip>
                   </span>
-                  <span className={styles.factValue}>{etf.fee || '—'}</span>
+                  <FactValue value={etf.fee} />
                 </div>
                 <div>
                   <span className={styles.factLabel}>
@@ -872,7 +891,7 @@ export default async function EtfDetailPage({ params }: Props) {
                       이 ETF에 모인 총 자산. <strong>1조원 이상이면 대형</strong>, 100억 미만은 상장폐지 위험이 있어요.
                     </Tooltip>
                   </span>
-                  <span className={styles.factValue}>{etf.aum || '—'}</span>
+                  <FactValue value={etf.aum} />
                 </div>
                 <div>
                   <span className={styles.factLabel}>
@@ -909,7 +928,7 @@ export default async function EtfDetailPage({ params }: Props) {
                       하루에 거래된 주식 수. <strong>많을수록 사고팔기 쉽고 가격이 안정적</strong>이에요. 너무 적으면 호가 차이가 커져요.
                     </Tooltip>
                   </span>
-                  <span className={styles.factValue}>{etf.volume || '—'}</span>
+                  <FactValue value={etf.volume} />
                 </div>
                 <div>
                   <span className={styles.factLabel}>
@@ -920,7 +939,7 @@ export default async function EtfDetailPage({ params }: Props) {
                         : <>이 ETF가 거래소에 처음 상장된 날. 상장이 오래될수록 <strong>장기 성과 데이터</strong>가 쌓여 신뢰도가 올라가요.</>}
                     </Tooltip>
                   </span>
-                  <span className={styles.factValue}>{etfBaseDate || etf.listedAt || '—'}</span>
+                  <FactValue value={etfBaseDate || etf.listedAt} />
                 </div>
                 {etfNav && (
                   <div>

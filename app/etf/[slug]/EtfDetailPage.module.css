@@ -1094,6 +1094,15 @@
   text-overflow: ellipsis;
 }
 
+/* 빈 값(—) 시각 약화 — 그냥 — 만 보이면 사용자 혼동 */
+.factValueEmpty {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--rw-text-muted);
+  letter-spacing: 0;
+  font-style: italic;
+}
+
 /* 큰 가격 헤더 (펀ETF/토스 톤) */
 .priceLabel {
   display: block;
@@ -1209,4 +1218,35 @@
   .holdingsDonut {
     padding: 4px 0 12px;
   }
+}
+
+/* 차트 섹션 사이 명확한 구분 (캔들 → 수익률) */
+.chartSectionDivider {
+  margin: 28px 0 12px;
+  padding: 16px 18px;
+  border-top: 2px solid var(--rw-hairline);
+  background: linear-gradient(180deg, var(--rw-screen) 0%, transparent 100%);
+  border-radius: 0;
+}
+.chartSectionEyebrow {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--rw-primary);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+.chartSectionTitle {
+  margin: 6px 0 4px;
+  font-size: 18px;
+  font-weight: 900;
+  color: var(--rw-text-strong);
+  letter-spacing: -0.3px;
+}
+.chartSectionLead {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--rw-text-muted);
+  line-height: 1.55;
 }
