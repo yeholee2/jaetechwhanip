@@ -1,36 +1,19 @@
 'use client';
 
 import { useState } from 'react';
-import { setSetting, type HomeRollingBanner, type SiteBanner } from '@/lib/site-settings';
-import { ImageUploader } from '@/components/creator/ImageUploader';
+import { setSetting, type SiteBanner } from '@/lib/site-settings';
 import styles from '../admin.module.css';
 
 type Initial = {
   keywords: string[];
   banner: SiteBanner;
-  rollingBanners: HomeRollingBanner[];
   spamWords: string[];
 };
-
-function newRollingBanner(): HomeRollingBanner {
-  return {
-    id: `home-${Date.now().toString(36)}`,
-    enabled: true,
-    eyebrow: '재프콘',
-    title: '',
-    description: '',
-    ctaLabel: '자세히 보기',
-    link: '',
-    imageUrl: '',
-    dimImage: true,
-  };
-}
 
 export default function AdminSettingsClient({ initial }: { initial: Initial }) {
   const [keywords, setKeywords] = useState<string[]>(initial.keywords);
   const [keywordInput, setKeywordInput] = useState('');
   const [banner, setBanner] = useState<SiteBanner>(initial.banner);
-  const [rollingBanners, setRollingBanners] = useState<HomeRollingBanner[]>(initial.rollingBanners || []);
   const [spamWords, setSpamWords] = useState<string[]>(initial.spamWords);
   const [spamInput, setSpamInput] = useState('');
   const [savingKey, setSavingKey] = useState<string | null>(null);
@@ -53,24 +36,6 @@ export default function AdminSettingsClient({ initial }: { initial: Initial }) {
     const ok = await setSetting('banner', banner);
     setSavingKey(null);
     showToast(ok ? '배너 저장됨' : '저장 실패');
-  };
-
-  const saveRollingBanners = async () => {
-    setSavingKey('home_rolling_banners');
-    const cleaned = rollingBanners.map((item, index) => ({
-      ...item,
-      id: item.id || `home-${index}`,
-      eyebrow: item.eyebrow.trim(),
-      title: item.title.trim(),
-      description: item.description.trim(),
-      ctaLabel: item.ctaLabel.trim(),
-      link: item.link.trim(),
-      imageUrl: item.imageUrl.trim(),
-      dimImage: item.dimImage !== false,
-    }));
-    const ok = await setSetting('home_rolling_banners', cleaned);
-    setSavingKey(null);
-    showToast(ok ? '홈 롤링배너 저장됨' : '저장 실패');
   };
 
   const saveSpam = async () => {
@@ -96,19 +61,11 @@ export default function AdminSettingsClient({ initial }: { initial: Initial }) {
   };
   const removeSpam = (w: string) => setSpamWords(prev => prev.filter(x => x !== w));
 
-  const updateRollingBanner = (index: number, patch: Partial<HomeRollingBanner>) => {
-    setRollingBanners(prev => prev.map((item, i) => i === index ? { ...item, ...patch } : item));
-  };
-
-  const removeRollingBanner = (index: number) => {
-    setRollingBanners(prev => prev.filter((_, i) => i !== index));
-  };
-
   return (
     <>
       <div className={styles.head}>
         <h1>사이트 설정</h1>
-        <p>인기 키워드, 홈 롤링배너, 공지 배너, 스팸 필터 단어를 관리해요.</p>
+        <p>인기 키워드, 공지 배너, 스팸 필터 단어를 관리해요.</p>
       </div>
 
       {/* 1. 인기 키워드 */}
@@ -178,151 +135,7 @@ export default function AdminSettingsClient({ initial }: { initial: Initial }) {
         </div>
       </section>
 
-      {/* 2. 홈 롤링배너 */}
-      <section className={styles.tableWrap} style={{ marginBottom: 20 }}>
-        <div className={styles.tableHead}>
-          <h2>홈 롤링배너</h2>
-          <div style={{ display: 'flex', gap: 8 }}>
-            <button
-              type="button"
-              className={styles.actionBtn}
-              onClick={() => setRollingBanners(prev => [...prev, newRollingBanner()])}
-            >
-              추가
-            </button>
-            <button
-              type="button"
-              className={styles.actionBtn}
-              onClick={saveRollingBanners}
-              disabled={savingKey === 'home_rolling_banners'}
-            >
-              {savingKey === 'home_rolling_banners' ? '저장중…' : '저장'}
-            </button>
-          </div>
-        </div>
-        <div style={{ padding: 20, display: 'flex', flexDirection: 'column', gap: 16 }}>
-          <p style={{ fontSize: 13, color: 'var(--t3)', margin: 0 }}>
-            홈 피드 상단에 큰 롤링 배너로 노출돼요. 이미지가 있으면 우측 비주얼로 들어가고, 없으면 어두운 기본 배경으로 표시됩니다.
-          </p>
-          {rollingBanners.length === 0 && (
-            <div className={styles.empty} style={{ padding: 24 }}>등록된 롤링배너가 없어요.</div>
-          )}
-          {rollingBanners.map((item, index) => (
-            <div
-              key={item.id || index}
-              style={{
-                display: 'grid',
-                gridTemplateColumns: 'minmax(0, 1fr) 280px',
-                gap: 16,
-                padding: 16,
-                border: '1px solid var(--line)',
-                borderRadius: 10,
-                background: 'var(--bg)',
-              }}
-            >
-              <div style={{ display: 'grid', gap: 10 }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
-                  <label style={{ display: 'inline-flex', alignItems: 'center', gap: 8, fontSize: 13, fontWeight: 700 }}>
-                    <input
-                      type="checkbox"
-                      checked={item.enabled}
-                      onChange={e => updateRollingBanner(index, { enabled: e.target.checked })}
-                    />
-                    노출
-                  </label>
-                  <button
-                    type="button"
-                    className={`${styles.actionBtn} ${styles.danger}`}
-                    onClick={() => removeRollingBanner(index)}
-                  >
-                    삭제
-                  </button>
-                </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '160px 1fr', gap: 10 }}>
-                  <div>
-                    <label style={{ display: 'block', fontSize: 12, color: 'var(--t3)', marginBottom: 4 }}>라벨</label>
-                    <input
-                      type="text"
-                      value={item.eyebrow}
-                      onChange={e => updateRollingBanner(index, { eyebrow: e.target.value })}
-                      placeholder="예: 오프라인 세미나"
-                      style={{ width: '100%', padding: '8px 10px', border: '1px solid var(--line)', borderRadius: 8, fontSize: 13 }}
-                    />
-                  </div>
-                  <div>
-                    <label style={{ display: 'block', fontSize: 12, color: 'var(--t3)', marginBottom: 4 }}>제목</label>
-                    <input
-                      type="text"
-                      value={item.title}
-                      onChange={e => updateRollingBanner(index, { title: e.target.value })}
-                      placeholder="배너 제목"
-                      style={{ width: '100%', padding: '8px 10px', border: '1px solid var(--line)', borderRadius: 8, fontSize: 13 }}
-                    />
-                  </div>
-                </div>
-                <div>
-                  <label style={{ display: 'block', fontSize: 12, color: 'var(--t3)', marginBottom: 4 }}>설명</label>
-                  <textarea
-                    value={item.description}
-                    onChange={e => updateRollingBanner(index, { description: e.target.value })}
-                    placeholder="짧은 설명"
-                    rows={2}
-                    style={{ width: '100%', padding: '8px 10px', border: '1px solid var(--line)', borderRadius: 8, fontSize: 13, resize: 'vertical' }}
-                  />
-                </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '180px 1fr', gap: 10 }}>
-                  <div>
-                    <label style={{ display: 'block', fontSize: 12, color: 'var(--t3)', marginBottom: 4 }}>버튼 문구</label>
-                    <input
-                      type="text"
-                      value={item.ctaLabel}
-                      onChange={e => updateRollingBanner(index, { ctaLabel: e.target.value })}
-                      placeholder="예: 신청하기"
-                      style={{ width: '100%', padding: '8px 10px', border: '1px solid var(--line)', borderRadius: 8, fontSize: 13 }}
-                    />
-                  </div>
-                  <div>
-                    <label style={{ display: 'block', fontSize: 12, color: 'var(--t3)', marginBottom: 4 }}>링크</label>
-                    <input
-                      type="text"
-                      value={item.link}
-                      onChange={e => updateRollingBanner(index, { link: e.target.value })}
-                      placeholder="/creators 또는 https://..."
-                      style={{ width: '100%', padding: '8px 10px', border: '1px solid var(--line)', borderRadius: 8, fontSize: 13 }}
-                    />
-                  </div>
-                </div>
-              </div>
-              <div style={{ display: 'grid', gap: 10 }}>
-                <ImageUploader
-                  value={item.imageUrl}
-                  onChange={url => updateRollingBanner(index, { imageUrl: url })}
-                  scope="user-avatar"
-                  shape="wide"
-                  label="배너 이미지"
-                />
-                <input
-                  type="text"
-                  value={item.imageUrl}
-                  onChange={e => updateRollingBanner(index, { imageUrl: e.target.value })}
-                  placeholder="이미지 URL 직접 입력"
-                  style={{ width: '100%', padding: '8px 10px', border: '1px solid var(--line)', borderRadius: 8, fontSize: 12 }}
-                />
-                <label style={{ display: 'inline-flex', alignItems: 'center', gap: 8, fontSize: 12, color: 'var(--t3)' }}>
-                  <input
-                    type="checkbox"
-                    checked={item.dimImage !== false}
-                    onChange={e => updateRollingBanner(index, { dimImage: e.target.checked })}
-                  />
-                  이미지 어둡게 처리
-                </label>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* 3. 공지 배너 */}
+      {/* 2. 공지 배너 */}
       <section className={styles.tableWrap} style={{ marginBottom: 20 }}>
         <div className={styles.tableHead}>
           <h2>공지 배너</h2>

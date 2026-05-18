@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, type CSSProperties } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { createClient, hasSupabase } from '@/lib/supabase/client';
@@ -25,7 +25,7 @@ import { HomeWatchWidget } from './HomeWatchWidget';
 import { ForYouSection } from './ForYouSection';
 import type { ForYouBundle } from '@/lib/forYou';
 import { etfs, etfPath } from '@/lib/etfs';
-import type { HomeRollingBanner as HomeRollingBannerItem } from '@/lib/site-settings';
+import type { Creator } from '@/lib/creator';
 import styles from './HomeClient.module.css';
 
 const HOME_INDICES_FALLBACK: { name: string; val: string; chg: string; up: boolean; series: number[] }[] = [
@@ -45,6 +45,11 @@ const FEED_TABS = [
   { key: 'waiting', label: '답변대기' },
 ] as const;
 type FeedTab = typeof FEED_TABS[number]['key'];
+type HomeCreator = Creator & {
+  coverGradient?: string;
+  verified?: boolean;
+  credential?: string;
+};
 
 const STOCK_ETF_TAGS = ['S&P500', '나스닥100', '미국 ETF', '국내 ETF', '배당 ETF', '월배당', '환헤지', '분할매수'];
 
@@ -59,7 +64,7 @@ export default function HomeClient({
   marketIndices,
   siteBanner,
   siteKeywords,
-  rollingBanners,
+  homeCreators,
   tickerQuotes,
   nextEvent,
   forYou,
@@ -69,7 +74,7 @@ export default function HomeClient({
   marketIndices?: { name: string; val: string; chg: string; up: boolean; series?: number[] }[];
   siteBanner?: { enabled: boolean; message: string; link: string };
   siteKeywords?: string[];
-  rollingBanners?: HomeRollingBannerItem[];
+  homeCreators?: Creator[];
   tickerQuotes?: (TickerQuote | null)[];
   nextEvent?: { event: CalendarEvent; dDay: number } | null;
   forYou?: ForYouBundle;
@@ -332,7 +337,7 @@ export default function HomeClient({
       )}
 
       <div className={styles.homeHeroWrap}>
-        <HomeRollingBanner banners={rollingBanners || []} />
+        <HomeJaefconShowcase creators={homeCreators || []} />
       </div>
 
       {/* PC 본문 */}
@@ -440,7 +445,7 @@ export default function HomeClient({
       </div>
 
       <div className={styles.moMain}>
-        <HomeRollingBanner banners={rollingBanners || []} compact />
+        <HomeJaefconShowcase creators={homeCreators || []} compact />
         <div className={styles.moFeedHd}>
           {FEED_TABS.map(tab => (
             <button
@@ -482,82 +487,123 @@ export default function HomeClient({
   );
 }
 
-function HomeRollingBanner({
-  banners,
+function creatorCoverStyle(creator: HomeCreator): CSSProperties {
+  if (creator.cover_url) {
+    return { backgroundImage: `url(${creator.cover_url})` };
+  }
+  if (creator.coverGradient) {
+    return { background: creator.coverGradient };
+  }
+  const palette = [
+    'linear-gradient(135deg, #1B64DA, #3182F6)',
+    'linear-gradient(135deg, #2E9C5C, #44C781)',
+    'linear-gradient(135deg, #7C4DFF, #B383FF)',
+    'linear-gradient(135deg, #00A86B, #44C781)',
+  ];
+  const hash = (creator.slug || creator.id || '').split('').reduce((sum, ch) => sum + ch.charCodeAt(0), 0);
+  return { background: palette[hash % palette.length] };
+}
+
+function CreatorMiniAvatar({ creator, className }: { creator: HomeCreator; className: string }) {
+  if (creator.avatar_url && creator.avatar_url.length <= 4) {
+    return <div className={className}><span>{creator.avatar_url}</span></div>;
+  }
+  if (creator.avatar_url) {
+    return (
+      <div className={className}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={creator.avatar_url} alt={creator.display_name} />
+      </div>
+    );
+  }
+  return <div className={className}><span>{creator.display_name.slice(0, 1)}</span></div>;
+}
+
+function HomeJaefconShowcase({
+  creators,
   compact = false,
 }: {
-  banners: HomeRollingBannerItem[];
+  creators: Creator[];
   compact?: boolean;
 }) {
-  const activeBanners = banners.filter(banner => banner.enabled && banner.title.trim());
-  const [activeIndex, setActiveIndex] = useState(0);
-  const active = activeBanners[activeIndex] || activeBanners[0];
+  const hero = (creators as HomeCreator[])
+    .slice()
+    .sort((a, b) => b.follower_count - a.follower_count)[0];
 
   useEffect(() => {
-    if (activeBanners.length < 2) return;
-    const timer = window.setInterval(() => {
-      setActiveIndex(index => (index + 1) % activeBanners.length);
-    }, 6500);
-    return () => window.clearInterval(timer);
-  }, [activeBanners.length]);
-
-  useEffect(() => {
-    if (!active) return;
-    trackEvent({ kind: 'impression', target: 'home_rolling_banner', meta: { id: active.id, title: active.title } });
-  }, [active]);
-
-  if (!active) return null;
-
-  const go = (direction: -1 | 1) => {
-    if (activeBanners.length < 2) return;
-    setActiveIndex(index => (index + direction + activeBanners.length) % activeBanners.length);
-  };
+    trackEvent({ kind: 'impression', target: 'home_jaefcon_showcase' });
+  }, []);
 
   return (
-    <section
-      className={`${styles.rollingHero} ${compact ? styles.rollingHeroCompact : ''}`}
-      aria-label="홈 롤링 배너"
-    >
-      {active.imageUrl && (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          className={`${styles.rollingImage} ${active.dimImage ? styles.rollingImageDim : ''}`}
-          src={active.imageUrl}
-          alt=""
-          loading={compact ? 'lazy' : 'eager'}
-        />
-      )}
-      <div className={styles.rollingBackdrop} aria-hidden />
-      <div className={styles.rollingContent}>
-        <span className={styles.rollingEyebrow}>{active.eyebrow || '재테크한입'}</span>
-        <h2>{active.title}</h2>
-        {active.description && <p>{active.description}</p>}
-        {active.ctaLabel && active.link && (
-          <Link
-            href={active.link}
-            className={styles.rollingCta}
-            onClick={() => trackEvent({ kind: 'click', target: 'home_rolling_banner', meta: { id: active.id, link: active.link } })}
-          >
-            {active.ctaLabel}
-          </Link>
-        )}
-        {active.ctaLabel && !active.link && <span className={styles.rollingCta}>{active.ctaLabel}</span>}
-      </div>
-      {activeBanners.length > 1 && (
-        <div className={styles.rollingControls}>
-          <button type="button" onClick={(event) => { event.preventDefault(); go(-1); }} aria-label="이전 배너">
-            ‹
-          </button>
-          <span>{String(activeIndex + 1).padStart(2, '0')} / {String(activeBanners.length).padStart(2, '0')}</span>
-          <button type="button" onClick={(event) => { event.preventDefault(); go(1); }} aria-label="다음 배너">
-            ›
-          </button>
-          <div className={styles.rollingTrack}>
-            <span style={{ width: `${((activeIndex + 1) / activeBanners.length) * 100}%` }} />
+    <div className={`${styles.jaefconHome} ${compact ? styles.jaefconHomeCompact : ''}`}>
+      <section className={styles.jaefconIntro} aria-label="재프콘 소개">
+        <div className={styles.jaefconIntroMain}>
+          <span className={styles.jaefconKicker}>재프콘 탐색</span>
+          <h2>재테크 크리에이터를 발견하고 내 뉴스피드에서 따라보세요</h2>
+          <p>
+            ETF, 절세, 연금, 시장 인사이트까지. 팔로우하면 최신 글은 뉴스피드에 모이고,
+            멤버십은 상품 단위 혜택과 후기로 판단할 수 있게 구성합니다.
+          </p>
+          <div className={styles.jaefconActions}>
+            <Link
+              href="/creators"
+              className={styles.jaefconPrimary}
+              onClick={() => trackEvent({ kind: 'click', target: 'home_jaefcon_all' })}
+            >
+              전체 보기
+            </Link>
+            <Link
+              href="/creator/apply"
+              className={styles.jaefconSecondary}
+              onClick={() => trackEvent({ kind: 'click', target: 'home_jaefcon_apply' })}
+            >
+              재프콘 시작하기
+            </Link>
           </div>
         </div>
+        <div className={styles.jaefconLaunchBox}>
+          <div className={styles.jaefconLaunchTop}>
+            <span>크리에이터 등록</span>
+            <strong>공개 페이지 자동 생성</strong>
+          </div>
+          <div className={styles.jaefconLaunchUrl}>/creator/my-channel</div>
+          <ol>
+            <li>로그인 후 크리에이터 모드 시작</li>
+            <li>닉네임·소개·카테고리 입력</li>
+            <li>재프콘 페이지 생성 후 멤버십 준비</li>
+          </ol>
+          <span className={styles.jaefconLaunchFoot}>등록 즉시 채널 홈이 열리고, 멤버십·정산·첫 글을 이어서 설정합니다.</span>
+        </div>
+      </section>
+
+      {hero && (
+        <section className={styles.jaefconFeature} aria-label="이 주의 추천 재프콘">
+          <div className={styles.jaefconFeatureCover} style={creatorCoverStyle(hero)} aria-hidden />
+          <div className={styles.jaefconFeatureOverlay}>
+            <span className={styles.jaefconFeatureEyebrow}>이 주의 추천 재프콘</span>
+            <div className={styles.jaefconFeatureInfo}>
+              <CreatorMiniAvatar creator={hero} className={styles.jaefconFeatureAvatar} />
+              <div className={styles.jaefconFeatureBody}>
+                <strong>{hero.display_name}</strong>
+                {hero.bio && <p>{hero.bio}</p>}
+                <div className={styles.jaefconFeatureStats}>
+                  <span><strong>{hero.follower_count.toLocaleString()}</strong> 팔로워</span>
+                  <span><strong>{hero.member_count.toLocaleString()}</strong> 멤버</span>
+                  <span><strong>{hero.post_count.toLocaleString()}</strong> 글</span>
+                </div>
+              </div>
+              <Link
+                href={`/creator/${hero.slug}`}
+                className={styles.jaefconFeatureCta}
+                onClick={() => trackEvent({ kind: 'click', target: 'home_jaefcon_feature', meta: { slug: hero.slug } })}
+              >
+                채널 들어가기 →
+              </Link>
+            </div>
+          </div>
+        </section>
       )}
-    </section>
+    </div>
   );
 }
 
