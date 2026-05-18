@@ -306,6 +306,147 @@
 .emojiBtnActive { border-color: var(--rw-primary) !important; background: var(--rw-primary-bg) !important; }
 
 /* ─────────────────────────────────────────────────────────
+ * 본문 그리드 — 좌(탭+리스트) + 우(포트폴리오)
+ * ───────────────────────────────────────────────────────── */
+.bodyGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 280px;
+  gap: var(--space-5);
+  align-items: start;
+}
+@media (max-width: 880px) {
+  .bodyGrid { grid-template-columns: 1fr; }
+}
+.bodyLeft { min-width: 0; }
+
+.sidePanel {
+  position: sticky;
+  top: 92px;
+}
+@media (max-width: 880px) {
+  .sidePanel { position: static; }
+}
+
+/* ── 포트폴리오 카드 (토스 톤) ──────────────────────── */
+.portfolioCard {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 18px 20px;
+  background: var(--rw-card);
+  border: 1px solid rgba(0, 27, 55, 0.06);
+  border-radius: 14px;
+}
+.portfolioHead {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+.portfolioHead strong {
+  font-size: 14px;
+  font-weight: 900;
+  color: var(--rw-text-strong);
+  letter-spacing: -0.2px;
+}
+.portfolioPubChip,
+.portfolioLockChip,
+.portfolioToggle {
+  padding: 3px 10px;
+  border: none;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: -0.1px;
+  cursor: pointer;
+  font-family: inherit;
+}
+.portfolioPubChip {
+  background: var(--rw-primary-bg, rgba(49, 130, 246, 0.1));
+  color: var(--rw-primary, #3182f6);
+}
+.portfolioLockChip {
+  background: rgba(0, 27, 55, 0.06);
+  color: var(--rw-gray60, #6b7684);
+}
+.portfolioToggle {
+  background: rgba(0, 27, 55, 0.06);
+  color: var(--rw-gray60, #6b7684);
+}
+.portfolioToggleOn {
+  background: var(--rw-primary-bg, rgba(49, 130, 246, 0.1));
+  color: var(--rw-primary, #3182f6);
+}
+.portfolioToggle:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.portfolioEmptyMsg {
+  margin: 0;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--rw-gray60, #6b7684);
+  line-height: 1.5;
+}
+
+.portfolioBar {
+  display: flex;
+  width: 100%;
+  height: 6px;
+  border-radius: 999px;
+  overflow: hidden;
+}
+.portfolioBar span {
+  height: 100%;
+  display: block;
+}
+
+.portfolioList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.portfolioItem {
+  display: grid;
+  grid-template-columns: 8px minmax(0, auto) minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+  font-size: 12.5px;
+}
+.portfolioDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: block;
+}
+.portfolioSymbol {
+  font-weight: 800;
+  color: var(--rw-text-strong);
+  letter-spacing: -0.1px;
+  font-family: 'SF Mono', Menlo, Consolas, monospace;
+  font-size: 11.5px;
+}
+.portfolioName {
+  font-weight: 600;
+  color: var(--rw-gray60, #6b7684);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.portfolioPct {
+  font-weight: 800;
+  color: var(--rw-text-strong);
+  font-feature-settings: 'tnum';
+}
+.portfolioMore {
+  margin: 0;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--rw-gray60, #6b7684);
+  text-align: right;
+}
+
+/* ─────────────────────────────────────────────────────────
  * 탭
  * ───────────────────────────────────────────────────────── */
 .tabs {
@@ -420,9 +561,24 @@
   color: var(--rw-text-muted);
 }
 
-.emptyEmoji {
-  font-size: 40px;
-  margin-bottom: var(--space-3);
+.emptyIcon {
+  width: 36px;
+  height: 36px;
+  margin: 0 auto var(--space-3);
+  border-radius: 50%;
+  background: var(--rw-card-muted, #f2f4f6);
+  position: relative;
+}
+.emptyIcon::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 14px;
+  height: 14px;
+  border: 2px solid var(--rw-gray40, #b0b8c1);
+  border-radius: 3px;
+  transform: translate(-50%, -50%);
 }
 
 .emptyMsg {

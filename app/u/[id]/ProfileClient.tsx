@@ -30,6 +30,9 @@ function providerLabel(p: string): string {
   return m[p] || p;
 }
 
+type PortfolioRow = { id: string; user_id: string; name: string; is_public: boolean };
+type HoldingRow = { id: string; portfolio_id: string; symbol: string; display_symbol: string | null; name: string | null; quantity: number; avg_cost: number; target_weight: number | null };
+
 export default function ProfileClient({ userId }: { userId: string }) {
   const [profile, setProfile] = useState<any>(null);
   const [questions, setQuestions] = useState<any[]>([]);
@@ -40,6 +43,9 @@ export default function ProfileClient({ userId }: { userId: string }) {
   const [totalLikesReceived, setTotalLikesReceived] = useState(0);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [savingEmoji, setSavingEmoji] = useState(false);
+  const [portfolio, setPortfolio] = useState<PortfolioRow | null>(null);
+  const [holdings, setHoldings] = useState<HoldingRow[]>([]);
+  const [portfolioPending, setPortfolioPending] = useState(false);
 
   useEffect(() => {
     if (!hasSupabase()) return;
@@ -70,7 +76,37 @@ export default function ProfileClient({ userId }: { userId: string }) {
         const total = list.reduce((sum: number, a: any) => sum + (a.like_count || 0), 0);
         setTotalLikesReceived(total);
       });
+
+    // 포트폴리오 (본인 또는 공개) — RLS 가 자동 필터
+    supabase.from('portfolios')
+      .select('id, user_id, name, is_public')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: true })
+      .limit(1)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (data) {
+          setPortfolio(data as PortfolioRow);
+          supabase.from('portfolio_holdings')
+            .select('id, portfolio_id, symbol, display_symbol, name, quantity, avg_cost, target_weight')
+            .eq('portfolio_id', (data as any).id)
+            .then(({ data: hs }) => setHoldings((hs || []) as HoldingRow[]));
+        }
+      });
   }, [userId]);
+
+  async function togglePortfolioPublic() {
+    if (!isMe || !portfolio || portfolioPending) return;
+    setPortfolioPending(true);
+    const supabase = createClient();
+    const next = !portfolio.is_public;
+    const { error } = await supabase
+      .from('portfolios')
+      .update({ is_public: next })
+      .eq('id', portfolio.id);
+    if (!error) setPortfolio({ ...portfolio, is_public: next });
+    setPortfolioPending(false);
+  }
 
   async function saveEmoji(emoji: string) {
     if (!hasSupabase()) return;
@@ -187,60 +223,76 @@ export default function ProfileClient({ userId }: { userId: string }) {
           </div>
         )}
 
-        {/* 탭 */}
-        <div className={styles.tabs} role="tablist">
-          {(['questions', 'answers'] as const).map(t => (
-            <button
-              key={t}
-              role="tab"
-              aria-selected={tab === t}
-              className={`${styles.tab} ${tab === t ? styles.tabActive : ''}`}
-              onClick={() => setTab(t)}
-              type="button"
-            >
-              {t === 'questions' ? `질문 ${questions.length}` : `답변 ${answers.length}`}
-            </button>
-          ))}
-        </div>
+        {/* 본문(좌) + 포트폴리오 카드(우) 그리드 */}
+        <div className={styles.bodyGrid}>
+          <div className={styles.bodyLeft}>
+            {/* 탭 */}
+            <div className={styles.tabs} role="tablist">
+              {(['questions', 'answers'] as const).map(t => (
+                <button
+                  key={t}
+                  role="tab"
+                  aria-selected={tab === t}
+                  className={`${styles.tab} ${tab === t ? styles.tabActive : ''}`}
+                  onClick={() => setTab(t)}
+                  type="button"
+                >
+                  {t === 'questions' ? `질문 ${questions.length}` : `답변 ${answers.length}`}
+                </button>
+              ))}
+            </div>
 
-        {/* 목록 */}
-        <div className={styles.list}>
-          {tab === 'questions' ? (
-            questions.length === 0
-              ? <Empty msg="아직 질문이 없어요" />
-              : questions.map(q => (
-                <Link key={q.id} href={`/q/${q.slug || q.id}`} className={styles.itemCard}>
-                  <div className={styles.itemBadges}>
-                    <Badge tone="neutral">{q.category}</Badge>
-                    {q.is_answered && <Badge tone="success">✅ 채택됨</Badge>}
-                  </div>
-                  <p className={styles.itemTitle}>{q.title}</p>
-                  <div className={styles.itemMeta}>
-                    <span><MessageCircle size={12} />{q.answer_count || 0}개 답변</span>
-                    <span>·</span>
-                    <span>{ft(q.created_at)}</span>
-                  </div>
-                </Link>
-              ))
-          ) : (
-            answers.length === 0
-              ? <Empty msg="아직 답변이 없어요" />
-              : answers.map(a => {
-                const questionPath = a.questions?.slug || a.questions?.id || a.question_id;
-                return (
-                  <Link key={a.id} href={`/q/${questionPath}`} className={styles.itemCard}>
-                    {a.is_adopted && <p className={styles.adoptedHint}>✅ 채택된 답변</p>}
-                    <p className={styles.itemAnswerCue}>→ {a.questions?.title || '질문'}</p>
-                    <p className={styles.itemAnswerBody}>{a.body}</p>
-                    <div className={styles.itemMeta}>
-                      <span><ThumbsUp size={12} />{a.like_count || 0}</span>
-                      <span>·</span>
-                      <span>{ft(a.created_at)}</span>
-                    </div>
-                  </Link>
-                );
-              })
-          )}
+            {/* 목록 */}
+            <div className={styles.list}>
+              {tab === 'questions' ? (
+                questions.length === 0
+                  ? <Empty msg="아직 질문이 없어요" />
+                  : questions.map(q => (
+                    <Link key={q.id} href={`/q/${q.slug || q.id}`} className={styles.itemCard}>
+                      <div className={styles.itemBadges}>
+                        <Badge tone="neutral">{q.category}</Badge>
+                        {q.is_answered && <Badge tone="success">채택됨</Badge>}
+                      </div>
+                      <p className={styles.itemTitle}>{q.title}</p>
+                      <div className={styles.itemMeta}>
+                        <span><MessageCircle size={12} />{q.answer_count || 0}개 답변</span>
+                        <span>·</span>
+                        <span>{ft(q.created_at)}</span>
+                      </div>
+                    </Link>
+                  ))
+              ) : (
+                answers.length === 0
+                  ? <Empty msg="아직 답변이 없어요" />
+                  : answers.map(a => {
+                    const questionPath = a.questions?.slug || a.questions?.id || a.question_id;
+                    return (
+                      <Link key={a.id} href={`/q/${questionPath}`} className={styles.itemCard}>
+                        {a.is_adopted && <p className={styles.adoptedHint}>채택된 답변</p>}
+                        <p className={styles.itemAnswerCue}>→ {a.questions?.title || '질문'}</p>
+                        <p className={styles.itemAnswerBody}>{a.body}</p>
+                        <div className={styles.itemMeta}>
+                          <span><ThumbsUp size={12} />{a.like_count || 0}</span>
+                          <span>·</span>
+                          <span>{ft(a.created_at)}</span>
+                        </div>
+                      </Link>
+                    );
+                  })
+              )}
+            </div>
+          </div>
+
+          {/* 우측 sticky 포트폴리오 카드 */}
+          <aside className={styles.sidePanel}>
+            <PortfolioCard
+              portfolio={portfolio}
+              holdings={holdings}
+              isMe={isMe}
+              pending={portfolioPending}
+              onToggle={togglePortfolioPublic}
+            />
+          </aside>
         </div>
       </main>
     </AppShell>
@@ -250,8 +302,118 @@ export default function ProfileClient({ userId }: { userId: string }) {
 function Empty({ msg }: { msg: string }) {
   return (
     <div className={styles.empty}>
-      <div className={`${styles.emptyEmoji} tf`}>📭</div>
+      <div className={styles.emptyIcon} aria-hidden />
       <p className={styles.emptyMsg}>{msg}</p>
+    </div>
+  );
+}
+
+// 색 팔레트 — 비중 시각화용
+const PALETTE = ['#3182f6', '#00a86b', '#fe9800', '#f66570', '#7e57c2', '#4593fc', '#ffa927', '#1b64da'];
+
+function PortfolioCard({
+  portfolio,
+  holdings,
+  isMe,
+  pending,
+  onToggle,
+}: {
+  portfolio: PortfolioRow | null;
+  holdings: HoldingRow[];
+  isMe: boolean;
+  pending: boolean;
+  onToggle: () => void;
+}) {
+  // 비공개 + 본인 아닌 경우 → 잠긴 카드만
+  if (!portfolio) {
+    return (
+      <div className={styles.portfolioCard}>
+        <div className={styles.portfolioHead}>
+          <strong>포트폴리오</strong>
+        </div>
+        <p className={styles.portfolioEmptyMsg}>
+          {isMe ? '아직 포트폴리오가 없어요. 마이페이지에서 종목을 추가하세요.' : '공개된 포트폴리오가 없어요.'}
+        </p>
+      </div>
+    );
+  }
+
+  if (!portfolio.is_public && !isMe) {
+    return (
+      <div className={styles.portfolioCard}>
+        <div className={styles.portfolioHead}>
+          <strong>포트폴리오</strong>
+          <span className={styles.portfolioLockChip}>비공개</span>
+        </div>
+        <p className={styles.portfolioEmptyMsg}>크리에이터가 포트폴리오를 비공개로 설정했어요.</p>
+      </div>
+    );
+  }
+
+  // cost basis 기반 비중 — 시세 fetch 없이 빠른 표시
+  const enriched = holdings.map(h => ({
+    ...h,
+    cost: (h.quantity || 0) * (h.avg_cost || 0),
+  }));
+  const totalCost = enriched.reduce((s, h) => s + h.cost, 0);
+  const sorted = enriched
+    .filter(h => h.cost > 0)
+    .sort((a, b) => b.cost - a.cost);
+  const withPct = sorted.map((h, i) => ({
+    ...h,
+    pct: totalCost > 0 ? (h.cost / totalCost) * 100 : 0,
+    color: PALETTE[i % PALETTE.length],
+  }));
+
+  return (
+    <div className={styles.portfolioCard}>
+      <div className={styles.portfolioHead}>
+        <strong>포트폴리오</strong>
+        {isMe ? (
+          <button
+            type="button"
+            onClick={onToggle}
+            disabled={pending}
+            className={`${styles.portfolioToggle} ${portfolio.is_public ? styles.portfolioToggleOn : ''}`}
+            title={portfolio.is_public ? '클릭하면 비공개로 전환' : '클릭하면 공개로 전환'}
+          >
+            {portfolio.is_public ? '공개 중' : '비공개'}
+          </button>
+        ) : (
+          portfolio.is_public ? <span className={styles.portfolioPubChip}>공개</span> : <span className={styles.portfolioLockChip}>비공개</span>
+        )}
+      </div>
+
+      {withPct.length === 0 ? (
+        <p className={styles.portfolioEmptyMsg}>
+          {isMe ? '추가된 종목이 없어요.' : '종목 정보가 없어요.'}
+        </p>
+      ) : (
+        <>
+          {/* 비중 bar (가로 누적) */}
+          <div className={styles.portfolioBar} aria-hidden>
+            {withPct.slice(0, 8).map(h => (
+              <span key={h.id} style={{ width: `${h.pct}%`, background: h.color }} />
+            ))}
+          </div>
+
+          {/* 종목 리스트 */}
+          <ul className={styles.portfolioList}>
+            {withPct.slice(0, 6).map(h => (
+              <li key={h.id} className={styles.portfolioItem}>
+                <span className={styles.portfolioDot} style={{ background: h.color }} aria-hidden />
+                <span className={styles.portfolioSymbol}>{h.display_symbol || h.symbol}</span>
+                <span className={styles.portfolioName}>{h.name || ''}</span>
+                <span className={styles.portfolioPct}>{h.pct.toFixed(1)}%</span>
+              </li>
+            ))}
+          </ul>
+
+          {withPct.length > 6 && (
+            <p className={styles.portfolioMore}>외 {withPct.length - 6}종</p>
+          )}
+        </>
+      )}
     </div>
   );
 }
