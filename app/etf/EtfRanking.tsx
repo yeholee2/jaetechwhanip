@@ -89,16 +89,24 @@ function categoryMatch(etf: EtfInfo, cat: CategoryKey): boolean {
   return true;
 }
 
+/** 레버리지·인버스(2X/3X 등) ETF 식별 — name·shortName·theme 텍스트 매칭 */
+function isLeveraged(etf: EtfInfo): boolean {
+  const text = `${etf.name} ${etf.shortName} ${etf.theme || ''}`.toLowerCase();
+  return /레버리지|인버스|2x|3x|leverage|inverse/.test(text);
+}
+
 export function EtfRanking({ allEtfs }: { allEtfs: EtfInfo[] }) {
   const [sort, setSort] = useState<SortKey>('수익률');
   const [category, setCategory] = useState<CategoryKey>('전체');
   const [market, setMarket] = useState<MarketKey>('all');
+  const [excludeLev, setExcludeLev] = useState(false);
 
   const ranked = useMemo(() => {
     const list = allEtfs.filter(e => {
       const c = (e.country || 'KR').toUpperCase();
       if (market === 'kr' && c !== 'KR') return false;
       if (market === 'us' && c !== 'US') return false;
+      if (excludeLev && isLeveraged(e)) return false;
       return categoryMatch(e, category);
     });
     const sorted = [...list];
@@ -112,13 +120,35 @@ export function EtfRanking({ allEtfs }: { allEtfs: EtfInfo[] }) {
       sorted.sort((a, b) => a.shortName.localeCompare(b.shortName));
     }
     return sorted.slice(0, 10);
-  }, [allEtfs, sort, category, market]);
+  }, [allEtfs, sort, category, market, excludeLev]);
 
   return (
     <section className={sec.card} aria-label="ETF 랭킹 TOP 10">
       <div className={sec.head}>
         <h3 className={sec.title}>랭킹 TOP 10</h3>
-        <Badge tone="primary">{ranked.length}</Badge>
+        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+          <button
+            type="button"
+            onClick={() => setExcludeLev(v => !v)}
+            style={{
+              padding: '5px 10px',
+              fontSize: 11,
+              fontWeight: 700,
+              borderRadius: 999,
+              border: excludeLev ? '1.5px solid var(--rw-primary)' : '1px solid var(--rw-hairline)',
+              background: excludeLev ? 'var(--rw-primary-bg)' : 'transparent',
+              color: excludeLev ? 'var(--rw-primary)' : 'var(--rw-text-muted)',
+              cursor: 'pointer',
+              transition: 'all .12s',
+              whiteSpace: 'nowrap',
+            }}
+            aria-pressed={excludeLev}
+            title="레버리지·인버스(2X/3X) 제외"
+          >
+            {excludeLev ? '✓ 레버리지 제외' : '레버리지 제외'}
+          </button>
+          <Badge tone="primary">{ranked.length}</Badge>
+        </div>
       </div>
 
       {/* 상장 시장 */}
