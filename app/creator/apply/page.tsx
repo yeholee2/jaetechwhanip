@@ -18,7 +18,7 @@ export const metadata: Metadata = {
 
 export default function CreatorApplyPage() {
   return (
-    <AppShell active="my" wide hideSlogan>
+    <AppShell active="creators" wide hideSlogan>
       <main className="pc-layout-stack">
         <OnboardClient />
       </main>

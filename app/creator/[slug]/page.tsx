@@ -1,18 +1,32 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { AppShell } from '@/components/AppShell';
-import { createClient } from '@/lib/supabase/server';
+import { createClient, hasSupabaseServer } from '@/lib/supabase/server';
 import { SITE_NAME, SITE_URL } from '@/lib/seo';
 import type { Creator, CreatorPost } from '@/lib/creator';
-import { fetchCreatorStats } from '@/lib/creatorStats';
+import { fetchCreatorStats, type CreatorStats } from '@/lib/creatorStats';
 import { fetchSimilarCreators } from '@/lib/creatorRecommend';
+import { getMockCreators } from '@/lib/creatorMock';
 import { CreatorPageClient } from './CreatorPageClient';
 
 export const revalidate = 60;
 
 type Props = { params: { slug: string } };
 
+const EMPTY_STATS: CreatorStats = {
+  posts30d: 0,
+  posts7d: 0,
+  members30d: 0,
+  followers30d: 0,
+  lastPostAt: null,
+  totalLikes: 0,
+};
+
 async function fetchCreator(slug: string): Promise<Creator | null> {
+  if (!hasSupabaseServer()) {
+    return getMockCreators().find(c => c.slug === decodeURIComponent(slug)) || null;
+  }
+
   const supabase = createClient();
   const { data } = await supabase
     .from('creators')
@@ -24,6 +38,8 @@ async function fetchCreator(slug: string): Promise<Creator | null> {
 }
 
 async function fetchPosts(creatorId: string): Promise<CreatorPost[]> {
+  if (!hasSupabaseServer()) return [];
+
   const supabase = createClient();
   const nowIso = new Date().toISOString();
   const { data } = await supabase
@@ -61,15 +77,21 @@ export default async function CreatorPage({ params }: Props) {
   const creator = await fetchCreator(params.slug);
   if (!creator) notFound();
 
-  const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  let user: any = null;
+  if (hasSupabaseServer()) {
+    const supabase = createClient();
+    const res = await supabase.auth.getUser();
+    user = res.data.user;
+  }
   const isOwner = !!user && user.id === creator.user_id;
 
-  const [posts, stats, similar] = await Promise.all([
-    fetchPosts(creator.id),
-    fetchCreatorStats(creator.id),
-    fetchSimilarCreators(creator.id, creator.topics || [], 4),
-  ]);
+  const [posts, stats, similar]: [CreatorPost[], CreatorStats, Creator[]] = hasSupabaseServer()
+    ? await Promise.all([
+        fetchPosts(creator.id),
+        fetchCreatorStats(creator.id),
+        fetchSimilarCreators(creator.id, creator.topics || [], 4),
+      ])
+    : [[], EMPTY_STATS, getMockCreators().filter(c => c.slug !== creator.slug).slice(0, 4)];
 
   return (
     <AppShell active="my" wide hideSlogan minimalNav>

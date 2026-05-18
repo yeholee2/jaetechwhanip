@@ -160,6 +160,70 @@
   color: #fff;
 }
 
+.loginGate {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 58px 28px;
+  background:
+    linear-gradient(135deg, rgba(27, 100, 218, 0.08), rgba(0, 168, 107, 0.07)),
+    var(--rw-card);
+  border: 1px solid var(--rw-border);
+  border-radius: 14px;
+  text-align: center;
+}
+.loginGateKicker {
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: var(--rw-card);
+  border: 1px solid var(--rw-border);
+  color: var(--rw-primary);
+  font-size: 11px;
+  font-weight: 900;
+}
+.loginGate strong {
+  max-width: 420px;
+  font-size: 19px;
+  font-weight: 900;
+  color: var(--rw-text-strong);
+  letter-spacing: -0.35px;
+  line-height: 1.35;
+}
+.loginGate p {
+  max-width: 480px;
+  margin: 0;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--rw-text-muted);
+  line-height: 1.6;
+}
+.loginGateActions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 4px;
+}
+.loginPrimary,
+.loginSecondary {
+  min-width: 120px;
+  padding: 11px 18px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 900;
+  text-decoration: none;
+}
+.loginPrimary {
+  background: var(--rw-primary);
+  color: #fff;
+}
+.loginSecondary {
+  background: var(--rw-card);
+  color: var(--rw-primary);
+  border: 1px solid var(--rw-border);
+}
+
 /* 빈 상태 */
 .empty {
   display: flex;

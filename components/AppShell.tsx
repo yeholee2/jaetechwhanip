@@ -243,7 +243,7 @@ export function AppShell({
               </li>
             ))}
             <li><div className={styles.sep} /></li>
-            <li><a href="#" style={{ fontSize: 13, color: 'var(--t3)' }}>전문가 신청</a></li>
+            <li><Link href="/creator/apply" style={{ fontSize: 13, color: 'var(--t3)' }}>전문가 신청</Link></li>
           </ul>
         )}
         <div className={styles.pcRight}>

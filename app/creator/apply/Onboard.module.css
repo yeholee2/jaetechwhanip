@@ -333,6 +333,62 @@
 .optional2 summary:hover { color: var(--rw-primary); }
 .optional2 > .field { margin-top: 12px; }
 
+.launchSummary {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px;
+  background:
+    linear-gradient(135deg, rgba(27, 100, 218, 0.08), rgba(0, 168, 107, 0.06)),
+    var(--rw-card);
+  border: 1px solid var(--rw-border);
+  border-radius: 12px;
+}
+.launchSummaryHead {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.launchSummaryHead span {
+  font-size: 11px;
+  font-weight: 900;
+  color: var(--rw-text-muted);
+  letter-spacing: 0.2px;
+}
+.launchSummaryHead strong {
+  font-family: 'SF Mono', Menlo, Consolas, monospace;
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--rw-primary);
+  word-break: break-all;
+}
+.launchSummary ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.launchSummary li {
+  position: relative;
+  padding-left: 18px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--rw-text-body);
+  line-height: 1.5;
+}
+.launchSummary li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 7px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--rw-primary);
+}
+
 .errorBox {
   padding: 10px 14px;
   background: rgba(228, 41, 57, 0.08);

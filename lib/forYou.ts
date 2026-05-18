@@ -7,7 +7,7 @@
  *  - 내 질문 새 답변 + 내 글에 받은 좋아요/댓글 알림 요약 (3개)
  */
 
-import { createClient } from '@/lib/supabase/server';
+import { createClient, hasSupabaseServer } from '@/lib/supabase/server';
 import { fetchEtfs } from '@/lib/etfsDb';
 
 export type ForYouCreatorPost = {
@@ -49,6 +49,10 @@ export type ForYouBundle = {
 };
 
 export async function fetchForYou(): Promise<ForYouBundle> {
+  if (!hasSupabaseServer()) {
+    return { hasUser: false, posts: [], watch: [], notifications: [] };
+  }
+
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) {

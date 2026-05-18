@@ -72,10 +72,12 @@ export function FeedsClient({
   followed,
   posts,
   recommended,
+  isLoggedIn = true,
 }: {
   followed: FollowedCreator[];
   posts: FeedPost[];
   recommended: Recommended[];
+  isLoggedIn?: boolean;
 }) {
   const [filter, setFilter] = useState<Filter>('all');
 
@@ -126,25 +128,37 @@ export function FeedsClient({
           <section className={styles.contentSection}>
             <div className={styles.sectionHead}>
               <strong>최신 콘텐츠</strong>
-              <div className={styles.filterRow}>
-                <button
-                  type="button"
-                  onClick={() => setFilter('all')}
-                  className={`${styles.filterBtn} ${filter === 'all' ? styles.filterOn : ''}`}
-                >
-                  전체
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setFilter('unlocked')}
-                  className={`${styles.filterBtn} ${filter === 'unlocked' ? styles.filterOn : ''}`}
-                >
-                  열람 가능
-                </button>
-              </div>
+              {isLoggedIn && (
+                <div className={styles.filterRow}>
+                  <button
+                    type="button"
+                    onClick={() => setFilter('all')}
+                    className={`${styles.filterBtn} ${filter === 'all' ? styles.filterOn : ''}`}
+                  >
+                    전체
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setFilter('unlocked')}
+                    className={`${styles.filterBtn} ${filter === 'unlocked' ? styles.filterOn : ''}`}
+                  >
+                    열람 가능
+                  </button>
+                </div>
+              )}
             </div>
 
-            {followed.length === 0 ? (
+            {!isLoggedIn ? (
+              <div className={styles.loginGate}>
+                <span className={styles.loginGateKicker}>내 뉴스피드</span>
+                <strong>로그인하면 팔로우한 재프콘 소식만 모아볼 수 있어요</strong>
+                <p>탐색에서 관심 채널을 팔로우하면 새 글, 멤버십 공개 글, 무료 미리보기가 이곳에 쌓입니다.</p>
+                <div className={styles.loginGateActions}>
+                  <Link href="/auth?next=/feeds" className={styles.loginPrimary}>로그인</Link>
+                  <Link href="/creators" className={styles.loginSecondary}>재프콘 탐색</Link>
+                </div>
+              </div>
+            ) : followed.length === 0 ? (
               <div className={styles.empty}>
                 <div className={styles.emptyIcon}>👀</div>
                 <strong>아직 팔로우한 크리에이터가 없어요</strong>

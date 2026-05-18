@@ -1,8 +1,8 @@
 import type { Metadata } from 'next';
-import { redirect } from 'next/navigation';
 import { AppShell } from '@/components/AppShell';
-import { createClient } from '@/lib/supabase/server';
+import { createClient, hasSupabaseServer } from '@/lib/supabase/server';
 import { SITE_NAME, SITE_URL } from '@/lib/seo';
+import { getMockCreators } from '@/lib/creatorMock';
 import { FeedsClient, type FollowedCreator, type FeedPost } from './FeedsClient';
 
 export const metadata: Metadata = {
@@ -21,9 +21,52 @@ export const metadata: Metadata = {
 export const dynamic = 'force-dynamic';
 
 export default async function FeedsPage() {
+  if (!hasSupabaseServer()) {
+    const recommended = getMockCreators().slice(0, 8).map(c => ({
+      id: c.id,
+      slug: c.slug,
+      display_name: c.display_name,
+      avatar_url: c.avatar_url ?? null,
+      bio: c.bio ?? null,
+      member_count: c.member_count,
+      follower_count: c.follower_count,
+    }));
+
+    return (
+      <AppShell active="feed" wide hideSlogan>
+        <FeedsClient
+          followed={[]}
+          posts={[]}
+          recommended={recommended}
+          isLoggedIn={false}
+        />
+      </AppShell>
+    );
+  }
+
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) redirect('/auth?next=/feeds');
+
+  if (!user) {
+    const { data: featured } = await supabase
+      .from('creators')
+      .select('id, slug, display_name, avatar_url, bio, member_count, follower_count')
+      .eq('is_published', true)
+      .order('member_count', { ascending: false, nullsFirst: false })
+      .order('follower_count', { ascending: false, nullsFirst: false })
+      .limit(8);
+
+    return (
+      <AppShell active="feed" wide hideSlogan>
+        <FeedsClient
+          followed={[]}
+          posts={[]}
+          recommended={(featured || []) as any}
+          isLoggedIn={false}
+        />
+      </AppShell>
+    );
+  }
 
   // 1) 본인이 팔로우한 크리에이터 id 목록
   const { data: followRows } = await supabase
@@ -134,6 +177,7 @@ export default async function FeedsPage() {
         followed={followed}
         posts={posts}
         recommended={featuredFiltered as any}
+        isLoggedIn
       />
     </AppShell>
   );

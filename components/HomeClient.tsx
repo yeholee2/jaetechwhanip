@@ -335,6 +335,7 @@ export default function HomeClient({
           {siteBanner?.enabled && siteBanner.message && (
             <SiteBannerStrip banner={siteBanner} />
           )}
+          <JaefconHomePanel />
           {/* 개인화 — 로그인 시 + 콘텐츠 있을 때만 자체 렌더 */}
           {forYou && <ForYouSection data={forYou} />}
           <div className={styles.feedTabs}>
@@ -434,6 +435,7 @@ export default function HomeClient({
       </div>
 
       <div className={styles.moMain}>
+        <JaefconHomePanel compact />
         <div className={styles.moFeedHd}>
           {FEED_TABS.map(tab => (
             <button
@@ -472,6 +474,39 @@ export default function HomeClient({
       {showModal && <AskModal onClose={() => setShowModal(false)} onSubmit={submitQ} />}
       {toast && <div className={`${styles.toast} ${styles.show}`}>{toast}</div>}
     </AppShell>
+  );
+}
+
+function JaefconHomePanel({ compact = false }: { compact?: boolean }) {
+  return (
+    <section className={`${styles.jaefconPanel} ${compact ? styles.jaefconPanelCompact : ''}`} aria-label="재프콘">
+      <div className={styles.jaefconMain}>
+        <span className={styles.jaefconEyebrow}>재프콘</span>
+        <h2>재테크 크리에이터를 팔로우하고 깊은 리포트는 멤버십으로</h2>
+        <p>ETF, 절세, 연금, 시장 인사이트 채널을 발견하고 내 뉴스피드에서 새 글을 모아보세요.</p>
+        <div className={styles.jaefconActions}>
+          <Link href="/creators" className={styles.jaefconPrimary}>재프콘 탐색</Link>
+          <Link href="/feeds" className={styles.jaefconSecondary}>뉴스피드</Link>
+        </div>
+      </div>
+      <div className={styles.jaefconSteps}>
+        <Link href="/creators" className={styles.jaefconStep}>
+          <span>01</span>
+          <strong>탐색</strong>
+          <p>토픽별 채널</p>
+        </Link>
+        <Link href="/feeds" className={styles.jaefconStep}>
+          <span>02</span>
+          <strong>팔로우</strong>
+          <p>내 뉴스피드</p>
+        </Link>
+        <Link href="/creator/apply" className={styles.jaefconStep}>
+          <span>03</span>
+          <strong>런칭</strong>
+          <p>내 채널 생성</p>
+        </Link>
+      </div>
+    </section>
   );
 }
 

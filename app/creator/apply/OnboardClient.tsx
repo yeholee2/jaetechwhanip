@@ -220,8 +220,8 @@ export function OnboardClient() {
         reviewed_at: new Date().toISOString(),
       }).then(() => {}, () => { /* 마케팅 저장 실패해도 발행은 OK */ });
 
-      // 3) 본인 페이지로 이동
-      router.push(`/creator/${created!.slug}?welcome=1`);
+      // 3) 생성된 공개 페이지로 이동
+      router.push(`/creator/${created!.slug}`);
     } catch (e: any) {
       setErr(e?.message || '생성 중 오류가 발생했어요.');
       setSubmitting(false);
@@ -235,7 +235,7 @@ export function OnboardClient() {
   // ── Stepper ──
   const Stepper = () => (
     <ol className={styles.stepper} aria-label="진행 단계">
-      {(['소개', '활용 계획', '페이지 만들기'] as const).map((label, i) => (
+      {(['계정 전환', '활용 계획', '페이지 런칭'] as const).map((label, i) => (
         <li
           key={label}
           className={`${styles.stepItem} ${i === step ? styles.stepItemOn : ''} ${i < step ? styles.stepItemDone : ''}`}
@@ -246,14 +246,15 @@ export function OnboardClient() {
       ))}
     </ol>
   );
+  const previewSlug = (form.slug.trim() ? normalizeSlug(form.slug) : autoSlug) || 'my-channel';
 
   return (
     <div className={styles.wrap}>
       {step === 0 && (
         <div className={styles.card}>
           <header className={styles.cardHead}>
-            <h1>반가워요! {user?.user_metadata?.name || user?.email?.split('@')[0] || '크리에이터'}님 ✨</h1>
-            <p>재프콘에 합류해주셔서 감사해요. 아래 가벼운 질문 2개에 답하시면 <strong>30초 안에 페이지가 만들어져요</strong>.</p>
+            <h1>재프콘 크리에이터 페이지를 만들어요</h1>
+            <p>{user?.user_metadata?.name || user?.email?.split('@')[0] || '크리에이터'}님 계정을 크리에이터 모드로 전환하고, 기본 정보를 입력하면 <strong>공개 채널이 바로 생성돼요</strong>.</p>
           </header>
 
           <Stepper />
@@ -336,7 +337,7 @@ export function OnboardClient() {
         <div className={styles.builderWrap}>
           <div className={styles.builderLeft}>
             <Stepper />
-            <h2 className={styles.builderTitle}>페이지 정보를 입력해 주세요</h2>
+            <h2 className={styles.builderTitle}>페이지 기본 정보를 입력해 주세요</h2>
 
             <div className={styles.field}>
               <label>크리에이터 닉네임 <span className={styles.required}>*</span></label>
@@ -432,10 +433,22 @@ export function OnboardClient() {
 
             {err && <div className={styles.errorBox}>{err}</div>}
 
+            <div className={styles.launchSummary}>
+              <div className={styles.launchSummaryHead}>
+                <span>생성될 페이지</span>
+                <strong>etf.hannipmoney.com/creator/{previewSlug}</strong>
+              </div>
+              <ul>
+                <li>기본 정보 저장 즉시 공개 채널이 만들어져요.</li>
+                <li>생성 후 멤버십 상품, 정산 정보, 첫 글을 이어서 설정하면 됩니다.</li>
+                <li>후기는 크리에이터 전체가 아니라 멤버십 상품 단위로 쌓이게 설계돼요.</li>
+              </ul>
+            </div>
+
             <div className={styles.actions}>
               <button type="button" onClick={() => setStep(1)} className={styles.btnSecondary}>이전</button>
               <button type="button" onClick={launch} disabled={submitting} className={styles.btnPrimary}>
-                {submitting ? '만드는 중…' : '페이지 만들기'}
+                {submitting ? '런칭 중…' : '페이지 런칭하기'}
               </button>
             </div>
           </div>
@@ -475,11 +488,12 @@ function PagePreview({ form }: { form: FormState }) {
           <span className={styles.previewTabOn}>홈</span>
           <span>멤버십</span>
           <span>포스트</span>
-          <span>커뮤니티</span>
+          <span>시리즈</span>
+          <span>안내</span>
         </div>
         <div className={styles.previewEmpty}>
-          <span>📝</span>
-          <p>아직 포스트가 없어요</p>
+          <span>▦</span>
+          <p>페이지 런칭 후 첫 글과 멤버십을 채워요</p>
         </div>
       </div>
     </div>
