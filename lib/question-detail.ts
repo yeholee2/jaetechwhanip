@@ -35,6 +35,8 @@ export type AnswerDetail = {
     id: string | null;
     name: string | null;
     avatar_url: string | null;
+    answer_count?: number | null;
+    accepted_count?: number | null;
   } | null;
 };
 
@@ -155,7 +157,7 @@ export async function fetchQuestionPageData(slug: string): Promise<QuestionPageD
 
     const [answersRes, relatedRes] = await Promise.all([
       fetch(
-        `${supabaseUrl}/rest/v1/answers?question_id=eq.${encodeURIComponent(question.id)}&select=*,users:author_id(id,name,avatar_url)&order=is_adopted.desc&order=like_count.desc&order=created_at.asc`,
+        `${supabaseUrl}/rest/v1/answers?question_id=eq.${encodeURIComponent(question.id)}&select=*,users:author_id(id,name,avatar_url,answer_count,accepted_count)&order=is_adopted.desc&order=like_count.desc&order=created_at.asc`,
         { headers, next: { revalidate: 60 } }
       ),
       fetch(

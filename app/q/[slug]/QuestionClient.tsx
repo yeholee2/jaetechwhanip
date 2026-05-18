@@ -824,6 +824,34 @@ export default function QuestionClient({
   );
 }
 
+// ── 답변자 신뢰도 배지 ──
+function AuthorTrustBadge({ ac, acc }: { ac: number; acc: number }) {
+  if (ac < 1) return null;
+  const rate = ac > 0 ? Math.round((acc / ac) * 100) : 0;
+  const tone =
+    acc >= 5 && rate >= 50 ? 'high' :
+    ac >= 3 ? 'mid' : 'low';
+  const bg = tone === 'high' ? 'rgba(49,130,246,0.10)' : tone === 'mid' ? 'rgba(0,27,55,0.06)' : 'rgba(0,27,55,0.04)';
+  const color = tone === 'high' ? '#3182f6' : tone === 'mid' ? '#4e5968' : '#8b95a1';
+  return (
+    <span
+      title={`답변 ${ac}회 중 ${acc}회 채택`}
+      style={{
+        padding: '2px 7px',
+        background: bg,
+        color,
+        borderRadius: 999,
+        fontSize: 10.5,
+        fontWeight: 700,
+        letterSpacing: '-0.1px',
+        fontFeatureSettings: '"tnum"',
+      }}
+    >
+      답변 {ac}{acc > 0 ? ` · 채택률 ${rate}%` : ''}
+    </span>
+  );
+}
+
 // ── 답변 카드 ──
 function AnswerCard({ answer: a, currentUserId, isMyQuestion, isAnswered, liked, cheered, onLike, onCheer, onAdopt, onDelete, onCommentToggle, showComments, comments, commentInput, commentSubmitting, onCommentChange, onCommentSubmit, onCommentDelete, translateText, isTranslated, router, styles }: any) {
   const name = a.users?.name || '익명';
@@ -840,8 +868,11 @@ function AnswerCard({ answer: a, currentUserId, isMyQuestion, isAnswered, liked,
       )}
       <div className={styles.answerProfile}>
         <div className={`${styles.answerAvatar} tf`}>{a.users?.avatar_url || getUserEmoji(a.author_id, a.users?.name)}</div>
-        <div style={{ flex: 1 }}>
-          <div style={{ fontWeight: 700, fontSize: 14 }}>{name}</div>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ fontWeight: 700, fontSize: 14, display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+            {name}
+            <AuthorTrustBadge ac={a.users?.answer_count || 0} acc={a.users?.accepted_count || 0} />
+          </div>
           <div style={{ fontSize: 12, color: 'var(--t3)' }}>{a.created_at ? ft(a.created_at) : ''}</div>
           {isTranslated(answerBodyId) && <Badge tone="primary">Translated</Badge>}
         </div>
