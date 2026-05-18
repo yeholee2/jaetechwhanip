@@ -4,20 +4,19 @@ import { fetchMarketIndices } from '@/lib/market-indices';
 import { fetchSiteSettings } from '@/lib/site-settings-server';
 import { getFeaturedActiveSparring, listSparrings } from '@/lib/sparring';
 import { fetchTickerQuotes, fetchNextMajorEvent } from '@/app/etf/MarketTicker';
-import { fetchForYou } from '@/lib/forYou';
 
-// 개인화 섹션이 있어서 dynamic — 사용자별 다른 콘텐츠
-export const dynamic = 'force-dynamic';
+// 페이지 자체는 ISR (60초). 개인화(forYou)는 클라이언트에서 /api/foryou 별도 fetch.
+// → 캐시된 HTML 즉시 응답, TTFB ↓
+export const revalidate = 60;
 
 export default async function HomePage() {
-  const [questions, { sparrings }, indices, settings, tickerQuotes, nextEvent, forYou] = await Promise.all([
+  const [questions, { sparrings }, indices, settings, tickerQuotes, nextEvent] = await Promise.all([
     fetchInitialHomeQuestions(),
     listSparrings(),
     fetchMarketIndices(),
     fetchSiteSettings(),
     fetchTickerQuotes(),
     fetchNextMajorEvent(),
-    fetchForYou(),
   ]);
 
   return (
@@ -29,7 +28,6 @@ export default async function HomePage() {
       siteKeywords={settings.keywords}
       tickerQuotes={tickerQuotes}
       nextEvent={nextEvent}
-      forYou={forYou}
     />
   );
 }

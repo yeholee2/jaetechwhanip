@@ -22,7 +22,11 @@ import type { CalendarEvent } from '@/lib/marketCalendar';
 import { lookupGlossary } from '@/lib/etfGlossary';
 import SparringMiniCard from './sparring/SparringMiniCard';
 import { HomeWatchWidget } from './HomeWatchWidget';
-import { ForYouSection } from './ForYouSection';
+import dynamic from 'next/dynamic';
+const ForYouSection = dynamic(() => import('./ForYouSection').then(m => ({ default: m.ForYouSection })), {
+  ssr: false,
+  loading: () => null,
+});
 import type { ForYouBundle } from '@/lib/forYou';
 import { etfs, etfPath } from '@/lib/etfs';
 import styles from './HomeClient.module.css';
@@ -59,7 +63,6 @@ export default function HomeClient({
   siteKeywords,
   tickerQuotes,
   nextEvent,
-  forYou,
 }: {
   initialQuestions: Question[];
   featuredSparring?: Sparring | null;
@@ -68,7 +71,6 @@ export default function HomeClient({
   siteKeywords?: string[];
   tickerQuotes?: (TickerQuote | null)[];
   nextEvent?: { event: CalendarEvent; dDay: number } | null;
-  forYou?: ForYouBundle;
 }) {
   const router = useRouter();
   const [user, setUser] = useState<any>(null);
@@ -76,6 +78,8 @@ export default function HomeClient({
   const [allQs, setAllQs] = useState<Question[]>(initialQuestions);
   const [currentCat, setCurrentCat] = useState('전체');
   const [feedTab, setFeedTab] = useState<FeedTab>('popular');
+  // 개인화는 클라이언트 사이드 fetch — 홈 페이지를 dynamic 강제 안 하게 분리
+  const [forYou, setForYou] = useState<ForYouBundle | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [toast, setToast] = useState('');
   const [authLoading, setAuthLoading] = useState(true);
@@ -131,6 +135,21 @@ export default function HomeClient({
 
     return () => sub.subscription.unsubscribe();
   }, []);
+
+  // 로그인 유저만 개인화 fetch — 비로그인은 호출 X
+  useEffect(() => {
+    if (authLoading) return;
+    if (!user) { setForYou(null); return; }
+    let cancelled = false;
+    fetch('/api/foryou', { cache: 'no-store' })
+      .then(r => r.ok ? r.json() : null)
+      .then((data: ForYouBundle | null) => {
+        if (!cancelled && data) setForYou(data);
+      })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, [user, authLoading]);
+
 
   useEffect(() => {
     if (authLoading || typeof window === 'undefined') return;
