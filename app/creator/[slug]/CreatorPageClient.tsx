@@ -503,28 +503,64 @@ function PostsTab({ posts, slug, isOwner }: { posts: CreatorPost[]; slug: string
   }
   return (
     <ul className={styles.postList}>
-      {posts.map(p => (
-        <li key={p.id}>
-          <Link href={`/creator/${slug}/posts/${p.slug}`} className={styles.postCard}>
-            {p.cover_url && (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={p.cover_url} alt={p.title} className={styles.postCover} />
-            )}
-            <div className={styles.postBody}>
-              <div className={styles.postMeta}>
-                {p.is_member_only && <span className={styles.postLock}>🔒 멤버 전용</span>}
-                <time>{new Date(p.published_at).toLocaleDateString('ko-KR')}</time>
-                {p.like_count > 0 && <span>❤️ {p.like_count}</span>}
-                {p.comment_count > 0 && <span>💬 {p.comment_count}</span>}
-              </div>
+      {posts.map(p => {
+        const hasInlinePaywall = !!(p.body && /<hr\b[^>]*\bdata-paywall\b[^>]*\/?>/i.test(p.body));
+        const locked = p.is_member_only || hasInlinePaywall;
+        return (
+          <li key={p.id}>
+            <Link href={`/creator/${slug}/posts/${p.slug}`} className={styles.postCard}>
+              {locked && (
+                <div className={styles.postLockBadge}>
+                  {p.is_member_only ? '💎 멤버십 전용 공개' : '🔒 일부 멤버 전용'}
+                </div>
+              )}
               <strong className={styles.postTitle}>{p.title}</strong>
-              {p.preview && <p className={styles.postPreview}>{p.preview}</p>}
-            </div>
-          </Link>
-        </li>
-      ))}
+              <div className={styles.postMeta}>
+                <time>{relativeTime(p.published_at)}</time>
+                <span>·</span>
+                <span>조회 {(p.view_count || 0).toLocaleString()}</span>
+              </div>
+              {p.cover_url && (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={p.cover_url}
+                  alt={p.title}
+                  className={`${styles.postCover} ${locked ? styles.postCoverBlur : ''}`}
+                />
+              )}
+              {p.preview && !locked && <p className={styles.postPreview}>{p.preview}</p>}
+              {locked && (
+                <div className={styles.postUnlock}>
+                  <span>🔒</span> 잠긴 콘텐츠 열어보기
+                </div>
+              )}
+              {p.tags && p.tags.length > 0 && (
+                <div className={styles.postTags}>
+                  {p.tags.slice(0, 5).map((t: string) => <span key={t}>#{t}</span>)}
+                </div>
+              )}
+              <div className={styles.postFoot}>
+                <span>♥ {p.like_count || 0}</span>
+                <span>💬 {p.comment_count || 0}</span>
+              </div>
+            </Link>
+          </li>
+        );
+      })}
     </ul>
   );
+}
+
+function relativeTime(iso: string): string {
+  const diff = Date.now() - new Date(iso).getTime();
+  const m = Math.floor(diff / 60_000);
+  if (m < 1) return '방금 전';
+  if (m < 60) return `${m}분 전`;
+  const h = Math.floor(m / 60);
+  if (h < 24) return `${h}시간 전`;
+  const d = Math.floor(h / 24);
+  if (d < 7) return `${d}일 전`;
+  return new Date(iso).toLocaleDateString('ko-KR');
 }
 
 // ── 소개 탭 ──
