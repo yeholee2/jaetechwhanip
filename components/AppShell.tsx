@@ -109,7 +109,36 @@ export function AppShell({
 
   // 인라인 결과 + 최근 검색
   const [recents, setRecents] = useState<string[]>([]);
-  const inlineHits = useMemo(() => searchInline(searchQuery, 6), [searchQuery]);
+  const staticHits = useMemo(() => searchInline(searchQuery, 6), [searchQuery]);
+  const [dbQuestions, setDbQuestions] = useState<{ slug: string; title: string; category: string }[]>([]);
+  // /api/search 의 Q&A 결과 debounced fetch — sampleQuestions 대신 실 DB 결과
+  useEffect(() => {
+    const q = searchQuery.trim();
+    if (!showSearch || q.length < 1) { setDbQuestions([]); return; }
+    let cancelled = false;
+    const t = setTimeout(async () => {
+      try {
+        const r = await fetch(`/api/search?q=${encodeURIComponent(q)}`, { cache: 'no-store' });
+        if (!r.ok || cancelled) return;
+        const j = await r.json();
+        const qaHits = (j.hits || []).filter((h: any) => h.kind === 'qa').slice(0, 3);
+        if (!cancelled) {
+          setDbQuestions(qaHits.map((h: any) => ({
+            slug: h.url.replace('/q/', '').replace(/^\//, ''),
+            title: h.title,
+            category: (h.meta?.split('·')[0] || 'Q&A').trim(),
+          })));
+        }
+      } catch {}
+    }, 200);
+    return () => { cancelled = true; clearTimeout(t); };
+  }, [searchQuery, showSearch]);
+  // static hit 들에서 sample question 제거 + DB question 으로 대체
+  const inlineHits = useMemo(() => {
+    const nonQ = staticHits.filter(h => h.kind !== 'question');
+    const dbQ = dbQuestions.map(q => ({ kind: 'question' as const, slug: q.slug, title: q.title, category: q.category }));
+    return [...nonQ, ...dbQ].slice(0, 6);
+  }, [staticHits, dbQuestions]);
   useEffect(() => {
     if (showSearch) setRecents(listRecentSearches());
   }, [showSearch]);
