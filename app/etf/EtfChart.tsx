@@ -156,7 +156,7 @@ export function EtfChart({ code, history = [], benchmarks = [], changeTone = 'fl
     <section className={styles.wrap} aria-label="수익률 차트">
       <div className={styles.head}>
         <div className={styles.headLeft}>
-          <h2 className={styles.title}>수익률</h2>
+          <h2 className={styles.title}>가격 흐름</h2>
           {history.length > 1 && (
             <span className={styles.headSub}>{history[history.length - 1].date} 기준</span>
           )}
@@ -167,7 +167,7 @@ export function EtfChart({ code, history = [], benchmarks = [], changeTone = 'fl
                 <span className={styles.returnArrow}>{arrow}</span>
                 {fmtPct(Math.abs(returnPct))}
               </span>
-              <span className={styles.returnLabel}>{periodLabel}간 누적 수익률</span>
+              <span className={styles.returnLabel}>{periodLabel} 누적 수익률</span>
             </div>
           )}
         </div>
@@ -236,7 +236,7 @@ export function EtfChart({ code, history = [], benchmarks = [], changeTone = 'fl
             onChange={v => setActive(s => ({ ...s, [b.key]: v }))}
           />
         ))}
-        <span className={styles.legendNote}>벤치마크와 비교해보세요</span>
+        <span className={styles.legendNote}>비교 지수 선택</span>
       </div>
 
       {/* 차트 */}
@@ -269,9 +269,9 @@ export function EtfChart({ code, history = [], benchmarks = [], changeTone = 'fl
 
       {/* 하단 disclaimer + 데이터 출처 */}
       <p className={styles.footnote}>
-        ▪ 위 수익률은 Yahoo Finance 종가 기준으로 계산돼요.
+        위 수익률은 Yahoo Finance 종가 기준으로 계산돼요.
         <br />
-        ▪ 공식 NAV, iNAV, 괴리율은 운용사·거래소 공시 값과 다를 수 있어요.
+        공식 NAV, iNAV, 괴리율은 운용사·거래소 공시 값과 다를 수 있어요.
       </p>
     </section>
   );

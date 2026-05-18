@@ -32,12 +32,8 @@ import { buildEtfRisk } from '@/lib/etfRisk';
 import { countryInfo } from '@/lib/etfCountry';
 import { WatchButton } from '../WatchButton';
 import { AlertButton } from '../AlertButton';
-import { Suspense } from 'react';
-import { EtfReturns } from './EtfReturns';
-import { EtfCandleChart } from './EtfCandleChart';
 import { EtfSectionNav } from './EtfSectionNav';
-import { fetchMaxHistory } from '@/lib/etfPriceHistory';
-import { fetchEtfHoldings } from '@/lib/etfHoldings';
+import { computePeriodReturns, fetchMaxHistory } from '@/lib/etfPriceHistory';
 import { fetchEtfHoldingsWithCache } from '@/lib/holdingsCache';
 import { ShareButton } from '../ShareButton';
 import { RecordEtfView } from '../RecordEtfView';
@@ -64,6 +60,18 @@ function FactValue({
     return <span className={`${styles.factValue} ${styles.factValueEmpty}`}>{emptyLabel}</span>;
   }
   return <span className={styles.factValue}>{v}</span>;
+}
+
+function formatReturn(pct: number | null) {
+  if (pct == null) return '—';
+  const value = pct * 100;
+  const sign = value > 0 ? '+' : '';
+  return `${sign}${value.toFixed(2)}%`;
+}
+
+function returnToneClass(pct: number | null) {
+  if (pct == null || pct === 0) return styles.returnNeutral;
+  return pct > 0 ? styles.returnUp : styles.returnDown;
 }
 
 type Props = { params: { slug: string } };
@@ -170,6 +178,13 @@ export default async function EtfDetailPage({ params }: Props) {
   // 가격 숫자 추출 (Schema.org Offer)
   const priceNumMatch = etf.price.replace(/,/g, '').match(/-?\d+(\.\d+)?/);
   const priceValue = priceNumMatch ? priceNumMatch[0] : undefined;
+  const periodReturns = computePeriodReturns(priceHistory);
+  const returnSummary = ['m1', 'm3', 'ytd', 'y1']
+    .map(key => periodReturns.find(item => item.key === key))
+    .filter((item): item is NonNullable<typeof item> => !!item);
+  const latestHistoryDate = priceHistory.length > 0
+    ? priceHistory[priceHistory.length - 1].date
+    : etfBaseDate;
 
   // 자동 한줄평 + 태그
   const insight = buildEtfInsight(etf as any);
@@ -435,21 +450,8 @@ export default async function EtfDetailPage({ params }: Props) {
 
         <div className={styles.layout}>
           <div className={styles.mainColumn}>
-            {/* ──────────── ① 시세: 캔들 차트 + 수익률 ──────────── */}
-            <div id="sec-quote">
-              {/* 캔들 차트 (이평선·거래량·그림 도구) */}
-              <EtfCandleChart code={etf.code} />
-
-              {/* 두 차트 사이 명확한 섹션 구분 */}
-              <div className={styles.chartSectionDivider}>
-                <span className={styles.chartSectionEyebrow}>벤치마크 비교</span>
-                <h3 className={styles.chartSectionTitle}>수익률 차트</h3>
-                <p className={styles.chartSectionLead}>
-                  KOSPI·S&P500·나스닥과 같은 기간 누적 수익률을 비교해서 어디까지 따라왔는지 확인하세요.
-                </p>
-              </div>
-
-              {/* 수익률 비교 차트 (벤치마크 토글) */}
+            {/* ──────────── ① 시세: 한 개의 메인 차트 ──────────── */}
+            <div id="sec-quote" className={styles.quoteBlock}>
               <EtfChart
                 code={etf.code}
                 price={etf.price}
@@ -457,12 +459,26 @@ export default async function EtfDetailPage({ params }: Props) {
                 history={priceHistory}
                 benchmarks={benchmarks}
               />
+              {returnSummary.some(item => item.pct != null) && (
+                <div className={styles.returnSummary} aria-label="기간별 수익률 요약">
+                  <div className={styles.returnSummaryHead}>
+                    <strong>기간별 성과</strong>
+                    <span>{latestHistoryDate ? `${latestHistoryDate} 종가 기준` : '종가 기준'}</span>
+                  </div>
+                  <div className={styles.returnSummaryGrid}>
+                    {returnSummary.map(item => (
+                      <div key={item.key} className={styles.returnSummaryItem}>
+                        <span>{item.label}</span>
+                        <strong className={returnToneClass(item.pct)}>{formatReturn(item.pct)}</strong>
+                      </div>
+                    ))}
+                  </div>
+                  <p className={styles.returnSummaryNote}>
+                    분배금 재투자·세금은 반영하지 않은 단순 종가 기준이에요.
+                  </p>
+                </div>
+              )}
             </div>
-
-            {/* ──────────── 3단: 기간별 수익률 + 적립식 계산기 ──────────── */}
-            <Suspense fallback={null}>
-              <EtfReturns code={etf.code} etfName={etf.shortName} lastUpdated={etfBaseDate} history={priceHistory} />
-            </Suspense>
 
             {/* ──────────── ETF 개요 테이블 (ETF Check 톤) ──────────── */}
             <section className={styles.section} aria-label="ETF 개요">

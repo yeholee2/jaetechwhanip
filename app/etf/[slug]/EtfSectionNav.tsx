@@ -12,10 +12,10 @@ import { useEffect, useState } from 'react';
 import styles from './EtfSectionNav.module.css';
 
 const SECTIONS: { id: string; label: string; sub: string }[] = [
-  { id: 'sec-quote',  label: '01 시세',       sub: '가격·수익률' },
-  { id: 'sec-health', label: '02 비용·리스크', sub: '보수·위험' },
-  { id: 'sec-inside', label: '03 구성종목',    sub: '보유·섹터' },
-  { id: 'sec-social', label: '04 비교 ETF',    sub: '유사·운용사' },
+  { id: 'sec-quote',  label: '차트',     sub: '가격·성과' },
+  { id: 'sec-health', label: '핵심정보', sub: '보수·위험' },
+  { id: 'sec-inside', label: '구성종목', sub: '보유·섹터' },
+  { id: 'sec-social', label: '비교',     sub: '유사 ETF' },
 ];
 
 export function EtfSectionNav() {

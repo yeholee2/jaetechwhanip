@@ -209,14 +209,6 @@
   font-weight: var(--weight-bold);
   color: var(--rw-text-muted);
 }
-.hero p {
-  margin-top: var(--space-3);
-  max-width: 620px;
-  color: var(--rw-text-body);
-  font-size: var(--text-md);
-  line-height: var(--leading-relaxed);
-  font-weight: var(--weight-semibold);
-}
 
 .tags {
   display: flex;
@@ -1140,6 +1132,9 @@
 .delta_up { color: var(--rw-red60); }
 .delta_down { color: var(--rw-blue70); }
 .delta_flat { color: var(--rw-text-muted); }
+.returnUp { color: var(--rw-red60); }
+.returnDown { color: var(--rw-blue70); }
+.returnNeutral { color: var(--rw-text-muted); }
 .priceFoot {
   display: block;
   font-size: 11px;
@@ -1224,35 +1219,100 @@
   }
 }
 
-/* 차트 섹션 사이 명확한 구분 (캔들 → 수익률) */
-.chartSectionDivider {
-  margin: 28px 0 12px;
-  padding: 16px 18px;
-  border-top: 2px solid var(--rw-hairline);
-  background: linear-gradient(180deg, var(--rw-screen) 0%, transparent 100%);
-  border-radius: 0;
+/* 메인 차트: 상세 페이지에서는 하나의 판단 차트만 노출 */
+.quoteBlock {
+  display: grid;
+  gap: var(--space-3);
+  min-width: 0;
+  scroll-margin-top: 150px;
 }
-.chartSectionEyebrow {
-  display: inline-block;
+
+.returnSummary {
+  background: var(--rw-card);
+  border: 1px solid var(--rw-border);
+  border-radius: var(--rw-radius-md);
+  padding: var(--space-4);
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.returnSummaryHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-bottom: var(--space-3);
+}
+
+.returnSummaryHead strong {
+  color: var(--rw-text-title);
+  font-size: 15px;
+  font-weight: 900;
+  letter-spacing: -0.2px;
+}
+
+.returnSummaryHead span {
+  color: var(--rw-text-muted);
+  font-size: 11px;
+  font-weight: 700;
+  text-align: right;
+}
+
+.returnSummaryGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-2);
+}
+
+.returnSummaryItem {
+  min-width: 0;
+  padding: var(--space-3);
+  border-radius: var(--rw-radius-sm);
+  background: var(--rw-card-muted);
+}
+
+.returnSummaryItem span {
+  display: block;
+  color: var(--rw-text-muted);
   font-size: 11px;
   font-weight: 800;
-  color: var(--rw-primary);
-  letter-spacing: 1px;
-  text-transform: uppercase;
+  letter-spacing: 0.2px;
 }
-.chartSectionTitle {
-  margin: 6px 0 4px;
+
+.returnSummaryItem strong {
+  display: block;
+  margin-top: 4px;
   font-size: 18px;
+  line-height: 1.2;
   font-weight: 900;
-  color: var(--rw-text-strong);
   letter-spacing: -0.3px;
+  font-feature-settings: 'tnum';
+  white-space: nowrap;
 }
-.chartSectionLead {
-  margin: 0;
-  font-size: 13px;
-  font-weight: 600;
+
+.returnSummaryNote {
+  margin: var(--space-3) 0 0;
   color: var(--rw-text-muted);
+  font-size: 11px;
+  font-weight: 600;
   line-height: 1.55;
+}
+
+@media (max-width: 600px) {
+  .returnSummaryGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .returnSummaryHead {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .returnSummaryItem strong {
+    font-size: 16px;
+  }
 }
 
 /* ETF 개요 테이블 (ETF Check 톤 — 라벨 ↔ 값) */
