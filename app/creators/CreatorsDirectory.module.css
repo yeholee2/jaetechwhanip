@@ -166,13 +166,13 @@
 
 .spotlightCarousel {
   position: relative;
-  min-height: 330px;
+  min-height: 334px;
   overflow: hidden;
 }
 
 .carouselStage {
   position: relative;
-  height: 330px;
+  height: 334px;
   overflow: hidden;
   border-radius: 18px;
 }
@@ -182,7 +182,7 @@
   top: 0;
   bottom: 0;
   left: 50%;
-  width: min(720px, 64%);
+  width: min(760px, 58%);
   overflow: hidden;
   border-radius: 18px;
   color: #fff;
@@ -198,7 +198,7 @@
 }
 
 .carouselSlideActive {
-  z-index: 4;
+  z-index: 3;
   opacity: 1;
   pointer-events: auto;
   transform: translateX(-50%) scale(1);
@@ -206,22 +206,22 @@
 
 .carouselSlidePrev {
   z-index: 2;
-  opacity: .9;
+  opacity: .82;
   pointer-events: auto;
-  transform: translateX(calc(-50% - 68%)) scale(.94);
+  transform: translateX(calc(-50% - 104%)) scale(1);
 }
 
 .carouselSlideNext {
   z-index: 2;
-  opacity: .9;
+  opacity: .82;
   pointer-events: auto;
-  transform: translateX(calc(-50% + 68%)) scale(.94);
+  transform: translateX(calc(-50% + 104%)) scale(1);
 }
 
 .carouselSlideHidden {
   z-index: 1;
   opacity: 0;
-  transform: translateX(-50%) scale(.88);
+  transform: translateX(-50%) scale(1);
 }
 
 .carouselShade {
@@ -406,7 +406,7 @@
 .carouselControls {
   position: absolute;
   z-index: 8;
-  right: calc(18% + 18px);
+  right: max(34px, calc(21% + 18px));
   bottom: 34px;
   display: flex;
   align-items: center;
@@ -459,18 +459,18 @@
   }
 
   .carouselSlide {
-    width: calc(100% - 44px);
+    width: calc(100% - 56px);
     border-radius: 16px;
   }
 
   .carouselSlidePrev {
-    opacity: .32;
-    transform: translateX(calc(-50% - 82%)) scale(.9);
+    opacity: .46;
+    transform: translateX(calc(-50% - 102%)) scale(1);
   }
 
   .carouselSlideNext {
-    opacity: .32;
-    transform: translateX(calc(-50% + 82%)) scale(.9);
+    opacity: .46;
+    transform: translateX(calc(-50% + 102%)) scale(1);
   }
 
   .carouselCopy {
