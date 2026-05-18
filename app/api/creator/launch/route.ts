@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { normalizeSlug } from '@/lib/creator';
+import { normalizeCreatorTopics } from '@/lib/categories';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { createClient as createServerSupabase, hasSupabaseServer } from '@/lib/supabase/server';
 
@@ -15,10 +16,11 @@ function cleanText(value: unknown, max = MAX_TEXT) {
 
 function cleanTopics(value: unknown) {
   if (!Array.isArray(value)) return [];
-  return value
+  const topics = value
     .map(topic => cleanText(topic, 30))
     .filter(Boolean)
     .slice(0, MAX_TOPICS);
+  return normalizeCreatorTopics(topics).slice(0, MAX_TOPICS);
 }
 
 async function reserveSlug(admin: NonNullable<ReturnType<typeof createAdminClient>>, requested: string) {

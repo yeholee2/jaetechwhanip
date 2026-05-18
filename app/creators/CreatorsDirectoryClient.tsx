@@ -3,18 +3,16 @@
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import type { Creator } from '@/lib/creator';
+import { CATEGORY_EMOJI, CATEGORY_LABELS, getCategoryLabel, getCategoryLabelFromTopic, topicMatchesCategory } from '@/lib/categories';
 import { trackEvent } from '@/lib/analytics';
 import { FaIcon } from '@/components/FaIcon';
+import { Chip } from '@/components/ui';
 import styles from './CreatorsDirectory.module.css';
 
 type Sort = 'popular' | 'recent' | 'posts';
 
-const TOPIC_FILTERS = [
-  '전체', 'ETF', '주식', '해외주식·ETF', '국내주식·ETF',
-  '배당주·ETF', '적립식·연금', '테마·트렌드',
-  '채권', '자산관리', '코인',
-  '은퇴 설계', '절세', '월급쟁이 재테크', '대가 분석', '시장 인사이트',
-];
+const CATEGORY_FILTERS = CATEGORY_LABELS;
+const CAT_EMOJI = CATEGORY_EMOJI;
 
 type DirectoryCreator = Creator & {
   badge?: string;
@@ -49,19 +47,19 @@ const DISCOVERY_SECTIONS = [
     key: 'etf',
     title: 'HOT ETF 재프콘',
     caption: 'ETF·연금·배당 흐름을 꾸준히 발행하는 채널',
-    topics: ['ETF', '국내주식·ETF', '해외주식·ETF', '배당주·ETF', '적립식·연금'],
+    topics: ['국내주식·ETF', '해외주식·ETF', '배당주·ETF', '적립식·연금'],
   },
   {
     key: 'wealth',
     title: '절세·연금·자산관리',
     caption: '직장인 돈관리와 세금 이슈를 바로 적용하기 좋게',
-    topics: ['절세', '은퇴 설계', '자산관리', '월급쟁이 재테크'],
+    topics: ['절세', '적립식·연금', '자산관리', '재테크입문'],
   },
   {
     key: 'market',
-    title: '시장 인사이트',
-    caption: '미국장·금리·환율·대가 분석을 따라가기 쉽게',
-    topics: ['시장 인사이트', '해외주식·ETF', '대가 분석', '테마·트렌드'],
+    title: '테마·트렌드',
+    caption: '미국장·금리·환율 흐름을 따라가기 쉽게',
+    topics: ['테마·트렌드', '해외주식·ETF', '국내주식·ETF'],
   },
   {
     key: 'new',
@@ -71,11 +69,23 @@ const DISCOVERY_SECTIONS = [
   },
 ] as const;
 
-// 카테고리 → 화이트리스트로 normalize (creator.topics 와 부분 매칭)
+function displayTopics(creator: Creator, limit: number) {
+  const seen = new Set<string>();
+  return creatorTopics(creator)
+    .map(getCategoryLabelFromTopic)
+    .filter(topic => {
+      if (seen.has(topic)) return false;
+      seen.add(topic);
+      return true;
+    })
+    .slice(0, limit);
+}
+
+// 홈 카테고리 체계로 normalize하되, 기존 재프콘 토픽도 호환 매칭
 function matchTopic(creator: Creator, filter: string): boolean {
   if (filter === '전체') return true;
   const topics = (creator as any).topics || [];
-  return topics.some((t: string) => t === filter || t.includes(filter));
+  return topics.some((t: string) => topicMatchesCategory(t, filter));
 }
 
 // gradient (mock 데이터 또는 fallback)
@@ -106,7 +116,7 @@ function creatorTopics(creator: Creator): string[] {
 function hasAnyTopic(creator: Creator, filters: readonly string[]): boolean {
   if (filters.length === 0) return true;
   return creatorTopics(creator).some(t =>
-    filters.some(filter => t === filter || t.includes(filter))
+    filters.some(filter => topicMatchesCategory(t, filter))
   );
 }
 
@@ -166,7 +176,7 @@ function CreatorsSpotlightCarousel({ creators }: { creators: DirectoryCreator[] 
       id: 'jaefcon-explore',
       eyebrow: '재프콘 탐색',
       title: '재테크 크리에이터 찾기',
-      description: 'ETF, 절세, 연금, 시장 인사이트 채널을 발견하고 내 뉴스피드에서 새 글을 모아보세요.',
+      description: 'ETF, 절세, 연금, 테마·트렌드 채널을 발견하고 내 뉴스피드에서 새 글을 모아보세요.',
       href: '#all-creators',
       ctaLabel: '전체 보기',
       tone: 'explore',
@@ -312,7 +322,7 @@ function DiscoveryCard({ creator }: { creator: DirectoryCreator }) {
           ) : (
             <span className={styles.trustPill}>무료 채널</span>
           )}
-          {creator.topics?.slice(0, 2).map(t => (
+          {displayTopics(creator, 2).map(t => (
             <span key={t} className={styles.trustPill}>#{t}</span>
           ))}
         </div>
@@ -383,15 +393,11 @@ export function CreatorsDirectoryClient({ creators }: { creators: Creator[] }) {
 
       {/* 카테고리 탭 */}
       <div className={styles.topics}>
-        {TOPIC_FILTERS.map(t => (
-          <button
-            type="button"
-            key={t}
-            onClick={() => setActiveTopic(t)}
-            className={`${styles.topicChip} ${activeTopic === t ? styles.topicChipOn : ''}`}
-          >
-            {t}
-          </button>
+        {CATEGORY_FILTERS.map(t => (
+          <Chip key={t} active={activeTopic === t} size="sm" onClick={() => setActiveTopic(t)}>
+            {CAT_EMOJI[t] && <span className="tf">{CAT_EMOJI[t]}</span>}
+            {t === '전체' ? t : getCategoryLabel(t)}
+          </Chip>
         ))}
       </div>
 
@@ -485,9 +491,9 @@ export function CreatorsDirectoryClient({ creators }: { creators: Creator[] }) {
                   </div>
                   <strong className={styles.cardName}>{c.display_name}</strong>
                   {c.bio && <p className={styles.cardBio}>{c.bio}</p>}
-                  {c.topics?.length > 0 && (
+                  {displayTopics(c, 3).length > 0 && (
                     <div className={styles.cardTopics}>
-                      {c.topics.slice(0, 3).map(t => (
+                      {displayTopics(c, 3).map(t => (
                         <span key={t} className={styles.cardTopicChip}>{t}</span>
                       ))}
                     </div>

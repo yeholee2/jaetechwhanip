@@ -17,6 +17,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { createClient, hasSupabase } from '@/lib/supabase/client';
 import { normalizeSlug } from '@/lib/creator';
+import { CATEGORY_DEFINITIONS, normalizeCreatorTopics } from '@/lib/categories';
 import { ImageUploader } from '@/components/creator/ImageUploader';
 import styles from './Onboard.module.css';
 
@@ -36,21 +37,14 @@ const USE_CASE_OPTIONS = [
   { v: 'other', label: '직접 입력하기' },
 ] as const;
 
-const TOPIC_OPTIONS = [
-  'ETF', '주식', '채권', '자산관리', '코인',
-  '은퇴 설계', '절세', '월급쟁이 재테크', '대가 분석', '시장 인사이트',
-];
-
-const CATEGORY_OPTIONS = [
-  { v: 'stock', label: '📈 주식' },
-  { v: 'etf', label: '🪙 ETF' },
-  { v: 'bond', label: '📜 채권' },
-  { v: 'crypto', label: '🪙 코인' },
-  { v: 'realestate', label: '🏠 부동산' },
-  { v: 'wealth', label: '💼 자산관리' },
-  { v: 'tax', label: '🏦 절세' },
-  { v: 'retire', label: '🐢 은퇴설계' },
-] as const;
+const TOPIC_OPTIONS = CATEGORY_DEFINITIONS.map(category => ({
+  key: category.key,
+  label: category.label,
+}));
+const CATEGORY_OPTIONS = CATEGORY_DEFINITIONS.map(category => ({
+  v: category.key,
+  label: `${category.emoji} ${category.label}`,
+}));
 
 type FormState = {
   referral: string;
@@ -171,8 +165,8 @@ export function OnboardClient() {
 
       // 카테고리 → topics 배열에 자동 포함
       const baseTopics = form.topics.slice();
-      const catLabel = CATEGORY_OPTIONS.find(c => c.v === form.category)?.label.replace(/^[^\s]+\s/, '');
-      if (catLabel && !baseTopics.includes(catLabel)) baseTopics.push(catLabel);
+      if (form.category && !baseTopics.includes(form.category)) baseTopics.push(form.category);
+      const normalizedTopics = normalizeCreatorTopics(baseTopics);
 
       const referralFinal = form.referral === 'other' ? form.referralCustom.trim() : form.referral;
       const useCaseFinal = form.useCase === 'other' ? form.useCaseCustom.trim() : form.useCase;
@@ -185,7 +179,7 @@ export function OnboardClient() {
           bio: form.bio.trim(),
           avatar_url: form.avatar_url || null,
           cover_url: form.cover_url || null,
-          topics: baseTopics,
+          topics: normalizedTopics,
           referral_source: referralFinal,
           intended_use: useCaseFinal,
         }),
@@ -361,11 +355,11 @@ export function OnboardClient() {
                 {TOPIC_OPTIONS.map(t => (
                   <button
                     type="button"
-                    key={t}
-                    onClick={() => toggleTopic(t)}
-                    className={`${styles.topicChip} ${form.topics.includes(t) ? styles.topicOn : ''}`}
+                    key={t.key}
+                    onClick={() => toggleTopic(t.key)}
+                    className={`${styles.topicChip} ${form.topics.includes(t.key) ? styles.topicOn : ''}`}
                   >
-                    {t}
+                    {t.label}
                   </button>
                 ))}
               </div>

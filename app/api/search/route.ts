@@ -13,6 +13,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { fetchEtfs } from '@/lib/etfsDb';
 import { fetchHannipBlog } from '@/lib/newsFeed';
+import { getCategoryLabelFromTopic } from '@/lib/categories';
 
 export const runtime = 'nodejs';
 
@@ -96,14 +97,17 @@ async function searchCreators(supabase: any, q: string): Promise<SearchHit[]> {
     .or(`display_name.ilike.${like},bio.ilike.${like}`)
     .order('follower_count', { ascending: false })
     .limit(5);
-  return (data || []).map((row: any) => ({
-    kind: 'creator' as const,
-    id: `creator-${row.id}`,
-    title: row.display_name,
-    subtitle: row.bio?.slice(0, 80) || null,
-    url: `/creator/${encodeURIComponent(row.slug)}`,
-    meta: `재프콘 · ${(row.topics || []).slice(0, 2).join(' · ') || ''}`,
-  }));
+  return (data || []).map((row: any) => {
+    const topics = Array.from(new Set((row.topics || []).map(getCategoryLabelFromTopic))).slice(0, 2);
+    return {
+      kind: 'creator' as const,
+      id: `creator-${row.id}`,
+      title: row.display_name,
+      subtitle: row.bio?.slice(0, 80) || null,
+      url: `/creator/${encodeURIComponent(row.slug)}`,
+      meta: `재프콘 · ${topics.join(' · ') || ''}`,
+    };
+  });
 }
 
 async function searchBlog(q: string): Promise<SearchHit[]> {

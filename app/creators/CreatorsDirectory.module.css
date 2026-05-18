@@ -739,26 +739,9 @@
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
+  margin-bottom: 14px;
 }
-.topicChip {
-  padding: 7px 14px;
-  border-radius: 999px;
-  border: 1.5px solid var(--rw-border);
-  background: var(--rw-card);
-  font-family: inherit;
-  cursor: pointer;
-  font-size: 12.5px;
-  font-weight: 700;
-  color: var(--rw-text-body);
-  transition: background 120ms, border-color 120ms, color 120ms;
-}
-.topicChip:hover { border-color: var(--rw-primary); color: var(--rw-primary); }
-.topicChipOn {
-  background: var(--rw-primary);
-  border-color: var(--rw-primary);
-  color: #fff;
-  font-weight: 900;
-}
+.topics > * { flex: 0 0 auto; }
 
 /* ─────────────────────────────────────────────────────────
  * 섹션 헤더 공통

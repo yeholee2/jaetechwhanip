@@ -130,6 +130,19 @@ export const CATEGORY_DISPLAY_LABEL = Object.fromEntries(
   ]),
 ) as Record<string, string>;
 
+export const CREATOR_LEGACY_TOPIC_MAP: Record<string, string[]> = {
+  재테크입문: ['재테크', '월급쟁이 재테크'],
+  '국내주식·ETF': ['ETF', '주식', '국내주식·ETF', '국내 ETF'],
+  '해외주식·ETF': ['해외주식·ETF', '미국주식', '미국 ETF', '시장 인사이트'],
+  '배당주·ETF': ['배당주·ETF', '배당', '월배당', 'ETF'],
+  '적립식·연금': ['적립식·연금', '연금', '은퇴 설계', '퇴직연금'],
+  '테마·트렌드': ['테마·트렌드', '시장 인사이트', '대가 분석', '코인'],
+  자산관리: ['자산관리', '월급쟁이 재테크', '은퇴 설계'],
+  절세: ['절세'],
+  보험: ['보험'],
+  '대출·부채': ['대출·부채', '대출', '부채'],
+};
+
 export function getCategoryLabel(input?: string | null) {
   if (!input) return '재테크';
   return CATEGORY_DISPLAY_LABEL[input] || input;
@@ -154,4 +167,46 @@ export function getCategoryBySlug(slug: string) {
 export function getCategoryByKey(key: string) {
   const normalized = normalizeCategory(key);
   return CATEGORY_DEFINITIONS.find(category => category.key === normalized) || null;
+}
+
+export function categoryTerms(input: string): string[] {
+  const category = CATEGORY_DEFINITIONS.find(c => c.key === input || c.label === input) || getCategoryByKey(input);
+  const terms = [
+    input,
+    category?.key,
+    category?.label,
+    ...(category?.aliases || []),
+    ...(category?.keywords || []),
+    ...(CREATOR_LEGACY_TOPIC_MAP[category?.key || input] || []),
+  ].filter(Boolean) as string[];
+  return Array.from(new Set(terms));
+}
+
+export function topicMatchesCategory(topic: string, categoryKey: string): boolean {
+  return categoryTerms(categoryKey).some(term => (
+    topic === term ||
+    topic.includes(term) ||
+    term.includes(topic)
+  ));
+}
+
+export function getCategoryLabelFromTopic(topic: string) {
+  const match = CATEGORY_DEFINITIONS.find(category => topicMatchesCategory(topic, category.key));
+  return match?.label || getCategoryLabel(topic);
+}
+
+export function normalizeCreatorTopic(topic: string) {
+  const match = CATEGORY_DEFINITIONS.find(category => topicMatchesCategory(topic, category.key));
+  return match?.key || normalizeCategory(topic);
+}
+
+export function normalizeCreatorTopics(topics: string[]) {
+  const seen = new Set<string>();
+  return topics
+    .map(normalizeCreatorTopic)
+    .filter(topic => {
+      if (!topic || seen.has(topic)) return false;
+      seen.add(topic);
+      return true;
+    });
 }

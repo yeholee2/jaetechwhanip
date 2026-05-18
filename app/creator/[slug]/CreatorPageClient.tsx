@@ -16,6 +16,7 @@ import Link from 'next/link';
 import { createClient, hasSupabase } from '@/lib/supabase/client';
 import type { Creator, CreatorPost } from '@/lib/creator';
 import { type CreatorStats, activityBadge, summarize } from '@/lib/creatorStatsTypes';
+import { getCategoryLabelFromTopic } from '@/lib/categories';
 import styles from './CreatorPage.module.css';
 
 type Tab = 'home' | 'membership' | 'posts' | 'series' | 'info';
@@ -32,6 +33,17 @@ function coverStyle(c: any): React.CSSProperties {
   ];
   const hash = (c.slug || c.id || '').split('').reduce((a: number, ch: string) => a + ch.charCodeAt(0), 0);
   return { background: palette[hash % palette.length] };
+}
+
+function displayTopics(topics: string[]) {
+  const seen = new Set<string>();
+  return topics
+    .map(getCategoryLabelFromTopic)
+    .filter(topic => {
+      if (seen.has(topic)) return false;
+      seen.add(topic);
+      return true;
+    });
 }
 
 export function CreatorPageClient({
@@ -53,6 +65,7 @@ export function CreatorPageClient({
   const [pending, setPending] = useState(false);
   const [toast, setToast] = useState('');
   const [tab, setTab] = useState<Tab>('home');
+  const visibleTopics = displayTopics(creator.topics || []);
 
   useEffect(() => {
     if (!hasSupabase()) return;
@@ -161,9 +174,9 @@ export function CreatorPageClient({
             <p className={styles.credential}>{creator.credential}</p>
           )}
           {creator.bio && <p className={styles.bio}>{creator.bio}</p>}
-          {creator.topics?.length > 0 && (
+          {visibleTopics.length > 0 && (
             <div className={styles.topics}>
-              {creator.topics.map(t => (
+              {visibleTopics.map(t => (
                 <span key={t} className={styles.topicChip}>#{t}</span>
               ))}
             </div>
@@ -516,6 +529,8 @@ function PostsTab({ posts, slug, isOwner }: { posts: CreatorPost[]; slug: string
 
 // ── 소개 탭 ──
 function AboutTab({ creator }: { creator: any }) {
+  const visibleTopics = displayTopics(creator.topics || []);
+
   return (
     <div className={styles.aboutBlock}>
       {creator.bio && (
@@ -531,11 +546,11 @@ function AboutTab({ creator }: { creator: any }) {
           <p className={styles.aboutNote}>전문 자격증/경력은 운영진이 직접 검증한 정보예요.</p>
         </section>
       )}
-      {creator.topics?.length > 0 && (
+      {visibleTopics.length > 0 && (
         <section>
           <h3>다루는 주제</h3>
           <div className={styles.aboutTopics}>
-            {creator.topics.map((t: string) => (
+            {visibleTopics.map((t: string) => (
               <span key={t} className={styles.topicChip}>#{t}</span>
             ))}
           </div>

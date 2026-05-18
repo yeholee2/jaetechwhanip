@@ -10,13 +10,14 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import type { Creator } from '@/lib/creator';
+import { CATEGORY_DEFINITIONS, normalizeCreatorTopic, normalizeCreatorTopics } from '@/lib/categories';
 import { ImageUploader } from '@/components/creator/ImageUploader';
 import styles from './CreatorEdit.module.css';
 
-const TOPIC_OPTIONS = [
-  'ETF', '주식', '채권', '자산관리', '코인',
-  '은퇴 설계', '절세', '월급쟁이 재테크', '대가 분석', '시장 인사이트',
-];
+const TOPIC_OPTIONS = CATEGORY_DEFINITIONS.map(category => ({
+  key: category.key,
+  label: category.label,
+}));
 
 export function CreatorEditClient({ creator }: { creator: Creator }) {
   const router = useRouter();
@@ -39,7 +40,9 @@ export function CreatorEditClient({ creator }: { creator: Creator }) {
   const toggleTopic = (t: string) => {
     setForm(f => ({
       ...f,
-      topics: f.topics.includes(t) ? f.topics.filter(x => x !== t) : [...f.topics, t],
+      topics: f.topics.some(x => normalizeCreatorTopic(x) === t)
+        ? normalizeCreatorTopics(f.topics.filter(x => normalizeCreatorTopic(x) !== t))
+        : normalizeCreatorTopics([...f.topics, t]),
     }));
   };
 
@@ -65,7 +68,7 @@ export function CreatorEditClient({ creator }: { creator: Creator }) {
           channel_url: form.channel_url.trim() || null,
           avatar_url: form.avatar_url.trim() || null,
           cover_url: form.cover_url.trim() || null,
-          topics: form.topics,
+          topics: normalizeCreatorTopics(form.topics),
           membership_enabled: form.membership_enabled,
           membership_price_won: form.membership_enabled ? form.membership_price_won : null,
           membership_tier_name: form.membership_tier_name.trim() || '멤버',
@@ -155,11 +158,11 @@ export function CreatorEditClient({ creator }: { creator: Creator }) {
               {TOPIC_OPTIONS.map(t => (
                 <button
                   type="button"
-                  key={t}
-                  className={`${styles.topicChip} ${form.topics.includes(t) ? styles.topicOn : ''}`}
-                  onClick={() => toggleTopic(t)}
+                  key={t.key}
+                  className={`${styles.topicChip} ${form.topics.some(topic => normalizeCreatorTopic(topic) === t.key) ? styles.topicOn : ''}`}
+                  onClick={() => toggleTopic(t.key)}
                 >
-                  {t}
+                  {t.label}
                 </button>
               ))}
             </div>
