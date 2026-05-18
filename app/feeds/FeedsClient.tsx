@@ -268,7 +268,7 @@ function PostCard({ post }: { post: FeedPost }) {
       <div className={styles.postFoot}>
         <span>♥ {post.like_count}</span>
         <span>💬 {post.comment_count}</span>
-        {post.locked && c.membership_enabled && c.membership_price_won && (
+        {post.locked && (c as any).membership_enabled && c.membership_price_won && (
           <Link href={`/creator/${c.slug}`} className={styles.joinBtn}>
             월 {c.membership_price_won.toLocaleString()}원 멤버
           </Link>

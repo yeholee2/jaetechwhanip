@@ -15,7 +15,7 @@
 import { useRef, useState } from 'react';
 import styles from './ImageUploader.module.css';
 
-type Scope = 'avatar' | 'cover' | 'post-thumb';
+type Scope = 'avatar' | 'cover' | 'post-thumb' | 'user-avatar';
 
 export function ImageUploader({
   value,
