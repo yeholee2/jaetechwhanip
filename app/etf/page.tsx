@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { AppShell } from '@/components/AppShell';
 import { ETF_HOME_PATH, ETF_HOME_URL } from '@/lib/etfs';
+import { getEtfsWithMarketData } from '@/lib/etf-live-data';
 import { fetchEtfs } from '@/lib/etfsDb';
 import { SITE_NAME } from '@/lib/seo';
 import { PageHero, Badge, Card, Button } from '@/components/ui';
@@ -56,10 +57,11 @@ export default async function EtfPage({
   const savedListView = searchParams?.view === 'watch' ? 'watch' : 'recent';
   const sidebarWidgets: import('@/components/PageSidebar').SidebarWidget[] =
     active === 'watch' ? ['sparring', 'help'] : ['sparring', 'watch', 'help'];
-  const [{ sparrings }, etfs] = await Promise.all([
+  const [{ sparrings }, baseEtfs] = await Promise.all([
     listSparrings(),
     fetchEtfs(2000),
   ]);
+  const etfs = await getEtfsWithMarketData(baseEtfs).catch(() => baseEtfs);
   const featured = getFeaturedActiveSparring(sparrings);
 
   const jsonLd = {

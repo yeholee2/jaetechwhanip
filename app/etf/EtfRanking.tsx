@@ -32,6 +32,9 @@ function num(v: string | undefined): number {
 function signedChange(v: string | undefined, tone: 'up' | 'down' | 'flat'): number {
   return tone === 'down' ? -Math.abs(num(v)) : Math.abs(num(v));
 }
+function hasNumber(v: string | undefined): boolean {
+  return Boolean(v && /-?\d/.test(v));
+}
 function parseAum(v: string | undefined): number {
   if (!v) return 0;
   // "1조 2,345억" → 1.2345e12
@@ -50,6 +53,30 @@ function parseVol(v: string | undefined): number {
   const man = v.match(/(\d+(?:\.\d+)?)\s*만주/);
   if (man) return parseFloat(man[1]) * 10_000;
   return num(v);
+}
+function isMarketDataUsable(etf: EtfInfo): boolean {
+  const source = etf.dataSource || 'database';
+  return source !== 'static' && source !== 'missing';
+}
+function metricValue(etf: EtfInfo, key: SortKey): number {
+  if (key === '수익률') return signedChange(etf.change, etf.changeTone);
+  if (key === '순자산') return parseAum(etf.aum);
+  if (key === '거래량') return parseVol(etf.volume);
+  return 0;
+}
+function hasMetric(etf: EtfInfo, key: SortKey): boolean {
+  if (!isMarketDataUsable(etf)) return false;
+  if (key === '수익률') return hasNumber(etf.change);
+  if (key === '순자산') return parseAum(etf.aum) > 0;
+  if (key === '거래량') return parseVol(etf.volume) > 0;
+  return true;
+}
+function compareMetric(a: EtfInfo, b: EtfInfo, key: SortKey): number {
+  return (
+    Number(hasMetric(b, key)) - Number(hasMetric(a, key)) ||
+    metricValue(b, key) - metricValue(a, key) ||
+    a.shortName.localeCompare(b.shortName)
+  );
 }
 function categoryMatch(etf: EtfInfo, cat: CategoryKey): boolean {
   if (cat === '전체') return true;
@@ -76,11 +103,11 @@ export function EtfRanking({ allEtfs }: { allEtfs: EtfInfo[] }) {
     });
     const sorted = [...list];
     if (sort === '수익률') {
-      sorted.sort((a, b) => signedChange(b.change, b.changeTone) - signedChange(a.change, a.changeTone));
+      sorted.sort((a, b) => compareMetric(a, b, sort));
     } else if (sort === '순자산') {
-      sorted.sort((a, b) => parseAum(b.aum) - parseAum(a.aum));
+      sorted.sort((a, b) => compareMetric(a, b, sort));
     } else if (sort === '거래량') {
-      sorted.sort((a, b) => parseVol(b.volume) - parseVol(a.volume));
+      sorted.sort((a, b) => compareMetric(a, b, sort));
     } else if (sort === '이름순') {
       sorted.sort((a, b) => a.shortName.localeCompare(b.shortName));
     }
