@@ -165,7 +165,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const etf = rawEtf ? applyResolvedEtfCode(rawEtf) : undefined;
   if (!etf) return { title: 'ETF를 찾을 수 없어요', robots: { index: false, follow: true } };
 
-  const description = truncateDescription(`${etf.name}: ${etf.summary} 현재가, 순자산, 총보수, 분배금, 환헤지, 구성종목과 관련 질문을 함께 봅니다.`, 150);
+  const compactDescription = buildCompactEtfDescription(etf);
+  const description = truncateDescription(`${etf.name}: ${compactDescription} 현재가, 순자산, 총보수, 분배금, 환헤지, 구성종목과 관련 질문을 함께 봅니다.`, 150);
 
   return {
     title: `${etf.name} ETF`,
@@ -399,7 +400,7 @@ export default async function EtfDetailPage({ params }: Props) {
       name: `${etf.name} ETF`,
       identifier: etf.code,
       url: etfUrl(etf.slug),
-      description: etf.summary,
+      description: compactDescription,
       category: 'Exchange-Traded Fund',
       provider: {
         '@type': 'Organization',
@@ -461,7 +462,7 @@ export default async function EtfDetailPage({ params }: Props) {
               currentPrice={etf.price}
               variant="top"
             />
-            <ShareButton title={`${etf.name} | ${SITE_NAME}`} text={etf.oneLine || etf.summary} />
+            <ShareButton title={`${etf.name} | ${SITE_NAME}`} text={compactDescription} />
           </div>
         </div>
 
@@ -560,7 +561,7 @@ export default async function EtfDetailPage({ params }: Props) {
         <section className={styles.decisionSummary} aria-label="투자 판단 요약">
           <div className={styles.decisionIntro}>
             <span>투자 판단 요약</span>
-            <strong>{insight.oneLiner}</strong>
+            <strong>{compactDescription}</strong>
             <p>{etf.dataNotice || (etfBaseDate ? `${etfBaseDate} 기준` : '실제 수집 데이터 기준')}</p>
           </div>
           <div className={styles.decisionGrid}>
@@ -915,7 +916,7 @@ export default async function EtfDetailPage({ params }: Props) {
 
               {/* 한 줄 요약 + 위험 등급 */}
               <div className={styles.riskWrap}>
-                <p className={styles.riskOneLiner}>{insight.oneLiner}</p>
+                <p className={styles.riskOneLiner}>{compactDescription}</p>
                 <RiskMeter
                   title="참고 위험도"
                   level={risk.level}
@@ -1216,7 +1217,7 @@ export default async function EtfDetailPage({ params }: Props) {
                 <span className={styles.sideQuickCode}>{etf.code}</span>
               </div>
               <h3 className={styles.sideQuickTitle}>{etf.shortName}</h3>
-              <p className={styles.sideQuickOneLiner}>{insight.oneLiner}</p>
+              <p className={styles.sideQuickOneLiner}>{compactDescription}</p>
               <div className={styles.sideQuickFacts}>
                 <div>
                   <span className={styles.factLabel}>
