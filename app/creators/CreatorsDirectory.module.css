@@ -164,6 +164,367 @@
   .introSecondary { width: 100%; }
 }
 
+.spotlightCarousel {
+  position: relative;
+  min-height: 330px;
+  overflow: hidden;
+}
+
+.carouselStage {
+  position: relative;
+  height: 330px;
+  overflow: hidden;
+  border-radius: 18px;
+}
+
+.carouselSlide {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: min(720px, 64%);
+  overflow: hidden;
+  border-radius: 18px;
+  color: #fff;
+  text-decoration: none;
+  background-size: cover;
+  background-position: center;
+  box-shadow: 0 18px 44px rgba(0, 27, 55, .16);
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(-50%) scale(.92);
+  transition: transform .42s ease, opacity .42s ease, box-shadow .42s ease;
+  isolation: isolate;
+}
+
+.carouselSlideActive {
+  z-index: 4;
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateX(-50%) scale(1);
+}
+
+.carouselSlidePrev {
+  z-index: 2;
+  opacity: .9;
+  pointer-events: auto;
+  transform: translateX(calc(-50% - 68%)) scale(.94);
+}
+
+.carouselSlideNext {
+  z-index: 2;
+  opacity: .9;
+  pointer-events: auto;
+  transform: translateX(calc(-50% + 68%)) scale(.94);
+}
+
+.carouselSlideHidden {
+  z-index: 1;
+  opacity: 0;
+  transform: translateX(-50%) scale(.88);
+}
+
+.carouselShade {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background:
+    linear-gradient(180deg, rgba(0, 0, 0, .04) 0%, rgba(0, 0, 0, .20) 44%, rgba(0, 0, 0, .74) 100%),
+    linear-gradient(90deg, rgba(0, 19, 37, .35), rgba(0, 0, 0, 0) 56%);
+}
+
+.carouselPromoSlide {
+  background:
+    radial-gradient(circle at 74% 22%, rgba(255, 218, 69, .24), transparent 16%),
+    linear-gradient(135deg, #2F75F6 0%, #1B54B8 100%);
+}
+
+.carouselPromoLaunch {
+  background:
+    radial-gradient(circle at 76% 18%, rgba(255, 255, 255, .28), transparent 18%),
+    linear-gradient(135deg, #0E8F68 0%, #0B5D44 100%);
+}
+
+.carouselCreatorSlide {
+  background-color: #12301f;
+}
+
+.carouselGridPattern {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  opacity: .2;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, .38) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, .38) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+.carouselStickerCloud {
+  position: absolute;
+  top: 34px;
+  right: 34px;
+  z-index: 2;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+  max-width: 220px;
+}
+
+.carouselStickerCloud span {
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .92);
+  color: #172033;
+  font-size: 12px;
+  font-weight: 900;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, .14);
+  transform: rotate(-4deg);
+}
+
+.carouselStickerCloud span:nth-child(2) {
+  transform: rotate(5deg);
+}
+
+.carouselStickerCloud span:nth-child(3) {
+  transform: rotate(-2deg);
+}
+
+.carouselPromoMark {
+  position: absolute;
+  inset: 42px 34px auto auto;
+  z-index: 1;
+  color: rgba(255, 255, 255, .13);
+  font-size: 72px;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: 0;
+  white-space: nowrap;
+}
+
+.carouselAvatar {
+  position: absolute;
+  top: 32px;
+  right: 34px;
+  z-index: 2;
+  width: 82px;
+  height: 82px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-radius: 50%;
+  border: 4px solid rgba(255, 255, 255, .94);
+  background: rgba(255, 255, 255, .96);
+  color: var(--rw-text-strong);
+  font-size: 36px;
+  font-weight: 900;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, .22);
+}
+
+.carouselAvatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.carouselCopy {
+  position: absolute;
+  left: 34px;
+  right: 34px;
+  bottom: 38px;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  min-width: 0;
+}
+
+.carouselEyebrow {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 0 11px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, .34);
+  color: rgba(255, 255, 255, .94);
+  font-size: 12px;
+  font-weight: 900;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.carouselCopy h1 {
+  max-width: 500px;
+  margin: 0;
+  color: #fff;
+  font-size: 32px;
+  font-weight: 900;
+  line-height: 1.18;
+  letter-spacing: 0;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, .24);
+  word-break: keep-all;
+}
+
+.carouselCopy p {
+  max-width: 540px;
+  margin: 0;
+  color: rgba(255, 255, 255, .88);
+  font-size: 14px;
+  font-weight: 650;
+  line-height: 1.55;
+  word-break: keep-all;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.carouselStats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  color: rgba(255, 255, 255, .9);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.carouselCta {
+  display: inline-flex;
+  align-items: center;
+  min-height: 36px;
+  padding: 0 14px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, .94);
+  color: #101828;
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.carouselControls {
+  position: absolute;
+  z-index: 8;
+  right: calc(18% + 18px);
+  bottom: 34px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.carouselCount {
+  min-height: 34px;
+  display: inline-flex;
+  align-items: center;
+  padding: 0 13px;
+  border-radius: 999px;
+  background: rgba(12, 22, 38, .58);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 900;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.carouselControls button {
+  width: 34px;
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(12, 22, 38, .46);
+  color: #fff;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: background var(--duration-instant) var(--ease-in-out);
+}
+
+.carouselControls button:hover {
+  background: rgba(12, 22, 38, .72);
+}
+
+@media (max-width: 760px) {
+  .spotlightCarousel {
+    min-height: 278px;
+    margin: 0 -12px;
+  }
+
+  .carouselStage {
+    height: 278px;
+    border-radius: 0;
+  }
+
+  .carouselSlide {
+    width: calc(100% - 44px);
+    border-radius: 16px;
+  }
+
+  .carouselSlidePrev {
+    opacity: .32;
+    transform: translateX(calc(-50% - 82%)) scale(.9);
+  }
+
+  .carouselSlideNext {
+    opacity: .32;
+    transform: translateX(calc(-50% + 82%)) scale(.9);
+  }
+
+  .carouselCopy {
+    left: 22px;
+    right: 22px;
+    bottom: 28px;
+  }
+
+  .carouselCopy h1 {
+    max-width: 310px;
+    font-size: 24px;
+  }
+
+  .carouselCopy p {
+    max-width: 300px;
+    font-size: 13px;
+  }
+
+  .carouselAvatar {
+    top: 22px;
+    right: 22px;
+    width: 62px;
+    height: 62px;
+    font-size: 28px;
+  }
+
+  .carouselPromoMark {
+    top: 30px;
+    right: 22px;
+    font-size: 42px;
+  }
+
+  .carouselStickerCloud {
+    display: none;
+  }
+
+  .carouselControls {
+    right: 32px;
+    bottom: 24px;
+    gap: 6px;
+  }
+
+  .carouselCount {
+    min-height: 30px;
+    padding: 0 10px;
+    font-size: 12px;
+  }
+
+  .carouselControls button {
+    width: 30px;
+    height: 30px;
+  }
+}
+
 /* ─────────────────────────────────────────────────────────
  * Hero — 이 주의 추천 핀플루언서 (네이버 프리미엄 컨텐츠 톤)
  * ───────────────────────────────────────────────────────── */

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef, useCallback, type CSSProperties } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { createClient, hasSupabase } from '@/lib/supabase/client';
@@ -25,7 +25,6 @@ import { HomeWatchWidget } from './HomeWatchWidget';
 import { ForYouSection } from './ForYouSection';
 import type { ForYouBundle } from '@/lib/forYou';
 import { etfs, etfPath } from '@/lib/etfs';
-import type { Creator } from '@/lib/creator';
 import styles from './HomeClient.module.css';
 
 const HOME_INDICES_FALLBACK: { name: string; val: string; chg: string; up: boolean; series: number[] }[] = [
@@ -45,32 +44,6 @@ const FEED_TABS = [
   { key: 'waiting', label: '답변대기' },
 ] as const;
 type FeedTab = typeof FEED_TABS[number]['key'];
-type HomeCreator = Creator & {
-  coverGradient?: string;
-  verified?: boolean;
-  credential?: string;
-};
-type JaefconSlide =
-  | {
-      kind: 'promo';
-      id: string;
-      eyebrow: string;
-      title: string;
-      description: string;
-      href: string;
-      ctaLabel: string;
-      tone: 'explore' | 'launch';
-    }
-  | {
-      kind: 'creator';
-      id: string;
-      eyebrow: string;
-      title: string;
-      description: string;
-      href: string;
-      creator: HomeCreator;
-    };
-
 const STOCK_ETF_TAGS = ['S&P500', '나스닥100', '미국 ETF', '국내 ETF', '배당 ETF', '월배당', '환헤지', '분할매수'];
 
 function getUserName(user: any): string {
@@ -84,7 +57,6 @@ export default function HomeClient({
   marketIndices,
   siteBanner,
   siteKeywords,
-  homeCreators,
   tickerQuotes,
   nextEvent,
   forYou,
@@ -94,7 +66,6 @@ export default function HomeClient({
   marketIndices?: { name: string; val: string; chg: string; up: boolean; series?: number[] }[];
   siteBanner?: { enabled: boolean; message: string; link: string };
   siteKeywords?: string[];
-  homeCreators?: Creator[];
   tickerQuotes?: (TickerQuote | null)[];
   nextEvent?: { event: CalendarEvent; dDay: number } | null;
   forYou?: ForYouBundle;
@@ -356,10 +327,6 @@ export default function HomeClient({
         </div>
       )}
 
-      <div className={styles.homeHeroWrap}>
-        <HomeJaefconShowcase creators={homeCreators || []} />
-      </div>
-
       {/* PC 본문 */}
       <div className={styles.pcBody}>
         <div className={styles.pcFeed}>
@@ -465,7 +432,6 @@ export default function HomeClient({
       </div>
 
       <div className={styles.moMain}>
-        <HomeJaefconShowcase creators={homeCreators || []} compact />
         <div className={styles.moFeedHd}>
           {FEED_TABS.map(tab => (
             <button
@@ -504,191 +470,6 @@ export default function HomeClient({
       {showModal && <AskModal onClose={() => setShowModal(false)} onSubmit={submitQ} />}
       {toast && <div className={`${styles.toast} ${styles.show}`}>{toast}</div>}
     </AppShell>
-  );
-}
-
-function creatorCoverStyle(creator: HomeCreator): CSSProperties {
-  if (creator.cover_url) {
-    return { backgroundImage: `url(${creator.cover_url})` };
-  }
-  if (creator.coverGradient) {
-    return { background: creator.coverGradient };
-  }
-  const palette = [
-    'linear-gradient(135deg, #1B64DA, #3182F6)',
-    'linear-gradient(135deg, #2E9C5C, #44C781)',
-    'linear-gradient(135deg, #7C4DFF, #B383FF)',
-    'linear-gradient(135deg, #00A86B, #44C781)',
-  ];
-  const hash = (creator.slug || creator.id || '').split('').reduce((sum, ch) => sum + ch.charCodeAt(0), 0);
-  return { background: palette[hash % palette.length] };
-}
-
-function CreatorMiniAvatar({ creator, className }: { creator: HomeCreator; className: string }) {
-  if (creator.avatar_url && creator.avatar_url.length <= 4) {
-    return <div className={className}><span>{creator.avatar_url}</span></div>;
-  }
-  if (creator.avatar_url) {
-    return (
-      <div className={className}>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={creator.avatar_url} alt={creator.display_name} />
-      </div>
-    );
-  }
-  return <div className={className}><span>{creator.display_name.slice(0, 1)}</span></div>;
-}
-
-function HomeJaefconShowcase({
-  creators,
-  compact = false,
-}: {
-  creators: Creator[];
-  compact?: boolean;
-}) {
-  const creatorSlides = (creators as HomeCreator[])
-    .slice()
-    .sort((a, b) => b.follower_count - a.follower_count)
-    .slice(0, 9)
-    .map((creator): JaefconSlide => ({
-      kind: 'creator',
-      id: creator.id,
-      eyebrow: creator.membership_enabled ? '멤버십 재프콘' : '무료 재프콘',
-      title: creator.display_name,
-      description: creator.bio || '재테크 인사이트를 꾸준히 발행하는 채널입니다.',
-      href: `/creator/${creator.slug}`,
-      creator,
-    }));
-  const slides: JaefconSlide[] = [
-    {
-      kind: 'promo',
-      id: 'jaefcon-explore',
-      eyebrow: '재프콘 탐색',
-      title: '재테크 크리에이터 찾기',
-      description: 'ETF, 절세, 연금, 시장 인사이트 채널을 발견하고 내 뉴스피드에서 새 글을 모아보세요.',
-      href: '/creators',
-      ctaLabel: '전체 보기',
-      tone: 'explore',
-    },
-    {
-      kind: 'promo',
-      id: 'jaefcon-launch',
-      eyebrow: '크리에이터 등록',
-      title: '내 채널 자동 생성',
-      description: '닉네임과 한 줄 소개만으로 공개 페이지가 열리고, 글·시리즈·멤버십으로 확장할 수 있어요.',
-      href: '/creator/apply',
-      ctaLabel: '재프콘 시작하기',
-      tone: 'launch',
-    },
-    ...creatorSlides,
-  ];
-  const [activeIndex, setActiveIndex] = useState(0);
-  const [paused, setPaused] = useState(false);
-  const active = slides[activeIndex] || slides[0];
-
-  useEffect(() => {
-    trackEvent({ kind: 'impression', target: 'home_jaefcon_showcase' });
-  }, []);
-
-  useEffect(() => {
-    if (paused || slides.length < 2) return;
-    const timer = window.setInterval(() => {
-      setActiveIndex(index => (index + 1) % slides.length);
-    }, 5200);
-    return () => window.clearInterval(timer);
-  }, [paused, slides.length]);
-
-  useEffect(() => {
-    if (!active) return;
-    trackEvent({
-      kind: 'impression',
-      target: 'home_jaefcon_slide',
-      meta: { id: active.id, title: active.title },
-    });
-  }, [active]);
-
-  const go = (direction: -1 | 1) => {
-    if (slides.length < 2) return;
-    setActiveIndex(index => (index + direction + slides.length) % slides.length);
-  };
-
-  const placementFor = (index: number) => {
-    if (index === activeIndex) return styles.jaefconSlideActive;
-    if (slides.length < 2) return styles.jaefconSlideHidden;
-    if (index === (activeIndex - 1 + slides.length) % slides.length) return styles.jaefconSlidePrev;
-    if (index === (activeIndex + 1) % slides.length) return styles.jaefconSlideNext;
-    return styles.jaefconSlideHidden;
-  };
-
-  if (!active) return null;
-
-  return (
-    <div className={`${styles.jaefconHome} ${compact ? styles.jaefconHomeCompact : ''}`}>
-      <section className={styles.jaefconCarousel} aria-label="재프콘 추천 캐러셀">
-        <div className={styles.jaefconStage}>
-          {slides.map((slide, index) => (
-            <Link
-              key={slide.id}
-              href={slide.href}
-              className={`${styles.jaefconSlide} ${placementFor(index)} ${slide.kind === 'promo' ? styles.jaefconPromoSlide : styles.jaefconCreatorSlide} ${slide.kind === 'promo' && slide.tone === 'launch' ? styles.jaefconPromoLaunch : ''}`}
-              style={slide.kind === 'creator' ? creatorCoverStyle(slide.creator) : undefined}
-              tabIndex={index === activeIndex ? 0 : -1}
-              aria-hidden={index === activeIndex ? undefined : true}
-              onClick={() => trackEvent({ kind: 'click', target: 'home_jaefcon_slide', meta: { id: slide.id, href: slide.href } })}
-            >
-              <span className={styles.jaefconSlideShade} aria-hidden />
-              {slide.kind === 'promo' ? (
-                <>
-                  <div className={styles.jaefconGridPattern} aria-hidden />
-                  <div className={styles.jaefconStickerCloud} aria-hidden>
-                    <span>ETF</span>
-                    <span>ISA</span>
-                    <span>연금</span>
-                  </div>
-                  <div className={styles.jaefconPromoMark} aria-hidden>재프콘</div>
-                </>
-              ) : (
-                <CreatorMiniAvatar creator={slide.creator} className={styles.jaefconSlideAvatar} />
-              )}
-              <div className={styles.jaefconSlideCopy}>
-                <span className={styles.jaefconSlideEyebrow}>{slide.eyebrow}</span>
-                <h2>{slide.title}</h2>
-                <p>{slide.description}</p>
-                {slide.kind === 'creator' ? (
-                  <div className={styles.jaefconSlideStats}>
-                    <span>{slide.creator.follower_count.toLocaleString()} 팔로워</span>
-                    <span>{slide.creator.member_count.toLocaleString()} 멤버</span>
-                    <span>{slide.creator.post_count.toLocaleString()} 글</span>
-                  </div>
-                ) : (
-                  <span className={styles.jaefconSlideCta}>{slide.ctaLabel}</span>
-                )}
-              </div>
-            </Link>
-          ))}
-        </div>
-        {slides.length > 1 && (
-          <div className={styles.jaefconCarouselControls}>
-            <span className={styles.jaefconCount}>
-              {activeIndex + 1} / {slides.length}
-            </span>
-            <button type="button" onClick={() => go(-1)} aria-label="이전 재프콘">
-              <FaIcon name="chevron-left" size={18} />
-            </button>
-            <button
-              type="button"
-              onClick={() => setPaused(value => !value)}
-              aria-label={paused ? '재프콘 캐러셀 재생' : '재프콘 캐러셀 일시정지'}
-            >
-              <FaIcon name={paused ? 'play' : 'pause'} size={16} />
-            </button>
-            <button type="button" onClick={() => go(1)} aria-label="다음 재프콘">
-              <FaIcon name="chevron-right" size={18} />
-            </button>
-          </div>
-        )}
-      </section>
-    </div>
   );
 }
 

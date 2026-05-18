@@ -1,8 +1,10 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import type { Creator } from '@/lib/creator';
+import { trackEvent } from '@/lib/analytics';
+import { FaIcon } from '@/components/FaIcon';
 import styles from './CreatorsDirectory.module.css';
 
 type Sort = 'popular' | 'recent' | 'posts';
@@ -20,6 +22,27 @@ type DirectoryCreator = Creator & {
   verified?: boolean;
   credential?: string;
 };
+
+type SpotlightSlide =
+  | {
+      kind: 'promo';
+      id: string;
+      eyebrow: string;
+      title: string;
+      description: string;
+      href: string;
+      ctaLabel: string;
+      tone: 'explore' | 'launch';
+    }
+  | {
+      kind: 'creator';
+      id: string;
+      eyebrow: string;
+      title: string;
+      description: string;
+      href: string;
+      creator: DirectoryCreator;
+    };
 
 const DISCOVERY_SECTIONS = [
   {
@@ -125,6 +148,149 @@ function CreatorAvatar({ creator, className }: { creator: Creator; className: st
   return <div className={className}><span>{creator.display_name.slice(0, 1)}</span></div>;
 }
 
+function CreatorsSpotlightCarousel({ creators }: { creators: DirectoryCreator[] }) {
+  const creatorSlides = sortedByPopularity(creators)
+    .slice(0, 9)
+    .map((creator): SpotlightSlide => ({
+      kind: 'creator',
+      id: creator.id,
+      eyebrow: creator.membership_enabled ? '멤버십 재프콘' : '무료 재프콘',
+      title: creator.display_name,
+      description: creator.bio || '재테크 인사이트를 꾸준히 발행하는 채널입니다.',
+      href: `/creator/${creator.slug}`,
+      creator,
+    }));
+  const slides: SpotlightSlide[] = [
+    {
+      kind: 'promo',
+      id: 'jaefcon-explore',
+      eyebrow: '재프콘 탐색',
+      title: '재테크 크리에이터 찾기',
+      description: 'ETF, 절세, 연금, 시장 인사이트 채널을 발견하고 내 뉴스피드에서 새 글을 모아보세요.',
+      href: '#all-creators',
+      ctaLabel: '전체 보기',
+      tone: 'explore',
+    },
+    {
+      kind: 'promo',
+      id: 'jaefcon-launch',
+      eyebrow: '크리에이터 등록',
+      title: '내 채널 자동 생성',
+      description: '닉네임과 한 줄 소개만으로 공개 페이지가 열리고, 글·시리즈·멤버십으로 확장할 수 있어요.',
+      href: '/creator/apply',
+      ctaLabel: '재프콘 시작하기',
+      tone: 'launch',
+    },
+    ...creatorSlides,
+  ];
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [paused, setPaused] = useState(false);
+  const active = slides[activeIndex] || slides[0];
+
+  useEffect(() => {
+    trackEvent({ kind: 'impression', target: 'creators_jaefcon_carousel' });
+  }, []);
+
+  useEffect(() => {
+    if (paused || slides.length < 2) return;
+    const timer = window.setInterval(() => {
+      setActiveIndex(index => (index + 1) % slides.length);
+    }, 5200);
+    return () => window.clearInterval(timer);
+  }, [paused, slides.length]);
+
+  useEffect(() => {
+    if (!active) return;
+    trackEvent({
+      kind: 'impression',
+      target: 'creators_jaefcon_slide',
+      meta: { id: active.id, title: active.title },
+    });
+  }, [active]);
+
+  const go = (direction: -1 | 1) => {
+    if (slides.length < 2) return;
+    setActiveIndex(index => (index + direction + slides.length) % slides.length);
+  };
+
+  const placementFor = (index: number) => {
+    if (index === activeIndex) return styles.carouselSlideActive;
+    if (slides.length < 2) return styles.carouselSlideHidden;
+    if (index === (activeIndex - 1 + slides.length) % slides.length) return styles.carouselSlidePrev;
+    if (index === (activeIndex + 1) % slides.length) return styles.carouselSlideNext;
+    return styles.carouselSlideHidden;
+  };
+
+  if (!active) return null;
+
+  return (
+    <section className={styles.spotlightCarousel} aria-label="재프콘 추천 캐러셀">
+      <div className={styles.carouselStage}>
+        {slides.map((slide, index) => (
+          <Link
+            key={slide.id}
+            href={slide.href}
+            className={`${styles.carouselSlide} ${placementFor(index)} ${slide.kind === 'promo' ? styles.carouselPromoSlide : styles.carouselCreatorSlide} ${slide.kind === 'promo' && slide.tone === 'launch' ? styles.carouselPromoLaunch : ''}`}
+            style={slide.kind === 'creator' ? coverStyle(slide.creator) : undefined}
+            tabIndex={index === activeIndex ? 0 : -1}
+            aria-hidden={index === activeIndex ? undefined : true}
+            onClick={() => trackEvent({ kind: 'click', target: 'creators_jaefcon_slide', meta: { id: slide.id, href: slide.href } })}
+          >
+            <span className={styles.carouselShade} aria-hidden />
+            {slide.kind === 'promo' ? (
+              <>
+                <div className={styles.carouselGridPattern} aria-hidden />
+                <div className={styles.carouselStickerCloud} aria-hidden>
+                  <span>ETF</span>
+                  <span>ISA</span>
+                  <span>연금</span>
+                </div>
+                <div className={styles.carouselPromoMark} aria-hidden>재프콘</div>
+              </>
+            ) : (
+              <CreatorAvatar creator={slide.creator} className={styles.carouselAvatar} />
+            )}
+            <div className={styles.carouselCopy}>
+              <span className={styles.carouselEyebrow}>{slide.eyebrow}</span>
+              <h1>{slide.title}</h1>
+              <p>{slide.description}</p>
+              {slide.kind === 'creator' ? (
+                <div className={styles.carouselStats}>
+                  <span>{slide.creator.follower_count.toLocaleString()} 팔로워</span>
+                  <span>{slide.creator.member_count.toLocaleString()} 멤버</span>
+                  <span>{slide.creator.post_count.toLocaleString()} 글</span>
+                </div>
+              ) : (
+                <span className={styles.carouselCta}>{slide.ctaLabel}</span>
+              )}
+            </div>
+          </Link>
+        ))}
+      </div>
+      {slides.length > 1 && (
+        <div className={styles.carouselControls}>
+          <span className={styles.carouselCount}>
+            {activeIndex + 1} / {slides.length}
+          </span>
+          <button type="button" onClick={() => go(-1)} aria-label="이전 재프콘">
+            <FaIcon name="chevron-left" size={18} />
+          </button>
+          <button
+            type="button"
+            onClick={() => setPaused(value => !value)}
+            aria-label={paused ? '재프콘 캐러셀 재생' : '재프콘 캐러셀 일시정지'}
+          >
+            <FaIcon name={paused ? 'play' : 'pause'} size={16} />
+          </button>
+          <button type="button" onClick={() => go(1)} aria-label="다음 재프콘">
+            <FaIcon name="chevron-right" size={18} />
+          </button>
+        </div>
+      )}
+    </section>
+  );
+}
+
 function DiscoveryCard({ creator }: { creator: DirectoryCreator }) {
   return (
     <Link href={`/creator/${creator.slug}`} className={styles.shelfCard}>
@@ -175,11 +341,6 @@ export function CreatorsDirectoryClient({ creators }: { creators: Creator[] }) {
     return list;
   }, [directoryCreators, query, activeTopic, sort]);
 
-  // Hero — 최상위 인기 1명
-  const hero = useMemo(() => {
-    return sortedByPopularity(directoryCreators)[0] || null;
-  }, [directoryCreators]);
-
   // 인기 TOP 5 (가로 스크롤)
   const top5 = useMemo(() => {
     return sortedByPopularity(directoryCreators).slice(0, 5);
@@ -189,70 +350,7 @@ export function CreatorsDirectoryClient({ creators }: { creators: Creator[] }) {
 
   return (
     <div className={styles.wrap}>
-      <section className={styles.intro}>
-        <div className={styles.introMain}>
-          <span className={styles.introKicker}>재프콘 탐색</span>
-          <h1>재테크 크리에이터를 발견하고 내 뉴스피드에서 따라보세요</h1>
-          <p>
-            ETF, 절세, 연금, 시장 인사이트까지. 팔로우하면 최신 글은 뉴스피드에 모이고,
-            멤버십은 상품 단위 혜택과 후기로 판단할 수 있게 구성합니다.
-          </p>
-          <div className={styles.introActions}>
-            <a href="#all-creators" className={styles.introPrimary}>전체 보기</a>
-            <Link href="/creator/apply" className={styles.introSecondary}>재프콘 시작하기</Link>
-          </div>
-        </div>
-        <div className={styles.launchBox}>
-          <div className={styles.launchBoxTop}>
-            <span>크리에이터 등록</span>
-            <strong>공개 페이지 자동 생성</strong>
-          </div>
-          <div className={styles.launchUrl}>/creator/my-channel</div>
-          <ol className={styles.launchSteps}>
-            <li>로그인 후 크리에이터 모드 시작</li>
-            <li>닉네임·소개·카테고리 입력</li>
-            <li>재프콘 페이지 생성 후 멤버십 준비</li>
-          </ol>
-          <span className={styles.launchFoot}>등록 즉시 채널 홈이 열리고, 멤버십·정산·첫 글을 이어서 설정합니다.</span>
-        </div>
-      </section>
-
-      {/* Hero — 이 주의 추천 재프콘 */}
-      {hero && (
-        <section className={styles.hero}>
-          <div className={styles.heroCover} style={coverStyle(hero)} aria-hidden />
-          <div className={styles.heroOverlay}>
-            <span className={styles.heroEyebrow}>✨ 이 주의 추천 재프콘</span>
-            <div className={styles.heroInfo}>
-              <div className={styles.heroAvatar}>
-                {hero.avatar_url && hero.avatar_url.length <= 4 ? (
-                  <span>{hero.avatar_url}</span>
-                ) : hero.avatar_url ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={hero.avatar_url} alt={hero.display_name} />
-                ) : (
-                  <span>{hero.display_name.slice(0, 1)}</span>
-                )}
-              </div>
-              <div className={styles.heroBody}>
-                <strong>{hero.display_name}</strong>
-                {hero.bio && <p>{hero.bio}</p>}
-                <div className={styles.heroStats}>
-                  <span><strong>{hero.follower_count.toLocaleString()}</strong> 팔로워</span>
-                  <span><strong>{hero.member_count.toLocaleString()}</strong> 멤버</span>
-                  <span><strong>{hero.post_count.toLocaleString()}</strong> 글</span>
-                  {(hero as any).verified && (
-                    <span className={styles.heroAccuracy}>✓ {(hero as any).credential || '전문가 인증'}</span>
-                  )}
-                </div>
-              </div>
-              <Link href={`/creator/${hero.slug}`} className={styles.heroCta}>
-                채널 들어가기 →
-              </Link>
-            </div>
-          </div>
-        </section>
-      )}
+      <CreatorsSpotlightCarousel creators={directoryCreators} />
 
       {/* 검색 + 정렬 */}
       <div className={styles.controls}>
