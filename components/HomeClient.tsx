@@ -50,6 +50,26 @@ type HomeCreator = Creator & {
   verified?: boolean;
   credential?: string;
 };
+type JaefconSlide =
+  | {
+      kind: 'promo';
+      id: string;
+      eyebrow: string;
+      title: string;
+      description: string;
+      href: string;
+      ctaLabel: string;
+      tone: 'explore' | 'launch';
+    }
+  | {
+      kind: 'creator';
+      id: string;
+      eyebrow: string;
+      title: string;
+      description: string;
+      href: string;
+      creator: HomeCreator;
+    };
 
 const STOCK_ETF_TAGS = ['S&P500', '나스닥100', '미국 ETF', '국내 ETF', '배당 ETF', '월배당', '환헤지', '분할매수'];
 
@@ -526,83 +546,148 @@ function HomeJaefconShowcase({
   creators: Creator[];
   compact?: boolean;
 }) {
-  const hero = (creators as HomeCreator[])
+  const creatorSlides = (creators as HomeCreator[])
     .slice()
-    .sort((a, b) => b.follower_count - a.follower_count)[0];
+    .sort((a, b) => b.follower_count - a.follower_count)
+    .slice(0, 9)
+    .map((creator): JaefconSlide => ({
+      kind: 'creator',
+      id: creator.id,
+      eyebrow: creator.membership_enabled ? '멤버십 재프콘' : '무료 재프콘',
+      title: creator.display_name,
+      description: creator.bio || '재테크 인사이트를 꾸준히 발행하는 채널입니다.',
+      href: `/creator/${creator.slug}`,
+      creator,
+    }));
+  const slides: JaefconSlide[] = [
+    {
+      kind: 'promo',
+      id: 'jaefcon-explore',
+      eyebrow: '재프콘 탐색',
+      title: '재테크 크리에이터 찾기',
+      description: 'ETF, 절세, 연금, 시장 인사이트 채널을 발견하고 내 뉴스피드에서 새 글을 모아보세요.',
+      href: '/creators',
+      ctaLabel: '전체 보기',
+      tone: 'explore',
+    },
+    {
+      kind: 'promo',
+      id: 'jaefcon-launch',
+      eyebrow: '크리에이터 등록',
+      title: '내 채널 자동 생성',
+      description: '닉네임과 한 줄 소개만으로 공개 페이지가 열리고, 글·시리즈·멤버십으로 확장할 수 있어요.',
+      href: '/creator/apply',
+      ctaLabel: '재프콘 시작하기',
+      tone: 'launch',
+    },
+    ...creatorSlides,
+  ];
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [paused, setPaused] = useState(false);
+  const active = slides[activeIndex] || slides[0];
 
   useEffect(() => {
     trackEvent({ kind: 'impression', target: 'home_jaefcon_showcase' });
   }, []);
 
+  useEffect(() => {
+    if (paused || slides.length < 2) return;
+    const timer = window.setInterval(() => {
+      setActiveIndex(index => (index + 1) % slides.length);
+    }, 5200);
+    return () => window.clearInterval(timer);
+  }, [paused, slides.length]);
+
+  useEffect(() => {
+    if (!active) return;
+    trackEvent({
+      kind: 'impression',
+      target: 'home_jaefcon_slide',
+      meta: { id: active.id, title: active.title },
+    });
+  }, [active]);
+
+  const go = (direction: -1 | 1) => {
+    if (slides.length < 2) return;
+    setActiveIndex(index => (index + direction + slides.length) % slides.length);
+  };
+
+  const placementFor = (index: number) => {
+    if (index === activeIndex) return styles.jaefconSlideActive;
+    if (slides.length < 2) return styles.jaefconSlideHidden;
+    if (index === (activeIndex - 1 + slides.length) % slides.length) return styles.jaefconSlidePrev;
+    if (index === (activeIndex + 1) % slides.length) return styles.jaefconSlideNext;
+    return styles.jaefconSlideHidden;
+  };
+
+  if (!active) return null;
+
   return (
     <div className={`${styles.jaefconHome} ${compact ? styles.jaefconHomeCompact : ''}`}>
-      <section className={styles.jaefconIntro} aria-label="재프콘 소개">
-        <div className={styles.jaefconIntroMain}>
-          <span className={styles.jaefconKicker}>재프콘 탐색</span>
-          <h2>재테크 크리에이터를 발견하고 내 뉴스피드에서 따라보세요</h2>
-          <p>
-            ETF, 절세, 연금, 시장 인사이트까지. 팔로우하면 최신 글은 뉴스피드에 모이고,
-            멤버십은 상품 단위 혜택과 후기로 판단할 수 있게 구성합니다.
-          </p>
-          <div className={styles.jaefconActions}>
+      <section className={styles.jaefconCarousel} aria-label="재프콘 추천 캐러셀">
+        <div className={styles.jaefconStage}>
+          {slides.map((slide, index) => (
             <Link
-              href="/creators"
-              className={styles.jaefconPrimary}
-              onClick={() => trackEvent({ kind: 'click', target: 'home_jaefcon_all' })}
+              key={slide.id}
+              href={slide.href}
+              className={`${styles.jaefconSlide} ${placementFor(index)} ${slide.kind === 'promo' ? styles.jaefconPromoSlide : styles.jaefconCreatorSlide} ${slide.kind === 'promo' && slide.tone === 'launch' ? styles.jaefconPromoLaunch : ''}`}
+              style={slide.kind === 'creator' ? creatorCoverStyle(slide.creator) : undefined}
+              tabIndex={index === activeIndex ? 0 : -1}
+              aria-hidden={index === activeIndex ? undefined : true}
+              onClick={() => trackEvent({ kind: 'click', target: 'home_jaefcon_slide', meta: { id: slide.id, href: slide.href } })}
             >
-              전체 보기
-            </Link>
-            <Link
-              href="/creator/apply"
-              className={styles.jaefconSecondary}
-              onClick={() => trackEvent({ kind: 'click', target: 'home_jaefcon_apply' })}
-            >
-              재프콘 시작하기
-            </Link>
-          </div>
-        </div>
-        <div className={styles.jaefconLaunchBox}>
-          <div className={styles.jaefconLaunchTop}>
-            <span>크리에이터 등록</span>
-            <strong>공개 페이지 자동 생성</strong>
-          </div>
-          <div className={styles.jaefconLaunchUrl}>/creator/my-channel</div>
-          <ol>
-            <li>로그인 후 크리에이터 모드 시작</li>
-            <li>닉네임·소개·카테고리 입력</li>
-            <li>재프콘 페이지 생성 후 멤버십 준비</li>
-          </ol>
-          <span className={styles.jaefconLaunchFoot}>등록 즉시 채널 홈이 열리고, 멤버십·정산·첫 글을 이어서 설정합니다.</span>
-        </div>
-      </section>
-
-      {hero && (
-        <section className={styles.jaefconFeature} aria-label="이 주의 추천 재프콘">
-          <div className={styles.jaefconFeatureCover} style={creatorCoverStyle(hero)} aria-hidden />
-          <div className={styles.jaefconFeatureOverlay}>
-            <span className={styles.jaefconFeatureEyebrow}>이 주의 추천 재프콘</span>
-            <div className={styles.jaefconFeatureInfo}>
-              <CreatorMiniAvatar creator={hero} className={styles.jaefconFeatureAvatar} />
-              <div className={styles.jaefconFeatureBody}>
-                <strong>{hero.display_name}</strong>
-                {hero.bio && <p>{hero.bio}</p>}
-                <div className={styles.jaefconFeatureStats}>
-                  <span><strong>{hero.follower_count.toLocaleString()}</strong> 팔로워</span>
-                  <span><strong>{hero.member_count.toLocaleString()}</strong> 멤버</span>
-                  <span><strong>{hero.post_count.toLocaleString()}</strong> 글</span>
-                </div>
+              <span className={styles.jaefconSlideShade} aria-hidden />
+              {slide.kind === 'promo' ? (
+                <>
+                  <div className={styles.jaefconGridPattern} aria-hidden />
+                  <div className={styles.jaefconStickerCloud} aria-hidden>
+                    <span>ETF</span>
+                    <span>ISA</span>
+                    <span>연금</span>
+                  </div>
+                  <div className={styles.jaefconPromoMark} aria-hidden>재프콘</div>
+                </>
+              ) : (
+                <CreatorMiniAvatar creator={slide.creator} className={styles.jaefconSlideAvatar} />
+              )}
+              <div className={styles.jaefconSlideCopy}>
+                <span className={styles.jaefconSlideEyebrow}>{slide.eyebrow}</span>
+                <h2>{slide.title}</h2>
+                <p>{slide.description}</p>
+                {slide.kind === 'creator' ? (
+                  <div className={styles.jaefconSlideStats}>
+                    <span>{slide.creator.follower_count.toLocaleString()} 팔로워</span>
+                    <span>{slide.creator.member_count.toLocaleString()} 멤버</span>
+                    <span>{slide.creator.post_count.toLocaleString()} 글</span>
+                  </div>
+                ) : (
+                  <span className={styles.jaefconSlideCta}>{slide.ctaLabel}</span>
+                )}
               </div>
-              <Link
-                href={`/creator/${hero.slug}`}
-                className={styles.jaefconFeatureCta}
-                onClick={() => trackEvent({ kind: 'click', target: 'home_jaefcon_feature', meta: { slug: hero.slug } })}
-              >
-                채널 들어가기 →
-              </Link>
-            </div>
+            </Link>
+          ))}
+        </div>
+        {slides.length > 1 && (
+          <div className={styles.jaefconCarouselControls}>
+            <span className={styles.jaefconCount}>
+              {activeIndex + 1} / {slides.length}
+            </span>
+            <button type="button" onClick={() => go(-1)} aria-label="이전 재프콘">
+              <FaIcon name="chevron-left" size={18} />
+            </button>
+            <button
+              type="button"
+              onClick={() => setPaused(value => !value)}
+              aria-label={paused ? '재프콘 캐러셀 재생' : '재프콘 캐러셀 일시정지'}
+            >
+              <FaIcon name={paused ? 'play' : 'pause'} size={16} />
+            </button>
+            <button type="button" onClick={() => go(1)} aria-label="다음 재프콘">
+              <FaIcon name="chevron-right" size={18} />
+            </button>
           </div>
-        </section>
-      )}
+        )}
+      </section>
     </div>
   );
 }
