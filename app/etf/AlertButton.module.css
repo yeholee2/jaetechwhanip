@@ -1,0 +1,19 @@
+.topAlert {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 30px;
+  padding: 0 12px;
+  border-radius: var(--rw-radius-sm);
+  background: var(--rw-card-muted);
+  color: var(--rw-text-body);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+  cursor: pointer;
+  transition: background var(--duration-instant) var(--ease-in-out);
+}
+
+.topAlert:hover {
+  background: var(--rw-gray15);
+  color: var(--rw-text-strong);
+}

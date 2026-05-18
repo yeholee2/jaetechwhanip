@@ -11,6 +11,12 @@
   margin-bottom: var(--space-2);
 }
 
+.topActions {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .backLink {
   display: inline-flex;
   align-items: center;

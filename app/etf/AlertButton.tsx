@@ -9,15 +9,18 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient, hasSupabase } from '@/lib/supabase/client';
 import { Button } from '@/components/ui';
+import { FaIcon } from '@/components/FaIcon';
 import { AlertModal } from '@/components/AlertModal';
+import styles from './AlertButton.module.css';
 
 type Props = {
   etfCode: string;
   etfName: string;
   currentPrice?: string;
+  variant?: 'default' | 'top';
 };
 
-export function AlertButton({ etfCode, etfName, currentPrice }: Props) {
+export function AlertButton({ etfCode, etfName, currentPrice, variant = 'default' }: Props) {
   const [open, setOpen] = useState(false);
   const router = useRouter();
 
@@ -38,7 +41,19 @@ export function AlertButton({ etfCode, etfName, currentPrice }: Props) {
 
   return (
     <>
-      <Button variant="ghost" size="md" onClick={handleOpen}>알림</Button>
+      {variant === 'top' ? (
+        <button
+          type="button"
+          className={styles.topAlert}
+          onClick={handleOpen}
+          aria-label={`${etfName} 알림`}
+        >
+          <FaIcon name="bell" size={14} />
+          알림
+        </button>
+      ) : (
+        <Button variant="ghost" size="md" onClick={handleOpen}>알림</Button>
+      )}
       {open && (
         <AlertModal
           etfCode={etfCode}

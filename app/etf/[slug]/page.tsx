@@ -405,7 +405,15 @@ export default async function EtfDetailPage({ params }: Props) {
             <FaIcon name="chevron-left" size={12} />
             ETF
           </Link>
-          <ShareButton title={`${etf.name} | ${SITE_NAME}`} text={etf.oneLine || etf.summary} />
+          <div className={styles.topActions}>
+            <AlertButton
+              etfCode={etf.code}
+              etfName={etf.shortName}
+              currentPrice={etf.price}
+              variant="top"
+            />
+            <ShareButton title={`${etf.name} | ${SITE_NAME}`} text={etf.oneLine || etf.summary} />
+          </div>
         </div>
 
         <section className={styles.hero}>
@@ -484,11 +492,6 @@ export default async function EtfDetailPage({ params }: Props) {
                 <FaIcon name="scale-balanced" size={13} />
                 비교
               </Button>
-              <Button href="/etf?tab=watch&view=recent" variant="outline" size="md">
-                <FaIcon name="clock-rotate-left" size={13} />
-                최근 본
-              </Button>
-              <AlertButton etfCode={etf.code} etfName={etf.shortName} currentPrice={etf.price} />
               <Button href="/questions/create" variant="ghost" size="md">질문</Button>
             </div>
           </div>
@@ -630,9 +633,9 @@ export default async function EtfDetailPage({ params }: Props) {
               <FaIcon name="scale-balanced" size={12} />
               비슷한 ETF와 비교
             </Link>
-            <Link href="/etf?tab=watch">
-              <FaIcon name="clock-rotate-left" size={12} />
-              최근·관심 보기
+            <Link href="/etf?tab=watch&view=watch">
+              <FaIcon name="heart" size={12} />
+              관심목록 보기
             </Link>
           </div>
         </section>
