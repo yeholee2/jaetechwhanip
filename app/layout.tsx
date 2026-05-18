@@ -84,6 +84,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="ko">
       <head>
+        {/* TossFace CDN — preconnect 로 폰트 round-trip 단축 (LCP 개선) */}
+        <link rel="preconnect" href="https://cdn.jsdelivr.net" crossOrigin="anonymous" />
+        <link rel="dns-prefetch" href="https://cdn.jsdelivr.net" />
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
         {/* Organization + WebSite 구조화 데이터 — Google 지식 그래프 노출 */}
         <script

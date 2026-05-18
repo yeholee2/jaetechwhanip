@@ -234,13 +234,27 @@ export async function MarketTicker() {
   return <MarketTickerView quotes={quotes} nextEvent={nextEvent} />;
 }
 
-/** 서버에서 ticker 데이터만 fetch (다른 페이지가 prop 으로 주입할 때 사용) */
-export async function fetchTickerQuotes(): Promise<(TickerQuote | null)[]> {
+import { unstable_cache } from 'next/cache';
+
+async function fetchTickerQuotesInner(): Promise<(TickerQuote | null)[]> {
   return Promise.all(TICKER_INDICES.map(idx => fetchQuote(idx.symbol)));
 }
 
-/** 서버에서 nextEvent 만 fetch (라이브 캘린더, prop 주입용) */
-export async function fetchNextMajorEvent() {
+async function fetchNextMajorEventInner() {
   const events = await fetchLiveCalendar({ weeksAhead: 2 });
   return getNextMajorEvent(new Date(), events);
 }
+
+// 60초 캐시 — Finnhub/Naver 외부 호출 비용 ↓, 홈 TTFB 단축
+export const fetchTickerQuotes = unstable_cache(
+  fetchTickerQuotesInner,
+  ['ticker-quotes-v1'],
+  { revalidate: 60, tags: ['ticker'] },
+);
+
+// 5분 캐시 — 캘린더 이벤트는 자주 변하지 않음
+export const fetchNextMajorEvent = unstable_cache(
+  fetchNextMajorEventInner,
+  ['next-major-event-v1'],
+  { revalidate: 300, tags: ['calendar'] },
+);

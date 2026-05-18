@@ -66,7 +66,9 @@ async function fetchOne(symbol: string, decimals: number): Promise<{ val: string
   }
 }
 
-export async function fetchMarketIndices(): Promise<MarketIndex[]> {
+import { unstable_cache } from 'next/cache';
+
+async function fetchMarketIndicesInner(): Promise<MarketIndex[]> {
   try {
     const results = await Promise.all(
       SYMBOLS.map(async s => {
@@ -80,3 +82,10 @@ export async function fetchMarketIndices(): Promise<MarketIndex[]> {
     return FALLBACK;
   }
 }
+
+// 60초 캐시 — Yahoo Finance 외부 호출 비용 감소
+export const fetchMarketIndices = unstable_cache(
+  fetchMarketIndicesInner,
+  ['market-indices-v1'],
+  { revalidate: 60, tags: ['market-indices'] },
+);
