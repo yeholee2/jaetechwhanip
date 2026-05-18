@@ -1250,3 +1250,38 @@
   color: var(--rw-text-muted);
   line-height: 1.55;
 }
+
+/* ETF 개요 테이블 (ETF Check 톤 — 라벨 ↔ 값) */
+.overviewTable {
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+.overviewRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 4px;
+  border-bottom: 1px solid var(--rw-hairline);
+}
+.overviewRow:last-child {
+  border-bottom: none;
+}
+.overviewRow dt {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--rw-text-muted);
+  margin: 0;
+  flex-shrink: 0;
+}
+.overviewRow dd {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--rw-text-strong);
+  margin: 0;
+  text-align: right;
+  letter-spacing: -0.1px;
+  font-feature-settings: 'tnum';
+}

@@ -396,6 +396,68 @@ export default async function EtfDetailPage({ params }: Props) {
               <EtfReturns code={etf.code} etfName={etf.shortName} lastUpdated={etfBaseDate} history={priceHistory} />
             </Suspense>
 
+            {/* ──────────── ETF 개요 테이블 (ETF Check 톤) ──────────── */}
+            <section className={styles.section} aria-label="ETF 개요">
+              <div className={styles.sectionHead}>
+                <h2>ETF 개요</h2>
+                <span>운용사·상장일·기초자산</span>
+              </div>
+              <dl className={styles.overviewTable}>
+                <div className={styles.overviewRow}>
+                  <dt>운용사</dt>
+                  <dd>{etf.issuer}</dd>
+                </div>
+                {etf.listedAt && (
+                  <div className={styles.overviewRow}>
+                    <dt>상장일</dt>
+                    <dd>{etf.listedAt}</dd>
+                  </div>
+                )}
+                {etf.theme && (
+                  <div className={styles.overviewRow}>
+                    <dt>기초자산</dt>
+                    <dd>{etf.theme}</dd>
+                  </div>
+                )}
+                {etf.trackingIndex && (
+                  <div className={styles.overviewRow}>
+                    <dt>기초지수</dt>
+                    <dd>{etf.trackingIndex}</dd>
+                  </div>
+                )}
+                <div className={styles.overviewRow}>
+                  <dt>순자산(AUM)</dt>
+                  <dd><FactValue value={etf.aum} /></dd>
+                </div>
+                <div className={styles.overviewRow}>
+                  <dt>총보수</dt>
+                  <dd><FactValue value={etf.fee} /></dd>
+                </div>
+                {liveHoldings?.holdings?.length && (
+                  <div className={styles.overviewRow}>
+                    <dt>구성종목수</dt>
+                    <dd>{liveHoldings.holdings.length}종목</dd>
+                  </div>
+                )}
+                <div className={styles.overviewRow}>
+                  <dt>거래량</dt>
+                  <dd><FactValue value={etf.volume} /></dd>
+                </div>
+                {etf.distribution && (
+                  <div className={styles.overviewRow}>
+                    <dt>분배</dt>
+                    <dd>{etf.distribution}</dd>
+                  </div>
+                )}
+                {etf.hedge && (
+                  <div className={styles.overviewRow}>
+                    <dt>환헤지</dt>
+                    <dd>{etf.hedge}</dd>
+                  </div>
+                )}
+              </dl>
+            </section>
+
             {/* ──────────── ② 건전성: 핵심 5 그리드 + 위험 등급 ──────────── */}
             <section id="sec-health" className={styles.section} aria-label="핵심 정보">
               <div className={styles.sectionHead}>
