@@ -153,7 +153,7 @@ export function EtfChart({ code, history = [], benchmarks = [], changeTone = 'fl
   };
 
   return (
-    <section className={styles.wrap} aria-label="수익률 차트">
+    <section className={styles.wrap} aria-label="가격 흐름 차트">
       <div className={styles.head}>
         <div className={styles.headLeft}>
           <h2 className={styles.title}>가격 흐름</h2>
