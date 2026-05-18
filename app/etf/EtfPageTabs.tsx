@@ -7,6 +7,7 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { listWatchedEtfCodes, subscribeWatchChanges } from '@/lib/etfWatch';
+import { listRecentEtfSlugs } from '@/lib/recentActivity';
 import styles from './EtfPageTabs.module.css';
 
 export type EtfPageTab = 'discover' | 'themes' | 'trending' | 'news' | 'all'
@@ -15,6 +16,7 @@ export type EtfPageTab = 'discover' | 'themes' | 'trending' | 'news' | 'all'
 
 const TABS: { key: EtfPageTab; label: string; href: string; badge?: string }[] = [
   { key: 'discover', label: '발견',     href: '/etf' },
+  { key: 'watch',    label: '저장',     href: '/etf?tab=watch' },
   { key: 'trending', label: '핫한 ETF', href: '/etf/trending', badge: 'AI' },
   { key: 'themes',   label: '테마·전략', href: '/etf/themes' },
   { key: 'news',     label: '뉴스',     href: '/etf/news' },
@@ -41,10 +43,12 @@ export function EtfPageTabs({ active = 'discover' }: { active?: EtfPageTab }) {
 /** 유틸리티 도구 행 — 비교/관심/진단 (발견 페이지 안에서 사용) */
 export function EtfUtilityRow() {
   const [watchCount, setWatchCount] = useState(0);
+  const [recentCount, setRecentCount] = useState(0);
   const [mounted, setMounted] = useState(false);
   useEffect(() => {
     setMounted(true);
     setWatchCount(listWatchedEtfCodes().length);
+    setRecentCount(listRecentEtfSlugs().length);
     return subscribeWatchChanges(codes => setWatchCount(codes.length));
   }, []);
   return (
@@ -59,8 +63,8 @@ export function EtfUtilityRow() {
       <Link href="/etf?tab=watch" className={styles.util}>
         <span className={styles.utilIcon} aria-hidden="true">❤️</span>
         <span className={styles.utilLabel}>
-          <strong>관심 ETF{mounted && watchCount > 0 ? ` (${watchCount})` : ''}</strong>
-          <span>등록한 종목 추적</span>
+          <strong>최근·관심{mounted && watchCount > 0 ? ` (${watchCount})` : ''}</strong>
+          <span>{mounted && recentCount > 0 ? `최근 본 ${recentCount}개` : '본 종목 다시 보기'}</span>
         </span>
       </Link>
       <Link href="/portfolio" className={styles.util}>

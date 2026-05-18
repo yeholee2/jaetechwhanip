@@ -30,6 +30,10 @@ function num(s: string | undefined): number | null {
   return v;
 }
 
+function marketValue(value: string | undefined): string {
+  return value?.trim() || '시세 미연동';
+}
+
 /**
  * 스파링 ETF 비교 모드: A vs B를 한눈에.
  * 라벨 hover → 용어 툴팁, 유리한 쪽엔 "유리" 칩.
@@ -39,15 +43,15 @@ export function EtfCompareCard({ etfA, etfB, sideALabel, sideBLabel }: Props) {
 
   const rows: Row[] = [
     {
-      label: '현재가', a: etfA.price, b: etfB.price,
+      label: '현재가', a: marketValue(etfA.price), b: marketValue(etfB.price),
       tip: { title: '현재가', body: '시장에서 거래되는 1주당 가격. 매수·매도 시 기준이 돼요.' },
     },
     {
-      label: '변동', a: etfA.change, b: etfB.change,
+      label: '변동', a: marketValue(etfA.change), b: marketValue(etfB.change),
       tip: { title: '일일 변동', body: '전일 종가 대비 가격 변화율. 단기 흐름은 변동성에 좌우돼요.' },
     },
     {
-      label: '순자산', a: etfA.aum, b: etfB.aum,
+      label: '순자산', a: marketValue(etfA.aum), b: marketValue(etfB.aum),
       tip: { title: '순자산 (AUM)', body: <>ETF에 모인 총 자산. <strong>클수록 유동성·안정성</strong> ↑.</> },
       betterIs: 'higher',
     },

@@ -9,6 +9,7 @@ import styles from './RiskMeter.module.css';
 type Point = { text: string; tone: 'good' | 'neutral' | 'warn' };
 
 type Props = {
+  title?: string;
   level: 1 | 2 | 3 | 4 | 5;
   label: string;
   tone: 'good' | 'neutral' | 'warn';
@@ -28,13 +29,13 @@ const POINT_ICON: Record<Point['tone'], { ch: string; bg: string }> = {
   warn: { ch: '!', bg: 'var(--rw-red60)' },
 };
 
-export function RiskMeter({ level, label, tone, reasons, points }: Props) {
+export function RiskMeter({ title = '위험 등급', level, label, tone, reasons, points }: Props) {
   const toneColor = TONE_COLOR[tone];
 
   return (
     <div className={styles.wrap}>
       <div className={styles.head}>
-        <span className={styles.label}>위험 등급</span>
+        <span className={styles.label}>{title}</span>
         <span className={styles.value} style={{ color: toneColor }}>
           {label} <span style={{ color: 'var(--rw-text-muted)', fontWeight: 600 }}>· {level}/5</span>
         </span>

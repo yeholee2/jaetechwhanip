@@ -13,10 +13,12 @@
  */
 
 import { useMemo, useState } from 'react';
-import { etfs, type EtfInfo } from '@/lib/etfs';
+import { getStaticEtfMetadata, type EtfInfo } from '@/lib/etfs';
 import { addHolding, type UserEtfHolding } from '@/lib/etfPortfolio';
 import { Button, Badge } from '@/components/ui';
 import styles from './BulkPasteModal.module.css';
+
+const staticEtfMetadata = getStaticEtfMetadata();
 
 type Props = {
   onClose: () => void;
@@ -73,7 +75,7 @@ function parseLine(raw: string, pool: EtfInfo[]): ParsedRow {
 }
 
 export function BulkPasteModal({ onClose, onAdded, candidates }: Props) {
-  const pool = candidates ?? etfs;
+  const pool = candidates ?? staticEtfMetadata;
   const [text, setText] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');

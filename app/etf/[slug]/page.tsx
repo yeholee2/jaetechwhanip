@@ -22,7 +22,7 @@ import {
 import { RelatedContent } from '@/components/RelatedContent';
 import { Button, Chip, Badge, Stat, DataCell, Tooltip } from '@/components/ui';
 import { lookupGlossary } from '@/lib/etfGlossary';
-import { buildEtfInsight, computeFeeStats, type EtfTag } from '@/lib/etfInsights';
+import { buildEtfInsight, computeFeeStats } from '@/lib/etfInsights';
 import { buildSectorBreakdown } from '@/lib/etfBreakdown';
 import { DonutChart, CompareBar, RiskMeter } from '@/components/ui';
 import { HoldingClickable } from '@/components/stock/HoldingClickable';
@@ -46,11 +46,22 @@ import { RangeBar } from '@/components/etf/RangeBar';
 // import { EtfChat } from '../EtfChat'; // 일단 제거
 import styles from './EtfDetailPage.module.css';
 
-/** 빈 값 처리 — "—" / null / 빈 문자열 시 시각 약화한 "정보 없음" */
-function FactValue({ value }: { value: string | null | undefined }) {
+function hasFactValue(value: string | null | undefined) {
   const v = value?.toString().trim();
-  if (!v || v === '—' || v === '-') {
-    return <span className={`${styles.factValue} ${styles.factValueEmpty}`}>정보 없음</span>;
+  return !!v && v !== '—' && v !== '-' && v !== '정보 없음';
+}
+
+/** 빈 값 처리 — 비어 있는 데이터는 투자정보처럼 보이지 않게 공시 확인 톤으로 낮춘다. */
+function FactValue({
+  value,
+  emptyLabel = '공시 확인 필요',
+}: {
+  value: string | null | undefined;
+  emptyLabel?: string;
+}) {
+  const v = value?.toString().trim();
+  if (!hasFactValue(v)) {
+    return <span className={`${styles.factValue} ${styles.factValueEmpty}`}>{emptyLabel}</span>;
   }
   return <span className={styles.factValue}>{v}</span>;
 }
@@ -65,9 +76,9 @@ export function generateStaticParams() {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const decodedSlug = decodeURIComponent(params.slug);
-  const etf = getEtfBySlug(decodedSlug)
-    || await fetchEtfBySlug(decodedSlug)
-    || await fetchEtfByCode(decodedSlug);
+  const etf = await fetchEtfBySlug(decodedSlug)
+    || await fetchEtfByCode(decodedSlug)
+    || getEtfBySlug(decodedSlug);
   if (!etf) return { title: 'ETF를 찾을 수 없어요', robots: { index: false, follow: true } };
 
   const description = truncateDescription(`${etf.name}: ${etf.summary} 현재가, 순자산, 총보수, 분배금, 환헤지, 구성종목과 관련 질문을 함께 봅니다.`, 150);
@@ -96,27 +107,23 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function EtfDetailPage({ params }: Props) {
   const decodedSlug = decodeURIComponent(params.slug);
 
-  // 1) DB 시도 (1,066 ETF 풀 — 시드에 없는 VOO 등도 매칭)
+  // 1) DB 우선. DB가 없을 때만 시드 메타데이터로 fallback한다.
   const dbEtfBySlug = await fetchEtfBySlug(decodedSlug);
   const dbEtfByCode = dbEtfBySlug || await fetchEtfByCode(decodedSlug);
-
-  // 2) 시드 + 시장 라이브 (KRX 시드 8개)
-  const marketEtfs = await getEtfsWithMarketData();
   const staticEtf = getEtfBySlug(decodedSlug);
-  const liveEtf = marketEtfs.find(item => item.slug === decodedSlug);
+  const baseEtf = dbEtfByCode || staticEtf;
 
-  const etf = liveEtf
-    || (staticEtf ? { ...staticEtf, dataNotice: '공식 API 키 등록 전 예시 데이터' } : null)
-    || (dbEtfByCode ? { ...dbEtfByCode, dataNotice: '실데이터' } : null);
+  if (!baseEtf) notFound();
 
-  if (!etf) notFound();
+  // 2) 선택된 ETF 1개에만 공공 시세 API를 코드로 매칭한다. 실패 시 시드 가격으로 대체하지 않는다.
+  const [etf] = await getEtfsWithMarketData([baseEtf]);
 
   const etfNav = 'nav' in etf ? etf.nav : undefined;
   const etfBaseDate = 'baseDate' in etf ? etf.baseDate : undefined;
   const etfPremium = 'premium' in etf ? (etf as any).premium as number | undefined : undefined;
 
   // 분절 해소: ETF 키워드로 4페이지 + 리포트 연결 + DB 풀(유사/운용사용)
-  const baseEtf = staticEtf || etf;
+  const contentBaseEtf = dbEtfByCode || staticEtf || etf;
 
   // 멀티 벤치마크 — 펀ETF 톤: KOSPI · S&P500(H) · 나스닥100(H) 동시 fetch
   const [
@@ -157,17 +164,15 @@ export default async function EtfDetailPage({ params }: Props) {
   })();
   // 이 ETF가 들어간 대가 포트폴리오 (역방향)
   const templateMentions = findTemplatesByEtfCode(etf.code);
-  const relatedSparrings = findRelatedSparringsForEtf(baseEtf as any, sparringRes.sparrings, 2);
-  const relatedArticles = findRelatedArticlesForEtf(baseEtf as any, articles, 3);
-  const relatedReports = findRelatedReportsForEtf(baseEtf as any, reports, 3);
+  const relatedSparrings = findRelatedSparringsForEtf(contentBaseEtf as any, sparringRes.sparrings, 2);
+  const relatedArticles = findRelatedArticlesForEtf(contentBaseEtf as any, articles, 3);
+  const relatedReports = findRelatedReportsForEtf(contentBaseEtf as any, reports, 3);
   // 가격 숫자 추출 (Schema.org Offer)
   const priceNumMatch = etf.price.replace(/,/g, '').match(/-?\d+(\.\d+)?/);
   const priceValue = priceNumMatch ? priceNumMatch[0] : undefined;
 
   // 자동 한줄평 + 태그
   const insight = buildEtfInsight(etf as any);
-  const tagBadgeTone = (t?: EtfTag): 'success' | 'neutral' | 'fresh' =>
-    t?.tone === 'good' ? 'success' : t?.tone === 'warn' ? 'fresh' : 'neutral';
 
   // 섹터 도넛 차트용 비중 추출
   // 섹터: 라이브 (Yahoo) 우선, 없으면 시드 holdings 분석
@@ -182,10 +187,20 @@ export default async function EtfDetailPage({ params }: Props) {
     : topSector;
 
   // 동종 카테고리 보수 비교
-  const feeStats = computeFeeStats(etf as any, etfs);
+  const feeStats = computeFeeStats(etf as any, dbPool);
 
   // 위험 등급 + 투자 포인트
   const risk = buildEtfRisk(etf as any);
+  const exposureInfo = countryInfo(etf.underlyingCountry);
+  const currencyExposure = exposureInfo.isOverseas
+    ? {
+        label: etf.hedge || `${exposureInfo.label} 자산`,
+        sub: insight.tags.hedge?.label || `${exposureInfo.label} 자산`,
+      }
+    : {
+        label: '국내 자산',
+        sub: '원화 기준',
+      };
 
   // 분배금 히스토리 (분배 있는 ETF만)
 
@@ -327,8 +342,8 @@ export default async function EtfDetailPage({ params }: Props) {
             <div className={styles.actions}>
               <WatchButton code={etf.code} shortName={etf.shortName} mode="icon" />
               <AlertButton etfCode={etf.code} etfName={etf.shortName} currentPrice={etf.price} />
-              <Button href={`/etf/compare?a=${etf.code}`} variant="ghost" size="md">비교</Button>
-              <Button href="/questions/create" variant="primary" size="md">질문하기</Button>
+              <Button href={`/etf/compare?a=${etf.code}`} variant="primary" size="md">비교하기</Button>
+              <Button href="/questions/create" variant="ghost" size="md">질문하기</Button>
             </div>
           </div>
           <div className={styles.heroPrice}>
@@ -369,10 +384,11 @@ export default async function EtfDetailPage({ params }: Props) {
           const yearAgo = Date.now() - 365 * 24 * 60 * 60 * 1000;
           const recent = priceHistory.filter(p => new Date(p.date).getTime() >= yearAgo);
           if (recent.length < 10) return null;
-          const closes = recent.map(p => p.close);
-          const low = Math.min(...closes);
-          const high = Math.max(...closes);
           const currentPrice = parseFloat(String(etf.price || '').replace(/[^\d.]/g, ''));
+          const closes = recent.map(p => p.close);
+          const rangeValues = currentPrice ? [...closes, currentPrice] : closes;
+          const low = Math.min(...rangeValues);
+          const high = Math.max(...rangeValues);
           if (!currentPrice || low === high) return null;
           return (
             <div style={{ marginBottom: 'var(--space-3)' }}>
@@ -386,14 +402,14 @@ export default async function EtfDetailPage({ params }: Props) {
           <div className={styles.heroStripCell}>
             <span className={styles.heroStripLabel}>iNAV</span>
             <strong className={styles.heroStripValue}>
-              {etfNav || <FactValue value={null} />}
+              {etfNav || <FactValue value={null} emptyLabel="공시 확인" />}
             </strong>
           </div>
           <div className={styles.heroStripCell}>
             <span className={styles.heroStripLabel}>괴리율</span>
             <strong className={styles.heroStripValue}>
               {(() => {
-                if (typeof etfPremium !== 'number') return <FactValue value={null} />;
+                if (typeof etfPremium !== 'number') return <FactValue value={null} emptyLabel="공시 확인" />;
                 const sign = etfPremium > 0 ? '+' : '';
                 const tone = Math.abs(etfPremium) > 0.5
                   ? styles.delta_down
@@ -526,15 +542,17 @@ export default async function EtfDetailPage({ params }: Props) {
                         return (
                           <div className={styles.overviewRow}>
                             <dt>52주 고저</dt>
-                            <dd><FactValue value={null} /></dd>
+                            <dd><FactValue value={null} emptyLabel="가격 데이터 부족" /></dd>
                           </div>
                         );
                       }
                       const yearAgo = Date.now() - 365 * 24 * 60 * 60 * 1000;
                       const recent = priceHistory.filter(p => new Date(p.date).getTime() >= yearAgo);
+                      const currentPrice = parseFloat(String(etf.price || '').replace(/[^\d.]/g, ''));
                       const closes = recent.map(p => p.close);
-                      const high52 = Math.max(...closes);
-                      const low52 = Math.min(...closes);
+                      const rangeValues = currentPrice ? [...closes, currentPrice] : closes;
+                      const high52 = Math.max(...rangeValues);
+                      const low52 = Math.min(...rangeValues);
                       const fmt = (n: number) => Math.round(n).toLocaleString('ko-KR') + '원';
                       return (
                         <>
@@ -598,7 +616,7 @@ export default async function EtfDetailPage({ params }: Props) {
               </p>
             </section>
 
-            {/* ──────────── ② 건전성: 핵심 5 그리드 + 위험 등급 ──────────── */}
+            {/* ──────────── ② 비용·리스크: 핵심 지표 + 참고 위험도 ──────────── */}
             <section id="sec-health" className={styles.section} aria-label="핵심 정보">
               <div className={styles.sectionHead}>
                 <h2>핵심 지표</h2>
@@ -610,21 +628,21 @@ export default async function EtfDetailPage({ params }: Props) {
                   const liveFee = liveHoldings?.expenseRatio;
                   const feeValue = liveFee != null
                     ? `연 ${(liveFee * 100).toFixed(2)}%`
-                    : (etf.fee || '운용사 공시 확인');
+                    : (hasFactValue(etf.fee) ? etf.fee : '공시 확인 필요');
                   const liveYield = liveHoldings?.dividendYield;
                   const distValue = liveYield != null
                     ? `연 ${(liveYield * 100).toFixed(2)}%`
-                    : (etf.distribution || '분배 미확정');
+                    : (hasFactValue(etf.distribution) ? etf.distribution : '공시 확인 필요');
                   return (
                     <>
                       <DataCell
                         label="총보수"
                         value={feeValue}
                         sub={liveFee != null
-                          ? (liveFee <= 0.005 ? '아주 낮음' : liveFee <= 0.01 ? '낮은 편' : liveFee <= 0.005 ? '평균' : '높은 편')
-                          : insight.tags.fee?.label || '데이터 준비 중'}
+                          ? (liveFee <= 0.001 ? '아주 낮음' : liveFee <= 0.0025 ? '낮은 편' : liveFee <= 0.005 ? '평균권' : '높은 편')
+                          : insight.tags.fee?.label || '공식 총보수 미수집'}
                         tone={liveFee != null
-                          ? (liveFee <= 0.005 ? 'good' : liveFee <= 0.015 ? 'default' : 'warn')
+                          ? (liveFee <= 0.0025 ? 'good' : liveFee <= 0.005 ? 'default' : 'warn')
                           : (insight.tags.fee?.tone === 'good' ? 'good' : insight.tags.fee?.tone === 'warn' ? 'warn' : 'default')}
                         help={
                           <>
@@ -660,15 +678,15 @@ export default async function EtfDetailPage({ params }: Props) {
                         }
                       />
                       <DataCell
-                        label="환헤지"
-                        value={etf.hedge || (etf.country === 'US' ? '환 노출' : '원화')}
-                        sub={insight.tags.hedge?.label}
+                        label="환율 영향"
+                        value={currencyExposure.label}
+                        sub={currencyExposure.sub}
                         tone={insight.tags.hedge?.tone === 'good' ? 'good' : insight.tags.hedge?.tone === 'warn' ? 'warn' : 'default'}
                         help={
                           <>
-                            <strong>환헤지(H)</strong> — 달러 변동을 차단해 순수 자산 수익만 가져감.
+                            해외 자산 ETF는 환율이 수익률에 함께 반영돼요.
                             <br />
-                            <strong>환 노출</strong> — 달러 가격 변동이 손익에 추가로 영향.
+                            <strong>환헤지(H)</strong>는 환율 영향을 줄이고, 국내 자산 ETF는 보통 원화 기준으로 봅니다.
                           </>
                         }
                       />
@@ -686,15 +704,15 @@ export default async function EtfDetailPage({ params }: Props) {
                       <>
                         이 ETF가 따라가도록 설계된 <strong>기초 지수</strong>예요.
                         <br /><br />
-                        성과는 이 지수의 움직임을 거의 그대로 따라가도록 설계됐고,
-                        실제와의 차이를 <strong>괴리율</strong>로 측정해요.
+                        지수와 기준가격의 차이는 <strong>추적오차</strong>, 시장가격과 기준가격의 차이는
+                        <strong> 괴리율</strong>로 나눠 봅니다.
                       </>
                     }
                   />
                 </div>
               )}
 
-              {/* 동종 ETF 보수 비교 — 건전성 섹션 내에 배치 */}
+              {/* 동종 ETF 보수 비교 — 비용·리스크 섹션 내에 배치 */}
               {feeStats && (
                 <div style={{ marginTop: 'var(--space-4)' }}>
                   <div className={styles.sectionSubHead}>
@@ -720,6 +738,7 @@ export default async function EtfDetailPage({ params }: Props) {
               <div className={styles.riskWrap}>
                 <p className={styles.riskOneLiner}>{insight.oneLiner}</p>
                 <RiskMeter
+                  title="참고 위험도"
                   level={risk.level}
                   label={risk.label}
                   tone={risk.tone}
@@ -729,15 +748,20 @@ export default async function EtfDetailPage({ params }: Props) {
               </div>
             </section>
 
-            {/* ──────────── ③ 속살: 구성종목 + 섹터 + 분배금 ──────────── */}
+            {/* ──────────── ③ 구성종목: 보유 종목 + 섹터 ──────────── */}
             <section id="sec-inside" className={styles.section}>
               <div className={styles.sectionHead}>
                 <h2>
-                  {liveHoldings?.holdings?.length
-                    ? `구성종목 Top ${Math.min(liveHoldings.holdings.length, 10)}`
-                    : etf.holdings?.length
-                      ? `구성종목 Top ${etf.holdings.length}`
-                      : '구성종목'}
+                  {(() => {
+                    const isNaverFallback = liveHoldings?.holdings?.length
+                      ? liveHoldings.holdings.reduce((s, h) => s + h.weight, 0) < 0.92
+                      : false;
+                    if (liveHoldings?.holdings?.length) {
+                      return `${isNaverFallback ? '구성종목 추정' : '구성종목'} Top ${Math.min(liveHoldings.holdings.length, 10)}`;
+                    }
+                    if (etf.holdings?.length) return `구성종목 참고 Top ${etf.holdings.length}`;
+                    return '구성종목';
+                  })()}
                 </h2>
                 {(() => {
                   // Naver 폴백 감지: 비중 합 < 0.92 면 Naver (Yahoo 는 ~1.0)
@@ -747,9 +771,9 @@ export default async function EtfDetailPage({ params }: Props) {
                   return (
                     <span>
                       {liveHoldings?.holdings?.length
-                        ? (isNaverFallback ? '네이버 · 시총 가중 추정' : 'Yahoo Finance · 실데이터')
+                        ? (isNaverFallback ? '공식 PDF 전 확인용' : '외부 데이터 기준')
                         : etf.holdings?.length
-                          ? '참고용 비중'
+                          ? '참고용 데이터'
                           : '운용사 공시'}
                     </span>
                   );
@@ -807,7 +831,7 @@ export default async function EtfDetailPage({ params }: Props) {
                           marginTop: 6,
                           lineHeight: 1.5,
                         }}>
-                          ≈ 비중은 종목 시가총액 가중으로 추정한 값이에요. 정확한 비중은 운용사 공시(보통 매월 갱신)를 참고하세요.
+                          ≈ 비중은 네이버 구성종목과 종목 시가총액으로 계산한 참고용 추정치예요. 정확한 비중은 운용사 공식 PDF를 확인하세요.
                         </div>
                       )}
                     </div>
@@ -933,10 +957,12 @@ export default async function EtfDetailPage({ params }: Props) {
 
             {/* ④ AI 챗 섹션 제거됨 (재추가 시 EtfChat) */}
 
-            {/* ──────────── ⑤ 사회적 증거: 유사·대가·운용사 ──────────── */}
+            <div id="sec-social" className={styles.sectionAnchor} aria-hidden="true" />
+
+            {/* ──────────── ④ 비교 ETF: 유사·대가·운용사 ──────────── */}
             {/* 유사 ETF (점수 기반: 추종지수/추종국가/카테고리/테마/운용사 매칭) */}
             {similarResults.length > 0 && (
-              <section id="sec-social" className={styles.section}>
+              <section className={styles.section}>
                 <div className={styles.sectionHead}>
                   <h2>비슷한 ETF</h2>
                   <span>{similarResults.length}개</span>
@@ -1060,17 +1086,16 @@ export default async function EtfDetailPage({ params }: Props) {
               <div className={styles.stickyActions}>
                 <WatchButton code={etf.code} shortName={etf.shortName} mode="icon" />
                 <AlertButton etfCode={etf.code} etfName={etf.shortName} currentPrice={etf.price} />
-                <Link href={`/etf/compare?a=${etf.code}`} className={styles.stickyActBtn} aria-label="비교">
+                <Link href={`/etf/compare?a=${etf.code}`} className={`${styles.stickyActBtn} ${styles.stickyActPrimary}`} aria-label="비교">
                   <FaIcon name="scale-balanced" size={14} />
                 </Link>
-                <Link href="/questions/create" className={`${styles.stickyActBtn} ${styles.stickyActPrimary}`} aria-label="질문하기">
+                <Link href="/questions/create" className={styles.stickyActBtn} aria-label="질문하기">
                   <FaIcon name="comment-dots" size={14} />
                 </Link>
               </div>
               <div className={styles.sideQuickHead}>
                 <span className={styles.sideQuickEyebrow}>
-                  <span className={`${styles.sideQuickSparkle} tf`} aria-hidden="true">✨</span>
-                  한입 요약
+                  핵심 요약
                 </span>
                 <span className={styles.sideQuickCode}>{etf.code}</span>
               </div>
@@ -1097,9 +1122,9 @@ export default async function EtfDetailPage({ params }: Props) {
                 </div>
                 <div>
                   <span className={styles.factLabel}>
-                    위험
-                    <Tooltip label="위험 등급" title="위험 등급" align="left">
-                      변동성·하락 가능성·자산 종류를 종합한 5단계 등급. <strong>1등급이 가장 위험</strong>, 5등급이 가장 안전해요.
+                    리스크
+                    <Tooltip label="참고 위험도" title="참고 위험도" align="left">
+                      변동성·하락 가능성·자산 종류를 종합한 재테크한입 기준 참고 등급이에요. 공식 투자위험등급은 투자설명서를 확인하세요.
                     </Tooltip>
                   </span>
                   <span
@@ -1109,18 +1134,18 @@ export default async function EtfDetailPage({ params }: Props) {
                              risk.tone === 'warn' ? 'var(--rw-red60)' : 'var(--rw-text-strong)',
                     }}
                   >
-                    {risk.label}
+                    참고 {risk.label}
                   </span>
                 </div>
                 <div>
                   <span className={styles.factLabel}>
-                    환노출
-                    <Tooltip label="환노출" title="환노출" align="left">
-                      해외 자산을 담은 ETF는 환율에 영향을 받아요. <strong>환헤지(H)</strong>는 환율 영향을 차단하고, <strong>환 노출</strong>은 그대로 가져가요.
+                    환율 영향
+                    <Tooltip label="환율 영향" title="환율 영향" align="left">
+                      해외 자산 ETF는 환율에 영향을 받아요. 국내 자산 ETF는 보통 원화 기준으로 비교합니다.
                     </Tooltip>
                   </span>
                   <span className={styles.factValue}>
-                    {etf.underlyingCountry === 'KR' ? '없음' : countryInfo(etf.underlyingCountry).label}
+                    {currencyExposure.label}
                   </span>
                 </div>
                 <div>
@@ -1203,7 +1228,7 @@ export default async function EtfDetailPage({ params }: Props) {
               <section className={styles.sideCard}>
                 <MentionedPosts
                   posts={creatorPosts}
-                  title={`📝 ${etf.shortName} 을(를) 다룬 글`}
+                  title={`${etf.shortName} 관련 글`}
                 />
               </section>
             )}

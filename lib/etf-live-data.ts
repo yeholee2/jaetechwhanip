@@ -1,8 +1,8 @@
-import { etfs, type EtfInfo } from '@/lib/etfs';
+import { etfs, stripEtfMarketSnapshot, type EtfInfo } from '@/lib/etfs';
 
 type PublicEtfPriceRow = Record<string, string | number | null | undefined>;
 
-export type EtfDataSource = 'public-api' | 'fallback' | 'us-market';
+export type EtfDataSource = 'public-api' | 'database' | 'static' | 'missing' | 'us-market';
 
 export type EtfInfoWithMarketData = EtfInfo & {
   dataSource: EtfDataSource;
@@ -29,7 +29,7 @@ function isMarketHours(): boolean {
   return mins >= 9 * 60 && mins <= 15 * 60 + 30; // 9:00–15:30 KST
 }
 
-export async function getEtfsWithMarketData(): Promise<EtfInfoWithMarketData[]> {
+export async function getEtfsWithMarketData(baseEtfs: EtfInfo[] = etfs): Promise<EtfInfoWithMarketData[]> {
   const publicRows = await fetchAllPublicEtfPriceRows();
 
   // 공공 API 결과 매핑용 인덱스 (O(n²) 회피)
@@ -39,33 +39,23 @@ export async function getEtfsWithMarketData(): Promise<EtfInfoWithMarketData[]> 
     if (code) rowByCode.set(code, row);
   }
 
-  return etfs.map(etf => {
-    // 1) 미국 상장 ETF — 한국 공공 API 대상 아님. Yahoo Finance가 다른 경로에서 처리.
+  const inputEtfs = baseEtfs === etfs ? baseEtfs.map(stripEtfMarketSnapshot) : baseEtfs;
+
+  return inputEtfs.map(etf => {
+    // 1) 미국 상장 ETF — 한국 공공 API 대상 아님. 별도 미국 시세 API가 붙기 전까지 캐시/공백만 표시.
     if (etf.country === 'US') {
-      return {
-        ...etf,
-        dataSource: 'us-market',
-        dataNotice: '미국 시장 — Yahoo Finance 데이터 사용',
-      };
+      return withCachedOrMissing(etf, '미국 상장 ETF 시세 API 미연동');
     }
 
-    // 2) 키 미등록 → 전체 fallback
+    // 2) 키 미등록 → 시드값으로 위장하지 않고 DB 캐시 또는 공백만 반환
     if (publicRows.length === 0) {
-      return {
-        ...etf,
-        dataSource: 'fallback',
-        dataNotice: '공공데이터 API 키 등록 전 예시 데이터',
-      };
+      return withCachedOrMissing(etf, '공공데이터 ETF 시세 API 미연동');
     }
 
     // 3) 한국 ETF — 공공 API 매칭
     const row = rowByCode.get(etf.code);
     if (!row) {
-      return {
-        ...etf,
-        dataSource: 'fallback',
-        dataNotice: '거래정지 또는 신규 상장으로 시세 미수신',
-      };
+      return withCachedOrMissing(etf, '공공데이터 ETF 시세 API에서 종목 미수신');
     }
 
     const changeRate = parseNumber(readField(row, 'fltRt'));
@@ -75,11 +65,11 @@ export async function getEtfsWithMarketData(): Promise<EtfInfoWithMarketData[]> 
 
     return {
       ...etf,
-      price: formatWon(readField(row, 'clpr')) || etf.price,
-      change: formatRate(changeRate) || etf.change,
+      price: formatWon(readField(row, 'clpr')),
+      change: formatRate(changeRate),
       changeTone: changeRate > 0 ? 'up' : changeRate < 0 ? 'down' : 'flat',
-      volume: formatShares(readField(row, 'trqu')) || etf.volume,
-      aum: formatLargeWon(readField(row, 'mrktTotAmt')) || etf.aum,
+      volume: formatShares(readField(row, 'trqu')),
+      aum: formatLargeWon(readField(row, 'mrktTotAmt')),
       nav: formatWon(readField(row, 'nav')),
       tradeValue: formatLargeWon(readField(row, 'trPrc')),
       baseDate: formatBaseDate(readField(row, 'basDt')),
@@ -88,6 +78,44 @@ export async function getEtfsWithMarketData(): Promise<EtfInfoWithMarketData[]> 
       dataNotice: '금융위원회 증권상품시세정보 기준',
     };
   });
+}
+
+function hasCachedMarketSnapshot(etf: EtfInfo) {
+  return Boolean(etf.price || etf.change || etf.volume || etf.aum || etf.nav || etf.baseDate);
+}
+
+function withCachedOrMissing(etf: EtfInfo, reason: string): EtfInfoWithMarketData {
+  if (etf.dataSource === 'static') {
+    return {
+      ...stripEtfMarketSnapshot(etf),
+      dataSource: 'static',
+      dataNotice: `${reason} - 시드 시세는 표시하지 않음`,
+    };
+  }
+
+  if (hasCachedMarketSnapshot(etf)) {
+    return {
+      ...etf,
+      dataSource: 'database',
+      dataNotice: etf.baseDate
+        ? `DB 저장 시세 · ${etf.baseDate} 기준`
+        : `DB 저장 시세 · ${reason}`,
+    };
+  }
+
+  return {
+    ...etf,
+    price: '',
+    change: '',
+    changeTone: 'flat',
+    volume: '',
+    aum: '',
+    nav: '',
+    tradeValue: '',
+    baseDate: '',
+    dataSource: 'missing',
+    dataNotice: reason,
+  };
 }
 
 /** 페이지네이션 자동 — totalCount 보고 모든 페이지 호출 */

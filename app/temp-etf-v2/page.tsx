@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { AppShell } from '@/components/AppShell';
 import { FaIcon } from '@/components/FaIcon';
-import { etfPath, etfs, type EtfInfo } from '@/lib/etfs';
+import { etfPath, getStaticEtfMetadata, type EtfInfo } from '@/lib/etfs';
 import styles from './TempEtfV2.module.css';
 
 export const metadata: Metadata = {
@@ -13,7 +13,7 @@ export const metadata: Metadata = {
   },
 };
 
-const [sp500, nasdaq, dividend, sp500Tr, semiconductor] = etfs;
+const [sp500, nasdaq, dividend, sp500Tr, semiconductor] = getStaticEtfMetadata();
 const optionAEtfs = [sp500, nasdaq, dividend];
 const optionBEtfs = [sp500, dividend, semiconductor];
 const optionCEtfs = [sp500, sp500Tr, nasdaq, dividend];
@@ -102,7 +102,7 @@ export default function TempEtfV2Page() {
                     <span>{etf.fee}</span>
                     <span>{etf.distribution}</span>
                     <span>{etf.hedge}</span>
-                    <b className={etf.changeTone === 'down' ? styles.down : styles.up}>{etf.change}</b>
+                    <b>시세 미연동</b>
                   </Link>
                 ))}
               </div>
@@ -153,8 +153,8 @@ function FeaturedEtfCard({ etf, variant }: { etf: EtfInfo; variant: 'finder' }) 
       <h3>{etf.name}</h3>
       <p>{etf.oneLine}</p>
       <div className={styles.featuredPrice}>
-        <strong>{etf.price}</strong>
-        <b className={etf.changeTone === 'down' ? styles.down : styles.up}>{etf.change}</b>
+        <strong>{etf.price || '시세 미연동'}</strong>
+        {etf.change && <b className={etf.changeTone === 'down' ? styles.down : styles.up}>{etf.change}</b>}
       </div>
       <div className={styles.featuredMeta}>
         <span>보수 {etf.fee}</span>
@@ -174,8 +174,8 @@ function EtfRowCard({ etf, index }: { etf: EtfInfo; index: number }) {
         <p>{etf.code} · {etf.summary}</p>
       </div>
       <div>
-        <b>{etf.price}</b>
-        <em className={etf.changeTone === 'down' ? styles.down : styles.up}>{etf.change}</em>
+        <b>{etf.price || '시세 미연동'}</b>
+        {etf.change && <em className={etf.changeTone === 'down' ? styles.down : styles.up}>{etf.change}</em>}
       </div>
     </Link>
   );
@@ -190,8 +190,8 @@ function BriefEtfCard({ etf }: { etf: EtfInfo }) {
         <p>{etf.oneLine}</p>
       </div>
       <div className={styles.briefFoot}>
-        <b>{etf.price}</b>
-        <em className={etf.changeTone === 'down' ? styles.down : styles.up}>{etf.change}</em>
+        <b>{etf.price || '시세 미연동'}</b>
+        {etf.change && <em className={etf.changeTone === 'down' ? styles.down : styles.up}>{etf.change}</em>}
       </div>
     </Link>
   );

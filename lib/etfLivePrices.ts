@@ -1,7 +1,7 @@
 /**
  * 클라이언트에서 ETF 실시간 시세를 가져오는 헬퍼.
  *
- * 5분 캐시. fallback이면 호출자가 etf.price 등 시드 값을 그대로 쓰면 됨.
+ * 5분 캐시. static/missing 출처는 시세 계산에 쓰지 않는다.
  */
 
 export type EtfLivePrice = {
@@ -13,13 +13,16 @@ export type EtfLivePrice = {
   aum?: string;
   nav?: string;
   baseDate?: string;
-  dataSource: 'public-api' | 'fallback';
+  dataSource: 'public-api' | 'database' | 'static' | 'missing' | 'us-market';
 };
 
 export type EtfLivePricesResponse = {
   items: EtfLivePrice[];
-  source: 'live' | 'fallback';
+  source: 'live' | 'database' | 'static' | 'missing';
   liveCount: number;
+  databaseCount?: number;
+  staticCount?: number;
+  missingCount?: number;
   totalCount: number;
   fetchedAt: string;
 };
@@ -47,6 +50,7 @@ export async function fetchEtfLivePrices(): Promise<EtfLivePricesResponse | null
 export function buildLivePriceMap(items: EtfLivePrice[]): Record<string, EtfLivePrice> {
   const map: Record<string, EtfLivePrice> = {};
   for (const item of items) {
+    if (!item.price || item.dataSource === 'static' || item.dataSource === 'missing') continue;
     map[item.code] = item;
   }
   return map;

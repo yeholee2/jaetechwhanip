@@ -3,8 +3,10 @@
  *
  * SEO 강화용. /topics/[slug] 랜딩 페이지에서 사용.
  */
-import { etfs, type EtfInfo } from '@/lib/etfs';
+import { getStaticEtfMetadata, type EtfInfo } from '@/lib/etfs';
 import { GLOSSARY, type GlossaryEntry } from '@/lib/etfGlossary';
+
+const staticEtfs = getStaticEtfMetadata();
 
 type TopicExtras = {
   /** 관련 ETF 코드 (없으면 keywords로 fallback 매칭) */
@@ -59,12 +61,12 @@ export function getTopicExtras(categoryKey: string, keywords: string[]): {
   let etfList: EtfInfo[] = [];
   if (extras.etfCodes?.length) {
     etfList = extras.etfCodes
-      .map(code => etfs.find(e => e.code === code))
+      .map(code => staticEtfs.find(e => e.code === code))
       .filter((e): e is EtfInfo => !!e);
   }
   if (etfList.length < 4) {
     const kwLower = keywords.map(k => k.toLowerCase());
-    const more = etfs
+    const more = staticEtfs
       .filter(e => !etfList.find(x => x.code === e.code))
       .filter(e =>
         kwLower.some(kw =>

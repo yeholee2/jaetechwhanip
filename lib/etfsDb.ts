@@ -1,12 +1,13 @@
 /**
  * Supabase public.etfs 에서 ETF 목록 조회.
- * DB 비어있거나 키 미설정 시 시드(lib/etfs.ts) fallback.
+ * DB 비어있거나 키 미설정 시 시드(lib/etfs.ts)의 메타데이터만 fallback.
+ * 시드 가격/거래량/순자산은 실제 시세처럼 보이지 않도록 제거한다.
  *
  * 사용 예 (server component):
  *   const etfs = await fetchEtfs();  // DB 있으면 DB, 없으면 시드
  */
 
-import { etfs as seedEtfs, type EtfInfo } from '@/lib/etfs';
+import { getStaticEtfMetadata, type EtfInfo } from '@/lib/etfs';
 
 type RawRow = {
   slug: string;
@@ -71,10 +72,18 @@ function rowToInfo(row: RawRow): EtfInfo {
     currency: row.currency || 'KRW',
     underlyingCountry: row.underlying_country || 'KR',
     trackingIndex: row.tracking_index || '',
+    baseDate: row.base_date || '',
+    nav: row.nav || '',
+    dataSource: row.data_source || 'database',
+    dataNotice: row.base_date ? `DB 저장 시세 · ${row.base_date} 기준` : 'DB 저장 ETF 정보',
   };
 }
 
 let memoryCache: { data: EtfInfo[]; expiresAt: number } | null = null;
+
+function staticFallback(limit: number): EtfInfo[] {
+  return getStaticEtfMetadata().slice(0, limit);
+}
 
 export async function fetchEtfs(limit = 1000): Promise<EtfInfo[]> {
   const now = Date.now();
@@ -82,7 +91,7 @@ export async function fetchEtfs(limit = 1000): Promise<EtfInfo[]> {
 
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  if (!url || !key) return seedEtfs;
+  if (!url || !key) return staticFallback(limit);
 
   try {
     const res = await fetch(
@@ -92,14 +101,14 @@ export async function fetchEtfs(limit = 1000): Promise<EtfInfo[]> {
         next: { revalidate: 600 },
       },
     );
-    if (!res.ok) return seedEtfs;
+    if (!res.ok) return staticFallback(limit);
     const data: RawRow[] = await res.json();
-    if (!Array.isArray(data) || data.length === 0) return seedEtfs;
+    if (!Array.isArray(data) || data.length === 0) return staticFallback(limit);
     const list = data.map(rowToInfo);
     memoryCache = { data: list, expiresAt: now + 10 * 60 * 1000 };
     return list;
   } catch {
-    return seedEtfs;
+    return staticFallback(limit);
   }
 }
 

@@ -18,7 +18,7 @@ import {
   summarizePortfolio,
 } from '@/lib/etfPortfolio';
 import { etfPath } from '@/lib/etfs';
-import { fetchEtfLivePrices } from '@/lib/etfLivePrices';
+import { fetchEtfLivePrices, type EtfLivePrice } from '@/lib/etfLivePrices';
 import { HoldingAddModal } from './HoldingAddModal';
 import styles from './MyEtfSection.module.css';
 
@@ -30,10 +30,11 @@ const ACTIONS = [
   { key: 'allocation', label: '비중', icon: '🥧' },
 ] as const;
 
-/** live prices API 응답 → code: number 맵 */
-function parseLivePriceMap(items: { code: string; price: string }[]): Record<string, number> {
+/** live prices API 응답 → code: number 맵. static/missing 출처는 평가금액 계산에서 제외. */
+function parseLivePriceMap(items: EtfLivePrice[]): Record<string, number> {
   const map: Record<string, number> = {};
   for (const item of items) {
+    if (item.dataSource === 'static' || item.dataSource === 'missing') continue;
     const m = item.price.replace(/,/g, '').match(/\d+(\.\d+)?/);
     if (m) map[item.code] = parseFloat(m[0]);
   }

@@ -5,10 +5,12 @@
  * 각 ETF에서 키워드 사전을 만들고, 임의 텍스트에 키워드가 포함되면 연관으로 판단.
  */
 
-import { etfs, type EtfInfo } from '@/lib/etfs';
+import { getStaticEtfMetadata, type EtfInfo } from '@/lib/etfs';
 import type { Sparring } from '@/lib/sparring';
 import type { HanipArticle } from '@/lib/feed';
 import type { ReportItem } from '@/lib/reports';
+
+const staticEtfs = getStaticEtfMetadata();
 
 export type RelatedQuestion = {
   slug: string;
@@ -70,7 +72,7 @@ function scoreEtfForText(etf: EtfInfo, text: string): number {
  */
 export function findEtfsForText(text: string, limit = 3): EtfInfo[] {
   if (!text) return [];
-  const scored = etfs
+  const scored = staticEtfs
     .map(etf => ({ etf, score: scoreEtfForText(etf, text) }))
     .filter(x => x.score > 0)
     .sort((a, b) => b.score - a.score);

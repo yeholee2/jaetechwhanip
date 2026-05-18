@@ -1,10 +1,10 @@
-/* 섹션 앵커 nav — sticky 가로 5탭 (PC), 모바일에선 가로 스크롤 */
+/* 섹션 앵커 nav — sticky 가로 탭 (PC), 모바일에선 가로 스크롤 */
 .nav {
   position: sticky;
   top: 64px;
   z-index: 20;
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 4px;
   padding: 6px;
   background: var(--rw-card);

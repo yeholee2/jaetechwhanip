@@ -1,5 +1,6 @@
 import { ImageResponse } from 'next/og';
-import { getEtfBySlug } from '@/lib/etfs';
+import { getEtfBySlug, stripEtfMarketSnapshot } from '@/lib/etfs';
+import { fetchEtfByCode, fetchEtfBySlug } from '@/lib/etfsDb';
 
 export const runtime = 'edge';
 export const size = { width: 1200, height: 630 };
@@ -7,7 +8,11 @@ export const contentType = 'image/png';
 export const alt = '재테크한입 — ETF 정보';
 
 export default async function Image({ params }: { params: { slug: string } }) {
-  const etf = getEtfBySlug(params.slug);
+  const decodedSlug = decodeURIComponent(params.slug);
+  const staticEtf = getEtfBySlug(decodedSlug);
+  const etf = await fetchEtfBySlug(decodedSlug)
+    || await fetchEtfByCode(decodedSlug)
+    || (staticEtf ? stripEtfMarketSnapshot(staticEtf) : undefined);
 
   if (!etf) {
     return new ImageResponse(
@@ -33,6 +38,7 @@ export default async function Image({ params }: { params: { slug: string } }) {
   }
 
   const changeColor = etf.changeTone === 'down' ? '#3182f6' : '#e42939';
+  const hasPrice = Boolean(etf.price && etf.dataSource !== 'static');
 
   return new ImageResponse(
     (
@@ -106,24 +112,25 @@ export default async function Image({ params }: { params: { slug: string } }) {
           {etf.name}
         </div>
 
-        {/* 가격 + 변동 */}
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'baseline',
-            gap: 20,
-            marginBottom: 32,
-          }}
-        >
-          <div style={{ display: 'flex', fontSize: 56, fontWeight: 900, color: '#191f28' }}>
-            {etf.price}
+        {hasPrice && (
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'baseline',
+              gap: 20,
+              marginBottom: 32,
+            }}
+          >
+            <div style={{ display: 'flex', fontSize: 56, fontWeight: 900, color: '#191f28' }}>
+              {etf.price}
+            </div>
+            <div style={{ display: 'flex', fontSize: 32, fontWeight: 800, color: changeColor }}>
+              {etf.change}
+            </div>
           </div>
-          <div style={{ display: 'flex', fontSize: 32, fontWeight: 800, color: changeColor }}>
-            {etf.change}
-          </div>
-        </div>
+        )}
 
-        {/* 한입 요약 */}
+        {/* 핵심 요약 */}
         <div
           style={{
             display: 'flex',
@@ -138,7 +145,7 @@ export default async function Image({ params }: { params: { slug: string } }) {
             maxWidth: 1040,
           }}
         >
-          {etf.oneLine || etf.summary}
+          {etf.oneLine || etf.summary || `${etf.issuer} 운용 ETF 정보`}
         </div>
 
         {/* 하단 메타 */}
@@ -153,11 +160,11 @@ export default async function Image({ params }: { params: { slug: string } }) {
             fontWeight: 700,
           }}
         >
-          <div style={{ display: 'flex' }}>총보수 {etf.fee}</div>
-          <div style={{ display: 'flex' }}>·</div>
-          <div style={{ display: 'flex' }}>순자산 {etf.aum}</div>
-          <div style={{ display: 'flex' }}>·</div>
-          <div style={{ display: 'flex' }}>{etf.distribution}</div>
+          {etf.fee && <div style={{ display: 'flex' }}>총보수 {etf.fee}</div>}
+          {etf.fee && etf.aum && <div style={{ display: 'flex' }}>·</div>}
+          {etf.aum && <div style={{ display: 'flex' }}>순자산 {etf.aum}</div>}
+          {(etf.fee || etf.aum) && etf.distribution && <div style={{ display: 'flex' }}>·</div>}
+          {etf.distribution && <div style={{ display: 'flex' }}>{etf.distribution}</div>}
         </div>
       </div>
     ),

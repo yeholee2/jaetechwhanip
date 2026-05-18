@@ -46,6 +46,16 @@ export type EtfInfo = {
   underlyingCountry?: string;
   /** 추종 지수명 (예: 'KRX 바이오 TOP 10 지수', 'S&P 500 Index'). */
   trackingIndex?: string;
+  /** 가격/순자산 등 시장 스냅샷 기준일. */
+  baseDate?: string;
+  /** ETF 기준가격/NAV. */
+  nav?: string;
+  /** 거래대금. */
+  tradeValue?: string;
+  /** 데이터 출처. static이면 시드 메타데이터이며 시장 스냅샷으로 쓰면 안 된다. */
+  dataSource?: string;
+  /** 사용자에게 표시할 데이터 출처 안내. */
+  dataNotice?: string;
 };
 
 export const ETF_HOME_PATH = '/etf';
@@ -62,15 +72,15 @@ export const etfs: EtfInfo[] = [
     theme: 'S&P500',
     summary: '미국 대표 500개 기업에 원화 계좌로 분산 투자하는 ETF예요.',
     oneLine: '환전 없이 S&P500에 장기 적립하고 싶을 때 먼저 비교해요.',
-    price: '20,185원',
-    change: '+0.86%',
-    changeTone: 'up',
-    aum: '5조 8,420억',
+    price: '',
+    change: '',
+    changeTone: 'flat',
+    aum: '',
     fee: '연 0.07%',
     distribution: '분기 지급',
     hedge: '미실시',
     listedAt: '2020.08.07',
-    volume: '1,284만주',
+    volume: '',
     tags: ['S&P500', 'ISA', '연금저축', '분기분배'],
     fit: 'ISA·연금저축',
     holdings: [
@@ -94,15 +104,15 @@ export const etfs: EtfInfo[] = [
     theme: '나스닥100',
     summary: '나스닥100 지수를 따라가되 분배금을 재투자하는 TR형 ETF예요.',
     oneLine: '분배금보다 장기 복리와 성장주 노출을 우선할 때 비교해요.',
-    price: '19,240원',
-    change: '+1.12%',
-    changeTone: 'up',
-    aum: '3조 1,080억',
+    price: '',
+    change: '',
+    changeTone: 'flat',
+    aum: '',
     fee: '연 0.05%',
     distribution: '재투자',
     hedge: '미실시',
     listedAt: '2021.04.09',
-    volume: '642만주',
+    volume: '',
     tags: ['나스닥100', 'TR', '성장주', '장기투자'],
     fit: '장기 복리',
     holdings: [
@@ -126,15 +136,15 @@ export const etfs: EtfInfo[] = [
     theme: '배당성장',
     summary: '미국 배당성장주에 투자해 분배금 흐름을 체감하기 쉬운 ETF예요.',
     oneLine: '월급 같은 현금흐름을 원할 때 배당률만 보지 않고 비교해요.',
-    price: '12,480원',
-    change: '+0.34%',
-    changeTone: 'up',
-    aum: '2조 4,330억',
+    price: '',
+    change: '',
+    changeTone: 'flat',
+    aum: '',
     fee: '연 0.01%',
     distribution: '월 지급',
     hedge: '미실시',
     listedAt: '2021.10.21',
-    volume: '384만주',
+    volume: '',
     tags: ['배당', '월배당', 'SCHD', '현금흐름'],
     fit: '월분배 선호',
     holdings: [
@@ -158,15 +168,15 @@ export const etfs: EtfInfo[] = [
     theme: 'S&P500 TR',
     summary: 'S&P500 분배금을 자동 재투자하는 TR형 ETF예요.',
     oneLine: '분배금을 바로 쓰지 않는 장기투자자라면 비교 후보가 돼요.',
-    price: '17,930원',
-    change: '+0.79%',
-    changeTone: 'up',
-    aum: '1조 9,240억',
+    price: '',
+    change: '',
+    changeTone: 'flat',
+    aum: '',
     fee: '연 0.05%',
     distribution: '재투자',
     hedge: '미실시',
     listedAt: '2021.04.09',
-    volume: '418만주',
+    volume: '',
     tags: ['S&P500', 'TR', '재투자', '장기투자'],
     fit: '분배금 불필요',
     holdings: [
@@ -190,15 +200,15 @@ export const etfs: EtfInfo[] = [
     theme: '반도체',
     summary: '미국 반도체 대표 기업에 집중 투자하는 테마형 ETF예요.',
     oneLine: '엔비디아를 직접 사기 부담스러울 때 ETF 노출로 비교해요.',
-    price: '22,640원',
-    change: '-0.28%',
-    changeTone: 'down',
-    aum: '2조 980억',
+    price: '',
+    change: '',
+    changeTone: 'flat',
+    aum: '',
     fee: '연 0.49%',
     distribution: '분기 지급',
     hedge: '미실시',
     listedAt: '2021.04.09',
-    volume: '521만주',
+    volume: '',
     tags: ['반도체', '엔비디아', 'AI', '테마형'],
     fit: '테마 투자',
     holdings: [
@@ -276,20 +286,43 @@ export function etfUrl(slug: string) {
 }
 
 export function getEtfBySlug(slug: string) {
-  return etfs.find(etf => etf.slug === decodeURIComponent(slug));
+  const match = etfs.find(etf => etf.slug === decodeURIComponent(slug));
+  return match ? stripEtfMarketSnapshot(match) : undefined;
 }
 
 /** ETF 종목 코드(6자리)로 ETF 찾기. */
 export function getEtfByCode(code: string | null | undefined) {
   if (!code) return undefined;
-  return etfs.find(etf => etf.code === code);
+  const match = etfs.find(etf => etf.code === code);
+  return match ? stripEtfMarketSnapshot(match) : undefined;
+}
+
+export function stripEtfMarketSnapshot(etf: EtfInfo): EtfInfo {
+  return {
+    ...etf,
+    price: '',
+    change: '',
+    changeTone: 'flat',
+    aum: '',
+    volume: '',
+    nav: '',
+    tradeValue: '',
+    baseDate: '',
+    dataSource: 'static',
+    dataNotice: '시드 메타데이터 - 실시간 시세 미연동',
+  };
+}
+
+export function getStaticEtfMetadata(): EtfInfo[] {
+  return etfs.map(stripEtfMarketSnapshot);
 }
 
 export function getRelatedEtfs(currentSlug: string, limit = 3) {
   const current = getEtfBySlug(currentSlug);
-  if (!current) return etfs.slice(0, limit);
+  const staticEtfs = getStaticEtfMetadata();
+  if (!current) return staticEtfs.slice(0, limit);
 
-  return etfs
+  return staticEtfs
     .filter(etf => etf.slug !== current.slug)
     .sort((a, b) => scoreRelatedEtf(b, current) - scoreRelatedEtf(a, current))
     .slice(0, limit);

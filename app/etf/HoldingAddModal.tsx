@@ -5,9 +5,11 @@
  * ETF 자동완성(etfs.ts) + 수량/평단/계좌라벨 입력.
  */
 import { useMemo, useState } from 'react';
-import { etfs, type EtfInfo } from '@/lib/etfs';
+import { getStaticEtfMetadata, type EtfInfo } from '@/lib/etfs';
 import { addHolding, type UserEtfHolding } from '@/lib/etfPortfolio';
 import styles from './HoldingAddModal.module.css';
+
+const staticEtfMetadata = getStaticEtfMetadata();
 
 type Props = {
   onClose: () => void;
@@ -19,7 +21,7 @@ type Props = {
 const ACCOUNT_LABELS = ['일반', 'ISA', '연금저축', 'IRP'] as const;
 
 export function HoldingAddModal({ onClose, onAdded, candidates }: Props) {
-  const pool = candidates ?? etfs;
+  const pool = candidates ?? staticEtfMetadata;
   const [search, setSearch] = useState('');
   const [picked, setPicked] = useState<{ code: string; name: string } | null>(null);
   const [quantity, setQuantity] = useState('');

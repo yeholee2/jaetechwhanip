@@ -17,7 +17,6 @@ import { InsightCarousel } from './InsightCarousel';
 import { FeaturePromo } from './FeaturePromo';
 import { WatchList } from './WatchList';
 import { PortfolioDiagnostic } from './PortfolioDiagnostic';
-import { EtfLearnCard } from './EtfLearnCard';
 import { PageSidebar } from '@/components/PageSidebar';
 import { getFeaturedActiveSparring, listSparrings } from '@/lib/sparring';
 
@@ -51,9 +50,12 @@ function getActiveTab(raw?: string): EtfPageTab {
 export default async function EtfPage({
   searchParams,
 }: {
-  searchParams?: { tab?: string };
+  searchParams?: { tab?: string; view?: string };
 }) {
   const active = getActiveTab(searchParams?.tab);
+  const savedListView = searchParams?.view === 'watch' ? 'watch' : 'recent';
+  const sidebarWidgets: import('@/components/PageSidebar').SidebarWidget[] =
+    active === 'watch' ? ['sparring', 'help'] : ['sparring', 'watch', 'help'];
   const [{ sparrings }, etfs] = await Promise.all([
     listSparrings(),
     fetchEtfs(2000),
@@ -98,12 +100,12 @@ export default async function EtfPage({
             <EtfPageTabs active={active} />
 
             {active === 'discover' && <DiscoverTab allEtfs={etfs} />}
-            {active === 'watch' && <WatchTabPlaceholder allEtfs={etfs} />}
+            {active === 'watch' && <WatchTabPlaceholder allEtfs={etfs} initialView={savedListView} />}
             {active === 'diagnostic' && <DiagnosticTabPlaceholder allEtfs={etfs} />}
             {active === 'feed' && <FeedTabPlaceholder />}
           </div>
 
-          <PageSidebar widgets={['sparring', 'watch', 'help']} featuredSparring={featured} />
+          <PageSidebar widgets={sidebarWidgets} featuredSparring={featured} />
         </div>
       </main>
     </AppShell>
@@ -125,9 +127,6 @@ async function DiscoverTab({ allEtfs }: { allEtfs: import('@/lib/etfs').EtfInfo[
 
       {/* 3. 요즘 뜨는 테마 (mini) — AI 요약 포함 */}
       <ThemeToggle allEtfs={allEtfs} />
-
-      {/* 4. ETF 입문 가이드 (첫 사용자용) */}
-      <EtfLearnCard />
     </div>
   );
 }
@@ -163,8 +162,14 @@ function ComingSoonCard({
   );
 }
 
-function WatchTabPlaceholder({ allEtfs }: { allEtfs: import('@/lib/etfs').EtfInfo[] }) {
-  return <WatchList allEtfs={allEtfs} />;
+function WatchTabPlaceholder({
+  allEtfs,
+  initialView,
+}: {
+  allEtfs: import('@/lib/etfs').EtfInfo[];
+  initialView: 'recent' | 'watch';
+}) {
+  return <WatchList allEtfs={allEtfs} initialView={initialView} />;
 }
 
 function DiagnosticTabPlaceholder({ allEtfs }: { allEtfs: import('@/lib/etfs').EtfInfo[] }) {

@@ -2,7 +2,7 @@
  * <Stat> — 큰 숫자 + 변화 표시 (Toss 스타일).
  *
  * 사용:
- *   <Stat label="현재가" value="20,185원" delta="+0.86%" tone="up" size="lg" />
+ *   <Stat label="현재가" value="API 시세" delta="+0.00%" tone="up" size="lg" />
  *   <Stat label="평가액" value={formatKRW(value)} foot="시세 기준" size="md" />
  */
 

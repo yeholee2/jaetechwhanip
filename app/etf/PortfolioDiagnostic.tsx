@@ -9,13 +9,15 @@ import {
   buildHoldingDisplays,
   summarizePortfolio,
 } from '@/lib/etfPortfolio';
-import { etfs, type EtfInfo } from '@/lib/etfs';
+import { getStaticEtfMetadata, type EtfInfo } from '@/lib/etfs';
 import { Card, Badge, Button, Stat, DataCell } from '@/components/ui';
 import styles from './PortfolioDiagnostic.module.css';
 import { HoldingAddModal } from './HoldingAddModal';
 import { BulkPasteModal } from './BulkPasteModal';
 import { buildPortfolioInsight, type WeightedHolding } from '@/lib/etfPortfolioInsights';
 import { PORTFOLIO_TEMPLATES } from '@/lib/portfolioTemplates';
+
+const staticEtfMetadata = getStaticEtfMetadata();
 
 function buildPriceMap(pool: EtfInfo[]): Record<string, number> {
   const map: Record<string, number> = {};
@@ -30,7 +32,7 @@ const formatKRW = (n: number) => n.toLocaleString('ko-KR') + '원';
 const formatPct = (n: number) => `${n >= 0 ? '+' : ''}${(n * 100).toFixed(2)}%`;
 
 export function PortfolioDiagnostic({ allEtfs }: { allEtfs?: EtfInfo[] }) {
-  const pool = allEtfs ?? etfs;
+  const pool = allEtfs ?? staticEtfMetadata;
   const findByCode = (code: string | null | undefined) => pool.find(e => e.code === code);
   const [authState, setAuthState] = useState<'loading' | 'unauth' | 'auth'>('loading');
   const [holdings, setHoldings] = useState<UserEtfHolding[]>([]);

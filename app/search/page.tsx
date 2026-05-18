@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { AppShell } from '@/components/AppShell';
-import { etfs, etfPath } from '@/lib/etfs';
+import { etfPath } from '@/lib/etfs';
+import { fetchEtfs } from '@/lib/etfsDb';
 import { sampleQuestions } from '@/lib/sampleData';
 import { listSparrings, sparringPath } from '@/lib/sparring';
 import { fetchGhostArticles, articleUrl } from '@/lib/feed';
@@ -43,20 +44,6 @@ export default async function SearchPage({
   const q = (searchParams?.q || '').trim();
   const nq = normalize(q);
 
-  // ETF
-  const etfMatches = !nq
-    ? []
-    : etfs
-        .filter(e => (
-          normalize(e.name).includes(nq) ||
-          normalize(e.shortName).includes(nq) ||
-          e.code.includes(nq) ||
-          normalize(e.issuer).includes(nq) ||
-          normalize(e.theme || '').includes(nq) ||
-          (e.tags || []).some(t => normalize(t).includes(nq))
-        ))
-        .slice(0, 6);
-
   // 질문
   const questionMatches = !nq
     ? []
@@ -69,11 +56,26 @@ export default async function SearchPage({
         .slice(0, 5);
 
   // 스파링 + 피드/리포트
-  const [sparringRes, articles, reports] = await Promise.all([
+  const [allEtfs, sparringRes, articles, reports] = await Promise.all([
+    fetchEtfs(2000),
     listSparrings(),
     fetchGhostArticles(),
     fetchRecentReportsWithFallback(),
   ]);
+
+  // ETF
+  const etfMatches = !nq
+    ? []
+    : allEtfs
+        .filter(e => (
+          normalize(e.name).includes(nq) ||
+          normalize(e.shortName).includes(nq) ||
+          e.code.includes(nq) ||
+          normalize(e.issuer).includes(nq) ||
+          normalize(e.theme || '').includes(nq) ||
+          (e.tags || []).some(t => normalize(t).includes(nq))
+        ))
+        .slice(0, 6);
 
   const sparringMatches = !nq
     ? []
@@ -156,7 +158,7 @@ export default async function SearchPage({
                       <strong>{etf.shortName}</strong>
                       <span>{etf.code} · {etf.issuer}</span>
                     </div>
-                    <span className={etf.changeTone === 'down' ? styles.down : styles.up}>{etf.change}</span>
+                    <span className={etf.changeTone === 'down' ? styles.down : styles.up}>{etf.change || '—'}</span>
                   </Link>
                 </li>
               ))}

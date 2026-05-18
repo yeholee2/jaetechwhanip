@@ -392,10 +392,8 @@ export default function HomeClient({
               <div className={styles.etfWidgetTitle}>{etfs[0].shortName}</div>
               <div className={styles.etfWidgetMeta}>{etfs[0].code} · {etfs[0].theme}</div>
               <div className={styles.etfWidgetRow}>
-                <strong>{etfs[0].price}</strong>
-                <span className={etfs[0].changeTone === 'down' ? styles.sideDown : styles.sideUp}>
-                  {etfs[0].change}
-                </span>
+                <strong>{etfs[0].issuer}</strong>
+                <span>ETF 정보</span>
               </div>
               <span className={styles.sideMore}>전체 ETF 보기 →</span>
             </Link>

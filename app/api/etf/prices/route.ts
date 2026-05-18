@@ -2,20 +2,22 @@
  * ETF 실시간 시세 API.
  * 금융위원회 증권상품시세정보(공공데이터포털) 결과를 JSON으로 반환.
  *
- * 환경변수: DATA_GO_KR_SERVICE_KEY (없으면 fallback 시드만 반환)
+ * 환경변수: DATA_GO_KR_SERVICE_KEY
  *
  * GET /api/etf/prices
- *   → { items: [{ code, price, change, changeTone, volume, aum, nav, baseDate, dataSource }], source: 'live' | 'fallback' }
+ *   → { items: [{ code, price, change, changeTone, volume, aum, nav, baseDate, dataSource }], source: 'live' | 'database' | 'static' | 'missing' }
  */
 
 import { NextResponse } from 'next/server';
 import { getEtfsWithMarketData } from '@/lib/etf-live-data';
+import { fetchEtfs } from '@/lib/etfsDb';
 
 export const revalidate = 300; // 5분 캐시
 export const runtime = 'nodejs';
 
 export async function GET() {
-  const all = await getEtfsWithMarketData();
+  const baseEtfs = await fetchEtfs(2000);
+  const all = await getEtfsWithMarketData(baseEtfs);
   const items = all.map(etf => ({
     code: etf.code,
     price: etf.price,
@@ -28,10 +30,16 @@ export async function GET() {
     dataSource: etf.dataSource,
   }));
   const liveCount = items.filter(i => i.dataSource === 'public-api').length;
+  const databaseCount = items.filter(i => i.dataSource === 'database').length;
+  const staticCount = items.filter(i => i.dataSource === 'static').length;
+  const missingCount = items.filter(i => i.dataSource === 'missing').length;
   return NextResponse.json({
     items,
-    source: liveCount > 0 ? 'live' : 'fallback',
+    source: liveCount > 0 ? 'live' : databaseCount > 0 ? 'database' : staticCount > 0 ? 'static' : 'missing',
     liveCount,
+    databaseCount,
+    staticCount,
+    missingCount,
     totalCount: items.length,
     fetchedAt: new Date().toISOString(),
   });

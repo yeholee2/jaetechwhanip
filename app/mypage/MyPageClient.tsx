@@ -8,7 +8,7 @@ import { createClient, hasSupabase } from '@/lib/supabase/client';
 import { AppShell } from '@/components/AppShell';
 import { Badge } from '@/components/ui';
 import { listMyHoldings, buildHoldingDisplays, summarizePortfolio } from '@/lib/etfPortfolio';
-import { etfs } from '@/lib/etfs';
+import { fetchEtfLivePrices, buildLivePriceMap } from '@/lib/etfLivePrices';
 import { listMyNotifications, type UserNotification } from '@/lib/alerts';
 import { ImageUploader } from '@/components/creator/ImageUploader';
 import styles from './MyPage.module.css';
@@ -42,6 +42,13 @@ function fmtJoin(d?: string | null) {
   if (!d) return '';
   const date = new Date(d);
   return `${date.getFullYear()}.${String(date.getMonth() + 1).padStart(2, '0')}.${String(date.getDate()).padStart(2, '0')} 가입`;
+}
+
+function parsePriceNumber(value?: string | null): number | null {
+  const m = value?.match(/[\d,]+/);
+  if (!m) return null;
+  const price = parseInt(m[0].replace(/,/g, ''), 10);
+  return Number.isFinite(price) ? price : null;
 }
 
 type Tab = 'questions' | 'answers' | 'bookmarks' | 'notifications';
@@ -83,7 +90,7 @@ export default function MyPageClient() {
       setProfile(p);
 
       // 병렬 fetch
-      const [qRes, aRes, bRes, nList, holdings] = await Promise.all([
+      const [qRes, aRes, bRes, nList, holdings, priceRes] = await Promise.all([
         supabase.from('questions')
           .select('id, title, slug, category, answer_count, like_count, is_answered, created_at')
           .eq('author_id', u.id)
@@ -101,6 +108,7 @@ export default function MyPageClient() {
           .limit(30),
         listMyNotifications(20),
         listMyHoldings().catch(() => []),
+        fetchEtfLivePrices().catch(() => null),
       ]);
 
       setQuestions(qRes.data || []);
@@ -111,9 +119,10 @@ export default function MyPageClient() {
       // 포트폴리오 요약
       if (holdings.length > 0) {
         const priceMap: Record<string, number> = {};
-        etfs.forEach(e => {
-          const m = e.price.match(/[\d,]+/);
-          if (m) priceMap[e.code] = parseInt(m[0].replace(/,/g, ''), 10);
+        const liveMap = priceRes?.items ? buildLivePriceMap(priceRes.items) : {};
+        Object.values(liveMap).forEach(e => {
+          const price = parsePriceNumber(e.price);
+          if (price != null) priceMap[e.code] = price;
         });
         const displays = buildHoldingDisplays(holdings, priceMap);
         const sum = summarizePortfolio(displays);

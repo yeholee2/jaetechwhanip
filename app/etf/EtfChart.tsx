@@ -4,8 +4,7 @@
  * ETF 수익률 차트 (FunETF 스타일 멀티 시리즈).
  *
  * 시리즈:
- *  - NAV (= 종가, 분홍 굵은 라인)
- *  - 종가 (초록 얇은 라인, 시각 구분용 살짝 alpha)
+ *  - 이 ETF 시장가격(종가, 분홍 굵은 라인)
  *  - 순자산[우측] (현재 데이터 없음 — 비활성)
  *  - KOSPI / S&P500(H) / 나스닥100(H)
  *
@@ -80,7 +79,7 @@ export function EtfChart({ code, history = [], benchmarks = [], changeTone = 'fl
   const [pendingEnd, setPendingEnd] = useState<string>('');
   const [customRange, setCustomRange] = useState<{ start: string; end: string } | null>(null);
 
-  // 시리즈 표시 상태 — 기본 NAV(이 ETF) 만, 벤치마크는 사용자 선택
+  // 시리즈 표시 상태 — 기본은 이 ETF만, 벤치마크는 사용자 선택
   const [active, setActive] = useState<Record<SeriesKey, boolean>>({
     nav: true,
     ...Object.fromEntries(benchmarks.map(b => [b.key, false])),
@@ -114,7 +113,7 @@ export function EtfChart({ code, history = [], benchmarks = [], changeTone = 'fl
     };
   }, [history, periodKey, customRange]);
 
-  // 메인 NAV 시리즈 계산 (= 종가 데이터로 동일)
+  // 메인 ETF 수익률 시리즈 계산 (Yahoo Finance 종가 기준)
   const navPoints = useMemo(() => toReturnSeries(history, startDate, endDate), [history, startDate, endDate]);
   const returnPct = navPoints.length > 1 ? navPoints[navPoints.length - 1].value : 0;
   const tone: 'up' | 'down' | 'flat' = returnPct > 0 ? 'up' : returnPct < 0 ? 'down' : 'flat';
@@ -138,7 +137,7 @@ export function EtfChart({ code, history = [], benchmarks = [], changeTone = 'fl
   const fmtAxis = (n: number) => `${n >= 0 ? '+' : ''}${n.toFixed(2)}%`;
   const arrow = tone === 'up' ? '▲' : tone === 'down' ? '▼' : '–';
 
-  // NAV 단독(다른 시리즈 없음)이면 area fill 살리기 (시각 풍부함)
+  // 이 ETF 단독(다른 시리즈 없음)이면 area fill 살리기
   const showArea = active.nav && extraSeries.length === 0;
 
   const onChip = (k: PeriodKey) => {
@@ -220,7 +219,7 @@ export function EtfChart({ code, history = [], benchmarks = [], changeTone = 'fl
         </Link>
       </div>
 
-      {/* 시리즈 체크박스 범례 — NAV (메인) + 비교 벤치마크만 */}
+      {/* 시리즈 체크박스 범례 — 이 ETF + 비교 벤치마크 */}
       <div className={styles.legend} role="group" aria-label="표시할 시리즈">
         <Checkbox
           color={NAV_COLOR}
@@ -270,9 +269,9 @@ export function EtfChart({ code, history = [], benchmarks = [], changeTone = 'fl
 
       {/* 하단 disclaimer + 데이터 출처 */}
       <p className={styles.footnote}>
-        ▪ NAV는 분배금을 재투자한 수정기준가 기준이고, <strong>실비용(총보수·기타비용·수수료)이 이미 반영</strong>돼 있어요.
+        ▪ 위 수익률은 Yahoo Finance 종가 기준으로 계산돼요.
         <br />
-        ▪ 데이터는 Yahoo Finance 종가 기준으로, NAV ≈ 종가로 표시돼요. (정확한 NAV/괴리율은 운용사 공시 참고)
+        ▪ 공식 NAV, iNAV, 괴리율은 운용사·거래소 공시 값과 다를 수 있어요.
       </p>
     </section>
   );

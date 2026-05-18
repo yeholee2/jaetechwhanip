@@ -8,7 +8,7 @@
  * 2. 부족하면 FSC ETF 시세 API 에서 fetch (beginBasDt/endBasDt 기간 지정)
  * 3. fetch 결과를 DB 에 upsert (다음 호출은 캐시 히트)
  *
- * 반환: { items: [{ date, close, ... }], source: 'cache'|'api'|'fallback' }
+ * 반환: { items: [{ date, close, ... }], source: 'cache'|'api'|'missing' }
  */
 
 import { NextResponse } from 'next/server';
@@ -154,5 +154,5 @@ export async function GET(request: Request) {
     });
   }
 
-  return NextResponse.json({ items: [], source: 'fallback' });
+  return NextResponse.json({ items: [], source: 'missing' });
 }

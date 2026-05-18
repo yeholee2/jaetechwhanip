@@ -42,7 +42,7 @@ function parseAumWon(aum: string): number {
 
 function feeTag(fee: string): EtfTag {
   const pct = parseFeePercent(fee);
-  if (!pct) return { label: '정보 없음', tone: 'neutral' };
+  if (!pct) return { label: '공시 확인 필요', tone: 'neutral' };
   if (pct <= 0.1) return { label: '아주 낮음', tone: 'good' };
   if (pct <= 0.25) return { label: '낮은 편', tone: 'good' };
   if (pct <= 0.5) return { label: '평균', tone: 'neutral' };
@@ -69,7 +69,7 @@ function hedgeTag(hedge: string): EtfTag {
 
 function aumTag(aum: string): EtfTag {
   const won = parseAumWon(aum);
-  if (won === 0) return { label: '정보 없음', tone: 'neutral' };
+  if (won === 0) return { label: '공시 확인 필요', tone: 'neutral' };
   if (won >= 1_000_000_000_000) return { label: '대형 (1조+)', tone: 'good' };
   if (won >= 300_000_000_000) return { label: '중대형', tone: 'good' };
   if (won >= 100_000_000_000) return { label: '중형', tone: 'neutral' };
@@ -84,6 +84,13 @@ function buildOneLiner(
   hedge: EtfTag,
   aum: EtfTag,
 ): string {
+  const missingFee = fee.label === '공시 확인 필요';
+  const missingAum = aum.label === '공시 확인 필요';
+  if (missingFee || missingAum) {
+    const target = etf.theme ? `${etf.theme} 테마` : (etf.category || '해당 자산');
+    return `${target}에 투자하는 ETF예요. 비용·유동성 지표는 공식 공시 기준으로 함께 확인하세요.`;
+  }
+
   // 1) 강한 긍정 — 보수 낮음 + 대형
   if (fee.tone === 'good' && aum.tone === 'good') {
     if (dist.label === '월 분배') {
@@ -107,8 +114,8 @@ function buildOneLiner(
   if (dist.label === '월 분배') {
     return `매월 분배금이 들어와 현금흐름을 만들고 싶은 분께 잘 맞아요.`;
   }
-  // 6) 평이한 평균
-  return `같은 카테고리 평균과 비슷한 보수·순자산 수준이에요.`;
+  // 6) 평이한 구조
+  return `${etf.category} 안에서 보수·순자산을 함께 비교해볼 만한 ETF예요.`;
 }
 
 /**
@@ -116,6 +123,8 @@ function buildOneLiner(
  * 한 ETF 가 카테고리 내에서 어느 위치인지 비교용.
  */
 export function computeFeeStats(currentEtf: EtfInfo, allEtfs: EtfInfo[]) {
+  const current = parseFeePercent(currentEtf.fee);
+  if (current <= 0) return null;
   const peers = allEtfs.filter(
     e => e.category === currentEtf.category && e.fee && parseFeePercent(e.fee) > 0,
   );
@@ -125,7 +134,7 @@ export function computeFeeStats(currentEtf: EtfInfo, allEtfs: EtfInfo[]) {
   const max = Math.max(...fees);
   const avg = fees.reduce((a, b) => a + b, 0) / fees.length;
   return {
-    current: parseFeePercent(currentEtf.fee),
+    current,
     min,
     max,
     avg,

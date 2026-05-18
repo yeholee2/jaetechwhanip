@@ -8,10 +8,12 @@
  *  - 대가 펀드 (실시간 13F — 매니저·펀드명)
  */
 
-import { etfs, type EtfInfo } from '@/lib/etfs';
+import { getStaticEtfMetadata, type EtfInfo } from '@/lib/etfs';
 import { sampleQuestions } from '@/lib/sampleData';
 import { PORTFOLIO_TEMPLATES } from '@/lib/portfolioTemplates';
 import { WHALE_PORTFOLIOS } from '@/lib/portfolioWhales';
+
+const staticEtfs = getStaticEtfMetadata();
 
 export type InlineSearchHit =
   | { kind: 'etf'; etf: EtfInfo }
@@ -25,7 +27,7 @@ export function searchInline(query: string, limit = 8): InlineSearchHit[] {
 
   const norm = (s: string) => s.toLowerCase().replace(/\s+/g, '');
 
-  const etfHits: InlineSearchHit[] = etfs
+  const etfHits: InlineSearchHit[] = staticEtfs
     .filter(e =>
       norm(e.name).includes(q) ||
       norm(e.shortName).includes(q) ||
