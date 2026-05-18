@@ -5,7 +5,6 @@ import Link from 'next/link';
 import type { Creator } from '@/lib/creator';
 import {
   CATEGORY_DEFINITIONS,
-  CATEGORY_EMOJI,
   CATEGORY_LABELS,
   getCategoryLabel,
   getCategoryLabelFromTopic,
@@ -13,13 +12,11 @@ import {
 } from '@/lib/categories';
 import { trackEvent } from '@/lib/analytics';
 import { FaIcon } from '@/components/FaIcon';
-import { Chip } from '@/components/ui';
 import styles from './CreatorsDirectory.module.css';
 
 type Sort = 'popular' | 'recent' | 'posts';
 
 const CATEGORY_FILTERS = CATEGORY_LABELS;
-const CAT_EMOJI = CATEGORY_EMOJI;
 
 type DirectoryCreator = Creator & {
   badge?: string;
@@ -330,9 +327,7 @@ function DiscoveryCard({ creator }: { creator: DirectoryCreator }) {
         </div>
         <div className={styles.shelfProof}>
           {creator.verified && <span>전문가 인증</span>}
-          {creator.membership_enabled && (
-            <span>월 {(creator.membership_price_won || 0).toLocaleString()}원</span>
-          )}
+          {creator.membership_enabled && <span>멤버 전용 혜택</span>}
           {!creator.membership_enabled && <span>무료로 팔로우</span>}
         </div>
         <div className={styles.trustLine}>
@@ -464,16 +459,6 @@ export function CreatorsDirectoryClient({ creators }: { creators: Creator[] }) {
         </div>
       </div>
 
-      {/* 카테고리 탭 */}
-      <div className={styles.topics}>
-        {CATEGORY_FILTERS.map(t => (
-          <Chip key={t} active={activeTopic === t} size="sm" onClick={() => selectCategory(t)}>
-            {CAT_EMOJI[t] && <span className="tf">{CAT_EMOJI[t]}</span>}
-            {t === '전체' ? t : getCategoryLabel(t)}
-          </Chip>
-        ))}
-      </div>
-
       {activeTopic === '전체' && !query && discoverySections.length > 0 && (
         <>
           {discoverySections.map(section => (
@@ -581,12 +566,6 @@ export function CreatorsDirectoryClient({ creators }: { creators: Creator[] }) {
                         <span className={styles.cardAccuracy}>✓ 전문가</span>
                       )}
                     </div>
-                    {c.membership_enabled && (
-                      <div className={styles.cardPrice}>
-                        월 {(c.membership_price_won || 0).toLocaleString()}원
-                        <span>{c.membership_tier_name}</span>
-                      </div>
-                    )}
                   </div>
                 </Link>
               );

@@ -877,17 +877,6 @@
 }
 
 /* ─────────────────────────────────────────────────────────
- * 카테고리 탭 (가로 스크롤 가능)
- * ───────────────────────────────────────────────────────── */
-.topics {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin-bottom: 14px;
-}
-.topics > * { flex: 0 0 auto; }
-
-/* ─────────────────────────────────────────────────────────
  * 섹션 헤더 공통
  * ───────────────────────────────────────────────────────── */
 .sectionHead {
@@ -1312,23 +1301,6 @@
   color: var(--rw-green50, #00A86B);
   font-weight: 800;
 }
-.cardPrice {
-  margin-top: 6px;
-  padding-top: 8px;
-  border-top: 1px solid var(--rw-hairline);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  font-size: 13px;
-  font-weight: 900;
-  color: var(--rw-text-strong);
-}
-.cardPrice span {
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--rw-text-muted);
-}
-
 /* ─────────────────────────────────────────────────────────
  * 신청 배너
  * ───────────────────────────────────────────────────────── */

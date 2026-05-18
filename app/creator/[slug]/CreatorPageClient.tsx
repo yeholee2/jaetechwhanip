@@ -119,6 +119,7 @@ export function CreatorPageClient({
     }
     window.location.href = `/creator/${creator.slug}/subscribe`;
   };
+  const viewMembership = () => setTab('membership');
 
   const perks = (creator.membership_perks || '').split('\n').map(p => p.trim()).filter(Boolean);
   const actBadge = activityBadge(stats);
@@ -208,8 +209,8 @@ export function CreatorPageClient({
                 {isFollowing ? '✓ 팔로잉' : '+ 팔로우'}
               </button>
               {creator.membership_enabled && (
-                <button type="button" onClick={subscribe} className={styles.btnSubscribe}>
-                  월 {creator.membership_price_won?.toLocaleString()}원 멤버
+                <button type="button" onClick={viewMembership} className={styles.btnSubscribe}>
+                  멤버십 보기
                 </button>
               )}
             </>
@@ -266,7 +267,7 @@ export function CreatorPageClient({
               stats={stats}
               perks={perks}
               isOwner={isOwner}
-              onSubscribe={subscribe}
+              onSubscribe={viewMembership}
             />
           )}
           {tab === 'membership' && (
@@ -287,9 +288,7 @@ export function CreatorPageClient({
           {creator.membership_enabled && tab !== 'membership' && (
             <div className={styles.sideMembership}>
               <span className={styles.sideEyebrow}>🌟 멤버십</span>
-              <strong className={styles.sidePrice}>
-                월 {creator.membership_price_won?.toLocaleString()}원
-              </strong>
+              <strong className={styles.sidePrice}>멤버십 혜택</strong>
               <span className={styles.sideTier}>{creator.membership_tier_name}</span>
               {actLines.length > 0 && (
                 <div className={styles.sideActivity}>
@@ -301,8 +300,8 @@ export function CreatorPageClient({
                   {perks.slice(0, 4).map((p, i) => <li key={i}>✓ {p}</li>)}
                 </ul>
               )}
-              <button type="button" onClick={subscribe} className={styles.sideCta}>
-                멤버 되기
+              <button type="button" onClick={viewMembership} className={styles.sideCta}>
+                혜택 보기
               </button>
             </div>
           )}
@@ -433,16 +432,6 @@ function HomeTab({
         )}
       </section>
 
-      <section className={styles.homeSection}>
-        <div className={styles.homeSectionHead}>
-          <div>
-            <span>상품 후기</span>
-            <h2>멤버십 만족도</h2>
-          </div>
-        </div>
-        <ProductReviewBlock enabled={creator.membership_enabled} compact />
-      </section>
-
       {creator.membership_enabled && (
         <section className={styles.homeSection}>
           <div className={styles.homeSectionHead}>
@@ -450,7 +439,6 @@ function HomeTab({
               <span>멤버십</span>
               <h2>{creator.membership_tier_name || '월간 멤버십'}</h2>
             </div>
-            <strong className={styles.homePrice}>월 {creator.membership_price_won?.toLocaleString()}원</strong>
           </div>
           {perks.length > 0 && (
             <div className={styles.homePerks}>
@@ -464,17 +452,60 @@ function HomeTab({
 }
 
 function OwnerLaunchPanel({ creator }: { creator: Creator }) {
+  const checklist = [
+    {
+      label: '기본 정보',
+      hint: '닉네임·소개·주제 정리',
+      href: `/creator/${creator.slug}/edit`,
+      done: Boolean(creator.bio && creator.topics?.length),
+    },
+    {
+      label: '프로필 이미지',
+      hint: '아바타 또는 커버 등록',
+      href: `/creator/${creator.slug}/edit`,
+      done: Boolean(creator.avatar_url || creator.cover_url),
+    },
+    {
+      label: '멤버십 상품',
+      hint: '혜택과 운영 방식 입력',
+      href: `/creator/${creator.slug}/edit`,
+      done: Boolean(creator.membership_enabled && creator.membership_perks),
+    },
+    {
+      label: '첫 글 발행',
+      hint: '공개 글 또는 멤버 전용 글',
+      href: `/creator/${creator.slug}/write`,
+      done: creator.post_count > 0,
+    },
+  ];
+  const doneCount = checklist.filter(item => item.done).length;
+
   return (
     <section className={styles.ownerPanel}>
       <div>
         <span className={styles.ownerKicker}>페이지 생성 완료</span>
         <h2>공개 채널이 만들어졌어요</h2>
-        <p>이제 멤버십 상품, 정산 정보, 첫 글을 채우면 재프콘 운영을 시작할 수 있어요.</p>
+        <p>운영에 필요한 항목을 채우면 팔로우와 멤버십 전환이 더 자연스럽게 이어져요.</p>
+        <div className={styles.ownerProgress} aria-label={`프로필 완성도 ${doneCount}/4`}>
+          <span>프로필 완성도</span>
+          <strong>{doneCount}/4</strong>
+          <div aria-hidden>
+            <i style={{ width: `${(doneCount / checklist.length) * 100}%` }} />
+          </div>
+        </div>
       </div>
-      <div className={styles.ownerSteps}>
-        <Link href={`/creator/${creator.slug}/edit`}>기본 정보 다듬기</Link>
-        <Link href={`/creator/${creator.slug}/write`}>첫 글 쓰기</Link>
-        <Link href={`/creator/${creator.slug}/dashboard`}>운영 대시보드</Link>
+      <div className={styles.ownerChecklist}>
+        {checklist.map(item => (
+          <Link
+            key={item.label}
+            href={item.href}
+            className={`${styles.ownerTask} ${item.done ? styles.ownerTaskDone : ''}`}
+          >
+            <span aria-hidden>{item.done ? '✓' : ''}</span>
+            <strong>{item.label}</strong>
+            <em>{item.hint}</em>
+          </Link>
+        ))}
       </div>
     </section>
   );
@@ -644,7 +675,6 @@ function MembershipTab({ creator, perks, onSubscribe }: { creator: Creator; perk
       <header className={styles.memHero}>
         <span className={styles.memEyebrow}>멤버십 상품</span>
         <h2>{creator.membership_tier_name || '월간 멤버십'}</h2>
-        <strong className={styles.memPrice}>월 {creator.membership_price_won?.toLocaleString()}원</strong>
         <p>{creator.display_name}의 멤버 전용 콘텐츠와 리워드를 이용할 수 있어요.</p>
       </header>
 
@@ -682,12 +712,12 @@ function ProductReviewBlock({ enabled, compact = false }: { enabled: boolean; co
     <div className={`${styles.reviewBlock} ${compact ? styles.reviewCompact : ''}`}>
       <div className={styles.reviewScore}>
         <strong>{enabled ? '후기 준비중' : '멤버십 오픈 전'}</strong>
-        <span>상품 단위 후기</span>
+        <span>멤버십 상품 후기</span>
       </div>
       <div className={styles.reviewBody}>
         <p>
-          후기는 크리에이터 전체가 아니라 멤버십 상품에 연결됩니다.
-          수익 인증보다 설명 명확성, 업데이트 성실도, 자료 품질을 중심으로 받을 예정이에요.
+          후기는 크리에이터 전체가 아니라 멤버십 상품에 연결됩니다. 가격보다 먼저 혜택과 자료 품질을 확인한 뒤,
+          실제 멤버가 남긴 만족도를 볼 수 있도록 설계해요.
         </p>
         <div className={styles.reviewChips}>
           <span>설명 명확성</span>
