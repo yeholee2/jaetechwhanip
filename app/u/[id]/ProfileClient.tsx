@@ -25,6 +25,11 @@ function ft(d: string) {
   return `${Math.floor(h / 24)}일 전`;
 }
 
+function providerLabel(p: string): string {
+  const m: Record<string, string> = { google: 'Google', kakao: 'Kakao', naver: 'Naver', apple: 'Apple' };
+  return m[p] || p;
+}
+
 export default function ProfileClient({ userId }: { userId: string }) {
   const [profile, setProfile] = useState<any>(null);
   const [questions, setQuestions] = useState<any[]>([]);
@@ -92,45 +97,77 @@ export default function ProfileClient({ userId }: { userId: string }) {
   const adoptedCount = answers.filter(a => a.is_adopted).length;
   const avatarEmoji = profile?.avatar_url && profile.avatar_url.length <= 4 ? profile.avatar_url : null;
 
+  const isAvatarUrl = profile?.avatar_url && /^https?:\/\//.test(profile.avatar_url);
+  const totalAnswers = profile?.answer_count || answers.length;
+  const totalAdopted = profile?.accepted_count || adoptedCount;
+
   return (
     <AppShell active="my" hideSlogan>
       <main className={styles.page}>
-        {/* 프로필 헤더 */}
-        <header className={styles.header}>
-          <div className={styles.avatarWrap}>
-            <div className={`${styles.bigAvatar} tf`} aria-label={name}>
-              {avatarEmoji || initial}
+        {/* 프로필 헤더 — a-ha 톤: 좌(인용카드 + bio) + 우(큰 아바타 + 이름) */}
+        <header className={styles.heroGrid}>
+          {/* 좌: 자기소개 인용카드 */}
+          <div className={styles.quoteCard}>
+            <span className={styles.quoteMark} aria-hidden>“</span>
+            <h2 className={styles.quoteTitle}>
+              {profile?.bio ? profile.bio : `${name}님의 프로필`}
+            </h2>
+            <div className={styles.verifyRow}>
+              <span className={styles.verifyChip}>실명 인증</span>
+              {profile?.provider && profile.provider !== 'email' && (
+                <span className={styles.verifyChip}>{providerLabel(profile.provider)} 연동</span>
+              )}
             </div>
-            {isMe && (
-              <button
-                className={styles.avatarEditBtn}
-                onClick={() => setShowEmojiPicker(v => !v)}
-                title="아바타 변경"
-              >✏️</button>
+          </div>
+
+          {/* 우: 큰 아바타 카드 */}
+          <div className={styles.avatarCard}>
+            <div className={styles.avatarWrap}>
+              {isAvatarUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={profile.avatar_url} alt={name} className={styles.bigPhoto} />
+              ) : (
+                <div className={`${styles.bigAvatar} tf`} aria-label={name}>
+                  {avatarEmoji || initial}
+                </div>
+              )}
+              {isMe && (
+                <button
+                  className={styles.avatarEditBtn}
+                  onClick={() => setShowEmojiPicker(v => !v)}
+                  title="아바타 변경"
+                  type="button"
+                >편집</button>
+              )}
+            </div>
+            <div className={styles.nameRow}>
+              <h1 className={styles.name}>{name}</h1>
+            </div>
+            {profile?.email && (
+              <p className={styles.emailLine}>{profile.email}</p>
             )}
           </div>
-          <div className={styles.headerBody}>
-            <h1 className={styles.name}>{name}</h1>
-            <div className={styles.statRow}>
-              <div className={styles.statItem}>
-                <span className={styles.statNum}>{questions.length}</span>
-                <span className={styles.statLabel}>질문</span>
-              </div>
-              <div className={styles.statItem}>
-                <span className={styles.statNum}>{answers.length}</span>
-                <span className={styles.statLabel}>답변</span>
-              </div>
-              <div className={styles.statItem}>
-                <span className={styles.statNum}>{adoptedCount}</span>
-                <span className={styles.statLabel}>채택</span>
-              </div>
-              <div className={styles.statItem}>
-                <span className={styles.statNum}>{totalLikesReceived}</span>
-                <span className={styles.statLabel}>받은 추천</span>
-              </div>
-            </div>
-          </div>
         </header>
+
+        {/* 통계 카드 4종 */}
+        <section className={styles.statsGrid}>
+          <div className={styles.statCard}>
+            <span className={styles.statLabel}>작성한 답변</span>
+            <span className={styles.statNum}>{totalAnswers.toLocaleString()}</span>
+          </div>
+          <div className={styles.statCard}>
+            <span className={styles.statLabel}>채택된 답변</span>
+            <span className={styles.statNum}>{totalAdopted.toLocaleString()}</span>
+          </div>
+          <div className={styles.statCard}>
+            <span className={styles.statLabel}>작성한 질문</span>
+            <span className={styles.statNum}>{questions.length.toLocaleString()}</span>
+          </div>
+          <div className={styles.statCard}>
+            <span className={styles.statLabel}>받은 추천</span>
+            <span className={styles.statNum}>{totalLikesReceived.toLocaleString()}</span>
+          </div>
+        </section>
 
         {isMe && showEmojiPicker && (
           <div className={styles.emojiPicker}>

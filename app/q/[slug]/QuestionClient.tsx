@@ -824,18 +824,15 @@ export default function QuestionClient({
   );
 }
 
-// ── 답변자 신뢰도 배지 ──
-function AuthorTrustBadge({ ac, acc }: { ac: number; acc: number }) {
+// ── 답변자 답변수 배지 (채택률은 동기 저하 우려로 미표시) ──
+function AuthorTrustBadge({ ac }: { ac: number; acc?: number }) {
   if (ac < 1) return null;
-  const rate = ac > 0 ? Math.round((acc / ac) * 100) : 0;
-  const tone =
-    acc >= 5 && rate >= 50 ? 'high' :
-    ac >= 3 ? 'mid' : 'low';
+  const tone = ac >= 50 ? 'high' : ac >= 10 ? 'mid' : 'low';
   const bg = tone === 'high' ? 'rgba(49,130,246,0.10)' : tone === 'mid' ? 'rgba(0,27,55,0.06)' : 'rgba(0,27,55,0.04)';
   const color = tone === 'high' ? '#3182f6' : tone === 'mid' ? '#4e5968' : '#8b95a1';
   return (
     <span
-      title={`답변 ${ac}회 중 ${acc}회 채택`}
+      title={`총 답변 ${ac}회`}
       style={{
         padding: '2px 7px',
         background: bg,
@@ -847,7 +844,7 @@ function AuthorTrustBadge({ ac, acc }: { ac: number; acc: number }) {
         fontFeatureSettings: '"tnum"',
       }}
     >
-      답변 {ac}{acc > 0 ? ` · 채택률 ${rate}%` : ''}
+      답변 {ac}
     </span>
   );
 }
@@ -867,10 +864,20 @@ function AnswerCard({ answer: a, currentUserId, isMyQuestion, isAnswered, liked,
         </div>
       )}
       <div className={styles.answerProfile}>
-        <div className={`${styles.answerAvatar} tf`}>{a.users?.avatar_url || getUserEmoji(a.author_id, a.users?.name)}</div>
+        {a.author_id ? (
+          <Link href={`/u/${a.author_id}`} className={`${styles.answerAvatar} tf`} title={`${name} 프로필 보기`}>
+            {a.users?.avatar_url || getUserEmoji(a.author_id, a.users?.name)}
+          </Link>
+        ) : (
+          <div className={`${styles.answerAvatar} tf`}>{getUserEmoji(a.author_id, a.users?.name)}</div>
+        )}
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ fontWeight: 700, fontSize: 14, display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-            {name}
+            {a.author_id ? (
+              <Link href={`/u/${a.author_id}`} style={{ color: 'inherit', textDecoration: 'none' }}>
+                {name}
+              </Link>
+            ) : name}
             <AuthorTrustBadge ac={a.users?.answer_count || 0} acc={a.users?.accepted_count || 0} />
           </div>
           <div style={{ fontSize: 12, color: 'var(--t3)' }}>{a.created_at ? ft(a.created_at) : ''}</div>

@@ -1,7 +1,143 @@
 .page {
-  max-width: 680px;
+  max-width: 880px;
   margin: 0 auto;
-  padding: var(--space-3) 0 var(--space-12);
+  padding: var(--space-4) var(--space-3) var(--space-12);
+}
+
+/* ─────────────────────────────────────────────────────────
+ * a-ha 톤 hero — 좌(인용 카드) + 우(아바타 카드)
+ * ───────────────────────────────────────────────────────── */
+.heroGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 280px;
+  gap: var(--space-5);
+  padding: var(--space-5) 0;
+  align-items: start;
+}
+@media (max-width: 720px) {
+  .heroGrid { grid-template-columns: 1fr; }
+}
+
+.quoteCard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-3) 0;
+}
+.quoteMark {
+  font-size: 64px;
+  line-height: 0.5;
+  font-weight: 900;
+  color: var(--rw-gray30, #d1d6db);
+  margin-bottom: var(--space-2);
+}
+.quoteTitle {
+  margin: 0;
+  font-size: 26px;
+  font-weight: 800;
+  line-height: 1.35;
+  color: var(--rw-text-strong);
+  letter-spacing: -0.5px;
+}
+.verifyRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: var(--space-2);
+}
+.verifyChip {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  background: rgba(0, 27, 55, 0.04);
+  border-radius: 999px;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--rw-gray70, #4e5968);
+}
+.verifyChip::before {
+  content: '';
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin-right: 6px;
+  background: var(--rw-primary, #3182f6);
+  border-radius: 50%;
+}
+
+.avatarCard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: 12px;
+  background: var(--rw-card);
+  border: 1px solid rgba(0, 27, 55, 0.06);
+  border-radius: 16px;
+}
+.bigPhoto {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  border-radius: 12px;
+  background: var(--rw-card-muted);
+  filter: grayscale(100%) contrast(1.05);
+}
+.nameRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 6px 0;
+}
+.nameRow .name {
+  font-size: 17px;
+  font-weight: 800;
+  color: var(--rw-text-strong);
+  margin: 0;
+  letter-spacing: -0.2px;
+}
+.emailLine {
+  margin: 0;
+  padding: 0 6px 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--rw-gray60, #6b7684);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 통계 카드 그리드 */
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  padding: var(--space-4) 0;
+  border-top: 1px solid rgba(0, 27, 55, 0.06);
+  border-bottom: 1px solid rgba(0, 27, 55, 0.06);
+  margin-bottom: var(--space-4);
+}
+@media (max-width: 560px) {
+  .statsGrid { grid-template-columns: repeat(2, 1fr); }
+}
+.statCard {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 14px 16px;
+  background: var(--rw-card-muted, #fafbfc);
+  border-radius: 12px;
+}
+.statCard .statLabel {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--rw-gray60, #6b7684);
+}
+.statCard .statNum {
+  font-size: 22px;
+  font-weight: 900;
+  color: var(--rw-text-strong);
+  letter-spacing: -0.3px;
+  font-feature-settings: 'tnum';
 }
 
 /* ─────────────────────────────────────────────────────────
