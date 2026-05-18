@@ -13,6 +13,31 @@
   overflow: hidden;
 }
 
+.compact {
+  padding: var(--space-4);
+  gap: var(--space-3);
+}
+
+.compact .returnBlock {
+  margin-top: 6px;
+}
+
+.compact .returnHero {
+  font-size: 24px;
+}
+
+.compact .controls {
+  gap: var(--space-2);
+}
+
+.compact .tabs {
+  padding: 2px;
+}
+
+.compact .tab {
+  padding: 7px 6px;
+}
+
 /* 컨트롤 행 — 기간칩 + 날짜 + 상품추가 */
 .controls {
   display: flex;
@@ -347,6 +372,20 @@
 @media (max-width: 600px) {
   .wrap {
     padding: var(--space-4);
+  }
+
+  .compact {
+    gap: var(--space-3);
+  }
+
+  .compact .returnBlock {
+    align-items: baseline;
+    flex-direction: row;
+    gap: 8px;
+  }
+
+  .compact .returnHero {
+    font-size: 22px;
   }
 
   .returnBlock {

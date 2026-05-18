@@ -56,6 +56,7 @@ type Props = {
   changeTone?: 'up' | 'down' | 'flat';
   history?: PricePoint[];
   navHistory?: NaverEtfNavPoint[];
+  compact?: boolean;
   /** 멀티 벤치마크 시리즈 */
   benchmarks?: Benchmark[];
 };
@@ -117,7 +118,7 @@ function toRawSeries<T extends { date: string }>(
   return out;
 }
 
-export function EtfChart({ code, history = [], navHistory = [], benchmarks = [], changeTone = 'flat' }: Props) {
+export function EtfChart({ code, history = [], navHistory = [], benchmarks = [], changeTone = 'flat', compact = false }: Props) {
   const [mode, setMode] = useState<ChartMode>('price');
   const [periodKey, setPeriodKey] = useState<PeriodKey>('m1');
   const [pendingStart, setPendingStart] = useState<string>('');
@@ -224,6 +225,10 @@ export function EtfChart({ code, history = [], navHistory = [], benchmarks = [],
     : mode === 'premium'
       ? '괴리율 히스토리를 원문에서 확인할 수 없어요.'
       : '표시할 가격 데이터가 아직 없어요.';
+  const chartHeight = compact ? 220 : 280;
+  const visiblePeriods = compact
+    ? PERIODS.filter(period => ['w1', 'm1', 'm3', 'y1', 'all'].includes(period.key))
+    : PERIODS;
 
   const onChip = (k: PeriodKey) => {
     setPeriodKey(k);
@@ -238,7 +243,7 @@ export function EtfChart({ code, history = [], navHistory = [], benchmarks = [],
   };
 
   return (
-    <section className={styles.wrap} aria-label="가격 흐름 차트">
+    <section className={`${styles.wrap} ${compact ? styles.compact : ''}`} aria-label="가격 흐름 차트">
       <div className={styles.head}>
         <div className={styles.headLeft}>
           <h2 className={styles.title}>{title}</h2>
@@ -275,7 +280,7 @@ export function EtfChart({ code, history = [], navHistory = [], benchmarks = [],
       {/* 컨트롤 — 기간 칩 + 날짜 범위 + 상품 추가 */}
       <div className={styles.controls}>
         <div className={styles.tabs} role="tablist" aria-label="기간 선택">
-          {PERIODS.map(p => (
+          {visiblePeriods.map(p => (
             <button
               key={p.key}
               type="button"
@@ -288,34 +293,38 @@ export function EtfChart({ code, history = [], navHistory = [], benchmarks = [],
             </button>
           ))}
         </div>
-        <div className={styles.dateRange}>
-          <input
-            type="date"
-            value={pendingStart}
-            onChange={e => setPendingStart(e.target.value)}
-            aria-label="시작일"
-            className={styles.dateInput}
-          />
-          <span className={styles.dateSep}>~</span>
-          <input
-            type="date"
-            value={pendingEnd}
-            onChange={e => setPendingEnd(e.target.value)}
-            aria-label="종료일"
-            className={styles.dateInput}
-          />
-          <button
-            type="button"
-            onClick={applyDateRange}
-            className={styles.applyBtn}
-            disabled={!pendingStart || !pendingEnd || pendingStart > pendingEnd}
-          >
-            조회
-          </button>
-        </div>
-        <Link href={`/etf/compare?a=${code}`} className={styles.addBtn}>
-          + 상품 추가
-        </Link>
+        {!compact && (
+          <div className={styles.dateRange}>
+            <input
+              type="date"
+              value={pendingStart}
+              onChange={e => setPendingStart(e.target.value)}
+              aria-label="시작일"
+              className={styles.dateInput}
+            />
+            <span className={styles.dateSep}>~</span>
+            <input
+              type="date"
+              value={pendingEnd}
+              onChange={e => setPendingEnd(e.target.value)}
+              aria-label="종료일"
+              className={styles.dateInput}
+            />
+            <button
+              type="button"
+              onClick={applyDateRange}
+              className={styles.applyBtn}
+              disabled={!pendingStart || !pendingEnd || pendingStart > pendingEnd}
+            >
+              조회
+            </button>
+          </div>
+        )}
+        {!compact && (
+          <Link href={`/etf/compare?a=${code}`} className={styles.addBtn}>
+            + 상품 추가
+          </Link>
+        )}
       </div>
 
       {mode === 'compare' && (
@@ -344,7 +353,7 @@ export function EtfChart({ code, history = [], navHistory = [], benchmarks = [],
         <PriceChart
           data={mainPoints}
           tone={tone}
-          height={280}
+          height={chartHeight}
           valueFormat={valueFormat}
           yAxisTicks={5}
           mainColor={mainColor}
@@ -356,7 +365,7 @@ export function EtfChart({ code, history = [], navHistory = [], benchmarks = [],
         <PriceChart
           data={extraSeries[0].points}
           tone={tone}
-          height={280}
+          height={chartHeight}
           valueFormat={valueFormat}
           yAxisTicks={5}
           mainColor={extraSeries[0].color}
@@ -368,11 +377,13 @@ export function EtfChart({ code, history = [], navHistory = [], benchmarks = [],
       )}
 
       {/* 하단 disclaimer + 데이터 출처 */}
-      <p className={styles.footnote}>
-        가격 수익률은 종가 기준, NAV·괴리율은 네이버증권 ETF분석 원문 기준으로 계산돼요.
-        <br />
-        공식 NAV, iNAV, 괴리율은 운용사·거래소 공시 값과 다를 수 있어요.
-      </p>
+      {!compact && (
+        <p className={styles.footnote}>
+          가격 수익률은 종가 기준, NAV·괴리율은 네이버증권 ETF분석 원문 기준으로 계산돼요.
+          <br />
+          공식 NAV, iNAV, 괴리율은 운용사·거래소 공시 값과 다를 수 있어요.
+        </p>
+      )}
     </section>
   );
 }

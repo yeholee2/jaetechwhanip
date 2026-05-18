@@ -71,11 +71,6 @@ function formatReturn(pct: number | null) {
   return `${sign}${value.toFixed(2)}%`;
 }
 
-function returnToneClass(pct: number | null) {
-  if (pct == null || pct === 0) return styles.returnNeutral;
-  return pct > 0 ? styles.returnUp : styles.returnDown;
-}
-
 function parsePercentValue(value: string | null | undefined) {
   const n = Number(String(value || '').replace(/[^\d.-]/g, ''));
   return Number.isFinite(n) ? n : null;
@@ -576,26 +571,8 @@ export default async function EtfDetailPage({ params }: Props) {
             history={priceHistory}
             navHistory={navHistory}
             benchmarks={benchmarks}
+            compact
           />
-          {returnSummary.some(item => item.pct != null) && (
-            <div className={styles.returnSummary} aria-label="기간별 수익률 요약">
-              <div className={styles.returnSummaryHead}>
-                <strong>기간별 성과</strong>
-                <span>{latestHistoryDate ? `${latestHistoryDate} 종가 기준` : '종가 기준'}</span>
-              </div>
-              <div className={styles.returnSummaryGrid}>
-                {returnSummary.map(item => (
-                  <div key={item.key} className={styles.returnSummaryItem}>
-                    <span>{item.label}</span>
-                    <strong className={returnToneClass(item.pct)}>{formatReturn(item.pct)}</strong>
-                  </div>
-                ))}
-              </div>
-              <p className={styles.returnSummaryNote}>
-                분배금 재투자·세금은 반영하지 않은 단순 종가 기준이에요.
-              </p>
-            </div>
-          )}
         </div>
 
         <section className={styles.decisionSummary} aria-label="투자 판단 요약">
