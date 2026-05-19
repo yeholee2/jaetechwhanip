@@ -41,33 +41,98 @@ type FinnhubEarningsItem = {
 /** Finnhub 경제지표 한국어 매핑 (자주 보는 이벤트만) */
 const EVENT_KOR: Record<string, string> = {
   'Initial Jobless Claims': '주간 신규실업수당 청구건수',
-  'CPI MoM': '소비자물가지수(CPI) MoM',
-  'CPI YoY': '소비자물가지수(CPI) YoY',
-  'Core CPI MoM': '근원 CPI MoM',
-  'PPI MoM': '생산자물가지수(PPI) MoM',
+  'Continuing Jobless Claims': '연속 실업수당 청구건수',
+  'CPI MoM': '소비자물가지수(CPI) 전월 대비',
+  'CPI YoY': '소비자물가지수(CPI) 전년 대비',
+  'Core CPI MoM': '근원 CPI 전월 대비',
+  'Core CPI YoY': '근원 CPI 전년 대비',
+  'PPI MoM': '생산자물가지수(PPI) 전월 대비',
+  'PPI YoY': '생산자물가지수(PPI) 전년 대비',
   'Nonfarm Payrolls': '비농업부문 고용자수',
   'Unemployment Rate': '실업률',
-  'Retail Sales MoM': '소매판매 MoM',
+  'Average Hourly Earnings MoM': '시간당 평균임금 전월 대비',
+  'Retail Sales MoM': '소매판매 전월 대비',
+  'Retail Sales YoY': '소매판매 전년 대비',
+  'Core Retail Sales MoM': '근원 소매판매 전월 대비',
+  'Redbook YoY': '레드북 소매판매 전년 대비',
+  'Redbook MoM': '레드북 소매판매 전월 대비',
   'ISM Manufacturing PMI': 'ISM 제조업 PMI',
   'ISM Services PMI': 'ISM 서비스업 PMI',
   'ISM Non-Manufacturing PMI': 'ISM 비제조업 PMI',
+  'S&P Global Manufacturing PMI Flash': 'S&P 글로벌 제조업 PMI (속보)',
+  'S&P Global Services PMI Flash': 'S&P 글로벌 서비스업 PMI (속보)',
+  'Philadelphia Fed Manufacturing Index': '필라델피아 연은 제조업 활동지수',
+  'Empire State Manufacturing Index': '뉴욕 연은 제조업지수',
+  'Chicago PMI': '시카고 PMI',
   'JOLTs Job Openings': '노동시장 신규 구인건수(JOLTs)',
-  'GDP QoQ': 'GDP QoQ',
-  'GDP YoY': 'GDP YoY',
+  'ADP Employment Change': '민간 고용변화량(ADP)',
+  'ADP Employment Change Weekly': '주간 민간 고용변화량(ADP)',
+  'GDP QoQ': 'GDP 전분기 대비',
+  'GDP YoY': 'GDP 전년 대비',
+  'GDP Growth Rate QoQ': 'GDP 성장률 전분기 대비',
   'FOMC Statement': 'FOMC 성명',
   'FOMC Press Conference': 'FOMC 기자회견',
   'FOMC Meeting Minutes': 'FOMC 의사록',
-  'Fed Interest Rate Decision': 'Fed 기준금리 결정',
-  'Core PCE Price Index MoM': '근원 PCE 물가지수 MoM',
+  'FOMC Minutes': 'FOMC 의사록',
+  'Fed Interest Rate Decision': '연준 기준금리 결정',
+  'Fed Chair Powell Speech': '파월 연준 의장 연설',
+  'PCE Price Index MoM': 'PCE 물가지수 전월 대비',
+  'PCE Price Index YoY': 'PCE 물가지수 전년 대비',
+  'Core PCE Price Index MoM': '근원 PCE 물가지수 전월 대비',
+  'Core PCE Price Index YoY': '근원 PCE 물가지수 전년 대비',
+  'Personal Income MoM': '개인소득 전월 대비',
+  'Personal Spending MoM': '개인소비지출 전월 대비',
   'Michigan Consumer Sentiment': '미시간대 소비자심리지수',
+  'Michigan Consumer Sentiment Final': '미시간대 소비자심리지수 (확정치)',
+  'Michigan Consumer Sentiment Prel': '미시간대 소비자심리지수 (예비치)',
   'Michigan Inflation Expectations': '미시간대 인플레이션 기대치',
-  'ADP Employment Change': '비농업부문 고용변화량(ADP)',
-  'Industrial Production MoM': '산업생산 MoM',
-  'Housing Starts': '주택착공건수',
+  'Michigan Inflation Expectations Final': '미시간대 인플레이션 기대치 (확정치)',
+  'Michigan Inflation Expectations Prel': '미시간대 인플레이션 기대치 (예비치)',
+  'Consumer Confidence': 'CB 소비자신뢰지수',
+  'CB Consumer Confidence': 'CB 소비자신뢰지수',
+  'Industrial Production MoM': '산업생산 전월 대비',
+  'Industrial Production YoY': '산업생산 전년 대비',
+  'Capacity Utilization': '설비가동률',
+  'Housing Starts': '주택착공',
+  'Building Permits': '주택 착공허가',
+  'Building Permits Prel': '주택 착공허가 (잠정)',
+  'Pending Home Sales MoM': '잠정주택판매 전월 대비',
+  'Pending Home Sales YoY': '잠정주택판매 전년 대비',
+  'New Home Sales': '신규주택판매',
+  'Existing Home Sales': '기존주택판매',
+  'Case-Shiller Home Price MoM': '케이스-쉴러 주택가격지수 전월 대비',
+  'Case-Shiller Home Price YoY': '케이스-쉴러 주택가격지수 전년 대비',
+  'Durable Goods Orders MoM': '내구재 주문 전월 대비',
+  'Trade Balance': '무역수지',
+  'Crude Oil Inventories': '주간 원유 재고 (EIA)',
+  'API Crude Oil Stock Change': 'API 원유 재고 변화',
 };
 
+/** 패턴 fallback — 영어 이벤트 명에 일관된 부분이 있으면 자동 한글화 */
 function translateEvent(name: string): string {
-  return EVENT_KOR[name] || name;
+  if (EVENT_KOR[name]) return EVENT_KOR[name];
+
+  // 연준 위원 연설 — "Fed Waller Speech" / "Fed Paulson Speech"
+  const fedSpeech = name.match(/Fed\s+([A-Z][a-zA-Z]+)\s+Speech/);
+  if (fedSpeech) return `${fedSpeech[1]} 연준 위원 연설`;
+
+  // 국채 입찰 — "6-Week Bill Auction" / "10-Year Note Auction"
+  const auction = name.match(/(\d+)-?\s*(Week|Month|Year)\s+(Bill|Note|Bond)\s+Auction/i);
+  if (auction) {
+    const num = auction[1];
+    const unit = auction[2].toLowerCase();
+    const period = unit === 'week' ? '주' : unit === 'month' ? '개월' : '년';
+    return `${num}${period} 국채 입찰`;
+  }
+  if (/Bill Auction/i.test(name)) return '단기국채 입찰';
+  if (/Note Auction/i.test(name)) return '중기국채 입찰';
+  if (/Bond Auction/i.test(name)) return '장기국채 입찰';
+
+  // 베이지북
+  if (/Beige Book/i.test(name)) return '베이지북 발표';
+
+  // 폴백: 원문 그대로
+  return name;
 }
 
 function mapImpact(impact?: 'low' | 'medium' | 'high'): CalendarImportance {
