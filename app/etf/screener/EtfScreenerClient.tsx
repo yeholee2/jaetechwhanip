@@ -1,7 +1,8 @@
 'use client';
 
 import Link from 'next/link';
-import { useMemo, useState } from 'react';
+import { useMemo, useState, type ReactNode } from 'react';
+import { ChevronDown, RotateCcw, SlidersHorizontal, X } from 'lucide-react';
 import { etfPath, type EtfInfo } from '@/lib/etfs';
 import { getEtfAccountEligibility } from '@/lib/etfAccountEligibility';
 import { EtfLogo } from '../EtfLogo';
@@ -10,6 +11,11 @@ import styles from './EtfScreener.module.css';
 type SortKey = 'change' | 'tradeValue' | 'volume' | 'aum' | 'fee' | 'name';
 type CategoryKey = '전체' | '국내주식' | '해외주식' | '채권' | '원자재' | '테마' | '월배당';
 type MarketKey = 'all' | 'kr' | 'us';
+type AumBandKey = 'all' | 'under100' | '100to1000' | 'over1000' | 'over1t';
+type ReturnBandKey = 'all' | 'up' | 'up1' | 'up3' | 'down';
+type TradeBandKey = 'all' | 'hasTrade' | 'over1b' | 'over10b' | 'over100b';
+type FeeBandKey = 'all' | 'under010' | 'under030' | 'under050';
+type MenuKey = 'add' | 'market' | 'category' | 'aum' | 'return' | 'trade' | 'fee' | 'sort' | null;
 type PresetKey =
   | 'movers'
   | 'active'
@@ -23,6 +29,18 @@ type PresetKey =
   | 'theme'
   | 'custom';
 
+type ScreenState = {
+  sort: SortKey;
+  category: CategoryKey;
+  market: MarketKey;
+  aumBand: AumBandKey;
+  returnBand: ReturnBandKey;
+  tradeBand: TradeBandKey;
+  feeBand: FeeBandKey;
+  excludeLeveraged: boolean;
+  pensionOnly: boolean;
+};
+
 type PresetConfig = {
   key: PresetKey;
   label: string;
@@ -31,22 +49,22 @@ type PresetConfig = {
   state: Partial<ScreenState>;
 };
 
-type ScreenState = {
-  sort: SortKey;
-  category: CategoryKey;
-  market: MarketKey;
-  excludeLeveraged: boolean;
-  pensionOnly: boolean;
-  activeOnly: boolean;
+type Option<T extends string> = {
+  key: T;
+  label: string;
+  description?: string;
 };
 
 const DEFAULT_STATE: ScreenState = {
   sort: 'change',
   category: '전체',
   market: 'all',
+  aumBand: 'all',
+  returnBand: 'all',
+  tradeBand: 'all',
+  feeBand: 'all',
   excludeLeveraged: true,
   pensionOnly: false,
-  activeOnly: false,
 };
 
 const PRESETS: PresetConfig[] = [
@@ -55,80 +73,125 @@ const PRESETS: PresetConfig[] = [
     label: '오늘 많이 오른 ETF',
     description: '장중 상승률이 높은 ETF',
     badge: '인기',
-    state: { sort: 'change', category: '전체', market: 'all', activeOnly: false, pensionOnly: false },
+    state: { sort: 'change', returnBand: 'up' },
   },
   {
     key: 'active',
     label: '거래 활발한 ETF',
     description: '거래대금이 큰 ETF',
-    state: { sort: 'tradeValue', category: '전체', market: 'all', activeOnly: true, pensionOnly: false },
+    state: { sort: 'tradeValue', tradeBand: 'over1b' },
   },
   {
     key: 'large',
     label: '순자산 큰 ETF',
     description: '운용 규모가 큰 ETF',
-    state: { sort: 'aum', category: '전체', market: 'all', activeOnly: false, pensionOnly: false },
+    state: { sort: 'aum', aumBand: 'over1000' },
   },
   {
     key: 'lowFee',
     label: '보수 낮은 ETF',
     description: '총보수가 낮은 ETF',
-    state: { sort: 'fee', category: '전체', market: 'all', activeOnly: false, pensionOnly: false },
+    state: { sort: 'fee', feeBand: 'under030' },
   },
   {
     key: 'dividend',
     label: '월배당 ETF',
     description: '분배금 흐름을 보는 ETF',
     badge: '인기',
-    state: { sort: 'aum', category: '월배당', market: 'all', activeOnly: false, pensionOnly: false },
+    state: { sort: 'aum', category: '월배당' },
   },
   {
     key: 'pension',
     label: '연금 가능 ETF',
     description: '개인연금·퇴직연금 후보',
-    state: { sort: 'aum', category: '전체', market: 'kr', excludeLeveraged: true, pensionOnly: true },
+    state: { sort: 'aum', market: 'kr', pensionOnly: true, excludeLeveraged: true },
   },
   {
     key: 'noLeverage',
     label: '레버리지 제외',
     description: '고위험 상품을 뺀 목록',
-    state: { sort: 'change', category: '전체', market: 'all', excludeLeveraged: true, pensionOnly: false },
+    state: { sort: 'change', excludeLeveraged: true },
   },
   {
     key: 'domestic',
     label: '국내 대표 ETF',
     description: '국내상장 ETF만 보기',
-    state: { sort: 'aum', category: '전체', market: 'kr', activeOnly: false, pensionOnly: false },
+    state: { sort: 'aum', market: 'kr' },
   },
   {
     key: 'us',
     label: '미국 대표 ETF',
     description: '미국상장 ETF만 보기',
-    state: { sort: 'aum', category: '전체', market: 'us', activeOnly: false, pensionOnly: false },
+    state: { sort: 'aum', market: 'us' },
   },
   {
     key: 'theme',
     label: '테마형 ETF',
     description: '반도체·AI·배당 테마',
-    state: { sort: 'change', category: '테마', market: 'all', activeOnly: false, pensionOnly: false },
+    state: { sort: 'change', category: '테마' },
   },
 ];
 
-const SORT_OPTIONS: { key: SortKey; label: string }[] = [
-  { key: 'change', label: '상승률' },
-  { key: 'tradeValue', label: '거래대금' },
-  { key: 'volume', label: '거래량' },
-  { key: 'aum', label: '순자산' },
-  { key: 'fee', label: '낮은 보수' },
+const INITIAL_STATE: ScreenState = {
+  ...DEFAULT_STATE,
+  sort: 'change',
+  returnBand: 'up',
+};
+
+const SORT_OPTIONS: Option<SortKey>[] = [
+  { key: 'change', label: '등락률 높은 순', description: '오늘 움직임이 큰 ETF를 먼저 봐요.' },
+  { key: 'tradeValue', label: '거래대금 많은 순', description: '실제로 많이 거래되는 ETF를 먼저 봐요.' },
+  { key: 'volume', label: '거래량 많은 순', description: '체결 수량이 많은 ETF를 먼저 봐요.' },
+  { key: 'aum', label: '순자산 큰 순', description: '운용 규모가 큰 ETF를 먼저 봐요.' },
+  { key: 'fee', label: '총보수 낮은 순', description: '장기 보유 비용이 낮은 ETF를 먼저 봐요.' },
 ];
 
-const MARKET_OPTIONS: { key: MarketKey; label: string }[] = [
-  { key: 'all', label: '전체' },
-  { key: 'kr', label: '국내' },
-  { key: 'us', label: '미국' },
+const MARKET_OPTIONS: Option<MarketKey>[] = [
+  { key: 'all', label: '전체', description: '국내상장과 미국상장 ETF를 함께 봐요.' },
+  { key: 'kr', label: '국내', description: '국내상장 ETF만 봐요.' },
+  { key: 'us', label: '미국', description: '미국상장 ETF만 봐요.' },
 ];
 
-const CATEGORY_OPTIONS: CategoryKey[] = ['전체', '국내주식', '해외주식', '채권', '원자재', '테마', '월배당'];
+const CATEGORY_OPTIONS: Option<CategoryKey>[] = [
+  { key: '전체', label: '전체' },
+  { key: '국내주식', label: '국내주식' },
+  { key: '해외주식', label: '해외주식' },
+  { key: '채권', label: '채권' },
+  { key: '원자재', label: '원자재' },
+  { key: '테마', label: '테마' },
+  { key: '월배당', label: '월배당' },
+];
+
+const AUM_OPTIONS: Option<AumBandKey>[] = [
+  { key: 'all', label: '전체', description: '순자산 조건을 쓰지 않아요.' },
+  { key: 'under100', label: '100억원 미만', description: '작은 규모의 ETF까지 살펴봐요.' },
+  { key: '100to1000', label: '100억원 ~ 1,000억원', description: '중간 규모 ETF를 봐요.' },
+  { key: 'over1000', label: '1,000억원 이상', description: '규모가 어느 정도 검증된 ETF를 봐요.' },
+  { key: 'over1t', label: '1조원 이상', description: '대형 대표 ETF만 봐요.' },
+];
+
+const RETURN_OPTIONS: Option<ReturnBandKey>[] = [
+  { key: 'all', label: '전체', description: '등락률 조건을 쓰지 않아요.' },
+  { key: 'up', label: '상승 중', description: '오늘 플러스인 ETF만 봐요.' },
+  { key: 'up1', label: '+1% 이상', description: '오늘 1% 이상 오른 ETF를 봐요.' },
+  { key: 'up3', label: '+3% 이상', description: '오늘 강하게 오른 ETF를 봐요.' },
+  { key: 'down', label: '하락 중', description: '오늘 마이너스인 ETF만 봐요.' },
+];
+
+const TRADE_OPTIONS: Option<TradeBandKey>[] = [
+  { key: 'all', label: '전체', description: '거래대금 조건을 쓰지 않아요.' },
+  { key: 'hasTrade', label: '거래 있음', description: '거래대금 또는 거래량이 확인된 ETF만 봐요.' },
+  { key: 'over1b', label: '10억원 이상', description: '거래가 어느 정도 붙은 ETF를 봐요.' },
+  { key: 'over10b', label: '100억원 이상', description: '거래가 활발한 ETF를 봐요.' },
+  { key: 'over100b', label: '1,000억원 이상', description: '거래대금 상위권 ETF만 봐요.' },
+];
+
+const FEE_OPTIONS: Option<FeeBandKey>[] = [
+  { key: 'all', label: '전체', description: '총보수 조건을 쓰지 않아요.' },
+  { key: 'under010', label: '0.10% 이하', description: '초저보수 ETF를 봐요.' },
+  { key: 'under030', label: '0.30% 이하', description: '장기투자 비용이 낮은 ETF를 봐요.' },
+  { key: 'under050', label: '0.50% 이하', description: '비교적 낮은 비용의 ETF를 봐요.' },
+];
 
 const CATEGORY_MATCHERS: Record<Exclude<CategoryKey, '전체'>, (etf: EtfInfo) => boolean> = {
   '국내주식': e => /국내주식|코스피|코스닥|KOSPI|KOSDAQ/.test(e.category),
@@ -192,6 +255,43 @@ function isActiveEtf(etf: EtfInfo): boolean {
   return parseKoreanMoney(etf.tradeValue) > 0 || parseVolume(etf.volume) > 0;
 }
 
+function matchesAum(etf: EtfInfo, band: AumBandKey): boolean {
+  if (band === 'all') return true;
+  const value = parseKoreanMoney(etf.aum);
+  if (value <= 0) return false;
+  if (band === 'under100') return value < 10_000_000_000;
+  if (band === '100to1000') return value >= 10_000_000_000 && value < 100_000_000_000;
+  if (band === 'over1000') return value >= 100_000_000_000;
+  return value >= 1_000_000_000_000;
+}
+
+function matchesReturn(etf: EtfInfo, band: ReturnBandKey): boolean {
+  if (band === 'all') return true;
+  const value = parseChange(etf.change, etf.changeTone);
+  if (band === 'up') return value > 0;
+  if (band === 'up1') return value >= 1;
+  if (band === 'up3') return value >= 3;
+  return value < 0;
+}
+
+function matchesTrade(etf: EtfInfo, band: TradeBandKey): boolean {
+  if (band === 'all') return true;
+  const tradeValue = parseKoreanMoney(etf.tradeValue);
+  if (band === 'hasTrade') return isActiveEtf(etf);
+  if (band === 'over1b') return tradeValue >= 1_000_000_000;
+  if (band === 'over10b') return tradeValue >= 10_000_000_000;
+  return tradeValue >= 100_000_000_000;
+}
+
+function matchesFee(etf: EtfInfo, band: FeeBandKey): boolean {
+  if (band === 'all') return true;
+  const fee = parseFee(etf.fee);
+  if (!Number.isFinite(fee)) return false;
+  if (band === 'under010') return fee <= 0.1;
+  if (band === 'under030') return fee <= 0.3;
+  return fee <= 0.5;
+}
+
 function sortValue(etf: EtfInfo, sort: SortKey): number {
   if (sort === 'change') return parseChange(etf.change, etf.changeTone);
   if (sort === 'tradeValue') return parseKoreanMoney(etf.tradeValue);
@@ -201,10 +301,14 @@ function sortValue(etf: EtfInfo, sort: SortKey): number {
   return 0;
 }
 
+function optionLabel<T extends string>(options: Option<T>[], key: T): string {
+  return options.find(option => option.key === key)?.label || '';
+}
+
 function presetTitle(activePreset: PresetKey, state: ScreenState) {
   const preset = PRESETS.find(item => item.key === activePreset);
   if (preset) return preset;
-  const sortLabel = SORT_OPTIONS.find(item => item.key === state.sort)?.label || '조건';
+  const sortLabel = optionLabel(SORT_OPTIONS, state.sort).replace(' 순', '');
   return {
     key: 'custom' as const,
     label: `${sortLabel} 기준 ETF`,
@@ -214,8 +318,9 @@ function presetTitle(activePreset: PresetKey, state: ScreenState) {
 }
 
 export function EtfScreenerClient({ initialEtfs }: { initialEtfs: EtfInfo[] }) {
-  const [state, setState] = useState<ScreenState>(DEFAULT_STATE);
+  const [state, setState] = useState<ScreenState>(INITIAL_STATE);
   const [activePreset, setActivePreset] = useState<PresetKey>('movers');
+  const [activeMenu, setActiveMenu] = useState<MenuKey>(null);
 
   const activeInfo = presetTitle(activePreset, state);
 
@@ -225,9 +330,12 @@ export function EtfScreenerClient({ initialEtfs }: { initialEtfs: EtfInfo[] }) {
       if (state.market === 'kr' && country !== 'KR') return false;
       if (state.market === 'us' && country !== 'US') return false;
       if (state.category !== '전체' && !CATEGORY_MATCHERS[state.category](etf)) return false;
+      if (!matchesAum(etf, state.aumBand)) return false;
+      if (!matchesReturn(etf, state.returnBand)) return false;
+      if (!matchesTrade(etf, state.tradeBand)) return false;
+      if (!matchesFee(etf, state.feeBand)) return false;
       if (state.excludeLeveraged && isLeveraged(etf)) return false;
       if (state.pensionOnly && !isPensionAvailable(etf)) return false;
-      if (state.activeOnly && !isActiveEtf(etf)) return false;
       return true;
     });
 
@@ -242,19 +350,164 @@ export function EtfScreenerClient({ initialEtfs }: { initialEtfs: EtfInfo[] }) {
     return sorted;
   }, [initialEtfs, state]);
 
-  const patchState = (patch: Partial<ScreenState>) => {
+  const patchState = (patch: Partial<ScreenState>, closeMenu = false) => {
     setState(prev => ({ ...prev, ...patch }));
     setActivePreset('custom');
+    if (closeMenu) setActiveMenu(null);
   };
 
   const applyPreset = (preset: PresetConfig) => {
     setState({ ...DEFAULT_STATE, ...preset.state });
     setActivePreset(preset.key);
+    setActiveMenu(null);
   };
 
   const reset = () => {
-    setState(DEFAULT_STATE);
+    setState(INITIAL_STATE);
     setActivePreset('movers');
+    setActiveMenu(null);
+  };
+
+  const activeFilters = [
+    state.market !== 'all' ? `국가 · ${optionLabel(MARKET_OPTIONS, state.market)}` : null,
+    state.category !== '전체' ? `ETF유형 · ${state.category}` : null,
+    state.aumBand !== 'all' ? `순자산 · ${optionLabel(AUM_OPTIONS, state.aumBand)}` : null,
+    state.returnBand !== 'all' ? `등락률 · ${optionLabel(RETURN_OPTIONS, state.returnBand)}` : null,
+    state.tradeBand !== 'all' ? `거래대금 · ${optionLabel(TRADE_OPTIONS, state.tradeBand)}` : null,
+    state.feeBand !== 'all' ? `총보수 · ${optionLabel(FEE_OPTIONS, state.feeBand)}` : null,
+    `정렬 · ${optionLabel(SORT_OPTIONS, state.sort)}`,
+    state.excludeLeveraged ? '레버리지·인버스 제외' : null,
+    state.pensionOnly ? '연금계좌 가능' : null,
+  ].filter((filter): filter is string => Boolean(filter));
+
+  const renderOptionGroup = <T extends string,>(
+    options: Option<T>[],
+    selected: T,
+    onSelect: (key: T) => void,
+  ) => (
+    <div className={styles.panelOptions}>
+      {options.map(option => (
+        <button
+          key={option.key}
+          type="button"
+          className={`${styles.panelOption} ${selected === option.key ? styles.panelOptionOn : ''}`}
+          onClick={() => onSelect(option.key)}
+        >
+          <span>
+            <strong>{option.label}</strong>
+            {option.description && <em>{option.description}</em>}
+          </span>
+        </button>
+      ))}
+    </div>
+  );
+
+  const renderPanel = () => {
+    if (activeMenu === 'add') {
+      return (
+        <div className={styles.filterPanel} role="dialog" aria-label="필터추가">
+          <PanelHead title="필터추가" onClose={() => setActiveMenu(null)} />
+          <div className={styles.addGroups}>
+            <FilterGroup title="기본">
+              <PanelShortcut label="국가" description="국내·미국 ETF를 나눠봐요." onClick={() => setActiveMenu('market')} />
+              <PanelShortcut label="ETF유형" description="국내주식·채권·테마처럼 분류해요." onClick={() => setActiveMenu('category')} />
+              <PanelShortcut label="순자산" description="ETF 운용 규모로 걸러봐요." onClick={() => setActiveMenu('aum')} />
+            </FilterGroup>
+            <FilterGroup title="시세">
+              <PanelShortcut label="등락률" description="오늘 오른 ETF나 내려간 ETF를 봐요." onClick={() => setActiveMenu('return')} />
+              <PanelShortcut label="거래대금" description="장중 유동성이 있는 ETF를 봐요." onClick={() => setActiveMenu('trade')} />
+              <PanelShortcut label="정렬 기준" description="결과 테이블의 우선순위를 바꿔요." onClick={() => setActiveMenu('sort')} />
+            </FilterGroup>
+            <FilterGroup title="ETF 정보">
+              <PanelShortcut label="총보수" description="장기 보유 비용으로 걸러봐요." onClick={() => setActiveMenu('fee')} />
+              <PanelShortcut
+                label={state.pensionOnly ? '연금 가능 해제' : '연금 가능'}
+                description="개인연금·퇴직연금 가능 후보만 봐요."
+                onClick={() => patchState({ pensionOnly: !state.pensionOnly }, true)}
+              />
+              <PanelShortcut
+                label={state.excludeLeveraged ? '레버리지 제외 해제' : '레버리지 제외'}
+                description="레버리지·인버스 상품을 목록에서 빼요."
+                onClick={() => patchState({ excludeLeveraged: !state.excludeLeveraged }, true)}
+              />
+            </FilterGroup>
+          </div>
+          <PanelFooter count={filtered.length} onReset={reset} />
+        </div>
+      );
+    }
+
+    if (activeMenu === 'market') {
+      return (
+        <div className={styles.filterPanel} role="dialog" aria-label="국가">
+          <PanelHead title="국가" subtitle="선택한 국가의 ETF만 골라볼 수 있어요." onClose={() => setActiveMenu(null)} />
+          {renderOptionGroup(MARKET_OPTIONS, state.market, key => patchState({ market: key }, true))}
+          <PanelFooter count={filtered.length} onReset={reset} />
+        </div>
+      );
+    }
+
+    if (activeMenu === 'category') {
+      return (
+        <div className={styles.filterPanel} role="dialog" aria-label="ETF유형">
+          <PanelHead title="ETF유형" subtitle="ETF가 담는 자산과 전략으로 나눠봐요." onClose={() => setActiveMenu(null)} />
+          {renderOptionGroup(CATEGORY_OPTIONS, state.category, key => patchState({ category: key }, true))}
+          <PanelFooter count={filtered.length} onReset={reset} />
+        </div>
+      );
+    }
+
+    if (activeMenu === 'aum') {
+      return (
+        <div className={styles.filterPanel} role="dialog" aria-label="순자산">
+          <PanelHead title="순자산" subtitle="ETF 규모를 기준으로 안정성과 대표성을 가늠해요." onClose={() => setActiveMenu(null)} />
+          {renderOptionGroup(AUM_OPTIONS, state.aumBand, key => patchState({ aumBand: key }, true))}
+          <PanelFooter count={filtered.length} onReset={reset} />
+        </div>
+      );
+    }
+
+    if (activeMenu === 'return') {
+      return (
+        <div className={styles.filterPanel} role="dialog" aria-label="등락률">
+          <PanelHead title="등락률" subtitle="오늘 가격 움직임으로 ETF를 걸러봐요." onClose={() => setActiveMenu(null)} />
+          {renderOptionGroup(RETURN_OPTIONS, state.returnBand, key => patchState({ returnBand: key, sort: 'change' }, true))}
+          <PanelFooter count={filtered.length} onReset={reset} />
+        </div>
+      );
+    }
+
+    if (activeMenu === 'trade') {
+      return (
+        <div className={styles.filterPanel} role="dialog" aria-label="거래대금">
+          <PanelHead title="거래대금" subtitle="매수·매도하기 편한 유동성 있는 ETF를 찾아요." onClose={() => setActiveMenu(null)} />
+          {renderOptionGroup(TRADE_OPTIONS, state.tradeBand, key => patchState({ tradeBand: key, sort: key === 'all' ? state.sort : 'tradeValue' }, true))}
+          <PanelFooter count={filtered.length} onReset={reset} />
+        </div>
+      );
+    }
+
+    if (activeMenu === 'fee') {
+      return (
+        <div className={styles.filterPanel} role="dialog" aria-label="총보수">
+          <PanelHead title="총보수" subtitle="ETF를 오래 들고 갈수록 비용 차이가 커져요." onClose={() => setActiveMenu(null)} />
+          {renderOptionGroup(FEE_OPTIONS, state.feeBand, key => patchState({ feeBand: key, sort: key === 'all' ? state.sort : 'fee' }, true))}
+          <PanelFooter count={filtered.length} onReset={reset} />
+        </div>
+      );
+    }
+
+    if (activeMenu === 'sort') {
+      return (
+        <div className={styles.filterPanel} role="dialog" aria-label="정렬 기준">
+          <PanelHead title="정렬 기준" subtitle="결과 테이블에서 먼저 볼 기준을 고르세요." onClose={() => setActiveMenu(null)} />
+          {renderOptionGroup(SORT_OPTIONS, state.sort, key => patchState({ sort: key }, true))}
+          <PanelFooter count={filtered.length} onReset={reset} />
+        </div>
+      );
+    }
+
+    return null;
   };
 
   return (
@@ -293,75 +546,52 @@ export function EtfScreenerClient({ initialEtfs }: { initialEtfs: EtfInfo[] }) {
         </header>
 
         <div className={styles.filterBar}>
-          <div className={styles.chipRow}>
-            <span className={styles.rowLabel}>시장</span>
-            {MARKET_OPTIONS.map(option => (
-              <button
-                key={option.key}
-                type="button"
-                className={`${styles.chip} ${state.market === option.key ? styles.chipOn : ''}`}
-                onClick={() => patchState({ market: option.key })}
-              >
-                {option.label}
-              </button>
-            ))}
+          <div className={styles.filterControls}>
+            <FilterButton active={activeMenu === 'add'} onClick={() => setActiveMenu(activeMenu === 'add' ? null : 'add')}>
+              <SlidersHorizontal size={16} />
+              필터추가
+            </FilterButton>
+            <FilterButton active={activeMenu === 'market' || state.market !== 'all'} onClick={() => setActiveMenu(activeMenu === 'market' ? null : 'market')}>
+              {optionLabel(MARKET_OPTIONS, state.market)}
+              <ChevronDown size={16} />
+            </FilterButton>
+            <FilterButton active={activeMenu === 'category' || state.category !== '전체'} onClick={() => setActiveMenu(activeMenu === 'category' ? null : 'category')}>
+              ETF유형
+              <ChevronDown size={16} />
+            </FilterButton>
+            <FilterButton active={activeMenu === 'aum' || state.aumBand !== 'all'} onClick={() => setActiveMenu(activeMenu === 'aum' ? null : 'aum')}>
+              순자산
+              <ChevronDown size={16} />
+            </FilterButton>
+            <FilterButton active={activeMenu === 'return' || state.returnBand !== 'all'} onClick={() => setActiveMenu(activeMenu === 'return' ? null : 'return')}>
+              등락률
+              <ChevronDown size={16} />
+            </FilterButton>
+            <FilterButton active={activeMenu === 'trade' || state.tradeBand !== 'all'} onClick={() => setActiveMenu(activeMenu === 'trade' ? null : 'trade')}>
+              거래대금
+              <ChevronDown size={16} />
+            </FilterButton>
+            <FilterButton active={activeMenu === 'fee' || state.feeBand !== 'all'} onClick={() => setActiveMenu(activeMenu === 'fee' ? null : 'fee')}>
+              총보수
+              <ChevronDown size={16} />
+            </FilterButton>
+            <FilterButton active={activeMenu === 'sort'} onClick={() => setActiveMenu(activeMenu === 'sort' ? null : 'sort')}>
+              정렬 기준
+              <ChevronDown size={16} />
+            </FilterButton>
           </div>
 
-          <div className={styles.chipRow}>
-            <span className={styles.rowLabel}>ETF유형</span>
-            {CATEGORY_OPTIONS.map(option => (
-              <button
-                key={option}
-                type="button"
-                className={`${styles.chip} ${state.category === option ? styles.chipOn : ''}`}
-                onClick={() => patchState({ category: option })}
-              >
-                {option}
-              </button>
+          <div className={styles.activeFilterRow} aria-label="적용된 필터">
+            {activeFilters.map(filter => (
+              <span key={filter} className={styles.activeFilter}>{filter}</span>
             ))}
-          </div>
-
-          <div className={styles.chipRow}>
-            <span className={styles.rowLabel}>정렬</span>
-            {SORT_OPTIONS.map(option => (
-              <button
-                key={option.key}
-                type="button"
-                className={`${styles.chip} ${state.sort === option.key ? styles.chipOn : ''}`}
-                onClick={() => patchState({ sort: option.key })}
-              >
-                {option.label}
-              </button>
-            ))}
-          </div>
-
-          <div className={styles.chipRow}>
-            <span className={styles.rowLabel}>조건</span>
-            <button
-              type="button"
-              className={`${styles.chip} ${state.excludeLeveraged ? styles.chipOn : ''}`}
-              onClick={() => patchState({ excludeLeveraged: !state.excludeLeveraged })}
-            >
-              레버리지 제외
-            </button>
-            <button
-              type="button"
-              className={`${styles.chip} ${state.pensionOnly ? styles.chipOn : ''}`}
-              onClick={() => patchState({ pensionOnly: !state.pensionOnly })}
-            >
-              연금 가능
-            </button>
-            <button
-              type="button"
-              className={`${styles.chip} ${state.activeOnly ? styles.chipOn : ''}`}
-              onClick={() => patchState({ activeOnly: !state.activeOnly })}
-            >
-              거래 활발
-            </button>
-            <button type="button" className={styles.resetButton} onClick={reset}>
+            <button type="button" className={styles.inlineReset} onClick={reset}>
+              <RotateCcw size={14} />
               필터 되돌리기
             </button>
           </div>
+
+          {renderPanel()}
         </div>
 
         <div className={styles.resultHead}>
@@ -417,6 +647,86 @@ export function EtfScreenerClient({ initialEtfs }: { initialEtfs: EtfInfo[] }) {
           </div>
         )}
       </section>
+    </div>
+  );
+}
+
+function FilterButton({
+  active,
+  children,
+  onClick,
+}: {
+  active?: boolean;
+  children: ReactNode;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      className={`${styles.filterButton} ${active ? styles.filterButtonOn : ''}`}
+      onClick={onClick}
+    >
+      {children}
+    </button>
+  );
+}
+
+function PanelHead({
+  title,
+  subtitle,
+  onClose,
+}: {
+  title: string;
+  subtitle?: string;
+  onClose: () => void;
+}) {
+  return (
+    <div className={styles.panelHead}>
+      <div>
+        <strong>{title}</strong>
+        {subtitle && <p>{subtitle}</p>}
+      </div>
+      <button type="button" aria-label="닫기" onClick={onClose}>
+        <X size={18} />
+      </button>
+    </div>
+  );
+}
+
+function FilterGroup({ title, children }: { title: string; children: ReactNode }) {
+  return (
+    <section className={styles.addGroup}>
+      <h3>{title}</h3>
+      <div>{children}</div>
+    </section>
+  );
+}
+
+function PanelShortcut({
+  label,
+  description,
+  onClick,
+}: {
+  label: string;
+  description: string;
+  onClick: () => void;
+}) {
+  return (
+    <button type="button" className={styles.panelShortcut} onClick={onClick}>
+      <strong>{label}</strong>
+      <span>{description}</span>
+    </button>
+  );
+}
+
+function PanelFooter({ count, onReset }: { count: number; onReset: () => void }) {
+  return (
+    <div className={styles.panelFooter}>
+      <button type="button" onClick={onReset}>
+        <RotateCcw size={14} />
+        초기화
+      </button>
+      <strong>{count.toLocaleString('ko-KR')}개 ETF보기</strong>
     </div>
   );
 }
