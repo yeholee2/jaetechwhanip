@@ -1,6 +1,6 @@
 .activeCard {
   position: relative;
-  aspect-ratio: 5 / 4;
+  aspect-ratio: 4 / 5;   /* 세로가 살짝 더 김 (홈 미니카드와 동일 톤) */
   overflow: hidden;
   border: 1px solid var(--line);
   border-radius: 16px;
