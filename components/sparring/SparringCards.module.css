@@ -1,6 +1,6 @@
 .activeCard {
   position: relative;
-  aspect-ratio: 16 / 9;
+  aspect-ratio: 5 / 4;
   overflow: hidden;
   border: 1px solid var(--line);
   border-radius: 16px;
