@@ -595,3 +595,175 @@
   letter-spacing: -0.1px;
   flex-shrink: 0;
 }
+
+/* ── 이번주 AI 요약 — 상세 모달 (Toss 패턴) ── */
+.aiDetailBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 8px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--rw-primary, #3182f6);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.aiDetailBtn:hover { text-decoration: underline; }
+
+.modalBackdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(2px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: fadeIn .15s ease-out;
+}
+.modal {
+  position: relative;
+  max-width: 720px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 32px 32px 28px;
+  background: var(--rw-card, #fff);
+  border-radius: 20px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, .18);
+  animation: zoomIn .18s var(--ease-out, cubic-bezier(.2,.8,.2,1));
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes zoomIn {
+  from { opacity: 0; transform: scale(.96); }
+  to { opacity: 1; transform: scale(1); }
+}
+.modalClose {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: transparent;
+  font-size: 22px;
+  color: var(--rw-text-muted, #6b7684);
+  cursor: pointer;
+  border-radius: 50%;
+}
+.modalClose:hover {
+  background: var(--rw-screen, #f5f7fa);
+}
+.modalHead {
+  margin-bottom: 24px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--rw-hairline, #e5e8eb);
+}
+.modalEyebrow {
+  display: inline-block;
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--rw-primary, #3182f6);
+  margin-bottom: 10px;
+}
+.modalHeadline {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 900;
+  line-height: 1.4;
+  color: var(--rw-text-strong, #191f28);
+  letter-spacing: -0.4px;
+}
+
+.modalSection {
+  margin-bottom: 20px;
+}
+.modalSectionTitle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 8px;
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--rw-text-strong, #191f28);
+  letter-spacing: -0.2px;
+}
+.modalCheck {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #22c55e;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 900;
+}
+.modalBody {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--rw-text-body, #4e5968);
+  font-weight: 500;
+}
+
+.modalTableWrap {
+  margin-top: 24px;
+}
+.modalTableHead {
+  margin: 0 0 10px;
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--rw-text-strong, #191f28);
+}
+.modalTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.modalTable th {
+  text-align: left;
+  padding: 10px 12px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--rw-text-muted, #6b7684);
+  background: var(--rw-screen, #f5f7fa);
+  letter-spacing: 0.2px;
+}
+.modalTable td {
+  padding: 12px;
+  border-bottom: 1px solid var(--rw-hairline, #e5e8eb);
+  color: var(--rw-text-strong, #191f28);
+  font-weight: 600;
+  vertical-align: middle;
+}
+.modalTable tbody tr:last-child td {
+  border-bottom: none;
+}
+.modalTableDate {
+  font-weight: 700;
+  color: var(--rw-primary, #3182f6);
+  white-space: nowrap;
+}
+.modalTableFlag {
+  font-size: 14px;
+  margin-right: 6px;
+  vertical-align: middle;
+}
+
+@media (max-width: 640px) {
+  .modal {
+    padding: 24px 18px 20px;
+    max-height: 95vh;
+  }
+  .modalHeadline {
+    font-size: 18px;
+  }
+}

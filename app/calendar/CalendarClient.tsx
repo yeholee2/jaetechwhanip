@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { CalendarEvent } from '@/lib/marketCalendar';
 import { getDefaultEventTime, sortByImportance } from '@/lib/marketCalendar';
+import { WeeklySummaryModal } from './WeeklySummaryModal';
 import styles from './Calendar.module.css';
 
 type Filter = 'all' | 'economic' | 'earnings';
@@ -25,6 +26,7 @@ export function CalendarClient({ events, weeks, aiSummary, todayIso }: Props) {
   const [view, setView] = useState<View>('week');
   const [cursor, setCursor] = useState(() => new Date(todayIso));
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const [showAiModal, setShowAiModal] = useState(false);
   const dayRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
   const matchFilter = (e: CalendarEvent) =>
@@ -123,7 +125,13 @@ export function CalendarClient({ events, weeks, aiSummary, todayIso }: Props) {
               이번주 AI 요약
             </span>
             <p className={styles.aiBody}>{aiSummary}</p>
-            <button type="button" className={styles.aiMore}>자세히 보기 ›</button>
+            <button
+              type="button"
+              className={styles.aiMore}
+              onClick={() => setShowAiModal(true)}
+            >
+              자세히 보기 ›
+            </button>
           </section>
         </aside>
 
@@ -199,6 +207,15 @@ export function CalendarClient({ events, weeks, aiSummary, todayIso }: Props) {
           )}
         </section>
       </div>
+
+      {/* 이번주 AI 요약 — 상세 모달 (Toss 패턴) */}
+      {showAiModal && (
+        <WeeklySummaryModal
+          headline={aiSummary}
+          events={filteredWeeks[0]?.events || events}
+          onClose={() => setShowAiModal(false)}
+        />
+      )}
     </div>
   );
 }
