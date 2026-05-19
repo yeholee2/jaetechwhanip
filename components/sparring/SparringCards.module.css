@@ -1,9 +1,9 @@
 .activeCard {
   position: relative;
-  aspect-ratio: 4 / 5;
+  aspect-ratio: 16 / 9;
   overflow: hidden;
   border: 1px solid var(--line);
-  border-radius: 14px;
+  border-radius: 16px;
   background: var(--fallback-bg, linear-gradient(135deg, var(--rw-blue70), #071b5f));
   color: #fff;
   box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
@@ -450,4 +450,32 @@
   .arrow {
     display: none;
   }
+}
+
+/* 롱/숏 칩 — 한국 증시 컨벤션 (롱=빨강, 숏=파랑) */
+.activeLongShortBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 22px;
+  padding: 0 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: -0.1px;
+  white-space: nowrap;
+}
+.activeLongShortBadge .long {
+  color: #ff8a95;
+}
+.activeLongShortBadge .short {
+  color: #93c5fd;
+}
+.activeLongShortBadge .vs {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 9px;
+  font-weight: 700;
 }

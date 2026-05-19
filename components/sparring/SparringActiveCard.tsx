@@ -4,7 +4,7 @@ import Link from 'next/link';
 import type { CSSProperties } from 'react';
 import Countdown from '@/components/sparring/Countdown';
 import { FaIcon } from '@/components/FaIcon';
-import { sparringPath, type Sparring } from '@/lib/sparring';
+import { sparringPath, type Sparring, isInvestmentCategory, getPolarityLabel } from '@/lib/sparring';
 import { getEtfByCode } from '@/lib/etfs';
 import styles from './SparringCards.module.css';
 
@@ -42,6 +42,14 @@ export default function SparringActiveCard({ sparring }: { sparring: Sparring })
           <div className={styles.activeMeta}>
             <span>{formatNumber(total)}명 투표 중</span>
             {isCompare && <span className={styles.activeCompareBadge}>ETF 비교</span>}
+            {/* 투자성 카테고리 — 롱/숏 vs 칩 (한국 증시 컨벤션 컬러) */}
+            {isInvestmentCategory(sparring.category) && (
+              <span className={styles.activeLongShortBadge}>
+                <span className={styles.long}>롱</span>
+                <span className={styles.vs}>vs</span>
+                <span className={styles.short}>숏</span>
+              </span>
+            )}
           </div>
           <h2 className={styles.activeTitle}>{sparring.title}</h2>
           {isCompare && (

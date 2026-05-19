@@ -484,6 +484,30 @@ export function inferPolarity(label: string): SparringPolarity {
     : 'positive';
 }
 
+/** 투자성 카테고리(종목·ETF·매크로)인지 — 롱/숏 톤 적용 대상 */
+const INVESTMENT_CATEGORIES = ['국내주식·ETF', '해외주식·ETF', '재테크'];
+
+export function isInvestmentCategory(category?: string | null): boolean {
+  if (!category) return false;
+  return INVESTMENT_CATEGORIES.some(c => category.includes(c));
+}
+
+/** 카테고리에 따라 polarity별 라벨 반환:
+ *  - 투자성 → 롱(Long) / 숏(Short) — 한국 증시 톤
+ *  - 그 외(보험·절세·대출·재테크입문) → 찬성 / 반대
+ */
+export function getPolarityLabel(polarity: SparringPolarity, category?: string | null): string {
+  if (isInvestmentCategory(category)) {
+    return polarity === 'positive' ? '롱(Long)' : '숏(Short)';
+  }
+  return polarity === 'positive' ? '찬성' : '반대';
+}
+
+/** 한국 증시 컨벤션 컬러 — 롱(positive)=빨강, 숏(negative)=파랑 */
+export function getPolarityColor(polarity: SparringPolarity): string {
+  return polarity === 'positive' ? '#e42939' : '#3182f6';
+}
+
 export function getSideLabel(sparring: Sparring, side: SparringSide) {
   return side === 'a' ? sparring.side_a_label : sparring.side_b_label;
 }
