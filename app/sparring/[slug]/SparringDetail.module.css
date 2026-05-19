@@ -139,7 +139,7 @@
   letter-spacing: -0.2px;
 }
 
-/* a-ha 실측: 선택 캡슐 bg=옵션색, radius 14, padding 6 8, 12px/700/white */
+/* Figma 실측: 선택 캡슐 bg=옵션색, radius 14, padding 6 12, 12px/700/tint */
 .choicePill {
   display: inline-flex;
   align-items: center;
@@ -147,7 +147,7 @@
   padding: 6px 12px;
   border-radius: 14px;
   background: var(--choice-color);
-  color: #fff;
+  color: var(--choice-tint);
   font-size: 12px;
   font-weight: 700;
   line-height: 1;
@@ -181,25 +181,37 @@
   outline-offset: -2px;
 }
 
-/* a-ha 실측: vote card bg white / radius 20px / pad 22 20 17 */
-.statCard,
-.memoCard {
+/* Figma 실측: vote card bg white / radius 20px / pad 22 20 17 20 */
+.statCard {
   margin-top: 14px;
-  padding: 22px 20px 17px;
+  padding: 22px 20px 17px 20px;
   border-radius: 20px;
   background: #fff;
   border: 1px solid rgba(0, 27, 55, 0.04);
   box-shadow: none;
 }
 
+/* Figma 실측: 메모 카드 — 패딩 20 all / radius 20 / gap 10 */
+.memoCard {
+  margin-top: 14px;
+  padding: 20px;
+  border-radius: 20px;
+  background: #fff;
+  border: 1px solid rgba(0, 27, 55, 0.04);
+  box-shadow: none;
+}
+
+/* Figma 실측: 투표중 텍스트 20px/700/#333d4b */
 .statTop {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  color: var(--t1);
-  font-size: 17px;
-  font-weight: 850;
+  color: #333d4b;
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.4;
+  letter-spacing: -0.2px;
 }
 
 .statTop span {
@@ -208,11 +220,11 @@
   gap: 7px;
 }
 
-/* a-ha 실측: 남은 투표 시간 라벨 12px/700/#8b95a1 */
+/* Figma 실측: 투표 카운트 → 남은 시간 사이 gap 35px */
 .countdownLabel {
-  margin-top: 18px;
-  padding-top: 18px;
-  border-top: 1px solid #ebeff5;
+  margin-top: 35px;
+  padding-top: 0;
+  border-top: 0;
   color: #8b95a1;
   font-size: 12px;
   font-weight: 700;
@@ -340,16 +352,17 @@
 .labelA { color: var(--rw-blue70); }
 .labelB { color: var(--rw-red50); }
 
-/* a-ha 실측: 메모 카드 — gap 10 / 라벨 가운데 */
+/* Figma 실측: 메모 헤더 — gap 10 / 라벨 15px Medium #4e5968 */
 .memoHead {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 10px;
-  color: #8b95a1;
-  font-size: 14px;
-  font-weight: 600;
+  color: #4e5968;
+  font-size: 15px;
+  font-weight: 500;
   text-align: center;
+  letter-spacing: -0.1px;
 }
 
 /* a-ha 실측: 설명 보기 버튼 — bg #f9fafb / h 38 / radius 10 / 15px/600/#6b7684 */
