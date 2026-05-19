@@ -12,10 +12,43 @@
 
 .hero {
   position: relative;
-  padding: 28px;
+  padding: 36px 28px 28px;
   border-radius: 24px;
-  background: var(--rw-card-muted);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, .06);
+  /* a-ha 톤: 연한 베이지·우유 배경 */
+  background: linear-gradient(180deg, #f7f3eb 0%, #faf8f3 100%);
+  border: 1px solid rgba(0, 27, 55, 0.05);
+  overflow: hidden;
+}
+
+/* 양쪽 임팩트 일러스트 — 권투 글로브 */
+.heroGlove {
+  position: absolute;
+  top: 50%;
+  font-size: 56px;
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.12));
+  font-family: 'Tossface', sans-serif;
+  pointer-events: none;
+  user-select: none;
+  animation: heroGlovePulse 2.6s ease-in-out infinite;
+}
+.heroGlove[data-side="a"] {
+  left: -8px;
+  transform: translateY(-50%) scaleX(-1) rotate(-12deg);
+  filter: drop-shadow(0 4px 12px rgba(49, 130, 246, 0.35)) hue-rotate(190deg) saturate(2);
+}
+.heroGlove[data-side="b"] {
+  right: -8px;
+  transform: translateY(-50%) rotate(12deg);
+  filter: drop-shadow(0 4px 12px rgba(228, 41, 57, 0.35));
+}
+@keyframes heroGlovePulse {
+  0%, 100% { transform: translateY(-50%) scaleX(var(--sx, 1)) rotate(var(--rot, 0deg)); }
+  50% { transform: translateY(-54%) scaleX(var(--sx, 1)) rotate(var(--rot, 0deg)); }
+}
+.heroGlove[data-side="a"] { --sx: -1; --rot: -12deg; }
+.heroGlove[data-side="b"] { --sx: 1; --rot: 12deg; }
+@media (max-width: 640px) {
+  .heroGlove { font-size: 40px; }
 }
 
 .share {
@@ -71,14 +104,14 @@
   min-height: 150px;
   padding: 18px;
   border-radius: 18px;
-  background: var(--white);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, .06);
+  background: var(--choice-tint, var(--white));
+  border: 1px solid var(--choice-border, transparent);
   text-align: left;
   transition: transform var(--duration-instant), box-shadow var(--duration-instant);
 }
 
 .choice:hover:not(:disabled) {
-  transform: translateY(-1px);
+  transform: translateY(-2px);
   box-shadow: 0 8px 24px rgba(25, 31, 40, .08);
 }
 
@@ -128,11 +161,15 @@
 .positive {
   --choice-color: var(--rw-blue70);
   --choice-bg: var(--rw-blue5);
+  --choice-tint: #eef4ff;       /* a-ha 톤: A 박스 연한 파란 배경 */
+  --choice-border: rgba(49, 130, 246, 0.18);
 }
 
 .negative {
   --choice-color: var(--rw-red60);
-  --choice-bg: #fff0f0 /* TODO 토큰: rw-red5 */;
+  --choice-bg: #fff0f0;
+  --choice-tint: #ffeded;       /* a-ha 톤: B 박스 연한 빨간 배경 */
+  --choice-border: rgba(228, 41, 57, 0.18);
 }
 
 .selected {
@@ -182,34 +219,112 @@
 }
 
 .resultChart {
-  margin-top: 18px;
-}
-
-.bar {
+  margin-top: 22px;
   display: flex;
-  height: 12px;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+/* 결과 도넛 (conic-gradient) */
+.donut {
+  position: relative;
+  width: 168px;
+  height: 168px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: donutIn 600ms ease-out;
+}
+@keyframes donutIn {
+  from { transform: rotate(-90deg) scale(0.9); opacity: 0; }
+  to { transform: rotate(0deg) scale(1); opacity: 1; }
+}
+.donutHole {
+  width: 116px;
+  height: 116px;
+  background: #fff;
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+}
+.donutHole strong {
+  font-size: 28px;
+  font-weight: 900;
+  color: var(--rw-text-strong);
+  font-feature-settings: 'tnum';
+  letter-spacing: -0.5px;
+}
+.donutHole span {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--rw-gray60, #6b7684);
+  letter-spacing: -0.2px;
+  max-width: 96px;
+  text-align: center;
   overflow: hidden;
-  border-radius: 999px;
-  background: var(--rw-gray15);
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.barA {
-  background: var(--rw-blue70);
+/* 투표 전 잠금 */
+.resultLocked {
+  margin-top: 22px;
+  display: flex;
+  justify-content: center;
 }
-
-.barB {
-  background: var(--rw-red50);
+.donutPlaceholder {
+  width: 168px;
+  height: 168px;
+  border-radius: 50%;
+  background: conic-gradient(
+    rgba(49,130,246,0.10) 0 50%,
+    rgba(228,41,57,0.10) 50% 100%
+  );
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  filter: blur(0px);
+}
+.donutLockText {
+  width: 116px;
+  height: 116px;
+  background: #fff;
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  text-align: center;
+}
+.donutLockText strong {
+  font-size: 13.5px;
+  font-weight: 900;
+  color: var(--rw-text-strong);
+  letter-spacing: -0.2px;
+}
+.donutLockText span {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--rw-gray60, #6b7684);
+  letter-spacing: -0.1px;
 }
 
 .barLabels {
   display: flex;
-  justify-content: space-between;
-  gap: 12px;
-  margin-top: 8px;
-  color: var(--t2);
+  justify-content: center;
+  gap: 18px;
   font-size: 13px;
-  font-weight: 750;
+  font-weight: 800;
+  letter-spacing: -0.1px;
 }
+.labelA { color: var(--rw-blue70); }
+.labelB { color: var(--rw-red50); }
 
 .memoHead {
   display: flex;

@@ -176,6 +176,10 @@ export default function SparringDetailClient({
     <main className={styles.detailPage}>
       <div className={styles.main}>
         <section className={styles.hero}>
+          {/* 양쪽 임팩트 일러스트 — 좌(파랑) vs 우(빨강) */}
+          <div className={styles.heroGlove} data-side="a" aria-hidden>🥊</div>
+          <div className={styles.heroGlove} data-side="b" aria-hidden>🥊</div>
+
           <div className={styles.breadcrumb}>스파링 · {sparring.category}</div>
           <div className={styles.round}>{sparring.round_number} 라운드</div>
           <h1 className={styles.title}>{sparring.title}</h1>
@@ -191,15 +195,33 @@ export default function SparringDetailClient({
             </div>
             <div className={styles.countdownLabel}>남은 투표 시간</div>
             <div className={styles.countdownValue}><Countdown deadlineAt={sparring.deadline_at} /></div>
-            {resultVisible && (
+            {resultVisible ? (
               <div className={styles.resultChart} aria-label="투표 결과">
-                <div className={styles.bar}>
-                  <div className={styles.barA} style={{ width: `${percentA}%` }} />
-                  <div className={styles.barB} style={{ width: `${percentB}%` }} />
+                <div
+                  className={styles.donut}
+                  style={{
+                    background: `conic-gradient(var(--rw-blue70) 0 ${percentA}%, var(--rw-red50) ${percentA}% 100%)`,
+                  }}
+                  role="img"
+                  aria-label={`${sparring.side_a_label} ${percentA}% / ${sparring.side_b_label} ${percentB}%`}
+                >
+                  <div className={styles.donutHole}>
+                    <strong>{percentA >= percentB ? percentA : percentB}%</strong>
+                    <span>{percentA >= percentB ? sparring.side_a_label : sparring.side_b_label}</span>
+                  </div>
                 </div>
                 <div className={styles.barLabels}>
-                  <span>{sparring.side_a_label} {percentA}%</span>
-                  <span>{sparring.side_b_label} {percentB}%</span>
+                  <span className={styles.labelA}>● {sparring.side_a_label} {percentA}%</span>
+                  <span className={styles.labelB}>● {sparring.side_b_label} {percentB}%</span>
+                </div>
+              </div>
+            ) : (
+              <div className={styles.resultLocked} aria-label="투표 결과 잠김">
+                <div className={styles.donutPlaceholder}>
+                  <div className={styles.donutLockText}>
+                    <strong>투표하면</strong>
+                    <span>결과를 볼 수 있어요</span>
+                  </div>
                 </div>
               </div>
             )}
