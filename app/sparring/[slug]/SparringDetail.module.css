@@ -132,14 +132,14 @@
   letter-spacing: -0.2px;
 }
 
-/* Figma 실측: 선택 캡슐 bg=옵션색, radius 14, padding 6 12, 12px/700/white */
+/* a-ha 라이브 실측: 캡슐 padding 6 8, w 37, bg 진한톤 (--choice-pill) */
 .choicePill {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 6px 12px;
+  padding: 6px 8px;
   border-radius: 14px;
-  background: var(--choice-color);
+  background: var(--choice-pill);
   color: #fff;
   font-size: 12px;
   font-weight: 700;
@@ -159,6 +159,7 @@
   --choice-color: var(--rw-blue70);
   --choice-bg: var(--rw-blue5);
   --choice-tint: #d0e0f7;       /* a-ha 실측 rgb(208,224,247) */
+  --choice-pill: #1e59da;       /* a-ha 실측 rgb(30,89,218) — 진한 톤 */
   --choice-border: transparent;
 }
 
@@ -166,6 +167,7 @@
   --choice-color: var(--rw-red60);
   --choice-bg: #fff0f0;
   --choice-tint: #ffd6d8;       /* a-ha 실측 rgb(255,214,216) */
+  --choice-pill: #e52a39;       /* a-ha 실측 rgb(229,42,57) — 진한 톤 */
   --choice-border: transparent;
 }
 
