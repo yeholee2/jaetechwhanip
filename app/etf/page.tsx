@@ -7,7 +7,7 @@ import { fetchEtfs } from '@/lib/etfsDb';
 import { SITE_NAME } from '@/lib/seo';
 import { PageHero, Badge, Card, Button } from '@/components/ui';
 import styles from './EtfPage.module.css';
-import { EtfPageTabs, EtfUtilityRow, type EtfPageTab } from './EtfPageTabs';
+import { EtfPageTabs, type EtfPageTab } from './EtfPageTabs';
 import { MyEtfSection } from './MyEtfSection';
 import { MarketTicker } from './MarketTicker';
 import { EtfNews } from './EtfNews';
@@ -117,12 +117,9 @@ export default async function EtfPage({
 }
 
 async function DiscoverTab({ allEtfs }: { allEtfs: import('@/lib/etfs').EtfInfo[] }) {
-  // 오늘 탭은 시장 흐름과 바로 이어지는 도구만 노출한다.
+  // 오늘 탭은 시장 흐름을 바로 보여준다.
   return (
     <div className={styles.discoverStack}>
-      {/* 0. 유틸리티 도구 행 (스크리너/비교) */}
-      <EtfUtilityRow />
-
       {/* 1. 내 ETF (로그인 시 도미노 풀화면, 비로그인 시 가입 CTA) */}
       <MyEtfSection />
 

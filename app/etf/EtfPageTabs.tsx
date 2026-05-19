@@ -5,7 +5,6 @@
  * 홈은 오늘 흐름, 조건검색은 스크리너로 분리한다.
  */
 import Link from 'next/link';
-import { FaIcon } from '@/components/FaIcon';
 import styles from './EtfPageTabs.module.css';
 
 export type EtfPageTab = 'discover' | 'screener' | 'themes' | 'trending' | 'news' | 'all'
@@ -34,31 +33,5 @@ export function EtfPageTabs({ active = 'discover' }: { active?: EtfPageTab }) {
         </Link>
       ))}
     </nav>
-  );
-}
-
-/** 유틸리티 도구 행 — 오늘 흐름에서 바로 이어지는 핵심 도구. */
-export function EtfUtilityRow() {
-  return (
-    <div className={styles.utilRow} role="group" aria-label="ETF 도구">
-      <Link href="/etf/screener" className={styles.util}>
-        <span className={styles.utilIcon} aria-hidden="true">
-          <FaIcon name="magnifying-glass" size={15} />
-        </span>
-        <span className={styles.utilLabel}>
-          <strong>스크리너</strong>
-          <span>조건으로 ETF 찾기</span>
-        </span>
-      </Link>
-      <Link href="/etf/compare" className={styles.util}>
-        <span className={styles.utilIcon} aria-hidden="true">
-          <FaIcon name="scale-balanced" size={15} />
-        </span>
-        <span className={styles.utilLabel}>
-          <strong>비교</strong>
-          <span>보수·순자산</span>
-        </span>
-      </Link>
-    </div>
   );
 }
