@@ -7,7 +7,7 @@ import SparringPastCard from '@/components/sparring/SparringPastCard';
 import { CATEGORY_DEFINITIONS, getCategoryLabel } from '@/lib/categories';
 import type { Sparring } from '@/lib/sparring';
 import { Section, Chip } from '@/components/ui';
-import { PageSidebar } from '@/components/PageSidebar';
+import { TickerScroller } from '@/app/etf/TickerScroller';
 import styles from './SparringPage.module.css';
 
 type SortMode = 'default' | 'comments';
@@ -32,16 +32,28 @@ export default function SparringClient({ sparrings }: { sparrings: Sparring[] })
     });
   }, [category, sortMode, sparrings]);
 
+  // 진행중 스파링 3개 초과 시 가로 스크롤(화살표 토글) — 시장 지수 ticker 패턴
+  const useScroller = activeSparrings.length > 2;
+
   return (
     <AppShell active="sparring" wide hideSlogan>
-      <main className="pc-layout">
-        <div className="pc-layout-main">
+      <main className={styles.page}>
         <Section title="진행중 스파링" sub={`${activeSparrings.length}개`}>
-          <div className={styles.activeGrid} aria-label="진행중 스파링">
-            {activeSparrings.map(sparring => (
-              <SparringActiveCard key={sparring.id} sparring={sparring} />
-            ))}
-          </div>
+          {useScroller ? (
+            <TickerScroller>
+              {activeSparrings.map(sparring => (
+                <div key={sparring.id} className={styles.activeScrollItem}>
+                  <SparringActiveCard sparring={sparring} />
+                </div>
+              ))}
+            </TickerScroller>
+          ) : (
+            <div className={styles.activeGrid} aria-label="진행중 스파링">
+              {activeSparrings.map(sparring => (
+                <SparringActiveCard key={sparring.id} sparring={sparring} />
+              ))}
+            </div>
+          )}
         </Section>
 
         <Section title="지난 스파링" sub={`${pastSparrings.length}개`} className={styles.pastSection}>
@@ -73,8 +85,6 @@ export default function SparringClient({ sparrings }: { sparrings: Sparring[] })
             ))}
           </div>
         </Section>
-        </div>
-        <PageSidebar widgets={['watch', 'help']} />
       </main>
     </AppShell>
   );

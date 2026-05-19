@@ -84,10 +84,33 @@
   font-weight: 750;
 }
 
+/* 사이드바 제거 후 스파링 페이지 자체 max-width */
+.page {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 24px 0;
+}
+
 .activeGrid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 12px;
+  /* 2개 들어가도록 — 각 카드 최소 ~480px, 화면 폭 따라 1~2개 */
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+/* 진행중 3개+ 일 때 가로 스크롤 — 화면에 2개씩, 나머지는 화살표 토글로 */
+.activeScrollItem {
+  flex: 0 0 calc(50% - 8px);
+  scroll-snap-align: start;
+}
+
+@media (max-width: 760px) {
+  .activeGrid {
+    grid-template-columns: 1fr;
+  }
+  .activeScrollItem {
+    flex: 0 0 calc(100% - 16px);
+  }
 }
 
 .pastSection {
