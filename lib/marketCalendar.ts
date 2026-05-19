@@ -30,14 +30,16 @@ export type CalendarEvent = {
   time?: string;
 };
 
-/** 이벤트 종류별 기본 발표 시각 (한국 시간 기준) */
+/** 이벤트 종류별 기본 발표 시각 — 한국 시간(KST) 기준
+ *  (미국 ET와 한국 KST는 +14h 차이. ET 8:30 AM = KST 오후 9:30~10:30 DST 따라 변동)
+ */
 export function getDefaultEventTime(e: CalendarEvent): string {
   if (e.time) return e.time;
-  // 미국 경제지표: ET 8:30 AM = KST 오후 9시 30분 (대부분)
+  // 미국 경제지표: ET 8:30 AM = KST 오후 9시 30분 (대부분 — NFP, 실업수당, CPI 등)
   if (e.region === 'us' && e.kind === 'economic') {
     return '오후 9시 30분 발표 예정';
   }
-  // 미국 실적: 장 마감 후 발표 (16:00 ET = KST 오전 5시 이후) 또는 장 시작 전
+  // 미국 실적: 장 마감 후(After Market Close, AMC) = KST 오전 5시~6시 / 장 시작 전(BMO) = KST 저녁 9시 이후
   if (e.region === 'us' && e.kind === 'earnings') {
     return e.importance === 'major' ? '오전 5시 이후' : '장 마감 후';
   }

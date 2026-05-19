@@ -427,12 +427,18 @@
 .metric {
   text-align: right;
   font-size: 13px;
-  font-weight: 800;
-  color: var(--rw-text-strong);
+  font-weight: 700;
+  color: var(--rw-text-body);
   font-feature-settings: 'tnum';
   letter-spacing: -0.2px;
 }
-.metricPrev { color: var(--rw-text-muted); font-weight: 700; }
+/* 발표값 — 토스 톤: 가장 굵게·진하게 (시선이 가장 먼저 가도록) */
+.metricActual {
+  font-weight: 900;
+  color: var(--rw-text-strong);
+  font-size: 14px;
+}
+.metricPrev { color: var(--rw-text-muted); font-weight: 600; }
 
 @media (max-width: 880px) {
   .weekColHead { display: none; }

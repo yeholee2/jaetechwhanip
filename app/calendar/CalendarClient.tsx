@@ -374,7 +374,8 @@ function MonthView({
 function EventRow({ event }: { event: CalendarEvent }) {
   const isMajor = event.importance === 'major';
   const isEarnings = event.kind === 'earnings';
-  const hasMetrics = event.actual != null || event.forecast != null || event.previous != null;
+  // 토스 패턴: actual(발표값) 있을 때만 metrics 모드. 미래 이벤트는 forecast/previous 있어도 시간 표시.
+  const hasActual = event.actual != null && event.actual !== '' && event.actual !== '-';
   const timeText = getDefaultEventTime(event);
   return (
     <li className={styles.event}>
@@ -408,9 +409,9 @@ function EventRow({ event }: { event: CalendarEvent }) {
           </a>
         )}
       </div>
-      {hasMetrics ? (
+      {hasActual ? (
         <div className={styles.eventMetrics}>
-          <span className={styles.metric} data-label="발표">{event.actual ?? '-'}</span>
+          <span className={`${styles.metric} ${styles.metricActual}`} data-label="발표">{event.actual}</span>
           <span className={styles.metric} data-label="예측">{event.forecast ?? '-'}</span>
           <span className={`${styles.metric} ${styles.metricPrev}`} data-label="이전">{event.previous ?? '-'}</span>
         </div>
