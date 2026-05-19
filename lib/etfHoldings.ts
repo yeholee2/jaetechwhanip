@@ -46,6 +46,7 @@ async function getCrumbAndCookie(): Promise<{ crumb: string; cookie: string } | 
     const cookieRes = await fetch('https://fc.yahoo.com/', {
       headers: { 'User-Agent': UA },
       redirect: 'manual',
+      signal: AbortSignal.timeout(2500),
     });
     const setCookie = cookieRes.headers.get('set-cookie') || '';
     if (!setCookie) return null;
@@ -55,6 +56,7 @@ async function getCrumbAndCookie(): Promise<{ crumb: string; cookie: string } | 
     // 2) crumb 받기
     const crumbRes = await fetch('https://query1.finance.yahoo.com/v1/test/getcrumb', {
       headers: { 'User-Agent': UA, Cookie: cookie },
+      signal: AbortSignal.timeout(2500),
     });
     if (!crumbRes.ok) return null;
     const crumb = (await crumbRes.text()).trim();
@@ -82,6 +84,7 @@ export async function fetchEtfHoldings(code: string): Promise<EtfHoldingsData | 
     const r = await fetch(url, {
       headers: { 'User-Agent': UA, Cookie: auth.cookie },
       next: { revalidate: 86400 },
+      signal: AbortSignal.timeout(3000),
     });
     if (!r.ok) return null;
     const j = await r.json();

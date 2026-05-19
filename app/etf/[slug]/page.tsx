@@ -3,8 +3,8 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { AppShell } from '@/components/AppShell';
 import { FaIcon } from '@/components/FaIcon';
-import { getEtfsWithMarketData } from '@/lib/etf-live-data';
-import { ETF_HOME_PATH, etfPath, etfUrl, etfs, getEtfBySlug } from '@/lib/etfs';
+import { getEtfsWithMarketData, type EtfInfoWithMarketData } from '@/lib/etf-live-data';
+import { ETF_HOME_PATH, etfPath, etfUrl, etfs, getEtfBySlug, type EtfInfo } from '@/lib/etfs';
 import { fetchEtfs, fetchEtfBySlug, fetchEtfByCode } from '@/lib/etfsDb';
 import { findSimilarEtfs, buildIssuerSummary } from '@/lib/etfSimilar';
 import { findTemplatesByEtfCode } from '@/lib/templateLookup';
@@ -33,15 +33,15 @@ import { countryInfo } from '@/lib/etfCountry';
 import { WatchButton } from '../WatchButton';
 import { AlertButton } from '../AlertButton';
 import { EtfSectionNav } from './EtfSectionNav';
-import { computePeriodReturns, fetchMaxHistory } from '@/lib/etfPriceHistory';
-import { fetchEtfHoldingsWithCache } from '@/lib/holdingsCache';
+import { computePeriodReturns, type PricePoint } from '@/lib/etfPriceHistory';
+import type { EtfHoldingsData } from '@/lib/etfHoldings';
 import { ShareButton } from '../ShareButton';
 import { RecordEtfView } from '../RecordEtfView';
 import { EtfChart } from '../EtfChart';
 import { RangeBar } from '@/components/etf/RangeBar';
 import { applyResolvedEtfCode, isKrEtfCode } from '@/lib/etfCodes';
 import { getEtfAccountEligibility } from '@/lib/etfAccountEligibility';
-import { fetchNaverDailyPrices, fetchNaverEtfNavHistory, fetchNaverEtfRealtime } from '@/lib/naverEtfData';
+import { fetchNaverEtfNavHistory, fetchNaverEtfRealtime } from '@/lib/naverEtfData';
 // import { EtfChat } from '../EtfChat'; // 일단 제거
 import styles from './EtfDetailPage.module.css';
 
@@ -102,6 +102,25 @@ function isVisibleDetailTag(tag: string) {
   const trimmed = tag.trim();
   if (!trimmed) return false;
   return !HIDDEN_DETAIL_TAGS.has(trimmed) && !HIDDEN_DETAIL_TAGS.has(trimmed.toUpperCase());
+}
+
+async function withSoftTimeout<T>(promise: Promise<T>, fallback: T, ms: number): Promise<T> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const guarded = promise.catch(() => fallback);
+  const timeout = new Promise<T>(resolve => {
+    timer = setTimeout(() => resolve(fallback), ms);
+  });
+  const result = await Promise.race([guarded, timeout]);
+  if (timer) clearTimeout(timer);
+  return result;
+}
+
+function withMarketDataFallback(etf: EtfInfo): EtfInfoWithMarketData {
+  return {
+    ...etf,
+    dataSource: (etf.dataSource as EtfInfoWithMarketData['dataSource']) || 'database',
+    dataNotice: etf.dataNotice || (etf.baseDate ? `DB 저장 시세 · ${etf.baseDate} 기준` : 'DB 저장 ETF 정보'),
+  };
 }
 
 function buildCompactEtfDescription(etf: {
@@ -207,9 +226,13 @@ export default async function EtfDetailPage({ params }: Props) {
   const resolvedBaseEtf = applyResolvedEtfCode(baseEtf);
 
   // 2) 선택된 ETF 1개에만 실제 시세 API를 코드로 매칭한다. 실패 시 시드 가격으로 대체하지 않는다.
-  const [marketEtf] = await getEtfsWithMarketData([resolvedBaseEtf]);
+  const [marketEtf] = await withSoftTimeout(
+    getEtfsWithMarketData([resolvedBaseEtf]),
+    [withMarketDataFallback(resolvedBaseEtf)],
+    1800,
+  );
   const naverRealtime = isKrEtfCode(marketEtf.code)
-    ? await fetchNaverEtfRealtime(marketEtf.code)
+    ? await withSoftTimeout(fetchNaverEtfRealtime(marketEtf.code), null, 900)
     : null;
   const etf = naverRealtime
     ? {
@@ -242,22 +265,22 @@ export default async function EtfDetailPage({ params }: Props) {
     kospiHistory, sp500History, nasdaq100History,
     liveHoldings, navHistory, relatedQs,
   ] = await Promise.all([
-    listSparrings(),
-    fetchGhostArticles(),
-    fetchRecentReportsWithFallback(),
-    fetchEtfs(2000),
-    isKrEtfCode(etf.code) && /[A-Z]/.test(etf.code)
-      ? fetchNaverDailyPrices(etf.code, 8).then(items => items.length > 0 ? items : fetchMaxHistory(etf.code))
-      : fetchMaxHistory(etf.code),
-    fetchMaxHistory('^KS11'),
-    fetchMaxHistory('^GSPC'),
-    fetchMaxHistory('^NDX'),
-    fetchEtfHoldingsWithCache(etf.code),
-    isKrEtfCode(etf.code) ? fetchNaverEtfNavHistory(etf.code) : Promise.resolve([]),
-    fetchEtfRelatedQuestions(etf as any, 3),
+    withSoftTimeout(listSparrings(), { sparrings: [], usingFallback: true }, 1200),
+    withSoftTimeout(fetchGhostArticles(), [], 1200),
+    withSoftTimeout(fetchRecentReportsWithFallback(), [], 1200),
+    withSoftTimeout(fetchEtfs(2000), [contentBaseEtf as EtfInfo], 1500),
+    Promise.resolve([] as PricePoint[]),
+    Promise.resolve([] as PricePoint[]),
+    Promise.resolve([] as PricePoint[]),
+    Promise.resolve([] as PricePoint[]),
+    Promise.resolve(null as EtfHoldingsData | null),
+    isKrEtfCode(etf.code)
+      ? withSoftTimeout(fetchNaverEtfNavHistory(etf.code), [], 1000)
+      : Promise.resolve([]),
+    withSoftTimeout(fetchEtfRelatedQuestions(etf as any, 3), [], 1000),
   ]);
 
-  const creatorPosts = await fetchPostsBySymbol(etf.code, 6).catch(() => []);
+  const creatorPosts = await withSoftTimeout(fetchPostsBySymbol(etf.code, 6), [], 1000);
   const benchmarks = [
     { key: 'kospi',    name: 'KOSPI',       color: '#1B64DA', history: kospiHistory },
     { key: 'sp500',    name: 'S&P500(H)',   color: '#8AD504', history: sp500History },
@@ -269,7 +292,11 @@ export default async function EtfDetailPage({ params }: Props) {
     .filter(result => result.etf.slug !== etf.slug && result.etf.code !== etf.code)
     .slice(0, 4);
   const similarLiveList = similarResults.length > 0
-    ? await getEtfsWithMarketData(similarResults.map(result => applyResolvedEtfCode(result.etf)))
+    ? await withSoftTimeout(
+        getEtfsWithMarketData(similarResults.map(result => applyResolvedEtfCode(result.etf))),
+        [],
+        1200,
+      )
     : [];
   const similarLiveBySlug = new Map(similarLiveList.map(item => [item.slug, item]));
   // 같은 운용사 — 비슷한 ETF 와 중복되면 표시 안 함 (정보 가치 낮음)

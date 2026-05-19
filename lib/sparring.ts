@@ -299,6 +299,7 @@ async function supabaseGet<T>(path: string): Promise<T | null> {
   const response = await fetch(url, {
     headers: apiHeaders(),
     next: { revalidate: 30 },
+    signal: AbortSignal.timeout(1200),
   });
   if (!response.ok) return null;
   return response.json() as Promise<T>;

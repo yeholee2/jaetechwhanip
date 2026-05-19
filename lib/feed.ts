@@ -238,6 +238,7 @@ export async function fetchGhostArticles(): Promise<HanipArticle[]> {
         'user-agent': 'JaetechHanipBot/1.0 (+https://we.hannipmoney.com/feed)',
       },
       next: { revalidate: 600 },
+      signal: AbortSignal.timeout(1000),
     });
 
     if (!res.ok) return hanipArticles;

@@ -6,7 +6,6 @@
  *
  * post_mentions 인덱스 활용 — O(1).
  */
-import { createClient } from '@/lib/supabase/server';
 
 export type PostWithCreator = {
   id: string;
@@ -31,24 +30,32 @@ function normalize(s: string): string {
 }
 
 export async function fetchPostsBySymbol(symbol: string, limit = 8): Promise<PostWithCreator[]> {
-  const supabase = createClient();
-  if (!supabase) return [];
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (!url || !key) return [];
 
   const norm = normalize(symbol);
-  const { data } = await supabase
-    .from('post_mentions')
-    .select(`
+  const params = new URLSearchParams({
+    select: `
       symbol, weight,
       creator_posts:post_id (
         id, title, slug, preview, cover_url, is_member_only,
         published_at, view_count, like_count, is_published,
         creators:creator_id ( slug, display_name, avatar_url )
       )
-    `)
-    .eq('symbol', norm)
-    .order('weight', { ascending: false })
-    .limit(limit * 2); // 비공개 글 필터 후 limit
+    `,
+    symbol: `eq.${norm}`,
+    order: 'weight.desc',
+    limit: String(limit * 2),
+  });
+  const response = await fetch(`${url}/rest/v1/post_mentions?${params.toString()}`, {
+    headers: { apikey: key, Authorization: `Bearer ${key}` },
+    next: { revalidate: 300 },
+    signal: AbortSignal.timeout(1000),
+  }).catch(() => null);
+  if (!response?.ok) return [];
 
+  const data = await response.json().catch(() => []);
   const rows = (data || []) as any[];
   const out: PostWithCreator[] = [];
   for (const r of rows) {

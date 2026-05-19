@@ -65,7 +65,11 @@ export async function fetchRecentReports(limit = 20): Promise<ReportItem[]> {
     if (!url || !key) return [];
     const res = await fetch(
       `${url}/rest/v1/reports?select=id,source,title,summary,url,thumbnail_url,category,published_at,related_etf_codes,click_count&deleted_at=is.null&order=published_at.desc&limit=${limit}`,
-      { headers: { apikey: key, Authorization: `Bearer ${key}` }, next: { revalidate: 600 } },
+      {
+        headers: { apikey: key, Authorization: `Bearer ${key}` },
+        next: { revalidate: 600 },
+        signal: AbortSignal.timeout(1000),
+      },
     );
     if (!res.ok) return [];
     const data = await res.json();

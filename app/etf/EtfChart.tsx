@@ -15,7 +15,7 @@
  */
 
 import Link from 'next/link';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { PriceChart, type ChartPoint, type ExtraSeries } from '@/components/ui';
 import type { PricePoint } from '@/lib/etfPriceHistory';
 import type { NaverEtfNavPoint } from '@/lib/naverEtfData';
@@ -124,6 +124,44 @@ export function EtfChart({ code, history = [], navHistory = [], benchmarks = [],
   const [pendingStart, setPendingStart] = useState<string>('');
   const [pendingEnd, setPendingEnd] = useState<string>('');
   const [customRange, setCustomRange] = useState<{ start: string; end: string } | null>(null);
+  const [clientHistory, setClientHistory] = useState<PricePoint[]>(history);
+  const [historyLoading, setHistoryLoading] = useState(history.length === 0);
+
+  useEffect(() => {
+    if (history.length > 0) {
+      setClientHistory(history);
+      setHistoryLoading(false);
+      return;
+    }
+
+    let alive = true;
+    const controller = new AbortController();
+    setHistoryLoading(true);
+    fetch(`/api/etf/history?code=${encodeURIComponent(code)}&period=1Y`, {
+      signal: controller.signal,
+    })
+      .then(res => res.ok ? res.json() : null)
+      .then(payload => {
+        if (!alive) return;
+        const items = Array.isArray(payload?.items) ? payload.items : [];
+        setClientHistory(items
+          .map((item: any) => ({ date: String(item.date || ''), close: Number(item.close) }))
+          .filter((item: PricePoint) => item.date && Number.isFinite(item.close) && item.close > 0));
+      })
+      .catch(() => {
+        if (alive) setClientHistory([]);
+      })
+      .finally(() => {
+        if (alive) setHistoryLoading(false);
+      });
+
+    return () => {
+      alive = false;
+      controller.abort();
+    };
+  }, [code, history.length]);
+
+  const chartHistory = history.length > 0 ? history : clientHistory;
 
   // 시리즈 표시 상태 — 기본은 이 ETF만, 벤치마크는 사용자 선택
   const [active, setActive] = useState<Record<SeriesKey, boolean>>({
@@ -134,8 +172,8 @@ export function EtfChart({ code, history = [], navHistory = [], benchmarks = [],
   const rangeSource = useMemo(
     () => ((mode === 'nav' || mode === 'premium') && navHistory.length > 1
       ? navHistory.map(point => ({ date: point.date, close: point.nav }))
-      : history),
-    [history, mode, navHistory],
+      : chartHistory),
+    [chartHistory, mode, navHistory],
   );
 
   // 현재 기간의 시작/끝 날짜 계산
@@ -168,8 +206,8 @@ export function EtfChart({ code, history = [], navHistory = [], benchmarks = [],
 
   // 메인 ETF 수익률 시리즈 계산 (Yahoo Finance 종가 기준)
   const pricePoints = useMemo(
-    () => toReturnSeries(history, startDate, endDate, point => point.close),
-    [history, startDate, endDate],
+    () => toReturnSeries(chartHistory, startDate, endDate, point => point.close),
+    [chartHistory, startDate, endDate],
   );
   const navPoints = useMemo(
     () => toReturnSeries(navHistory, startDate, endDate, point => point.nav),
@@ -224,7 +262,9 @@ export function EtfChart({ code, history = [], navHistory = [], benchmarks = [],
     ? 'NAV 히스토리를 원문에서 확인할 수 없어요.'
     : mode === 'premium'
       ? '괴리율 히스토리를 원문에서 확인할 수 없어요.'
-      : '표시할 가격 데이터가 아직 없어요.';
+      : historyLoading
+        ? '가격 데이터를 불러오는 중이에요.'
+        : '표시할 가격 데이터가 아직 없어요.';
   const chartHeight = compact ? 220 : 280;
   const visiblePeriods = compact
     ? PERIODS.filter(period => ['w1', 'm1', 'm3', 'y1', 'all'].includes(period.key))

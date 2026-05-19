@@ -34,6 +34,19 @@ export type CachedHolding = {
   updated_at: string;
 };
 
+function isKrHoldingCode(etfCode: string) {
+  return /^[0-9A-Z]{6}$/.test(etfCode.toUpperCase());
+}
+
+function cachedRowsToData(rows: CachedHolding[]): EtfHoldingsData | null {
+  if (rows.length === 0) return null;
+  return {
+    holdings: rows.map(r => ({ symbol: r.display_symbol, name: r.name, weight: r.weight })),
+    sectors: [],
+    source: rows[0]?.source?.startsWith('naver') ? 'naver' : 'yahoo',
+  };
+}
+
 /** 캐시에서 ETF 보유종목 조회 (TTL 무시, 그냥 있는 것 다 반환) */
 export async function getCachedHoldings(etfCode: string): Promise<CachedHolding[]> {
   const admin = createAdminClient();
@@ -170,7 +183,26 @@ export type EtfExposureRow = {
  * ETF 상세 페이지에서 그대로 갈아끼울 수 있음.
  */
 export async function fetchEtfHoldingsWithCache(etfCode: string): Promise<EtfHoldingsData | null> {
-  // 1) Yahoo 먼저 (US ETF 및 일부 KR ETF 작동)
+  const cached = await getCachedHoldings(etfCode).catch(() => []);
+  if (isFresh(cached)) return cachedRowsToData(cached);
+
+  // KR ETF는 Yahoo에서 긴 지연/미지원이 잦아 Naver 구성자산만 빠르게 확인한다.
+  if (isKrHoldingCode(etfCode)) {
+    const naverItems = await fetchNaverHoldings(etfCode).catch(() => []);
+    if (naverItems.length > 0) {
+      if (naverItems.some(item => item.weight > 0)) {
+        upsertHoldings(etfCode, naverItems, 'naver_top').catch(() => {});
+      }
+      return {
+        holdings: naverItems,
+        sectors: [],
+        source: 'naver',
+      };
+    }
+    return cachedRowsToData(cached);
+  }
+
+  // 미국 ETF 등 Yahoo 지원 가능성이 높은 종목만 Yahoo 조회를 시도한다.
   const data = await fetchEtfHoldings(etfCode).catch(() => null);
   if (data?.holdings?.length) {
     upsertHoldings(etfCode, data.holdings, 'yahoo').catch(() => {});
@@ -185,21 +217,7 @@ export async function fetchEtfHoldingsWithCache(etfCode: string): Promise<EtfHol
     return { ...data, source: 'yahoo' };
   }
 
-  // 2) KR ETF (6자리 코드) 면 Naver cu_more 폴백
-  if (/^[0-9A-Z]{6}$/.test(etfCode.toUpperCase())) {
-    const naverItems = await fetchNaverHoldings(etfCode).catch(() => []);
-    if (naverItems.length > 0) {
-      upsertHoldings(etfCode, naverItems, 'naver_top').catch(() => {});
-      return {
-        holdings: naverItems,
-        sectors: [],
-        source: 'naver',
-        // expenseRatio/dividendYield 는 모름
-      };
-    }
-  }
-
-  return data; // null
+  return cachedRowsToData(cached) || data; // null
 }
 
 export async function findEtfsHoldingSymbol(symbol: string, limit = 10): Promise<EtfExposureRow[]> {

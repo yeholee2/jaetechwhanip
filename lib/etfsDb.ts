@@ -99,6 +99,7 @@ export async function fetchEtfs(limit = 1000): Promise<EtfInfo[]> {
       {
         headers: { apikey: key, Authorization: `Bearer ${key}` },
         next: { revalidate: 600 },
+        signal: AbortSignal.timeout(2500),
       },
     );
     if (!res.ok) return staticFallback(limit);

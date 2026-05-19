@@ -168,6 +168,7 @@ export async function fetchEtfRelatedQuestions(
       {
         headers: { apikey: supabaseKey, Authorization: `Bearer ${supabaseKey}` },
         next: { revalidate: 600 },
+        signal: AbortSignal.timeout(1000),
       },
     );
     if (!res.ok) return [];
