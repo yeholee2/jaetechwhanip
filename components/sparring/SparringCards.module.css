@@ -1,6 +1,6 @@
 .activeCard {
   position: relative;
-  aspect-ratio: 4 / 5;   /* 세로가 살짝 더 김 (홈 미니카드와 동일 톤) */
+  aspect-ratio: 32 / 35; /* Aha 토론 카드 기준: 320x350 */
   overflow: hidden;
   border: 1px solid var(--line);
   border-radius: 16px;
@@ -378,7 +378,7 @@
   .activeCard {
     flex: 0 0 min(78vw, 280px);
     scroll-snap-align: start;
-    aspect-ratio: 4 / 5;
+    aspect-ratio: 32 / 35;
   }
 
   .activeCopy {

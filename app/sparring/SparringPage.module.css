@@ -93,15 +93,15 @@
 
 .activeGrid {
   display: grid;
-  /* 카드 폭 360px 고정 — 아하·홈/ETF 미니카드 톤. 페이지 폭에 따라 2~3개 자동 */
-  grid-template-columns: repeat(auto-fill, 360px);
+  /* Aha 토론 카드 기준 320x350. 1040px 폭에서 3개가 자연스럽게 들어감 */
+  grid-template-columns: repeat(auto-fill, 320px);
   gap: 16px;
   justify-content: flex-start;
 }
 
 /* 진행중 3개+ 일 때 가로 스크롤 — 화살표 토글로 */
 .activeScrollItem {
-  flex: 0 0 360px;
+  flex: 0 0 320px;
   scroll-snap-align: start;
 }
 
