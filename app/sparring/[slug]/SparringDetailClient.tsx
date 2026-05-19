@@ -174,10 +174,6 @@ export default function SparringDetailClient({
     <main className={styles.detailPage}>
       <div className={styles.main}>
         <section className={styles.hero}>
-          {/* 양쪽 임팩트 일러스트 — 좌(파랑) vs 우(빨강) */}
-          <div className={styles.heroGlove} data-side="a" aria-hidden>🥊</div>
-          <div className={styles.heroGlove} data-side="b" aria-hidden>🥊</div>
-
           <div className={styles.breadcrumb}>스파링 · {sparring.category}</div>
           <div className={styles.round}>{sparring.round_number} 라운드</div>
           <h1 className={styles.title}>{sparring.title}</h1>

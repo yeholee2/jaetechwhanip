@@ -10,43 +10,14 @@
   min-width: 0;
 }
 
-/* a-ha 실측: bg #f5fafe / border 1px #ebeff5 / radius 20px */
+/* Figma 실측: hero bg #f5fafe / border 1px #ebeff5 / radius 20px / pad 40 32 32 */
 .hero {
   position: relative;
-  padding: 36px 28px 28px;
+  padding: 40px 32px 32px;
   border-radius: 20px;
   background: #f5fafe;
   border: 1px solid #ebeff5;
-  overflow: hidden;
-}
-
-/* 양쪽 임팩트 일러스트 — 권투 글로브 (a-ha 에는 없지만 우리 시그니처) */
-.heroGlove {
-  position: absolute;
-  top: 50%;
-  font-size: 56px;
-  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.12));
-  font-family: 'Tossface', sans-serif;
-  pointer-events: none;
-  user-select: none;
-  animation: heroGlovePulse 2.6s ease-in-out infinite;
-}
-.heroGlove[data-side="a"] {
-  left: -8px;
-  filter: drop-shadow(0 4px 12px rgba(49, 130, 246, 0.35)) hue-rotate(190deg) saturate(2);
-}
-.heroGlove[data-side="b"] {
-  right: -8px;
-  filter: drop-shadow(0 4px 12px rgba(228, 41, 57, 0.35));
-}
-@keyframes heroGlovePulse {
-  0%, 100% { transform: translateY(-50%) scaleX(var(--sx, 1)) rotate(var(--rot, 0deg)); }
-  50% { transform: translateY(-54%) scaleX(var(--sx, 1)) rotate(var(--rot, 0deg)); }
-}
-.heroGlove[data-side="a"] { --sx: -1; --rot: -12deg; }
-.heroGlove[data-side="b"] { --sx: 1; --rot: 12deg; }
-@media (max-width: 640px) {
-  .heroGlove { font-size: 40px; }
+  overflow: visible;
 }
 
 .share {
@@ -67,11 +38,15 @@
 }
 
 .round {
-  /* a-ha 실측 톤: gray label */
+  /* Figma 실측: 가운데, 회색 보조 라벨 + (?) 아이콘 자리 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
   text-align: center;
   color: #8b95a1;
   font-size: 14px;
-  font-weight: 700;
+  font-weight: 600;
 }
 
 .breadcrumb {
@@ -119,6 +94,26 @@
   transition: transform 150ms ease, filter 150ms ease;
 }
 
+/* Figma 실측: 말풍선 꼬리 — A 카드 우측 / B 카드 좌측 (서로 마주봄) */
+.choice::before {
+  content: '';
+  position: absolute;
+  bottom: 18px;
+  width: 16px;
+  height: 16px;
+  background: inherit;
+  clip-path: polygon(0 0, 100% 50%, 0 100%);
+}
+.positive::before {
+  right: -8px;
+  background: var(--choice-tint);
+}
+.negative::before {
+  left: -8px;
+  background: var(--choice-tint);
+  clip-path: polygon(100% 0, 0 50%, 100% 100%);
+}
+
 .choice:hover:not(:disabled) {
   transform: translateY(-2px);
 }
@@ -139,7 +134,7 @@
   letter-spacing: -0.2px;
 }
 
-/* Figma 실측: 선택 캡슐 bg=옵션색, radius 14, padding 6 12, 12px/700/tint */
+/* Figma 실측: 선택 캡슐 bg=옵션색, radius 14, padding 6 12, 12px/700/white */
 .choicePill {
   display: inline-flex;
   align-items: center;
@@ -147,7 +142,7 @@
   padding: 6px 12px;
   border-radius: 14px;
   background: var(--choice-color);
-  color: var(--choice-tint);
+  color: #fff;
   font-size: 12px;
   font-weight: 700;
   line-height: 1;
