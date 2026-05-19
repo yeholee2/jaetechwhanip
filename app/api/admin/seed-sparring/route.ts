@@ -13,7 +13,7 @@ export const dynamic = 'force-dynamic';
 
 const SEEDS: Record<string, any> = {
   pension: {
-    round_number: 217,
+    // round_number 는 DB IDENTITY로 자동 부여
     category: '절세',
     title: '국민연금 보험료율 9% → 13% 인상안, 찬성하시나요?',
     body: '노후 보장을 위한 인상이 필요하다는 입장과 청년·중장년의 보험료 부담이 너무 크다는 입장이 갈려요. 여러분은 어느 쪽이세요?',
