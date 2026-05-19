@@ -93,25 +93,25 @@
 
 .activeGrid {
   display: grid;
-  /* 2열 + 그리드 폭 제한해 카드 사이즈 컴팩트하게 (홈 미니카드 비율 톤) */
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  /* 카드 폭 360px 고정 — 아하·홈/ETF 미니카드 톤. 페이지 폭에 따라 2~3개 자동 */
+  grid-template-columns: repeat(auto-fill, 360px);
   gap: 16px;
-  max-width: 780px;  /* 각 카드 ~380px 폭, 5:4 비율로 높이 ~304px */
+  justify-content: flex-start;
 }
 
-/* 진행중 3개+ 일 때 가로 스크롤 — 화면에 2개씩, 나머지는 화살표 토글로 */
+/* 진행중 3개+ 일 때 가로 스크롤 — 화살표 토글로 */
 .activeScrollItem {
-  flex: 0 0 380px;
+  flex: 0 0 360px;
   scroll-snap-align: start;
 }
 
 @media (max-width: 760px) {
   .activeGrid {
     grid-template-columns: 1fr;
-    max-width: 440px;
+    max-width: 380px;
   }
   .activeScrollItem {
-    flex: 0 0 320px;
+    flex: 0 0 300px;
   }
 }
 
