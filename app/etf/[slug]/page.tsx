@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { AppShell } from '@/components/AppShell';
 import { FaIcon } from '@/components/FaIcon';
-import { getEtfsWithMarketData, type EtfInfoWithMarketData } from '@/lib/etf-live-data';
+import type { EtfInfoWithMarketData } from '@/lib/etf-live-data';
 import { ETF_HOME_PATH, etfPath, etfUrl, etfs, getEtfBySlug, type EtfInfo } from '@/lib/etfs';
 import { fetchEtfs, fetchEtfBySlug, fetchEtfByCode } from '@/lib/etfsDb';
 import { findSimilarEtfs, buildIssuerSummary } from '@/lib/etfSimilar';
@@ -223,15 +223,30 @@ export default async function EtfDetailPage({ params }: Props) {
   if (!baseEtf) notFound();
 
   const resolvedBaseEtf = applyResolvedEtfCode(baseEtf);
+  const contentBaseEtf = applyResolvedEtfCode(dbEtfByCode || staticEtf || resolvedBaseEtf);
+  const resolvedCode = resolvedBaseEtf.code;
 
-  // 2) 선택된 ETF 1개에만 실제 시세 API를 코드로 매칭한다. 실패 시 시드 가격으로 대체하지 않는다.
-  const [marketEtf] = await withSoftTimeout(
-    getEtfsWithMarketData([resolvedBaseEtf]),
-    [withMarketDataFallback(resolvedBaseEtf)],
-    1800,
-  );
-  const naverRealtime = isKrEtfCode(marketEtf.code)
-    ? await withSoftTimeout(fetchNaverEtfRealtime(marketEtf.code), null, 900)
+  const contentPromise = Promise.all([
+    withSoftTimeout(listSparrings(), { sparrings: [], usingFallback: true }, 900),
+    withSoftTimeout(fetchGhostArticles(), [], 800),
+    withSoftTimeout(fetchRecentReportsWithFallback(), [], 800),
+    withSoftTimeout(fetchEtfs(2000), [contentBaseEtf as EtfInfo], 1000),
+    Promise.resolve([] as PricePoint[]),
+    Promise.resolve([] as PricePoint[]),
+    Promise.resolve([] as PricePoint[]),
+    Promise.resolve([] as PricePoint[]),
+    Promise.resolve(null as EtfHoldingsData | null),
+    isKrEtfCode(resolvedCode)
+      ? withSoftTimeout(fetchNaverEtfNavHistory(resolvedCode), [], 800)
+      : Promise.resolve([]),
+    withSoftTimeout(fetchEtfRelatedQuestions(contentBaseEtf as any, 3), [], 800),
+    withSoftTimeout(fetchPostsBySymbol(resolvedCode, 6), [], 800),
+  ]);
+
+  // 2) 상세 첫 화면은 DB 저장값을 즉시 쓰고, 한국 ETF만 네이버 단건 실시간으로 보강한다.
+  const marketEtf = withMarketDataFallback(resolvedBaseEtf);
+  const naverRealtime = isKrEtfCode(resolvedCode)
+    ? await withSoftTimeout(fetchNaverEtfRealtime(resolvedCode), null, 800)
     : null;
   const etf = naverRealtime
     ? {
@@ -255,31 +270,12 @@ export default async function EtfDetailPage({ params }: Props) {
   const etfBaseDate = 'baseDate' in etf ? etf.baseDate : undefined;
   const etfPremium = 'premium' in etf ? (etf as any).premium as number | undefined : undefined;
 
-  // 분절 해소: ETF 키워드로 4페이지 + 리포트 연결 + DB 풀(유사/운용사용)
-  const contentBaseEtf = applyResolvedEtfCode(dbEtfByCode || staticEtf || etf);
-
   // 멀티 벤치마크 — 펀ETF 톤: KOSPI · S&P500(H) · 나스닥100(H) 동시 fetch
   const [
     sparringRes, articles, reports, dbPool, priceHistory,
     kospiHistory, sp500History, nasdaq100History,
-    liveHoldings, navHistory, relatedQs,
-  ] = await Promise.all([
-    withSoftTimeout(listSparrings(), { sparrings: [], usingFallback: true }, 1200),
-    withSoftTimeout(fetchGhostArticles(), [], 1200),
-    withSoftTimeout(fetchRecentReportsWithFallback(), [], 1200),
-    withSoftTimeout(fetchEtfs(2000), [contentBaseEtf as EtfInfo], 1500),
-    Promise.resolve([] as PricePoint[]),
-    Promise.resolve([] as PricePoint[]),
-    Promise.resolve([] as PricePoint[]),
-    Promise.resolve([] as PricePoint[]),
-    Promise.resolve(null as EtfHoldingsData | null),
-    isKrEtfCode(etf.code)
-      ? withSoftTimeout(fetchNaverEtfNavHistory(etf.code), [], 1000)
-      : Promise.resolve([]),
-    withSoftTimeout(fetchEtfRelatedQuestions(etf as any, 3), [], 1000),
-  ]);
-
-  const creatorPosts = await withSoftTimeout(fetchPostsBySymbol(etf.code, 6), [], 1000);
+    liveHoldings, navHistory, relatedQs, creatorPosts,
+  ] = await contentPromise;
   const benchmarks = [
     { key: 'kospi',    name: 'KOSPI',       color: '#1B64DA', history: kospiHistory },
     { key: 'sp500',    name: 'S&P500(H)',   color: '#8AD504', history: sp500History },
@@ -290,14 +286,6 @@ export default async function EtfDetailPage({ params }: Props) {
   const similarResults = findSimilarEtfs(etf as any, normalizedDbPool, 8)
     .filter(result => result.etf.slug !== etf.slug && result.etf.code !== etf.code)
     .slice(0, 4);
-  const similarLiveList = similarResults.length > 0
-    ? await withSoftTimeout(
-        getEtfsWithMarketData(similarResults.map(result => applyResolvedEtfCode(result.etf))),
-        [],
-        1200,
-      )
-    : [];
-  const similarLiveBySlug = new Map(similarLiveList.map(item => [item.slug, item]));
   // 같은 운용사 — 비슷한 ETF 와 중복되면 표시 안 함 (정보 가치 낮음)
   const similarCodes = new Set(similarResults.map(r => r.etf.code));
   const issuerRaw = buildIssuerSummary(etf as any, normalizedDbPool);
@@ -1077,7 +1065,7 @@ export default async function EtfDetailPage({ params }: Props) {
                 </div>
                 <div className={styles.similarGrid}>
                   {similarResults.map(({ etf: item, reasons }) => {
-                    const liveItem = similarLiveBySlug.get(item.slug) || item;
+                    const liveItem = item;
                     // 추천 이유 칩 — 기본 reasons + 보수/순자산 비교 강화
                     type Chip = { label: string; good?: boolean };
                     const chips: Chip[] = reasons.map(r => ({ label: r }));
