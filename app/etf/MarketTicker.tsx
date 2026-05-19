@@ -118,7 +118,17 @@ function usLabel(s: UsStatus): string {
 }
 
 /** Mini horizontal sparkline — 전일 종가 기준선(점선) + 깔끔한 곡선 */
-function Sparkline({ series, up, baseline }: { series: number[]; up: boolean; baseline?: number }) {
+function Sparkline({
+  series,
+  up,
+  baseline,
+  idKey,
+}: {
+  series: number[];
+  up: boolean;
+  baseline?: number;
+  idKey: string;
+}) {
   if (series.length < 2) return <div className={styles.sparkPlaceholder} aria-hidden="true" />;
   const W = 56;
   const H = 22;
@@ -142,7 +152,7 @@ function Sparkline({ series, up, baseline }: { series: number[]; up: boolean; ba
 
   const baselineY = baseline !== undefined ? yOf(baseline) : null;
   const color = up ? 'var(--rw-up)' : 'var(--rw-down)';
-  const gradId = `tg-${up ? 'u' : 'd'}-${Math.random().toString(36).slice(2, 7)}`;
+  const gradId = `tg-${idKey.replace(/[^a-zA-Z0-9]/g, '')}-${up ? 'u' : 'd'}`;
 
   return (
     <svg viewBox={`0 0 ${W} ${H}`} width={W} height={H} className={styles.spark} aria-hidden="true">
@@ -243,7 +253,7 @@ export function MarketTickerView({
           const up = q.change >= 0;
           return (
             <div key={idx.symbol} className={styles.item}>
-              <Sparkline series={q.series} up={up} baseline={q.prev} />
+              <Sparkline series={q.series} up={up} baseline={q.prev} idKey={idx.symbol} />
               <div className={styles.body}>
                 <span className={styles.name}>{idx.name}</span>
                 <div className={styles.priceRow}>

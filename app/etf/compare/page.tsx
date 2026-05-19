@@ -6,6 +6,7 @@ import { SITE_NAME } from '@/lib/seo';
 import { PageHero } from '@/components/ui';
 import { PageSidebar } from '@/components/PageSidebar';
 import { MarketTicker } from '../MarketTicker';
+import { EtfPageTabs } from '../EtfPageTabs';
 import { EtfCompareClient } from './EtfCompareClient';
 
 export const revalidate = 600;
@@ -40,6 +41,7 @@ export default async function EtfComparePage({
         <MarketTicker />
         <div className="pc-layout">
           <div className="pc-layout-main">
+            <EtfPageTabs active="compare" />
             <PageHero
               eyebrow="ETF 비교"
               title="두 ETF를 한눈에 비교해요"

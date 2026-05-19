@@ -4,6 +4,32 @@
   margin-bottom: var(--space-2);
 }
 
+.headerActions {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.excludeButton {
+  padding: 5px 10px;
+  font-size: 11px;
+  font-weight: 800;
+  border-radius: 999px;
+  border: 1px solid var(--rw-hairline);
+  background: transparent;
+  color: var(--rw-text-muted);
+  cursor: pointer;
+  transition: border-color 120ms ease, background 120ms ease, color 120ms ease;
+  white-space: nowrap;
+}
+
+.excludeButton:hover,
+.excludeButtonOn {
+  border-color: var(--rw-primary);
+  background: var(--rw-primary-bg);
+  color: var(--rw-primary);
+}
+
 .list {
   list-style: none;
   margin: 0 calc(-1 * var(--space-5));
@@ -60,6 +86,27 @@
 
 .up { color: var(--rw-up); font-size: 12px; font-weight: 700; font-style: normal; }
 .down { color: var(--rw-down); font-size: 12px; font-weight: 700; font-style: normal; }
+
+.metric {
+  flex: 0 0 auto;
+  min-width: 72px;
+  text-align: right;
+  font-size: 12px;
+  font-weight: 900;
+  color: var(--rw-text-strong);
+  font-feature-settings: 'tnum';
+  white-space: nowrap;
+}
+
+.marketBadge {
+  flex: 0 0 auto;
+  font-size: 10px;
+  font-weight: 900;
+  color: var(--rw-text-muted);
+  border: 1px solid var(--rw-hairline);
+  border-radius: 999px;
+  padding: 2px 5px;
+}
 
 .bookmark {
   flex-shrink: 0;

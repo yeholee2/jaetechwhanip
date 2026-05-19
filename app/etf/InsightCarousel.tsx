@@ -33,7 +33,7 @@ const INSIGHTS: Insight[] = [
   {
     title: 'ISA 계좌에 담기 좋은 ETF',
     picks: ['S&P500', '나스닥100', '배당'],
-    href: '/etf/all',
+    href: '/etf/screener',
   },
 ];
 

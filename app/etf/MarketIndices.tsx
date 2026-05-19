@@ -73,7 +73,7 @@ function formatChange(change: number, pct: number): string {
 }
 
 /** Mini sparkline SVG (60×30) — Toss 톤 톤온톤 라인 */
-function Sparkline({ series, up }: { series: number[]; up: boolean }) {
+function Sparkline({ series, up, idKey }: { series: number[]; up: boolean; idKey: string }) {
   if (series.length < 2) return <div className={styles.sparkPlaceholder} aria-hidden="true" />;
   const W = 64;
   const H = 32;
@@ -90,7 +90,7 @@ function Sparkline({ series, up }: { series: number[]; up: boolean }) {
   const path = points.map(([x, y], i) => `${i === 0 ? 'M' : 'L'}${x.toFixed(1)},${y.toFixed(1)}`).join(' ');
   const areaPath = `${path} L${points[points.length - 1][0]},${H} L${points[0][0]},${H} Z`;
   const color = up ? 'var(--rw-up)' : 'var(--rw-down)';
-  const gradId = `sparkgrad-${up ? 'u' : 'd'}-${Math.random().toString(36).slice(2, 7)}`;
+  const gradId = `sparkgrad-${idKey.replace(/[^a-zA-Z0-9]/g, '')}-${up ? 'u' : 'd'}`;
   return (
     <svg viewBox={`0 0 ${W} ${H}`} width={W} height={H} className={styles.spark} aria-hidden="true">
       <defs>
@@ -133,7 +133,7 @@ export async function MarketIndices() {
           const up = q.change >= 0;
           return (
             <div key={idx.symbol} className={styles.item}>
-              <Sparkline series={q.series} up={up} />
+              <Sparkline series={q.series} up={up} idKey={idx.symbol} />
               <div className={styles.body}>
                 <span className={styles.name}>{idx.name}</span>
                 <div className={styles.priceRow}>

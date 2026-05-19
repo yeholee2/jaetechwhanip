@@ -50,7 +50,7 @@ export function StrategyToggle({ allEtfs = [] }: { allEtfs?: EtfInfo[] }) {
     <section className={sec.card} aria-label="따라하면 돈 버는 ETF 전략">
       <div className={sec.head}>
         <h3 className={sec.title}>돈 버는 ETF 전략</h3>
-        <Link href="/etf/all" className={sec.metaLink}>더 보기 →</Link>
+        <Link href="/etf/screener" className={sec.metaLink}>더 보기 →</Link>
       </div>
 
       <div className={styles.toggleRow} role="tablist">

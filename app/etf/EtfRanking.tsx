@@ -13,12 +13,12 @@ import { Chip, Badge } from '@/components/ui';
 import sec from './sectionStyles.module.css';
 import styles from './EtfRanking.module.css';
 
-const SORT_OPTIONS = ['수익률', '순자산', '거래량', '이름순'] as const;
+const SORT_OPTIONS = ['상승률', '거래대금', '거래량', '순자산', '저보수'] as const;
 const CATEGORY_OPTIONS = ['전체', '주식', '채권', '원자재', '테마'] as const;
 const MARKET_OPTIONS = [
-  { key: 'all', label: '🌐 전체' },
-  { key: 'kr', label: '🇰🇷 국내' },
-  { key: 'us', label: '🇺🇸 미국' },
+  { key: 'all', label: '전체' },
+  { key: 'kr', label: '국내' },
+  { key: 'us', label: '미국' },
 ] as const;
 type SortKey = typeof SORT_OPTIONS[number];
 type CategoryKey = typeof CATEGORY_OPTIONS[number];
@@ -47,6 +47,9 @@ function parseAum(v: string | undefined): number {
   if (!total) total = num(v);
   return total;
 }
+function parseTradeValue(v: string | undefined): number {
+  return parseAum(v);
+}
 function parseVol(v: string | undefined): number {
   if (!v) return 0;
   // "12.5만주" → 125000
@@ -54,32 +57,43 @@ function parseVol(v: string | undefined): number {
   if (man) return parseFloat(man[1]) * 10_000;
   return num(v);
 }
+function parseFee(v: string | undefined): number {
+  const fee = num(v);
+  return fee > 0 ? fee : Number.POSITIVE_INFINITY;
+}
 function isMarketDataUsable(etf: EtfInfo): boolean {
   const source = etf.dataSource || 'database';
   return source !== 'static' && source !== 'missing';
 }
 function metricValue(etf: EtfInfo, key: SortKey): number {
-  if (key === '수익률') return signedChange(etf.change, etf.changeTone);
+  if (key === '상승률') return signedChange(etf.change, etf.changeTone);
+  if (key === '거래대금') return parseTradeValue(etf.tradeValue);
   if (key === '순자산') return parseAum(etf.aum);
   if (key === '거래량') return parseVol(etf.volume);
+  if (key === '저보수') return parseFee(etf.fee);
   return 0;
 }
 function hasMetric(etf: EtfInfo, key: SortKey): boolean {
   if (!isMarketDataUsable(etf)) return false;
-  if (key === '수익률') return hasNumber(etf.change);
+  if (key === '상승률') return hasNumber(etf.change);
+  if (key === '거래대금') return parseTradeValue(etf.tradeValue) > 0;
   if (key === '순자산') return parseAum(etf.aum) > 0;
   if (key === '거래량') return parseVol(etf.volume) > 0;
+  if (key === '저보수') return Number.isFinite(parseFee(etf.fee));
   return true;
 }
 function rankSourcePriority(etf: EtfInfo, key: SortKey): number {
-  if (key === '이름순' || !hasMetric(etf, key)) return 0;
+  if (key === '저보수' || !hasMetric(etf, key)) return 0;
   return etf.dataSource === 'naver' ? 1 : 0;
 }
 function compareMetric(a: EtfInfo, b: EtfInfo, key: SortKey): number {
+  const metricOrder = key === '저보수'
+    ? metricValue(a, key) - metricValue(b, key)
+    : metricValue(b, key) - metricValue(a, key);
   return (
     rankSourcePriority(b, key) - rankSourcePriority(a, key) ||
     Number(hasMetric(b, key)) - Number(hasMetric(a, key)) ||
-    metricValue(b, key) - metricValue(a, key) ||
+    metricOrder ||
     a.shortName.localeCompare(b.shortName)
   );
 }
@@ -100,8 +114,17 @@ function isLeveraged(etf: EtfInfo): boolean {
   return /레버리지|인버스|2x|3x|leverage|inverse/.test(text);
 }
 
+function metricText(etf: EtfInfo, sort: SortKey): string {
+  if (sort === '상승률') return etf.change || '-';
+  if (sort === '거래대금') return etf.tradeValue || etf.volume || '-';
+  if (sort === '거래량') return etf.volume || '-';
+  if (sort === '순자산') return etf.aum || '-';
+  if (sort === '저보수') return etf.fee || '-';
+  return '-';
+}
+
 export function EtfRanking({ allEtfs }: { allEtfs: EtfInfo[] }) {
-  const [sort, setSort] = useState<SortKey>('수익률');
+  const [sort, setSort] = useState<SortKey>('상승률');
   const [category, setCategory] = useState<CategoryKey>('전체');
   const [market, setMarket] = useState<MarketKey>('all');
   const [excludeLev, setExcludeLev] = useState(false);
@@ -115,42 +138,23 @@ export function EtfRanking({ allEtfs }: { allEtfs: EtfInfo[] }) {
       return categoryMatch(e, category);
     });
     const sorted = [...list];
-    if (sort === '수익률') {
-      sorted.sort((a, b) => compareMetric(a, b, sort));
-    } else if (sort === '순자산') {
-      sorted.sort((a, b) => compareMetric(a, b, sort));
-    } else if (sort === '거래량') {
-      sorted.sort((a, b) => compareMetric(a, b, sort));
-    } else if (sort === '이름순') {
-      sorted.sort((a, b) => a.shortName.localeCompare(b.shortName));
-    }
+    sorted.sort((a, b) => compareMetric(a, b, sort));
     return sorted.slice(0, 10);
   }, [allEtfs, sort, category, market, excludeLev]);
 
   return (
-    <section className={sec.card} aria-label="ETF 랭킹 TOP 10">
+    <section className={sec.card} aria-label="오늘 ETF 흐름">
       <div className={sec.head}>
-        <h3 className={sec.title}>랭킹 TOP 10</h3>
-        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+        <h3 className={sec.title}>오늘 ETF 흐름</h3>
+        <div className={styles.headerActions}>
           <button
             type="button"
             onClick={() => setExcludeLev(v => !v)}
-            style={{
-              padding: '5px 10px',
-              fontSize: 11,
-              fontWeight: 700,
-              borderRadius: 999,
-              border: excludeLev ? '1.5px solid var(--rw-primary)' : '1px solid var(--rw-hairline)',
-              background: excludeLev ? 'var(--rw-primary-bg)' : 'transparent',
-              color: excludeLev ? 'var(--rw-primary)' : 'var(--rw-text-muted)',
-              cursor: 'pointer',
-              transition: 'all .12s',
-              whiteSpace: 'nowrap',
-            }}
+            className={`${styles.excludeButton} ${excludeLev ? styles.excludeButtonOn : ''}`}
             aria-pressed={excludeLev}
             title="레버리지·인버스(2X/3X) 제외"
           >
-            {excludeLev ? '✓ 레버리지 제외' : '레버리지 제외'}
+            레버리지 제외
           </button>
           <Badge tone="primary">{ranked.length}</Badge>
         </div>
@@ -200,16 +204,17 @@ export function EtfRanking({ allEtfs }: { allEtfs: EtfInfo[] }) {
                   {etf.price} <em className={etf.changeTone === 'down' ? styles.down : styles.up}>{etf.change}</em>
                 </span>
               </div>
+              <span className={styles.metric}>{metricText(etf, sort)}</span>
               {(etf.country || 'KR').toUpperCase() === 'US' && (
-                <span style={{ fontSize: 11, color: 'var(--rw-text-muted)', fontWeight: 700 }}>🇺🇸</span>
+                <span className={styles.marketBadge}>US</span>
               )}
             </a>
           </li>
         ))}
       </ol>
 
-      <Link className={styles.more} href="/etf/all">
-        전체 ETF 보기 →
+      <Link className={styles.more} href="/etf/screener">
+        스크리너에서 더 보기 →
       </Link>
     </section>
   );

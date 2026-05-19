@@ -3,23 +3,26 @@
 import { useMemo, useState } from 'react';
 import { etfPath, type EtfInfo } from '@/lib/etfs';
 import { EtfLogo } from '../EtfLogo';
-import { Chip, Badge } from '@/components/ui';
+import { getEtfAccountEligibility } from '@/lib/etfAccountEligibility';
+import { Chip } from '@/components/ui';
 import styles from './EtfAll.module.css';
 
-type SortKey = 'name' | 'aum' | 'fee' | 'change';
-type CategoryKey = '전체' | '국내주식' | '해외주식' | '채권' | '원자재' | '테마';
+type SortKey = 'name' | 'aum' | 'fee' | 'change' | 'volume' | 'tradeValue';
+type CategoryKey = '전체' | '국내주식' | '해외주식' | '채권' | '원자재' | '테마' | '월배당';
 type MarketTab = 'all' | 'kr' | 'us';
 
 const MARKET_TABS: { key: MarketTab; label: string; flag: string; sublabel: string }[] = [
-  { key: 'all', label: '전체', flag: '🌐', sublabel: '국내 + 미국' },
-  { key: 'kr', label: '국내상장', flag: '🇰🇷', sublabel: 'KRX' },
-  { key: 'us', label: '미국상장', flag: '🇺🇸', sublabel: 'NYSE · NASDAQ' },
+  { key: 'all', label: '전체', flag: 'ALL', sublabel: '국내 + 미국' },
+  { key: 'kr', label: '국내상장', flag: 'KR', sublabel: 'KRX' },
+  { key: 'us', label: '미국상장', flag: 'US', sublabel: 'NYSE · NASDAQ' },
 ];
 
 const SORT_OPTIONS: { key: SortKey; label: string }[] = [
-  { key: 'change', label: '변동률' },
+  { key: 'change', label: '상승률' },
+  { key: 'tradeValue', label: '거래대금' },
+  { key: 'volume', label: '거래량' },
   { key: 'aum', label: '순자산' },
-  { key: 'fee', label: '총보수' },
+  { key: 'fee', label: '낮은 보수' },
   { key: 'name', label: '이름순' },
 ];
 
@@ -30,39 +33,42 @@ const CATEGORY_MATCHERS: Record<Exclude<CategoryKey, '전체'>, (etf: EtfInfo) =
   '채권': e => /채권/.test(e.category) || /채권/.test(e.theme || ''),
   '원자재': e => /원자재|금|은|구리|원유/.test(e.category) || /원자재/.test(e.theme || ''),
   '테마': e => /테마|반도체|AI|배당/.test(e.theme || ''),
+  '월배당': e => /월/.test(e.distribution || '') || /월배당/.test(`${e.name} ${e.shortName} ${e.theme || ''} ${(e.tags || []).join(' ')}`),
 };
 
-const CATEGORIES: CategoryKey[] = ['전체', '국내주식', '해외주식', '채권', '원자재', '테마'];
+const CATEGORIES: CategoryKey[] = ['전체', '국내주식', '해외주식', '채권', '원자재', '테마', '월배당'];
 
 // 추천 프리셋 — 첫 진입 시 발견 동선
-const PRESETS: { key: string; label: string; emoji: string; sub: string; apply: (set: PresetSetter) => void }[] = [
+const PRESETS: { key: string; label: string; sub: string; apply: (set: PresetSetter) => void }[] = [
   {
-    key: 'us-sp500',
-    label: 'S&P500 ETF',
-    emoji: '🇺🇸',
-    sub: '미국 대표 지수',
-    apply: ({ setMarket, setCategory, setQ }) => { setMarket('us'); setCategory('해외주식'); setQ('S&P500'); },
+    key: 'movers',
+    label: '오늘 많이 오른 ETF',
+    sub: '등락률 순',
+    apply: ({ setSort, setActiveOnly }) => { setSort('change'); setActiveOnly(false); },
+  },
+  {
+    key: 'active',
+    label: '거래 활발한 ETF',
+    sub: '거래대금 우선',
+    apply: ({ setSort, setActiveOnly }) => { setSort('tradeValue'); setActiveOnly(true); },
   },
   {
     key: 'dividend',
     label: '월배당 ETF',
-    emoji: '💰',
     sub: '꾸준한 현금 흐름',
-    apply: ({ setQ, setCategory }) => { setQ('월배당'); setCategory('전체'); },
+    apply: ({ setQ, setCategory }) => { setQ(''); setCategory('월배당'); },
   },
   {
-    key: 'semi',
-    label: '반도체·AI ETF',
-    emoji: '⚡',
-    sub: '성장 테마',
-    apply: ({ setCategory, setQ }) => { setCategory('테마'); setQ('반도체'); },
+    key: 'pension',
+    label: '연금 가능 ETF',
+    sub: '개인연금·퇴직연금 기준',
+    apply: ({ setPensionOnly, setExcludeLeveraged }) => { setPensionOnly(true); setExcludeLeveraged(true); },
   },
   {
-    key: 'bond',
-    label: '채권 ETF',
-    emoji: '🏦',
-    sub: '안정 자산',
-    apply: ({ setCategory, setQ }) => { setCategory('채권'); setQ(''); },
+    key: 'low-fee',
+    label: '보수 낮은 ETF',
+    sub: '총보수 낮은 순',
+    apply: ({ setSort }) => { setSort('fee'); },
   },
 ];
 
@@ -70,6 +76,10 @@ type PresetSetter = {
   setMarket: (k: MarketTab) => void;
   setCategory: (k: CategoryKey) => void;
   setQ: (s: string) => void;
+  setSort: (k: SortKey) => void;
+  setPensionOnly: (value: boolean) => void;
+  setActiveOnly: (value: boolean) => void;
+  setExcludeLeveraged: (value: boolean) => void;
 };
 
 function ChevronDown() {
@@ -87,16 +97,76 @@ function num(value: string | undefined): number {
   return m ? parseFloat(m[0]) : 0;
 }
 
+function parseKoreanMoney(value: string | undefined): number {
+  if (!value) return 0;
+  const t = value.replace(/,/g, '');
+  let total = 0;
+  const trillion = t.match(/(\d+(?:\.\d+)?)\s*조/);
+  if (trillion) total += parseFloat(trillion[1]) * 1_000_000_000_000;
+  const hundredMillion = t.match(/(\d+(?:\.\d+)?)\s*억/);
+  if (hundredMillion) total += parseFloat(hundredMillion[1]) * 100_000_000;
+  const tenThousand = t.match(/(\d+(?:\.\d+)?)\s*만/);
+  if (!trillion && !hundredMillion && tenThousand) total += parseFloat(tenThousand[1]) * 10_000;
+  return total || num(value);
+}
+
+function parseVolume(value: string | undefined): number {
+  if (!value) return 0;
+  const t = value.replace(/,/g, '');
+  const man = t.match(/(\d+(?:\.\d+)?)\s*만주/);
+  if (man) return parseFloat(man[1]) * 10_000;
+  return num(value);
+}
+
 function parseChange(value: string | undefined, tone: 'up' | 'down' | 'flat'): number {
   const n = num(value);
   return tone === 'down' ? -Math.abs(n) : Math.abs(n);
 }
 
-export function EtfAllClient({ initialEtfs }: { initialEtfs: EtfInfo[] }) {
-  const [q, setQ] = useState('');
+function parseFee(value: string | undefined): number {
+  const n = num(value);
+  return n > 0 ? n : Number.POSITIVE_INFINITY;
+}
+
+function isLeveraged(etf: EtfInfo): boolean {
+  const text = `${etf.name} ${etf.shortName} ${etf.theme || ''} ${(etf.tags || []).join(' ')}`;
+  return /레버리지|인버스|곱버스|2X|3X|2배|3배|leverage|inverse/i.test(text);
+}
+
+function isPensionAvailable(etf: EtfInfo): boolean {
+  return getEtfAccountEligibility(etf).some(item => (
+    (item.key === 'personalPension' || item.key === 'retirementPension') &&
+    item.status !== 'unavailable'
+  ));
+}
+
+function isActiveEtf(etf: EtfInfo): boolean {
+  return parseKoreanMoney(etf.tradeValue) > 0 || parseVolume(etf.volume) > 0;
+}
+
+function sortValue(etf: EtfInfo, sort: SortKey): number {
+  if (sort === 'change') return parseChange(etf.change, etf.changeTone);
+  if (sort === 'tradeValue') return parseKoreanMoney(etf.tradeValue);
+  if (sort === 'volume') return parseVolume(etf.volume);
+  if (sort === 'aum') return parseKoreanMoney(etf.aum);
+  if (sort === 'fee') return parseFee(etf.fee);
+  return 0;
+}
+
+export function EtfAllClient({
+  initialEtfs,
+  initialQuery = '',
+}: {
+  initialEtfs: EtfInfo[];
+  initialQuery?: string;
+}) {
+  const [q, setQ] = useState(initialQuery);
   const [sort, setSort] = useState<SortKey>('change');
   const [category, setCategory] = useState<CategoryKey>('전체');
   const [market, setMarket] = useState<MarketTab>('all');
+  const [excludeLeveraged, setExcludeLeveraged] = useState(true);
+  const [pensionOnly, setPensionOnly] = useState(false);
+  const [activeOnly, setActiveOnly] = useState(false);
 
   // 시장별 카운트 (탭 라벨 옆에 표시)
   const marketCounts = useMemo(() => {
@@ -120,12 +190,15 @@ export function EtfAllClient({ initialEtfs }: { initialEtfs: EtfInfo[] }) {
         const matcher = CATEGORY_MATCHERS[category];
         if (!matcher(e)) return false;
       }
+      if (excludeLeveraged && isLeveraged(e)) return false;
+      if (pensionOnly && !isPensionAvailable(e)) return false;
+      if (activeOnly && !isActiveEtf(e)) return false;
       // 검색
       if (!query) return true;
       return (
         e.name.toLowerCase().includes(query) ||
         e.shortName.toLowerCase().includes(query) ||
-        e.code.includes(query) ||
+        e.code.toLowerCase().includes(query) ||
         e.issuer.toLowerCase().includes(query) ||
         (e.tags || []).some(t => t.toLowerCase().includes(query)) ||
         (e.theme || '').toLowerCase().includes(query)
@@ -136,17 +209,15 @@ export function EtfAllClient({ initialEtfs }: { initialEtfs: EtfInfo[] }) {
     const sorted = [...list];
     if (sort === 'name') {
       sorted.sort((a, b) => a.shortName.localeCompare(b.shortName));
-    } else if (sort === 'aum') {
-      sorted.sort((a, b) => num(b.aum) - num(a.aum));
     } else if (sort === 'fee') {
-      sorted.sort((a, b) => num(a.fee) - num(b.fee));
-    } else if (sort === 'change') {
-      sorted.sort(
-        (a, b) => parseChange(b.change, b.changeTone) - parseChange(a.change, a.changeTone),
-      );
+      sorted.sort((a, b) => sortValue(a, sort) - sortValue(b, sort));
+    } else {
+      sorted.sort((a, b) => sortValue(b, sort) - sortValue(a, sort));
     }
     return sorted;
-  }, [initialEtfs, q, sort, category, market]);
+  }, [initialEtfs, q, sort, category, market, excludeLeveraged, pensionOnly, activeOnly]);
+
+  const selectedSortLabel = SORT_OPTIONS.find(item => item.key === sort)?.label || '정렬';
 
   return (
     <div className={styles.wrap}>
@@ -198,9 +269,16 @@ export function EtfAllClient({ initialEtfs }: { initialEtfs: EtfInfo[] }) {
                 key={p.key}
                 type="button"
                 className={styles.presetCard}
-                onClick={() => p.apply({ setMarket, setCategory, setQ })}
+                onClick={() => p.apply({
+                  setMarket,
+                  setCategory,
+                  setQ,
+                  setSort,
+                  setPensionOnly,
+                  setActiveOnly,
+                  setExcludeLeveraged,
+                })}
               >
-                <span className={styles.presetEmoji}>{p.emoji}</span>
                 <span className={styles.presetText}>
                   <strong>{p.label}</strong>
                   <em>{p.sub}</em>
@@ -223,22 +301,74 @@ export function EtfAllClient({ initialEtfs }: { initialEtfs: EtfInfo[] }) {
             {c}
           </Chip>
         ))}
-        {(category !== '전체' || market !== 'all' || q.trim()) && (
+        {(category !== '전체' || market !== 'all' || q.trim() || !excludeLeveraged || pensionOnly || activeOnly) && (
           <button
             type="button"
             className={styles.resetBtn}
-            onClick={() => { setCategory('전체'); setMarket('all'); setQ(''); }}
+            onClick={() => {
+              setCategory('전체');
+              setMarket('all');
+              setQ('');
+              setExcludeLeveraged(true);
+              setPensionOnly(false);
+              setActiveOnly(false);
+              setSort('change');
+            }}
           >
             ↻ 초기화
           </button>
         )}
       </div>
 
+      <div className={styles.sortRow} aria-label="ETF 정렬">
+        <span className={styles.sortLabel}>정렬</span>
+        {SORT_OPTIONS.map(option => (
+          <Chip
+            key={option.key}
+            active={option.key === sort}
+            subtle
+            size="sm"
+            onClick={() => setSort(option.key)}
+          >
+            {option.label}
+          </Chip>
+        ))}
+      </div>
+
+      <div className={styles.toggleRow} aria-label="ETF 조건">
+        <button
+          type="button"
+          className={`${styles.togglePill} ${excludeLeveraged ? styles.togglePillOn : ''}`}
+          onClick={() => setExcludeLeveraged(v => !v)}
+          aria-pressed={excludeLeveraged}
+        >
+          레버리지 제외
+        </button>
+        <button
+          type="button"
+          className={`${styles.togglePill} ${pensionOnly ? styles.togglePillOn : ''}`}
+          onClick={() => setPensionOnly(v => !v)}
+          aria-pressed={pensionOnly}
+        >
+          연금 가능
+        </button>
+        <button
+          type="button"
+          className={`${styles.togglePill} ${activeOnly ? styles.togglePillOn : ''}`}
+          onClick={() => setActiveOnly(v => !v)}
+          aria-pressed={activeOnly}
+        >
+          거래 활발
+        </button>
+      </div>
+
       {/* 결과 카운터 */}
       <div className={styles.resultInfo}>
         <strong>{filtered.length}</strong>개 ETF
+        <span> · {selectedSortLabel} 순</span>
         {q && <span> · "{q}" 검색</span>}
         {category !== '전체' && <span> · {category}</span>}
+        {pensionOnly && <span> · 연금 가능</span>}
       </div>
 
       {/* 결과 표 (다중 비교) */}
@@ -259,6 +389,11 @@ export function EtfAllClient({ initialEtfs }: { initialEtfs: EtfInfo[] }) {
                 <th scope="col" className={styles.colChange}>
                   <button type="button" onClick={() => setSort('change')} className={`${styles.sortBtn} ${sort === 'change' ? styles.sortBtnOn : ''}`}>
                     등락률 {sort === 'change' && <ChevronDown />}
+                  </button>
+                </th>
+                <th scope="col" className={styles.colTrade}>
+                  <button type="button" onClick={() => setSort('tradeValue')} className={`${styles.sortBtn} ${sort === 'tradeValue' ? styles.sortBtnOn : ''}`}>
+                    거래대금 {sort === 'tradeValue' && <ChevronDown />}
                   </button>
                 </th>
                 <th scope="col" className={styles.colFee}>
@@ -289,12 +424,13 @@ export function EtfAllClient({ initialEtfs }: { initialEtfs: EtfInfo[] }) {
                       </a>
                     </td>
                     <td className={styles.colMarket}>
-                      {isUS ? '🇺🇸' : '🇰🇷'}
+                      {isUS ? 'US' : 'KR'}
                     </td>
                     <td className={styles.colPrice}>{etf.price || '—'}</td>
                     <td className={`${styles.colChange} ${etf.changeTone === 'down' ? styles.down : styles.up}`}>
                       {etf.change || '—'}
                     </td>
+                    <td className={styles.colTrade}>{etf.tradeValue || etf.volume || '—'}</td>
                     <td className={styles.colFee}>{etf.fee || '—'}</td>
                     <td className={styles.colAum}>{etf.aum || '—'}</td>
                     <td className={styles.colIndex}>{etf.trackingIndex || '—'}</td>

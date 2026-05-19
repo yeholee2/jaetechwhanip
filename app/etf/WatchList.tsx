@@ -137,7 +137,7 @@ export function WatchList({
               </ul>
 
               <div className={styles.emptyActions}>
-                <Button href="/etf/all" variant="primary" size="md">ETF 검색하기</Button>
+                <Button href="/etf/screener" variant="primary" size="md">ETF 검색하기</Button>
                 <Button href="/etf" variant="outline" size="md">발견 탭</Button>
               </div>
             </div>
@@ -163,7 +163,7 @@ export function WatchList({
                 ETF 상세 화면을 열면 여기에 최근 본 종목이 차곡차곡 모여요.
               </p>
               <div className={styles.emptyActions}>
-                <Button href="/etf/all" variant="primary" size="md">ETF 검색하기</Button>
+                <Button href="/etf/screener" variant="primary" size="md">ETF 검색하기</Button>
                 <Button href="/etf" variant="outline" size="md">발견 탭</Button>
               </div>
             </div>
@@ -211,7 +211,7 @@ export function WatchList({
             <p className={styles.sampleNote}>추천 ETF 예시. ♡를 누르면 내 리스트로 추가돼요.</p>
 
             <div className={styles.emptyActions}>
-              <Button href="/etf/all" variant="primary" size="md">전체 ETF 검색</Button>
+              <Button href="/etf/screener" variant="primary" size="md">ETF 스크리너</Button>
               <Button href="/etf" variant="outline" size="md">발견 탭</Button>
             </div>
           </div>

@@ -24,7 +24,11 @@ export const metadata: Metadata = {
   },
 };
 
-export default async function EtfAllPage() {
+export default async function EtfAllPage({
+  searchParams,
+}: {
+  searchParams?: { q?: string };
+}) {
   const etfs = await fetchEtfs(2000);
   return (
     <AppShell active="etf" wide hideSlogan>
@@ -32,14 +36,14 @@ export default async function EtfAllPage() {
         <MarketTicker />
         <div className="pc-layout">
           <div className="pc-layout-main">
-            <EtfPageTabs active="all" />
+            <EtfPageTabs active="screener" />
             <PageHero
               eyebrow="전체 ETF"
               title="찾는 ETF, 한 번에 검색해요"
               lead="국내상장 + 미국상장 통합 검색. 코드·이름·테마로 빠르게."
               aside={<Badge tone="primary">{etfs.length}개</Badge>}
             />
-            <EtfAllClient initialEtfs={etfs} />
+            <EtfAllClient initialEtfs={etfs} initialQuery={searchParams?.q || ''} />
           </div>
           <PageSidebar widgets={['watch']} />
         </div>

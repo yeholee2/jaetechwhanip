@@ -86,6 +86,44 @@
 }
 
 /* ─────────────────────────────────────────────────────────
+ * 조건 토글
+ * ───────────────────────────────────────────────────────── */
+.toggleRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.togglePill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 32px;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 1px solid var(--rw-border);
+  background: var(--rw-card);
+  color: var(--rw-text-muted);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: border-color 120ms ease, background 120ms ease, color 120ms ease;
+}
+
+.togglePill:hover {
+  border-color: var(--rw-primary);
+  color: var(--rw-text-strong);
+}
+
+.togglePillOn {
+  border-color: var(--rw-primary);
+  background: var(--rw-primary-bg);
+  color: var(--rw-primary);
+}
+
+/* ─────────────────────────────────────────────────────────
  * 결과 표시
  * ───────────────────────────────────────────────────────── */
 .resultInfo {
@@ -236,7 +274,10 @@
 }
 
 .marketFlag {
-  font-size: 18px;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.4px;
+  color: var(--rw-primary);
   line-height: 1;
 }
 
@@ -293,7 +334,7 @@
 
 .table {
   width: 100%;
-  min-width: 920px;
+  min-width: 1020px;
   border-collapse: separate;
   border-spacing: 0;
   font-size: 13px;
@@ -357,9 +398,10 @@
 }
 
 .colName { text-align: left !important; min-width: 220px; }
-.colMarket { width: 50px; text-align: center !important; font-size: 16px; }
+.colMarket { width: 50px; text-align: center !important; font-size: 11px; color: var(--rw-text-muted) !important; }
 .colPrice { width: 110px; }
 .colChange { width: 90px; font-weight: 900; }
+.colTrade { width: 120px; }
 .colFee { width: 90px; }
 .colAum { width: 130px; }
 .colIndex {
@@ -408,9 +450,10 @@
 @media (max-width: 768px) {
   .colIndex { display: none; }
   .colAum { display: none; }
-  .table { min-width: 600px; }
+  .table { min-width: 700px; }
 }
 @media (max-width: 480px) {
+  .colTrade { display: none; }
   .colFee { display: none; }
   .table { min-width: 480px; }
   .nameMain strong { font-size: 13px; }
@@ -439,7 +482,6 @@
 .presetCard {
   display: flex;
   align-items: center;
-  gap: 10px;
   padding: 12px 14px;
   background: var(--rw-card);
   border: 1.5px solid var(--rw-border);
@@ -453,11 +495,6 @@
   border-color: var(--rw-primary);
   transform: translateY(-1px);
   box-shadow: 0 6px 16px rgba(27, 100, 218, 0.08);
-}
-.presetEmoji {
-  font-size: 22px;
-  line-height: 1;
-  flex-shrink: 0;
 }
 .presetText {
   display: flex;

@@ -117,16 +117,16 @@ export default async function EtfPage({
 }
 
 async function DiscoverTab({ allEtfs }: { allEtfs: import('@/lib/etfs').EtfInfo[] }) {
-  // 발견 탭은 핵심만. 테마·뉴스·전체검색은 상단 탭으로 분리.
+  // 오늘 탭은 시장 흐름과 바로 이어지는 도구만 노출한다.
   return (
     <div className={styles.discoverStack}>
-      {/* 0. 유틸리티 도구 행 (비교/관심/진단) */}
+      {/* 0. 유틸리티 도구 행 (스크리너/비교) */}
       <EtfUtilityRow />
 
       {/* 1. 내 ETF (로그인 시 도미노 풀화면, 비로그인 시 가입 CTA) */}
       <MyEtfSection />
 
-      {/* 2. 투자 매력도 높은 ETF */}
+      {/* 2. 오늘 ETF 흐름 */}
       <EtfRanking allEtfs={allEtfs} />
 
       {/* 3. 요즘 뜨는 테마 (mini) — AI 요약 포함 */}
