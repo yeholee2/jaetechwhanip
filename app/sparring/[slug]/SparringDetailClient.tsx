@@ -184,41 +184,10 @@ export default function SparringDetailClient({
 
           <div className={styles.statCard}>
             <div className={styles.statTop}>
-              <span><FaIcon name="fire" size={17} /> {formatNumber(total)}명 투표 중</span>
-              <span>{formatNumber(stats.comment_count)}개 토론</span>
+              <span><FaIcon name="fire" size={20} /> {formatNumber(total)}명 투표 중!</span>
             </div>
             <div className={styles.countdownLabel}>남은 투표 시간</div>
             <div className={styles.countdownValue}><Countdown deadlineAt={sparring.deadline_at} /></div>
-            {resultVisible ? (
-              <div className={styles.resultChart} aria-label="투표 결과">
-                <div
-                  className={styles.donut}
-                  style={{
-                    background: `conic-gradient(var(--rw-blue70) 0 ${percentA}%, var(--rw-red50) ${percentA}% 100%)`,
-                  }}
-                  role="img"
-                  aria-label={`${sparring.side_a_label} ${percentA}% / ${sparring.side_b_label} ${percentB}%`}
-                >
-                  <div className={styles.donutHole}>
-                    <strong>{percentA >= percentB ? percentA : percentB}%</strong>
-                    <span>{percentA >= percentB ? sparring.side_a_label : sparring.side_b_label}</span>
-                  </div>
-                </div>
-                <div className={styles.barLabels}>
-                  <span className={styles.labelA}>● {sparring.side_a_label} {percentA}%</span>
-                  <span className={styles.labelB}>● {sparring.side_b_label} {percentB}%</span>
-                </div>
-              </div>
-            ) : (
-              <div className={styles.resultLocked} aria-label="투표 결과 잠김">
-                <div className={styles.donutPlaceholder}>
-                  <div className={styles.donutLockText}>
-                    <strong>투표하면</strong>
-                    <span>결과를 볼 수 있어요</span>
-                  </div>
-                </div>
-              </div>
-            )}
           </div>
 
           <div className={styles.memoCard}>
@@ -235,6 +204,44 @@ export default function SparringDetailClient({
             title={sparring.title}
             text={`A. ${sparring.side_a_label} vs B. ${sparring.side_b_label} — 너의 의견은?`}
           />
+        </section>
+
+        {/* Figma 실측: hero 밖 별도 통계 카드 */}
+        <section className={styles.resultCard} aria-label="투표 결과 통계">
+          <div className={styles.resultCardTitle}>
+            {resultVisible ? '투표 결과' : '내가 선택한 의견의 비율'}
+          </div>
+          <div className={styles.resultCardSub}>전체 통계</div>
+          {resultVisible ? (
+            <div className={styles.resultChart} aria-label="투표 결과">
+              <div
+                className={styles.donut}
+                style={{
+                  background: `conic-gradient(var(--rw-blue70) 0 ${percentA}%, var(--rw-red50) ${percentA}% 100%)`,
+                }}
+                role="img"
+                aria-label={`${sparring.side_a_label} ${percentA}% / ${sparring.side_b_label} ${percentB}%`}
+              >
+                <div className={styles.donutHole}>
+                  <strong>{percentA >= percentB ? percentA : percentB}%</strong>
+                  <span>{percentA >= percentB ? sparring.side_a_label : sparring.side_b_label}</span>
+                </div>
+              </div>
+              <div className={styles.barLabels}>
+                <span className={styles.labelA}>● {sparring.side_a_label} {percentA}%</span>
+                <span className={styles.labelB}>● {sparring.side_b_label} {percentB}%</span>
+              </div>
+            </div>
+          ) : (
+            <div className={styles.resultLocked} aria-label="투표 결과 잠김">
+              <div className={styles.donutPlaceholder}>
+                <div className={styles.donutLockText}>
+                  <strong>투표하면 결과를 볼 수 있어요</strong>
+                  <span>의견을 선택해 보세요</span>
+                </div>
+              </div>
+            </div>
+          )}
         </section>
 
         {(sparring.etf_a_code || sparring.etf_b_code) && (
