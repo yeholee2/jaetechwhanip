@@ -667,13 +667,13 @@ export function EtfScreenerClient({ initialEtfs }: { initialEtfs: EtfInfo[] }) {
                           aria-pressed={watched}
                           onClick={() => toggleWatch(etf.code)}
                         >
-                          <Heart size={21} fill={watched ? 'currentColor' : 'none'} />
+                          <Heart size={19} fill={watched ? 'currentColor' : 'none'} />
                         </button>
                       </td>
                       <td className={styles.colRank}>{index + 1}</td>
                       <td className={styles.colName}>
                         <Link href={etfPath(etf.slug)} className={styles.nameLink}>
-                          <EtfLogo name={etf.shortName} code={etf.code} size={40} />
+                          <EtfLogo name={etf.shortName} code={etf.code} size={34} />
                           <span>
                             <em>{etf.code} · {etf.issuer}</em>
                             <strong>{etf.shortName}</strong>
