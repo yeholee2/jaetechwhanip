@@ -48,9 +48,9 @@ function InsightCard({ insight, allEtfs }: { insight: Insight; allEtfs: EtfInfo[
       <ul className={styles.cardList}>
         {items.length > 0 ? items.map(etf => (
           <li key={etf.slug}>
-            <Link className={styles.cardItem} href={etfPath(etf.slug)}>
+            <a className={styles.cardItem} href={etfPath(etf.slug)}>
               <span className={styles.cardEtf}>{etf.shortName}</span>
-            </Link>
+            </a>
           </li>
         )) : <li className={styles.cardEmpty}>—</li>}
       </ul>

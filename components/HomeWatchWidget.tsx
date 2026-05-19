@@ -196,14 +196,14 @@ export function HomeWatchWidget() {
           const tone = (live?.changeTone || etf.changeTone || 'flat') as 'up' | 'down' | 'flat';
           return (
             <li key={etf.code}>
-              <Link className={styles.item} href={etfPath(etf.slug)}>
+              <a className={styles.item} href={etfPath(etf.slug)}>
                 <EtfLogo name={etf.shortName} code={etf.code} size={36} />
                 <span className={styles.name}>{etf.shortName}</span>
                 <span className={styles.right}>
                   <strong>{price}</strong>
                   <em className={tone === 'down' ? styles.down : styles.up}>{change}</em>
                 </span>
-              </Link>
+              </a>
             </li>
           );
         })}

@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Clock3, Heart } from 'lucide-react';
 import { etfPath, getStaticEtfMetadata, type EtfInfo } from '@/lib/etfs';
@@ -122,7 +121,7 @@ export function WatchList({
               <ul className={styles.samplePreview} aria-label="추천 ETF 예시">
                 {samples.map(etf => (
                   <li key={etf.code}>
-                    <Link className={styles.sampleItem} href={etfPath(etf.slug)}>
+                    <a className={styles.sampleItem} href={etfPath(etf.slug)}>
                       <EtfLogo name={etf.shortName} code={etf.code} size={32} />
                       <div className={styles.sampleInfo}>
                         <strong>{etf.shortName}</strong>
@@ -132,7 +131,7 @@ export function WatchList({
                         <span className={styles.samplePrice}>{etf.issuer}</span>
                         <span>추천</span>
                       </div>
-                    </Link>
+                    </a>
                   </li>
                 ))}
               </ul>
@@ -195,7 +194,7 @@ export function WatchList({
             <ul className={styles.samplePreview} aria-label="예시 미리보기">
               {samples.map(etf => (
                 <li key={etf.code}>
-                  <Link className={styles.sampleItem} href={etfPath(etf.slug)}>
+                  <a className={styles.sampleItem} href={etfPath(etf.slug)}>
                     <EtfLogo name={etf.shortName} code={etf.code} size={32} />
                     <div className={styles.sampleInfo}>
                       <strong>{etf.shortName}</strong>
@@ -205,7 +204,7 @@ export function WatchList({
                       <span className={styles.samplePrice}>{etf.issuer}</span>
                       <span>예시</span>
                     </div>
-                  </Link>
+                  </a>
                 </li>
               ))}
             </ul>
@@ -253,7 +252,7 @@ export function WatchList({
           const watched = codes.includes(etf.code);
           return (
             <li key={etf.slug}>
-              <Link
+              <a
                 className={styles.item}
                 href={etfPath(etf.slug)}
               >
@@ -270,7 +269,7 @@ export function WatchList({
                   )}
                   {change && <span className={tone === 'down' ? styles.down : styles.up}>{change}</span>}
                 </div>
-              </Link>
+              </a>
               <button
                 type="button"
                 className={`${styles.heartBtn} ${watched ? styles.heartActive : ''}`}

@@ -75,13 +75,13 @@ export function StrategyToggle({ allEtfs = [] }: { allEtfs?: EtfInfo[] }) {
       <ul className={styles.list}>
         {items.length > 0 ? items.map(etf => (
           <li key={etf.slug}>
-            <Link className={styles.item} href={etfPath(etf.slug)}>
+            <a className={styles.item} href={etfPath(etf.slug)}>
               <EtfLogo name={etf.shortName} code={etf.code} size={32} />
               <strong className={styles.itemName}>{etf.shortName}</strong>
               <span className={etf.changeTone === 'down' ? styles.down : styles.up}>
                 {etf.change}
               </span>
-            </Link>
+            </a>
           </li>
         )) : (
           <li className={styles.empty}>'{STRATEGIES.find(s => s.key === active)?.label}' ETF를 불러오는 중이에요.</li>

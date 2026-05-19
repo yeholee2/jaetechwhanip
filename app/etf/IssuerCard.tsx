@@ -4,7 +4,6 @@
  * Toss 스타일: "미래에셋자산운용이 운용하는 ETF 209개 →"
  */
 
-import Link from 'next/link';
 import { etfPath, type EtfInfo } from '@/lib/etfs';
 import type { IssuerSummary } from '@/lib/etfSimilar';
 import styles from './IssuerCard.module.css';
@@ -38,7 +37,7 @@ export function IssuerCard({ summary, currentCode }: Props) {
           .slice(0, 5)
           .map(e => (
             <li key={e.slug}>
-              <Link className={styles.row} href={etfPath(e.slug)}>
+              <a className={styles.row} href={etfPath(e.slug)}>
                 <div className={styles.rowMain}>
                   <span className={styles.rowName}>{e.shortName}</span>
                   <span className={styles.rowMeta}>
@@ -52,7 +51,7 @@ export function IssuerCard({ summary, currentCode }: Props) {
                     {e.change || ''}
                   </div>
                 </div>
-              </Link>
+              </a>
             </li>
           ))}
       </ul>

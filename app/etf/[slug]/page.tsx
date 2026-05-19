@@ -1101,9 +1101,9 @@ export default async function EtfDetailPage({ params }: Props) {
                       <article key={item.slug} className={styles.similarCard}>
                         <div className={styles.similarCardHead}>
                           <div>
-                            <Link href={etfPath(item.slug)} className={styles.similarTitleLink}>
+                            <a href={etfPath(item.slug)} className={styles.similarTitleLink}>
                               <strong>{item.shortName || item.name}</strong>
-                            </Link>
+                            </a>
                             <span>{liveItem.code}</span>
                           </div>
                           {liveItem.change && (
@@ -1139,9 +1139,9 @@ export default async function EtfDetailPage({ params }: Props) {
                           </div>
                         </dl>
                         <div className={styles.similarActions}>
-                          <Link href={etfPath(item.slug)} className={styles.similarDetailLink}>
+                          <a href={etfPath(item.slug)} className={styles.similarDetailLink}>
                             상세
-                          </Link>
+                          </a>
                           <Link href={`/etf/compare?a=${etf.code}&b=${liveItem.code}`} className={styles.similarCompareLink}>
                             비교
                           </Link>

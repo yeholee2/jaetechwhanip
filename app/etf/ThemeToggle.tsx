@@ -6,7 +6,6 @@
  * 데이터 없는 테마 탭은 자동으로 숨김.
  */
 import { useMemo, useState } from 'react';
-import Link from 'next/link';
 import { etfPath, type EtfInfo } from '@/lib/etfs';
 import { EtfLogo } from './EtfLogo';
 import { Chip } from '@/components/ui';
@@ -92,7 +91,7 @@ export function ThemeToggle({ allEtfs = [] }: { allEtfs?: EtfInfo[] }) {
       <ul className={styles.list}>
         {items.map(etf => (
           <li key={etf.slug}>
-            <Link className={styles.item} href={etfPath(etf.slug)}>
+            <a className={styles.item} href={etfPath(etf.slug)}>
               <EtfLogo name={etf.shortName} code={etf.code} size={36} />
               <div className={styles.info}>
                 <strong>{etf.shortName}</strong>
@@ -101,7 +100,7 @@ export function ThemeToggle({ allEtfs = [] }: { allEtfs?: EtfInfo[] }) {
               <span className={etf.changeTone === 'down' ? styles.down : styles.up}>
                 {etf.change}
               </span>
-            </Link>
+            </a>
           </li>
         ))}
       </ul>

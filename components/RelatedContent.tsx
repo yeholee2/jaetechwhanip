@@ -52,9 +52,9 @@ export function RelatedContent({
           <div className={styles.groupHead}>언급된 ETF</div>
           <div className={styles.etfRow}>
             {etfs.map(e => (
-              <Link key={e.slug} href={etfPath(e.slug)} className={styles.etfChip}>
+              <a key={e.slug} href={etfPath(e.slug)} className={styles.etfChip}>
                 {e.shortName}
-              </Link>
+              </a>
             ))}
           </div>
         </div>

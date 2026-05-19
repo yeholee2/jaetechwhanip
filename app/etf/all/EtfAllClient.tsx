@@ -1,7 +1,6 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import Link from 'next/link';
 import { etfPath, type EtfInfo } from '@/lib/etfs';
 import { EtfLogo } from '../EtfLogo';
 import { Chip, Badge } from '@/components/ui';
@@ -281,13 +280,13 @@ export function EtfAllClient({ initialEtfs }: { initialEtfs: EtfInfo[] }) {
                 return (
                   <tr key={etf.slug} className={styles.row}>
                     <td className={styles.colName}>
-                      <Link href={etfPath(etf.slug)} className={styles.nameLink}>
+                      <a href={etfPath(etf.slug)} className={styles.nameLink}>
                         <EtfLogo name={etf.shortName} code={etf.code} size={28} />
                         <span className={styles.nameMain}>
                           <strong>{etf.shortName}</strong>
                           <em>{etf.code} · {etf.issuer}</em>
                         </span>
-                      </Link>
+                      </a>
                     </td>
                     <td className={styles.colMarket}>
                       {isUS ? '🇺🇸' : '🇰🇷'}

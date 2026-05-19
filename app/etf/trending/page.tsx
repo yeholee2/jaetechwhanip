@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
 import { AppShell } from '@/components/AppShell';
 import { ETF_HOME_URL } from '@/lib/etfs';
 import { SITE_NAME } from '@/lib/seo';
@@ -53,7 +52,7 @@ export default async function EtfTrendingPage() {
               <h2 className={styles.sectionTitle}>가장 크게 움직인 ETF</h2>
               <div className={styles.moversGrid}>
                 {data.topMovers.map(m => (
-                  <Link key={m.code} href={`/etf/${encodeURIComponent(m.slug)}`} className={styles.moverCard}>
+                  <a key={m.code} href={`/etf/${encodeURIComponent(m.slug)}`} className={styles.moverCard}>
                     <div className={styles.moverHead}>
                       <strong>{m.shortName}</strong>
                       <span className={styles.moverCode}>{m.code}</span>
@@ -61,7 +60,7 @@ export default async function EtfTrendingPage() {
                     <span className={`${styles.moverChange} ${m.tone === 'up' ? styles.up : m.tone === 'down' ? styles.down : ''}`}>
                       {m.change}
                     </span>
-                  </Link>
+                  </a>
                 ))}
               </div>
             </section>
@@ -83,10 +82,10 @@ export default async function EtfTrendingPage() {
                       <ul className={styles.bucketEtfs}>
                         {b.etfs.map(e => (
                           <li key={e.code}>
-                            <Link href={`/etf/${encodeURIComponent(e.slug)}`} className={styles.bucketLink}>
+                            <a href={`/etf/${encodeURIComponent(e.slug)}`} className={styles.bucketLink}>
                               <span>{e.shortName}</span>
                               <strong>{e.change}</strong>
-                            </Link>
+                            </a>
                           </li>
                         ))}
                       </ul>
