@@ -1,7 +1,9 @@
+/* SparringMiniCard 와 동일 비율 — 사이드/페이지 어디서나 같은 사이즈 */
 .activeCard {
   position: relative;
   aspect-ratio: 32 / 35; /* Aha 토론 카드 기준: 320x350 */
   overflow: hidden;
+  min-height: 280px;
   border: 1px solid var(--line);
   border-radius: 16px;
   background: var(--fallback-bg, linear-gradient(135deg, var(--rw-blue70), #071b5f));
@@ -379,6 +381,7 @@
     flex: 0 0 min(78vw, 280px);
     scroll-snap-align: start;
     aspect-ratio: 32 / 35;
+    min-height: 280px;
   }
 
   .activeCopy {
