@@ -85,6 +85,31 @@ function staticFallback(limit: number): EtfInfo[] {
   return getStaticEtfMetadata().slice(0, limit);
 }
 
+async function fetchEtfByColumn(column: 'slug' | 'code', value: string): Promise<EtfInfo | undefined> {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (!url || !key) return undefined;
+
+  const params = new URLSearchParams({
+    select: '*',
+    limit: '1',
+  });
+  params.set(column, `eq.${value}`);
+
+  try {
+    const res = await fetch(`${url}/rest/v1/etfs?${params.toString()}`, {
+      headers: { apikey: key, Authorization: `Bearer ${key}` },
+      next: { revalidate: 600 },
+      signal: AbortSignal.timeout(1200),
+    });
+    if (!res.ok) return undefined;
+    const data: RawRow[] = await res.json();
+    return data[0] ? rowToInfo(data[0]) : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
 export async function fetchEtfs(limit = 1000): Promise<EtfInfo[]> {
   const now = Date.now();
   if (memoryCache && memoryCache.expiresAt > now) return memoryCache.data;
@@ -114,27 +139,53 @@ export async function fetchEtfs(limit = 1000): Promise<EtfInfo[]> {
 }
 
 export async function fetchEtfBySlug(slug: string): Promise<EtfInfo | undefined> {
-  const all = await fetchEtfs();
   const decoded = decodeURIComponent(slug);
+  const fromCache = memoryCache?.data.find(e => e.slug === decoded);
+  if (fromCache) return fromCache;
+
   // 1) 정확 매칭
-  let hit = all.find(e => e.slug === decoded);
+  let hit = await fetchEtfByColumn('slug', decoded);
   if (hit) return hit;
+
+  hit = getStaticEtfMetadata().find(e => e.slug === decoded);
+  if (hit) return hit;
+
   // 2) slug 첫 토큰이 ticker — '/etf/voo' 같은 입력 허용
   const lower = decoded.toLowerCase();
-  hit = all.find(e => e.slug.split('-')[0] === lower);
+  hit = memoryCache?.data.find(e => e.slug.split('-')[0] === lower);
   if (hit) return hit;
+
+  hit = await fetchEtfByColumn('code', lower.toUpperCase());
+  if (hit) return hit;
+
+  hit = getStaticEtfMetadata().find(e => e.slug.split('-')[0] === lower);
+  if (hit) return hit;
+
   return undefined;
 }
 
 export async function fetchEtfByCode(code: string): Promise<EtfInfo | undefined> {
-  const all = await fetchEtfs();
   const norm = code.trim();
+  const fromCache = memoryCache?.data.find(e => e.code === norm);
+  if (fromCache) return fromCache;
+
   // 정확 매칭 우선 (KRX 6자리)
-  let hit = all.find(e => e.code === norm);
+  let hit = await fetchEtfByColumn('code', norm);
   if (hit) return hit;
+
+  hit = getStaticEtfMetadata().find(e => e.code === norm);
+  if (hit) return hit;
+
   // 미국 티커는 보통 대문자로 저장됨 → 소문자 입력도 매칭
   const upper = norm.toUpperCase();
-  hit = all.find(e => e.code === upper);
+  hit = memoryCache?.data.find(e => e.code === upper);
   if (hit) return hit;
+
+  hit = upper !== norm ? await fetchEtfByColumn('code', upper) : undefined;
+  if (hit) return hit;
+
+  hit = getStaticEtfMetadata().find(e => e.code === upper);
+  if (hit) return hit;
+
   return undefined;
 }
