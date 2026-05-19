@@ -77,26 +77,49 @@ function formatChange(change: number, pct: number): string {
   return `${sign}${absChg} (${pctSign}${pct.toFixed(2)}%)`;
 }
 
-type KrStatus = 'regular' | 'closed';
+type KrStatus = 'regular' | 'after' | 'closed';
 type UsStatus = 'regular' | 'pre' | 'after' | 'closed';
 
-/** 시장 상태 (3단계 세분화)
- *  - KR: 정규장(09:00~15:30 KST) / 장 마감
+function getZonedMinuteParts(date: Date, timeZone: string): { day: number; minutes: number } {
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone,
+    weekday: 'short',
+    hour: '2-digit',
+    minute: '2-digit',
+    hourCycle: 'h23',
+  }).formatToParts(date);
+  const valueOf = (type: string) => parts.find(part => part.type === type)?.value ?? '0';
+  const dayMap: Record<string, number> = {
+    Sun: 0,
+    Mon: 1,
+    Tue: 2,
+    Wed: 3,
+    Thu: 4,
+    Fri: 5,
+    Sat: 6,
+  };
+  return {
+    day: dayMap[valueOf('weekday')] ?? 0,
+    minutes: Number(valueOf('hour')) * 60 + Number(valueOf('minute')),
+  };
+}
+
+/** 시장 상태
+ *  - KR: 정규장(09:00~15:30 KST) / 애프터마켓(15:30~18:00 KST) / 장 마감
  *  - US: 프리마켓(04:00~09:30 ET) / 정규장(09:30~16:00 ET) / 애프터마켓(16:00~20:00 ET) / 장 마감
  */
 function getMarketStatus(): { kr: KrStatus; us: UsStatus } {
   const now = new Date();
 
-  // 한국
-  const kst = new Date(now.getTime() + 9 * 60 * 60 * 1000);
-  const krDay = kst.getUTCDay();
-  const krMins = kst.getUTCHours() * 60 + kst.getUTCMinutes();
-  const krOpen = krDay >= 1 && krDay <= 5 && krMins >= 9 * 60 && krMins <= 15 * 60 + 30;
+  const { day: krDay, minutes: krMins } = getZonedMinuteParts(now, 'Asia/Seoul');
+  const isKrWeekday = krDay >= 1 && krDay <= 5;
+  let kr: KrStatus = 'closed';
+  if (isKrWeekday) {
+    if (krMins >= 9 * 60 && krMins < 15 * 60 + 30) kr = 'regular';
+    else if (krMins >= 15 * 60 + 30 && krMins < 18 * 60) kr = 'after';
+  }
 
-  // 미국 (ET 기준, DST 무시한 간단 매핑 — EST -5h)
-  const et = new Date(now.getTime() - 5 * 60 * 60 * 1000);
-  const usDay = et.getUTCDay();
-  const usMins = et.getUTCHours() * 60 + et.getUTCMinutes();
+  const { day: usDay, minutes: usMins } = getZonedMinuteParts(now, 'America/New_York');
   const isUsWeekday = usDay >= 1 && usDay <= 5;
   let us: UsStatus = 'closed';
   if (isUsWeekday) {
@@ -104,11 +127,13 @@ function getMarketStatus(): { kr: KrStatus; us: UsStatus } {
     else if (usMins >= 4 * 60 && usMins < 9 * 60 + 30) us = 'pre';
     else if (usMins >= 16 * 60 && usMins < 20 * 60) us = 'after';
   }
-  return { kr: krOpen ? 'regular' : 'closed', us };
+  return { kr, us };
 }
 
 function krLabel(s: KrStatus): string {
-  return s === 'regular' ? '정규장' : '장 마감';
+  if (s === 'regular') return '정규장';
+  if (s === 'after') return '애프터마켓';
+  return '장 마감';
 }
 function usLabel(s: UsStatus): string {
   if (s === 'regular') return '정규장';
@@ -206,7 +231,9 @@ export function MarketTickerView({
         <span className={styles.status}>
           <span
             className={`${styles.statusDot} ${
-              status.kr === 'regular' ? styles.open : styles.closed
+              status.kr === 'regular' ? styles.open :
+              status.kr === 'after' ? styles.partial :
+              styles.closed
             }`}
             aria-hidden="true"
           />
