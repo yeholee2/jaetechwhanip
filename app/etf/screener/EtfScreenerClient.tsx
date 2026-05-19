@@ -1,10 +1,11 @@
 'use client';
 
 import Link from 'next/link';
-import { useMemo, useState, type ReactNode } from 'react';
-import { ChevronDown, RotateCcw, SlidersHorizontal, X } from 'lucide-react';
+import { useEffect, useMemo, useState, type ReactNode } from 'react';
+import { ChevronDown, Heart, RotateCcw, SlidersHorizontal, X } from 'lucide-react';
 import { etfPath, type EtfInfo } from '@/lib/etfs';
 import { getEtfAccountEligibility } from '@/lib/etfAccountEligibility';
+import { listWatchedEtfCodes, subscribeWatchChanges, syncEtfWatchFromServer, toggleEtfWatch } from '@/lib/etfWatch';
 import { EtfLogo } from '../EtfLogo';
 import styles from './EtfScreener.module.css';
 
@@ -58,7 +59,7 @@ type Option<T extends string> = {
 const DEFAULT_STATE: ScreenState = {
   sort: 'change',
   category: '전체',
-  market: 'all',
+  market: 'kr',
   aumBand: 'all',
   returnBand: 'all',
   tradeBand: 'all',
@@ -71,9 +72,9 @@ const PRESETS: PresetConfig[] = [
   {
     key: 'movers',
     label: '오늘 많이 오른 ETF',
-    description: '장중 상승률이 높은 ETF',
+    description: '등락률 기준으로 움직임이 큰 ETF',
     badge: '인기',
-    state: { sort: 'change', returnBand: 'up' },
+    state: { sort: 'change' },
   },
   {
     key: 'active',
@@ -135,7 +136,6 @@ const PRESETS: PresetConfig[] = [
 const INITIAL_STATE: ScreenState = {
   ...DEFAULT_STATE,
   sort: 'change',
-  returnBand: 'up',
 };
 
 const SORT_OPTIONS: Option<SortKey>[] = [
@@ -321,8 +321,17 @@ export function EtfScreenerClient({ initialEtfs }: { initialEtfs: EtfInfo[] }) {
   const [state, setState] = useState<ScreenState>(INITIAL_STATE);
   const [activePreset, setActivePreset] = useState<PresetKey>('movers');
   const [activeMenu, setActiveMenu] = useState<MenuKey>(null);
+  const [saveStatus, setSaveStatus] = useState<'idle' | 'saved'>('idle');
+  const [watchedCodes, setWatchedCodes] = useState<string[]>([]);
 
   const activeInfo = presetTitle(activePreset, state);
+  const watchedSet = useMemo(() => new Set(watchedCodes), [watchedCodes]);
+
+  useEffect(() => {
+    setWatchedCodes(listWatchedEtfCodes());
+    void syncEtfWatchFromServer();
+    return subscribeWatchChanges(codes => setWatchedCodes(codes));
+  }, []);
 
   const filtered = useMemo(() => {
     const list = initialEtfs.filter(etf => {
@@ -353,32 +362,58 @@ export function EtfScreenerClient({ initialEtfs }: { initialEtfs: EtfInfo[] }) {
   const patchState = (patch: Partial<ScreenState>, closeMenu = false) => {
     setState(prev => ({ ...prev, ...patch }));
     setActivePreset('custom');
+    setSaveStatus('idle');
     if (closeMenu) setActiveMenu(null);
   };
 
   const applyPreset = (preset: PresetConfig) => {
     setState({ ...DEFAULT_STATE, ...preset.state });
     setActivePreset(preset.key);
+    setSaveStatus('idle');
     setActiveMenu(null);
   };
 
   const reset = () => {
     setState(INITIAL_STATE);
     setActivePreset('movers');
+    setSaveStatus('idle');
     setActiveMenu(null);
   };
 
-  const activeFilters = [
-    state.market !== 'all' ? `국가 · ${optionLabel(MARKET_OPTIONS, state.market)}` : null,
-    state.category !== '전체' ? `ETF유형 · ${state.category}` : null,
-    state.aumBand !== 'all' ? `순자산 · ${optionLabel(AUM_OPTIONS, state.aumBand)}` : null,
-    state.returnBand !== 'all' ? `등락률 · ${optionLabel(RETURN_OPTIONS, state.returnBand)}` : null,
-    state.tradeBand !== 'all' ? `거래대금 · ${optionLabel(TRADE_OPTIONS, state.tradeBand)}` : null,
-    state.feeBand !== 'all' ? `총보수 · ${optionLabel(FEE_OPTIONS, state.feeBand)}` : null,
-    `정렬 · ${optionLabel(SORT_OPTIONS, state.sort)}`,
-    state.excludeLeveraged ? '레버리지·인버스 제외' : null,
-    state.pensionOnly ? '연금계좌 가능' : null,
-  ].filter((filter): filter is string => Boolean(filter));
+  const saveCurrentFilter = () => {
+    const item = {
+      label: activeInfo.label,
+      description: activeInfo.description,
+      state,
+      savedAt: new Date().toISOString(),
+    };
+
+    try {
+      const storageKey = 'etfhanip:screener-presets';
+      const previous = JSON.parse(window.localStorage.getItem(storageKey) || '[]') as Array<typeof item>;
+      window.localStorage.setItem(storageKey, JSON.stringify([item, ...previous].slice(0, 8)));
+    } catch {
+      // localStorage가 막힌 환경에서도 화면 피드백은 유지한다.
+    }
+
+    setSaveStatus('saved');
+  };
+
+  const toggleWatch = (code: string) => {
+    const next = toggleEtfWatch(code);
+    setWatchedCodes(prev => (
+      next
+        ? Array.from(new Set([...prev, code]))
+        : prev.filter(item => item !== code)
+    ));
+  };
+
+  const categoryButtonLabel = state.category === '전체' ? 'ETF유형' : state.category;
+  const aumButtonLabel = state.aumBand === 'all' ? '순자산' : optionLabel(AUM_OPTIONS, state.aumBand);
+  const returnButtonLabel = state.returnBand === 'all' ? '등락률' : optionLabel(RETURN_OPTIONS, state.returnBand);
+  const tradeButtonLabel = state.tradeBand === 'all' ? '거래대금' : optionLabel(TRADE_OPTIONS, state.tradeBand);
+  const feeButtonLabel = state.feeBand === 'all' ? '총보수' : optionLabel(FEE_OPTIONS, state.feeBand);
+  const sortButtonLabel = optionLabel(SORT_OPTIONS, state.sort).replace(' 순', '');
 
   const renderOptionGroup = <T extends string,>(
     options: Option<T>[],
@@ -516,8 +551,9 @@ export function EtfScreenerClient({ initialEtfs }: { initialEtfs: EtfInfo[] }) {
         <h2>ETF 골라보기 목록</h2>
         <div className={styles.railGroup}>
           <span>내가 만든</span>
-          <button type="button" className={styles.createButton} disabled>
-            + 직접 만들기
+          <button type="button" className={styles.createButton} onClick={saveCurrentFilter}>
+            <span aria-hidden="true">+</span>
+            직접 만들기
           </button>
         </div>
         <div className={styles.railGroup}>
@@ -540,7 +576,6 @@ export function EtfScreenerClient({ initialEtfs }: { initialEtfs: EtfInfo[] }) {
 
       <section className={styles.main} aria-label="ETF 스크리너 결과">
         <header className={styles.hero}>
-          <p>ETF 스크리너</p>
           <h1>{activeInfo.label}</h1>
           <span>{activeInfo.description}</span>
         </header>
@@ -556,38 +591,39 @@ export function EtfScreenerClient({ initialEtfs }: { initialEtfs: EtfInfo[] }) {
               <ChevronDown size={16} />
             </FilterButton>
             <FilterButton active={activeMenu === 'category' || state.category !== '전체'} onClick={() => setActiveMenu(activeMenu === 'category' ? null : 'category')}>
-              ETF유형
+              {categoryButtonLabel}
               <ChevronDown size={16} />
             </FilterButton>
             <FilterButton active={activeMenu === 'aum' || state.aumBand !== 'all'} onClick={() => setActiveMenu(activeMenu === 'aum' ? null : 'aum')}>
-              순자산
+              {aumButtonLabel}
               <ChevronDown size={16} />
             </FilterButton>
             <FilterButton active={activeMenu === 'return' || state.returnBand !== 'all'} onClick={() => setActiveMenu(activeMenu === 'return' ? null : 'return')}>
-              등락률
+              {returnButtonLabel}
               <ChevronDown size={16} />
             </FilterButton>
             <FilterButton active={activeMenu === 'trade' || state.tradeBand !== 'all'} onClick={() => setActiveMenu(activeMenu === 'trade' ? null : 'trade')}>
-              거래대금
+              {tradeButtonLabel}
               <ChevronDown size={16} />
             </FilterButton>
             <FilterButton active={activeMenu === 'fee' || state.feeBand !== 'all'} onClick={() => setActiveMenu(activeMenu === 'fee' ? null : 'fee')}>
-              총보수
+              {feeButtonLabel}
               <ChevronDown size={16} />
             </FilterButton>
             <FilterButton active={activeMenu === 'sort'} onClick={() => setActiveMenu(activeMenu === 'sort' ? null : 'sort')}>
-              정렬 기준
+              {sortButtonLabel}
               <ChevronDown size={16} />
             </FilterButton>
-          </div>
-
-          <div className={styles.activeFilterRow} aria-label="적용된 필터">
-            {activeFilters.map(filter => (
-              <span key={filter} className={styles.activeFilter}>{filter}</span>
-            ))}
             <button type="button" className={styles.inlineReset} onClick={reset}>
               <RotateCcw size={14} />
               필터 되돌리기
+            </button>
+          </div>
+
+          <div className={styles.saveBar}>
+            <span>{saveStatus === 'saved' ? '필터를 저장했어요.' : '방금 편집한 필터를 저장할까요?'}</span>
+            <button type="button" onClick={saveCurrentFilter}>
+              내가 만든 목록에 저장
             </button>
           </div>
 
@@ -595,7 +631,7 @@ export function EtfScreenerClient({ initialEtfs }: { initialEtfs: EtfInfo[] }) {
         </div>
 
         <div className={styles.resultHead}>
-          <strong>조건에 맞는 ETF · {filtered.length.toLocaleString('ko-KR')}개</strong>
+          <strong>검색된 ETF · {filtered.length.toLocaleString('ko-KR')}개</strong>
           <span>최근 시세 기준</span>
         </div>
 
@@ -606,21 +642,34 @@ export function EtfScreenerClient({ initialEtfs }: { initialEtfs: EtfInfo[] }) {
             <table className={styles.table}>
               <thead>
                 <tr>
+                  <th scope="col" className={styles.colWatch}>관심</th>
                   <th scope="col" className={styles.colRank}>순위</th>
                   <th scope="col" className={styles.colName}>상품명</th>
                   <th scope="col">현재가</th>
                   <th scope="col">등락률</th>
+                  <th scope="col">ETF유형</th>
                   <th scope="col">순자산</th>
                   <th scope="col">거래대금</th>
                   <th scope="col">총보수</th>
-                  <th scope="col">시장</th>
                 </tr>
               </thead>
               <tbody>
                 {filtered.slice(0, 80).map((etf, index) => {
                   const isUS = (etf.country || 'KR').toUpperCase() === 'US';
+                  const watched = watchedSet.has(etf.code);
                   return (
                     <tr key={etf.slug}>
+                      <td className={styles.watchCell}>
+                        <button
+                          type="button"
+                          className={`${styles.watchButton} ${watched ? styles.watchButtonOn : ''}`}
+                          aria-label={`${etf.shortName} ${watched ? '관심 해제' : '관심 등록'}`}
+                          aria-pressed={watched}
+                          onClick={() => toggleWatch(etf.code)}
+                        >
+                          <Heart size={19} fill={watched ? 'currentColor' : 'none'} />
+                        </button>
+                      </td>
                       <td className={styles.colRank}>{index + 1}</td>
                       <td className={styles.colName}>
                         <Link href={etfPath(etf.slug)} className={styles.nameLink}>
@@ -635,10 +684,10 @@ export function EtfScreenerClient({ initialEtfs }: { initialEtfs: EtfInfo[] }) {
                       <td className={etf.changeTone === 'down' ? styles.down : styles.up}>
                         {etf.change || '-'}
                       </td>
+                      <td>{etf.category || (isUS ? '미국 ETF' : '국내 ETF')}</td>
                       <td>{etf.aum || '-'}</td>
                       <td>{etf.tradeValue || etf.volume || '-'}</td>
                       <td>{etf.fee || '-'}</td>
-                      <td className={styles.marketCell}>{isUS ? 'US' : 'KR'}</td>
                     </tr>
                   );
                 })}

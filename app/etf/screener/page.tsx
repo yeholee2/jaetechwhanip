@@ -5,8 +5,6 @@ import { fetchEtfs } from '@/lib/etfsDb';
 import { getEtfsWithMarketData } from '@/lib/etf-live-data';
 import { enrichEtfRankingCandidatesWithNaver } from '@/lib/etfRankingRealtime';
 import { SITE_NAME } from '@/lib/seo';
-import { EtfPageTabs } from '../EtfPageTabs';
-import { MarketTicker } from '../MarketTicker';
 import { EtfScreenerClient } from './EtfScreenerClient';
 import styles from './EtfScreener.module.css';
 
@@ -32,10 +30,8 @@ export default async function EtfScreenerPage() {
 
   return (
     <AppShell active="etf" wide hideSlogan>
-      <main className="pc-layout-stack">
-        <MarketTicker />
+      <main className={styles.screen}>
         <div className={styles.page}>
-          <EtfPageTabs active="screener" />
           <EtfScreenerClient initialEtfs={etfs} />
         </div>
       </main>

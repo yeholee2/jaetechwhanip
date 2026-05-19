@@ -79,7 +79,7 @@
    * Surface / Text (시맨틱)
    * ───────────────────────────────────────────────────────── */
   /* 토스 ETF 페이지 실제 computed CSS에서 추출한 정확 토큰 */
-  --rw-screen: #F6F7F9;                /* 페이지 배경 */
+  --rw-screen: #FFFFFF;                /* 페이지 배경 */
   --rw-card: #FFFFFF;                  /* 화이트 카드 */
   --rw-card-muted: #F9FAFB;            /* 카드 안 회색 박스 */
   --rw-subtle-bg: rgba(2, 32, 71, 0.05); /* chip / input 배경 */
