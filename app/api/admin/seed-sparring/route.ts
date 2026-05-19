@@ -10,6 +10,8 @@ import { createAdminClient } from '@/lib/supabase/admin';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+export const fetchCache = 'force-no-store';
 
 const SEEDS: Record<string, any> = {
   pension: {
@@ -66,5 +68,8 @@ export async function GET(req: NextRequest) {
     revalidatePath('/');
   } catch { /* ignore */ }
 
-  return NextResponse.json({ ok: true, status: 'inserted', id: data.id, slug: data.slug });
+  return NextResponse.json(
+    { ok: true, status: 'inserted', id: data.id, slug: data.slug },
+    { headers: { 'Cache-Control': 'no-store, max-age=0' } },
+  );
 }
