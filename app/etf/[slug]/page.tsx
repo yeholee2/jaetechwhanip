@@ -1185,7 +1185,7 @@ export default async function EtfDetailPage({ params }: Props) {
               <section className={styles.section}>
                 <div className={styles.sectionHead}>
                   <h2>같은 운용사 ETF</h2>
-                  <Link href={`/etf/screener?q=${encodeURIComponent(issuerSummary.name)}`} style={{ fontSize: 12, color: 'var(--rw-primary)', fontWeight: 700 }}>
+                  <Link href={`/etf/all?q=${encodeURIComponent(issuerSummary.name)}`} style={{ fontSize: 12, color: 'var(--rw-primary)', fontWeight: 700 }}>
                     전체 →
                   </Link>
                 </div>
