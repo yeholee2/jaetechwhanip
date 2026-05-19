@@ -24,6 +24,9 @@ function write(key: string, list: string[]) {
   if (typeof window === 'undefined') return;
   try {
     window.localStorage.setItem(key, JSON.stringify(list.slice(0, MAX_ITEMS)));
+    if (key === ETF_VIEW_KEY) {
+      window.dispatchEvent(new CustomEvent('etfhanip:recent-etfs-changed', { detail: list.slice(0, MAX_ITEMS) }));
+    }
   } catch { /* quota */ }
 }
 
@@ -50,4 +53,21 @@ export function pushRecentEtfSlug(slug: string) {
   if (!slug) return;
   const prev = read(ETF_VIEW_KEY).filter(s => s !== slug);
   write(ETF_VIEW_KEY, [slug, ...prev]);
+}
+
+export function subscribeRecentEtfChanges(handler: (slugs: string[]) => void): () => void {
+  if (typeof window === 'undefined') return () => {};
+  const onChange = (event: Event) => {
+    const slugs = (event as CustomEvent<string[]>).detail ?? read(ETF_VIEW_KEY);
+    handler(slugs);
+  };
+  const onStorage = (event: StorageEvent) => {
+    if (event.key === ETF_VIEW_KEY) handler(read(ETF_VIEW_KEY));
+  };
+  window.addEventListener('etfhanip:recent-etfs-changed', onChange);
+  window.addEventListener('storage', onStorage);
+  return () => {
+    window.removeEventListener('etfhanip:recent-etfs-changed', onChange);
+    window.removeEventListener('storage', onStorage);
+  };
 }

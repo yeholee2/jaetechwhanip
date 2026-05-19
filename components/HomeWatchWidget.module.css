@@ -57,6 +57,42 @@
 }
 .moreLink:hover { text-decoration: underline; }
 
+.switcher {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  padding: 3px;
+  margin: -2px 0 10px;
+  border: 1px solid var(--rw-hairline);
+  border-radius: 10px;
+  background: var(--rw-card-muted);
+}
+
+.switchButton {
+  min-width: 0;
+  height: 30px;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--rw-text-muted);
+  font-size: 12px;
+  font-weight: 900;
+  cursor: pointer;
+  transition: background-color 140ms, color 140ms, box-shadow 140ms;
+}
+
+.switchButton span {
+  margin-left: 3px;
+  color: inherit;
+  font-feature-settings: 'tnum';
+}
+
+.switchActive {
+  background: var(--rw-card);
+  color: var(--rw-primary);
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
+}
+
 .list {
   list-style: none;
   margin: 0;
