@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { CalendarEvent } from '@/lib/marketCalendar';
+import { getDefaultEventTime, sortByImportance } from '@/lib/marketCalendar';
 import styles from './Calendar.module.css';
 
 type Filter = 'all' | 'economic' | 'earnings';
@@ -257,7 +258,8 @@ function WeekView({
                       </div>
                     ) : (
                       <ul className={styles.eventList}>
-                        {dayEvents.map(e => <EventRow key={e.id} event={e} />)}
+                        {/* 중요도 우선 정렬 (major 먼저) */}
+                        {sortByImportance(dayEvents).map(e => <EventRow key={e.id} event={e} />)}
                       </ul>
                     )}
                   </div>
@@ -335,6 +337,7 @@ function EventRow({ event }: { event: CalendarEvent }) {
   const isMajor = event.importance === 'major';
   const isEarnings = event.kind === 'earnings';
   const hasMetrics = event.actual != null || event.forecast != null || event.previous != null;
+  const timeText = getDefaultEventTime(event);
   return (
     <li className={styles.event}>
       <div className={styles.eventBody}>
@@ -348,6 +351,13 @@ function EventRow({ event }: { event: CalendarEvent }) {
         </span>
         <span className={styles.eventTitle}>{event.title}</span>
         {isMajor && <span className={styles.eventMajorBadge}>주요</span>}
+        {/* 실적발표 — 어닝콜 예정 칩 (실제 음원 없는 경우에도 표시) */}
+        {isEarnings && !event.earningsCallUrl && (
+          <span className={styles.eventEarningsPlanned}>
+            <span className={styles.eventEarningsDot} aria-hidden="true" />
+            어닝콜 예정
+          </span>
+        )}
         {isEarnings && event.earningsCallUrl && (
           <a
             href={event.earningsCallUrl}
@@ -360,11 +370,15 @@ function EventRow({ event }: { event: CalendarEvent }) {
           </a>
         )}
       </div>
-      <div className={styles.eventMetrics}>
-        <span className={styles.metric} data-label="발표">{hasMetrics ? (event.actual ?? '-') : ''}</span>
-        <span className={styles.metric} data-label="예측">{hasMetrics ? (event.forecast ?? '-') : ''}</span>
-        <span className={`${styles.metric} ${styles.metricPrev}`} data-label="이전">{hasMetrics ? (event.previous ?? '-') : ''}</span>
-      </div>
+      {hasMetrics ? (
+        <div className={styles.eventMetrics}>
+          <span className={styles.metric} data-label="발표">{event.actual ?? '-'}</span>
+          <span className={styles.metric} data-label="예측">{event.forecast ?? '-'}</span>
+          <span className={`${styles.metric} ${styles.metricPrev}`} data-label="이전">{event.previous ?? '-'}</span>
+        </div>
+      ) : (
+        <div className={styles.eventTimeRight}>{timeText}</div>
+      )}
     </li>
   );
 }

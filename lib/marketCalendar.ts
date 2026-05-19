@@ -26,7 +26,38 @@ export type CalendarEvent = {
   importance: CalendarImportance;
   /** earnings: 어닝콜 다시듣기 링크 (있으면) */
   earningsCallUrl?: string;
+  /** 발표/예정 시각 한글 표현 (예: '오후 9시 30분 발표 예정', '오전 5시 이후') */
+  time?: string;
 };
+
+/** 이벤트 종류별 기본 발표 시각 (한국 시간 기준) */
+export function getDefaultEventTime(e: CalendarEvent): string {
+  if (e.time) return e.time;
+  // 미국 경제지표: ET 8:30 AM = KST 오후 9시 30분 (대부분)
+  if (e.region === 'us' && e.kind === 'economic') {
+    return '오후 9시 30분 발표 예정';
+  }
+  // 미국 실적: 장 마감 후 발표 (16:00 ET = KST 오전 5시 이후) 또는 장 시작 전
+  if (e.region === 'us' && e.kind === 'earnings') {
+    return e.importance === 'major' ? '오전 5시 이후' : '장 마감 후';
+  }
+  // 한국 경제지표: 평균 오전 발표
+  if (e.region === 'kr' && e.kind === 'economic') {
+    return '오전 8시 발표 예정';
+  }
+  // 한국 실적: 장 마감 후
+  return '장 마감 후';
+}
+
+/** 중요도·시각 기준 정렬 — major 먼저, 같으면 시간순 */
+export function sortByImportance(events: CalendarEvent[]): CalendarEvent[] {
+  return [...events].sort((a, b) => {
+    if (a.importance !== b.importance) return a.importance === 'major' ? -1 : 1;
+    // 둘 다 같은 importance면 미국 경제지표를 위로 (가장 영향 큼)
+    const score = (e: CalendarEvent) => (e.region === 'us' ? 0 : 1) + (e.kind === 'economic' ? 0 : 0.5);
+    return score(a) - score(b);
+  });
+}
 
 type CalendarKind = CalendarEventKind;
 

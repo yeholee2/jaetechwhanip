@@ -562,3 +562,36 @@
   .monthGrid { grid-auto-rows: minmax(72px, auto); }
   .monthChip { font-size: 9.5px; padding: 1px 4px; }
 }
+
+/* 어닝콜 예정 — 청록 dot 칩 (레퍼런스 톤) */
+.eventEarningsPlanned {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 22px;
+  padding: 0 9px;
+  border-radius: 999px;
+  background: var(--rw-screen, #f5f7fa);
+  color: var(--rw-text-muted, #6b7684);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: -0.1px;
+  white-space: nowrap;
+}
+.eventEarningsDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #6b7684;
+}
+
+/* 우측 시간 텍스트 (발표 수치 없을 때) */
+.eventTimeRight {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--rw-text-muted, #6b7684);
+  white-space: nowrap;
+  text-align: right;
+  letter-spacing: -0.1px;
+  flex-shrink: 0;
+}
