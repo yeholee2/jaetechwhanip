@@ -580,7 +580,8 @@
   padding: 16px;
   border-radius: 16px;
   background: var(--white);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, .06);
+  box-shadow: none;
+  border: 1px solid #ebeff5;
 }
 
 .homeLink {
@@ -620,8 +621,9 @@
   gap: 8px;
   margin-top: 14px;
   padding: 10px 0;
-  background: var(--rw-card-muted, #fafbfc);
-  border-radius: 10px;
+  background: transparent;
+  border-radius: 0;
+  border-top: 1px solid #ebeff5;
 }
 .sideCardStatCol {
   display: flex;
