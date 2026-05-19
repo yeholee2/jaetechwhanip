@@ -94,25 +94,33 @@
   letter-spacing: 0;
 }
 
+/* a-ha 실측: choice wrap flex center, gap 10 */
 .choiceGrid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
 }
 
+/* a-ha 실측: 140x130 정사각 / radius 16 / padding 26 0 / gap 13 col / bg tint */
 .choice {
-  min-height: 150px;
-  padding: 18px;
-  border-radius: 18px;
+  position: relative;
+  width: 140px;
+  height: 130px;
+  padding: 26px 0;
+  border-radius: 16px;
   background: var(--choice-tint, var(--white));
-  border: 1px solid var(--choice-border, transparent);
-  text-align: left;
-  transition: transform var(--duration-instant), box-shadow var(--duration-instant);
+  border: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 13px;
+  text-align: center;
+  transition: transform 150ms ease, filter 150ms ease;
 }
 
 .choice:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(25, 31, 40, .08);
 }
 
 .choice:disabled {
@@ -120,42 +128,38 @@
   opacity: .88;
 }
 
-.choiceTop {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
+/* a-ha 실측: 옵션 텍스트 18px/700/1.4/색옵션, whitespace pre-line (2줄 가능) */
+.choiceText {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.4;
   color: var(--choice-color);
+  white-space: pre-line;
+  letter-spacing: -0.2px;
 }
 
-.choiceTop span {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 13px;
-  font-weight: 850;
-}
-
-.choice strong {
-  display: block;
-  margin: 26px 0 16px;
-  color: var(--t1);
-  font-size: 21px;
-  line-height: 1.32;
-  font-weight: 850;
-}
-
-.selectCopy {
+/* a-ha 실측: 선택 캡슐 bg=옵션색, radius 14, padding 6 8, 12px/700/white */
+.choicePill {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  height: 34px;
-  padding: 0 13px;
-  border-radius: 999px;
-  background: var(--choice-bg);
-  color: var(--choice-color);
-  font-size: 13px;
-  font-weight: 850;
+  padding: 6px 12px;
+  border-radius: 14px;
+  background: var(--choice-color);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.1px;
+}
+
+.selected .choicePill { background: var(--choice-color); }
+.selected { outline: 2px solid var(--choice-color); outline-offset: 0; }
+
+@media (max-width: 640px) {
+  .choice { width: 130px; height: 120px; padding: 22px 0; }
+  .choiceText { font-size: 16px; }
 }
 
 .positive {
@@ -336,23 +340,31 @@
 .labelA { color: var(--rw-blue70); }
 .labelB { color: var(--rw-red50); }
 
-/* a-ha 실측: 설명 보기 — 15px/600/#6b7684 */
+/* a-ha 실측: 메모 카드 — gap 10 / 라벨 가운데 */
 .memoHead {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  color: #6b7684;
+  gap: 10px;
+  color: #8b95a1;
   font-size: 14px;
   font-weight: 600;
   text-align: center;
 }
 
+/* a-ha 실측: 설명 보기 버튼 — bg #f9fafb / h 38 / radius 10 / 15px/600/#6b7684 */
 .memoHead button {
+  width: 100%;
+  height: 38px;
+  padding: 0 10px;
+  background: #f9fafb;
   color: #6b7684;
   font-size: 15px;
   font-weight: 600;
+  border-radius: 10px;
+  border: 0;
 }
+.memoHead button:hover { background: #f2f4f6; color: #4e5968; }
 
 .memoBody {
   margin-top: 12px;

@@ -152,6 +152,7 @@ export default function SparringDetailClient({
   const renderChoice = (side: SparringSide) => {
     const polarity = getSidePolarity(sparring, side);
     const isSelected = selectedVote === side;
+    const label = getSideLabel(sparring, side);
 
     return (
       <button
@@ -159,13 +160,10 @@ export default function SparringDetailClient({
         type="button"
         disabled={Boolean(selectedVote) || pending || sparring.status !== 'active'}
         onClick={() => handleVote(side)}
+        aria-label={`${side === 'a' ? 'A' : 'B'} 의견: ${label}`}
       >
-        <div className={styles.choiceTop}>
-          <span><FaIcon name={polarity === 'positive' ? 'thumbs-up' : 'thumbs-down'} size={16} /> {side === 'a' ? 'A 의견' : 'B 의견'}</span>
-          {isSelected && <FaIcon name="circle-check" size={19} />}
-        </div>
-        <strong>{getSideLabel(sparring, side)}</strong>
-        <span className={styles.selectCopy}>{isSelected ? '선택 완료' : '선택'}</span>
+        <p className={styles.choiceText}>{label}</p>
+        <span className={styles.choicePill}>{isSelected ? '완료' : '선택'}</span>
       </button>
     );
   };
