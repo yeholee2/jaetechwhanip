@@ -24,6 +24,8 @@ export function CalendarClient({ events, weeks, aiSummary, todayIso }: Props) {
   const [filterKind, setFilterKind] = useState<Filter>('all');
   const [filterRegion, setFilterRegion] = useState<Region>('all');
   const [view, setView] = useState<View>('week');
+  // 토스 톤 — 기본 '주요만' (importance=major). 토글로 전체 노출
+  const [showAll, setShowAll] = useState(false);
   const [cursor, setCursor] = useState(() => new Date(todayIso));
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [showAiModal, setShowAiModal] = useState(false);
@@ -31,13 +33,14 @@ export function CalendarClient({ events, weeks, aiSummary, todayIso }: Props) {
 
   const matchFilter = (e: CalendarEvent) =>
     (filterKind === 'all' || e.kind === filterKind) &&
-    (filterRegion === 'all' || e.region === filterRegion);
+    (filterRegion === 'all' || e.region === filterRegion) &&
+    (showAll || e.importance === 'major');
 
-  const filteredEvents = useMemo(() => events.filter(matchFilter), [events, filterKind, filterRegion]);
+  const filteredEvents = useMemo(() => events.filter(matchFilter), [events, filterKind, filterRegion, showAll]);
 
   const filteredWeeks = useMemo(
     () => weeks.map(w => ({ ...w, events: w.events.filter(matchFilter) })),
-    [weeks, filterKind, filterRegion],
+    [weeks, filterKind, filterRegion, showAll],
   );
 
   // 월간 그리드 셀
@@ -169,6 +172,24 @@ export function CalendarClient({ events, weeks, aiSummary, todayIso }: Props) {
                   {f.label}
                 </button>
               ))}
+            </div>
+            <div className={styles.viewToggle}>
+              <button
+                type="button"
+                onClick={() => setShowAll(false)}
+                className={`${styles.viewBtn} ${!showAll ? styles.viewBtnOn : ''}`}
+                title="주요(major) 이벤트만 보기"
+              >
+                주요만
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowAll(true)}
+                className={`${styles.viewBtn} ${showAll ? styles.viewBtnOn : ''}`}
+                title="모든 이벤트 보기"
+              >
+                전체
+              </button>
             </div>
             <div className={styles.viewToggle}>
               <button
