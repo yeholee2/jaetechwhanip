@@ -1,7 +1,9 @@
-/* 사이드바용 컴팩트 스파링 카드 (이미지 배경 + 세로 긴 비율) */
+/* 사이드바용 스파링 카드: Aha 토론 카드에 가까운 32:35 비율 */
 .card {
   position: relative;
   overflow: hidden;
+  width: 100%;
+  aspect-ratio: 32 / 35;
   margin-bottom: 10px;
   border: 1px solid var(--rw-border);
   border-radius: 14px;
@@ -9,7 +11,7 @@
     var(--t1, #131c2b);  /* 이미지 없을 때 다크 솔리드 폴백 */
   color: #fff;
   isolation: isolate;
-  min-height: 320px;     /* 참고 이미지 톤: 세로로 긴 카드 */
+  min-height: 0;
 }
 
 /* 사용자 업로드 이미지 (thumbnail_url) — full-bleed */
@@ -42,8 +44,9 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  min-height: 320px;
-  padding: 20px 20px 16px;
+  height: 100%;
+  min-height: 0;
+  padding: 18px 18px 16px;
   color: #fff;
   text-decoration: none;
 }

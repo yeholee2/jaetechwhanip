@@ -366,20 +366,22 @@
   }
 }
 
-/* 홈 사이드바 미니카드 미리보기 (SparringMiniCard와 동일 규격) */
+/* 홈/ETF 사이드바 스파링 미리보기 (SparringMiniCard와 동일한 32:35 비율) */
 .previewMini {
   position: relative;
   overflow: hidden;
+  width: 100%;
+  aspect-ratio: 32 / 35;
   border: 1px solid var(--line);
   border-radius: 14px;
   background: #131c2b;
   color: #fff;
   isolation: isolate;
-  min-height: 320px;
+  min-height: 0;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding: 20px;
+  padding: 18px;
 }
 
 .previewMini::before,

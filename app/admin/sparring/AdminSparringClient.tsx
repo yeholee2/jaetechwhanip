@@ -524,9 +524,9 @@ export default function AdminSparringClient({ initialSparrings }: { initialSparr
               같은 이미지가 두 곳에서 다른 비율로 잘려요. 둘 다 보기 좋게 만들어주세요.
             </p>
 
-            {/* 1) 홈/질문 사이드바 — SparringMiniCard (세로 320px) */}
+            {/* 1) 홈/ETF/질문 사이드바 — SparringMiniCard (32:35) */}
             <h3 style={{ fontSize: 13, fontWeight: 700, color: 'var(--t2)', margin: '4px 0 8px' }}>
-              홈/질문 사이드바 (세로 카드)
+              홈/ETF/질문 사이드바 (32:35 카드)
             </h3>
             <article
               className={styles.previewMini}
