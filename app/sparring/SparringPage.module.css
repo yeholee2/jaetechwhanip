@@ -93,23 +93,25 @@
 
 .activeGrid {
   display: grid;
-  /* 2개 들어가도록 — 각 카드 최소 ~480px, 화면 폭 따라 1~2개 */
+  /* 2열 + 그리드 폭 제한해 카드 사이즈 컴팩트하게 (홈 미니카드 비율 톤) */
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 16px;
+  max-width: 780px;  /* 각 카드 ~380px 폭, 5:4 비율로 높이 ~304px */
 }
 
 /* 진행중 3개+ 일 때 가로 스크롤 — 화면에 2개씩, 나머지는 화살표 토글로 */
 .activeScrollItem {
-  flex: 0 0 calc(50% - 8px);
+  flex: 0 0 380px;
   scroll-snap-align: start;
 }
 
 @media (max-width: 760px) {
   .activeGrid {
     grid-template-columns: 1fr;
+    max-width: 440px;
   }
   .activeScrollItem {
-    flex: 0 0 calc(100% - 16px);
+    flex: 0 0 320px;
   }
 }
 
