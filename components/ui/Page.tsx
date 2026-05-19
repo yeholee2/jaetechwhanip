@@ -35,26 +35,32 @@ export function Section({
   title,
   sub,
   link,
+  actions,
   children,
   className,
 }: {
   title?: ReactNode;
   sub?: ReactNode;
   link?: { href: string; label: ReactNode };
+  /** 헤더 우측 영역 — sub/link보다 우선 (예: admin 액션 버튼) */
+  actions?: ReactNode;
   children: ReactNode;
   className?: string;
 }) {
   return (
     <section className={[styles.section, className].filter(Boolean).join(' ')}>
-      {(title || sub || link) && (
+      {(title || sub || link || actions) && (
         <div className={styles.sectionHead}>
           {title && <h2 className={styles.sectionTitle}>{title}</h2>}
-          {sub && !link && <span className={styles.sectionSub}>{sub}</span>}
-          {link && (
-            <Link href={link.href} className={styles.sectionLink}>
-              {link.label}
-            </Link>
-          )}
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 12, marginLeft: 'auto' }}>
+            {sub && <span className={styles.sectionSub}>{sub}</span>}
+            {link && (
+              <Link href={link.href} className={styles.sectionLink}>
+                {link.label}
+              </Link>
+            )}
+            {actions}
+          </div>
         </div>
       )}
       {children}

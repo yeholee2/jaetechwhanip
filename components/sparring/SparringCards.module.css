@@ -1,9 +1,9 @@
 .activeCard {
   position: relative;
-  aspect-ratio: 5 / 4;
+  aspect-ratio: 1 / 1;
   overflow: hidden;
   border: 1px solid var(--line);
-  border-radius: 16px;
+  border-radius: 18px;
   background: var(--fallback-bg, linear-gradient(135deg, var(--rw-blue70), #071b5f));
   color: #fff;
   box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
