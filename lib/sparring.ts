@@ -424,10 +424,17 @@ export async function getSparringBySlug(slug: string): Promise<SparringDetailRes
       )
     : fallbackComments.filter(comment => comment.sparring_id === sparring.id);
 
+  // 활성 우선 + 부족하면 closed (지난 토론) 채워서 사이드가 비지 않게.
+  const activeOthers = sparrings.filter(item => item.status === 'active' && item.id !== sparring.id);
+  const closedOthers = sparrings
+    .filter(item => item.status !== 'active' && item.id !== sparring.id)
+    .sort((a, b) => new Date(b.deadline_at).getTime() - new Date(a.deadline_at).getTime());
+  const otherActive = [...activeOthers, ...closedOthers].slice(0, 6);
+
   return {
     sparring,
     comments: comments || [],
-    otherActive: sparrings.filter(item => item.status === 'active' && item.id !== sparring.id).slice(0, 3),
+    otherActive,
     usingFallback: !list,
   };
 }

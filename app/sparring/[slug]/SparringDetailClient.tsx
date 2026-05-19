@@ -311,13 +311,44 @@ export default function SparringDetailClient({
 
       <aside className={styles.sidebar} aria-label="다른 스파링">
         <Link href="/sparring" className={styles.homeLink}>스파링 홈 &gt;</Link>
-        {otherActive.map(item => (
-          <Link key={item.id} href={sparringPath(item.slug)} className={styles.sideCard}>
-            <span>{item.round_number} 라운드</span>
-            <strong>{item.title}</strong>
-            <em>{formatNumber(item.stats.votes_total)}명 투표 중</em>
-          </Link>
-        ))}
+        {otherActive.map(item => {
+          const totalVotes = item.stats.votes_total || (item.stats.votes_a + item.stats.votes_b);
+          const aPct = totalVotes > 0 ? Math.round((item.stats.votes_a / totalVotes) * 100) : 0;
+          const bPct = totalVotes > 0 ? 100 - aPct : 0;
+          const leadingSide = aPct >= bPct ? 'a' : 'b';
+          const leadingLabel = leadingSide === 'a' ? item.side_a_label : item.side_b_label;
+          const leadingPct = leadingSide === 'a' ? aPct : bPct;
+          const isActive = item.status === 'active';
+          return (
+            <Link key={item.id} href={sparringPath(item.slug)} className={styles.sideCard}>
+              <span className={styles.sideCardRound}>
+                {item.round_number}라운드
+                {!isActive && <span className={styles.sideCardEnded}>· 종료</span>}
+              </span>
+              <strong className={styles.sideCardTitle}>{item.title}</strong>
+              {totalVotes > 0 && (
+                <div className={styles.sideCardStats}>
+                  <div className={styles.sideCardStatCol}>
+                    <span>투표 수</span>
+                    <strong>{formatNumber(totalVotes)}표</strong>
+                  </div>
+                  <div className={styles.sideCardStatCol}>
+                    <span>토론 수</span>
+                    <strong>{formatNumber(item.stats.comment_count || 0)}개</strong>
+                  </div>
+                </div>
+              )}
+              {totalVotes > 0 && (
+                <em className={`${styles.sideCardLeader} ${leadingSide === 'a' ? styles.sideCardLeaderA : styles.sideCardLeaderB}`}>
+                  {leadingLabel} {leadingPct}%
+                </em>
+              )}
+              {totalVotes === 0 && (
+                <em className={styles.sideCardEmpty}>아직 투표 없음</em>
+              )}
+            </Link>
+          );
+        })}
 
         {mentionedEtfs.length > 0 && (
           <RelatedContent heading="이 스파링과 관련된 ETF" etfs={mentionedEtfs} />
