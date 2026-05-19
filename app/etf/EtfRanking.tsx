@@ -5,8 +5,9 @@
  * 시장(전체/국내상장/미국상장) + 카테고리 + 정렬 다축 조합.
  * DB에서 받은 전체 ETF를 클라이언트에서 정렬/필터 (1,000개 규모면 충분).
  */
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { etfPath, type EtfInfo } from '@/lib/etfs';
 import { EtfLogo } from './EtfLogo';
 import { Chip, Badge } from '@/components/ui';
@@ -101,6 +102,7 @@ function isLeveraged(etf: EtfInfo): boolean {
 }
 
 export function EtfRanking({ allEtfs }: { allEtfs: EtfInfo[] }) {
+  const router = useRouter();
   const [sort, setSort] = useState<SortKey>('수익률');
   const [category, setCategory] = useState<CategoryKey>('전체');
   const [market, setMarket] = useState<MarketKey>('all');
@@ -126,6 +128,14 @@ export function EtfRanking({ allEtfs }: { allEtfs: EtfInfo[] }) {
     }
     return sorted.slice(0, 10);
   }, [allEtfs, sort, category, market, excludeLev]);
+  const priorityHrefs = useMemo(() => ranked.slice(0, 5).map(etf => etfPath(etf.slug)), [ranked]);
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      priorityHrefs.forEach(href => router.prefetch(href));
+    }, 350);
+    return () => window.clearTimeout(timer);
+  }, [priorityHrefs, router]);
 
   return (
     <section className={sec.card} aria-label="ETF 랭킹 TOP 10">
@@ -191,7 +201,14 @@ export function EtfRanking({ allEtfs }: { allEtfs: EtfInfo[] }) {
         )}
         {ranked.map((etf, idx) => (
           <li key={etf.slug}>
-            <Link className={styles.item} href={etfPath(etf.slug)}>
+            <Link
+              className={styles.item}
+              href={etfPath(etf.slug)}
+              prefetch={idx < 5}
+              onMouseEnter={() => router.prefetch(etfPath(etf.slug))}
+              onFocus={() => router.prefetch(etfPath(etf.slug))}
+              onTouchStart={() => router.prefetch(etfPath(etf.slug))}
+            >
               <span className={styles.rank}>{idx + 1}</span>
               <EtfLogo name={etf.shortName} code={etf.code} size={36} className={styles.logo} />
               <div className={styles.info}>
