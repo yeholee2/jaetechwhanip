@@ -173,8 +173,7 @@ function buildCompactEtfDescription(etf: {
 
 type Props = { params: { slug: string } };
 
-export const revalidate = 300;
-export const dynamic = 'force-dynamic';
+export const revalidate = 60;
 
 export function generateStaticParams() {
   return etfs.map(etf => ({ slug: etf.slug }));
