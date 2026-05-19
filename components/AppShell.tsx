@@ -48,12 +48,14 @@ export function AppShell({
   active,
   children,
   wide = false,
+  fullBleed = false,
   hideSlogan = false,
   minimalNav = false,
 }: {
   active: AppNavKey;
   children: ReactNode;
   wide?: boolean;
+  fullBleed?: boolean;
   hideSlogan?: boolean;
   /** 크리에이터 페이지 등 — 한입 로고만 노출, 메뉴 숨김 */
   minimalNav?: boolean;
@@ -629,7 +631,7 @@ export function AppShell({
       </header>
 
       {!hideSlogan && <Slogan />}
-      <div className={`${styles.content} ${wide ? styles.wideContent : ''}`}>{children}</div>
+      <div className={`${styles.content} ${wide ? styles.wideContent : ''} ${fullBleed ? styles.fullBleedContent : ''}`}>{children}</div>
 
       {bellNotice && (
         <div className={styles.toast} role="status">

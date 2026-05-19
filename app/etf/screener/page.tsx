@@ -29,7 +29,7 @@ export default async function EtfScreenerPage() {
   const etfs = await enrichEtfRankingCandidatesWithNaver(marketEtfs).catch(() => marketEtfs);
 
   return (
-    <AppShell active="etf" wide hideSlogan>
+    <AppShell active="etf" wide fullBleed hideSlogan>
       <main className={styles.screen}>
         <div className={styles.page}>
           <EtfScreenerClient initialEtfs={etfs} />

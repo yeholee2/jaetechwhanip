@@ -479,6 +479,11 @@
   max-width: 1180px;
 }
 
+.fullBleedContent {
+  max-width: none;
+  padding: 0;
+}
+
 .moHeader,
 .bottomNav {
   display: none;
