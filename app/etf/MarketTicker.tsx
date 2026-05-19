@@ -77,19 +77,44 @@ function formatChange(change: number, pct: number): string {
   return `${sign}${absChg} (${pctSign}${pct.toFixed(2)}%)`;
 }
 
-/** 한국 시장 상태 — 평일 9~15:30 KST 정규장 / 외 시간 = 애프터마켓 */
-function getMarketStatus(): { krOpen: boolean; usOpen: boolean } {
+type KrStatus = 'regular' | 'closed';
+type UsStatus = 'regular' | 'pre' | 'after' | 'closed';
+
+/** 시장 상태 (3단계 세분화)
+ *  - KR: 정규장(09:00~15:30 KST) / 장 마감
+ *  - US: 프리마켓(04:00~09:30 ET) / 정규장(09:30~16:00 ET) / 애프터마켓(16:00~20:00 ET) / 장 마감
+ */
+function getMarketStatus(): { kr: KrStatus; us: UsStatus } {
   const now = new Date();
+
+  // 한국
   const kst = new Date(now.getTime() + 9 * 60 * 60 * 1000);
   const krDay = kst.getUTCDay();
   const krMins = kst.getUTCHours() * 60 + kst.getUTCMinutes();
   const krOpen = krDay >= 1 && krDay <= 5 && krMins >= 9 * 60 && krMins <= 15 * 60 + 30;
-  // 미국 정규장 9:30~16:00 ET (= 23:30~06:00 KST 다음날)
-  const et = new Date(now.getTime() - 5 * 60 * 60 * 1000); // EST 기준 (간단화)
+
+  // 미국 (ET 기준, DST 무시한 간단 매핑 — EST -5h)
+  const et = new Date(now.getTime() - 5 * 60 * 60 * 1000);
   const usDay = et.getUTCDay();
   const usMins = et.getUTCHours() * 60 + et.getUTCMinutes();
-  const usOpen = usDay >= 1 && usDay <= 5 && usMins >= 9 * 60 + 30 && usMins <= 16 * 60;
-  return { krOpen, usOpen };
+  const isUsWeekday = usDay >= 1 && usDay <= 5;
+  let us: UsStatus = 'closed';
+  if (isUsWeekday) {
+    if (usMins >= 9 * 60 + 30 && usMins < 16 * 60) us = 'regular';
+    else if (usMins >= 4 * 60 && usMins < 9 * 60 + 30) us = 'pre';
+    else if (usMins >= 16 * 60 && usMins < 20 * 60) us = 'after';
+  }
+  return { kr: krOpen ? 'regular' : 'closed', us };
+}
+
+function krLabel(s: KrStatus): string {
+  return s === 'regular' ? '정규장' : '장 마감';
+}
+function usLabel(s: UsStatus): string {
+  if (s === 'regular') return '정규장';
+  if (s === 'pre') return '프리마켓';
+  if (s === 'after') return '애프터마켓';
+  return '장 마감';
 }
 
 /** Mini horizontal sparkline — 전일 종가 기준선(점선) + 깔끔한 곡선 */
@@ -169,12 +194,24 @@ export function MarketTickerView({
     <section className={styles.ticker} aria-label="실시간 시장 시세">
       <div className={styles.statusBar}>
         <span className={styles.status}>
-          <span className={`${styles.statusDot} ${status.krOpen ? styles.open : styles.closed}`} aria-hidden="true" />
-          국내 {status.krOpen ? '장중' : '애프터마켓'}
+          <span
+            className={`${styles.statusDot} ${
+              status.kr === 'regular' ? styles.open : styles.closed
+            }`}
+            aria-hidden="true"
+          />
+          국내 {krLabel(status.kr)}
         </span>
         <span className={styles.status}>
-          <span className={`${styles.statusDot} ${status.usOpen ? styles.open : styles.closed}`} aria-hidden="true" />
-          해외 {status.usOpen ? '장중' : '프리마켓'}
+          <span
+            className={`${styles.statusDot} ${
+              status.us === 'regular' ? styles.open :
+              status.us === 'pre' || status.us === 'after' ? styles.partial :
+              styles.closed
+            }`}
+            aria-hidden="true"
+          />
+          해외 {usLabel(status.us)}
         </span>
       </div>
 
